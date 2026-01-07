@@ -192,4 +192,23 @@ button:focus-visible {
   .tap-highlight-none {
     -webkit-tap-highlight-color: transparent;
   }
+
+  .ticker-track {
+    animation: ticker-scroll 30s linear infinite;
+  }
+}
+
+@keyframes ticker-scroll {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ticker-track {
+    animation: none;
+  }
 }

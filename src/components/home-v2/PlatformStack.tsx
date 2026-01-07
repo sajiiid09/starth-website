@@ -5,6 +5,7 @@ import Eyebrow from "@/components/home-v2/primitives/Eyebrow";
 import DisplayH2 from "@/components/home-v2/primitives/DisplayH2";
 import Lead from "@/components/home-v2/primitives/Lead";
 import { defaultSectionGaps } from "@/components/home-v2/constants";
+import FadeIn from "@/components/animations/FadeIn";
 
 const PlatformStack: React.FC = () => {
   const theme = "light" as const;
@@ -16,19 +17,23 @@ const PlatformStack: React.FC = () => {
           className="flex flex-col"
           style={{ gap: defaultSectionGaps.blockGap }}
         >
-          <div
-            className="flex flex-col"
-            style={{ gap: defaultSectionGaps.eyebrowToHeadline }}
-          >
-            <Eyebrow theme={theme}>Modular stack</Eyebrow>
-            <DisplayH2 theme={theme}>
-              Highlight the platform layers with a clean, spacious layout.
-            </DisplayH2>
-          </div>
-          <Lead theme={theme}>
-            The visual system now supports the grid, padding, and typography
-            needed for the next phase of layout work.
-          </Lead>
+          <FadeIn>
+            <div
+              className="flex flex-col"
+              style={{ gap: defaultSectionGaps.eyebrowToHeadline }}
+            >
+              <Eyebrow theme={theme}>Modular stack</Eyebrow>
+              <DisplayH2 theme={theme}>
+                Highlight the platform layers with a clean, spacious layout.
+              </DisplayH2>
+            </div>
+          </FadeIn>
+          <FadeIn>
+            <Lead theme={theme}>
+              The visual system now supports the grid, padding, and typography
+              needed for the next phase of layout work.
+            </Lead>
+          </FadeIn>
         </div>
       </Container>
     </Section>

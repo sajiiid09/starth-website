@@ -5,6 +5,7 @@ import Eyebrow from "@/components/home-v2/primitives/Eyebrow";
 import DisplayH2 from "@/components/home-v2/primitives/DisplayH2";
 import Lead from "@/components/home-v2/primitives/Lead";
 import { defaultSectionGaps } from "@/components/home-v2/constants";
+import FadeIn from "@/components/animations/FadeIn";
 
 const SocialProof: React.FC = () => {
   const theme = "light" as const;
@@ -16,19 +17,23 @@ const SocialProof: React.FC = () => {
           className="flex flex-col"
           style={{ gap: defaultSectionGaps.blockGap }}
         >
-          <div
-            className="flex flex-col"
-            style={{ gap: defaultSectionGaps.eyebrowToHeadline }}
-          >
-            <Eyebrow theme={theme}>Social proof</Eyebrow>
-            <DisplayH2 theme={theme}>
-              A clean canvas for logos, testimonials, and outcomes.
-            </DisplayH2>
-          </div>
-          <Lead theme={theme}>
-            This placeholder ensures the typography and spacing match the
-            established baseline before content is added.
-          </Lead>
+          <FadeIn>
+            <div
+              className="flex flex-col"
+              style={{ gap: defaultSectionGaps.eyebrowToHeadline }}
+            >
+              <Eyebrow theme={theme}>Social proof</Eyebrow>
+              <DisplayH2 theme={theme}>
+                A clean canvas for logos, testimonials, and outcomes.
+              </DisplayH2>
+            </div>
+          </FadeIn>
+          <FadeIn>
+            <Lead theme={theme}>
+              This placeholder ensures the typography and spacing match the
+              established baseline before content is added.
+            </Lead>
+          </FadeIn>
         </div>
       </Container>
     </Section>

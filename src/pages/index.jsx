@@ -101,6 +101,7 @@ import VirtualRobotics from "./VirtualRobotics";
 import EventBuilder from "./EventBuilder";
 
 import { BrowserRouter as Router, Route, Routes, useLocation } from 'react-router-dom';
+import { createPageUrl } from "@/utils";
 
 const PAGES = {
     
@@ -231,105 +232,105 @@ function PagesContent() {
                     <Route path="/" element={<Home />} />
                 
                 
-                <Route path="/Home" element={<Home />} />
+                <Route path={createPageUrl("Home")} element={<Home />} />
                 
-                <Route path="/AIPlanner" element={<AIPlanner />} />
+                <Route path={createPageUrl("AIPlanner")} element={<AIPlanner />} />
                 
-                <Route path="/DFY" element={<DFY />} />
+                <Route path={createPageUrl("DFY")} element={<DFY />} />
                 
-                <Route path="/Marketplace" element={<Marketplace />} />
+                <Route path={createPageUrl("Marketplace")} element={<Marketplace />} />
                 
-                <Route path="/CaseStudies" element={<CaseStudies />} />
+                <Route path={createPageUrl("CaseStudies")} element={<CaseStudies />} />
                 
-                <Route path="/Dashboard" element={<Dashboard />} />
+                <Route path={createPageUrl("Dashboard")} element={<Dashboard />} />
                 
-                <Route path="/CreateEvent" element={<CreateEvent />} />
+                <Route path={createPageUrl("CreateEvent")} element={<CreateEvent />} />
                 
-                <Route path="/Events" element={<Events />} />
+                <Route path={createPageUrl("Events")} element={<Events />} />
                 
-                <Route path="/ListSpace" element={<ListSpace />} />
+                <Route path={createPageUrl("ListSpace")} element={<ListSpace />} />
                 
-                <Route path="/VenueDetails" element={<VenueDetails />} />
+                <Route path={createPageUrl("VenueDetails")} element={<VenueDetails />} />
                 
-                <Route path="/ServiceDetails" element={<ServiceDetails />} />
+                <Route path={createPageUrl("ServiceDetails")} element={<ServiceDetails />} />
                 
-                <Route path="/EventDetails" element={<EventDetails />} />
+                <Route path={createPageUrl("EventDetails")} element={<EventDetails />} />
                 
-                <Route path="/EditEvent" element={<EditEvent />} />
+                <Route path={createPageUrl("EditEvent")} element={<EditEvent />} />
                 
-                <Route path="/PlanDetails" element={<PlanDetails />} />
+                <Route path={createPageUrl("PlanDetails")} element={<PlanDetails />} />
                 
-                <Route path="/VenuePortal" element={<VenuePortal />} />
+                <Route path={createPageUrl("VenuePortal")} element={<VenuePortal />} />
                 
-                <Route path="/ProviderPortal" element={<ProviderPortal />} />
+                <Route path={createPageUrl("ProviderPortal")} element={<ProviderPortal />} />
                 
-                <Route path="/VenueOrganization" element={<VenueOrganization />} />
+                <Route path={createPageUrl("VenueOrganization")} element={<VenueOrganization />} />
                 
-                <Route path="/VenueListings" element={<VenueListings />} />
+                <Route path={createPageUrl("VenueListings")} element={<VenueListings />} />
                 
-                <Route path="/VenueInsurance" element={<VenueInsurance />} />
+                <Route path={createPageUrl("VenueInsurance")} element={<VenueInsurance />} />
                 
-                <Route path="/VenueDocuments" element={<VenueDocuments />} />
+                <Route path={createPageUrl("VenueDocuments")} element={<VenueDocuments />} />
                 
-                <Route path="/VenueAvailability" element={<VenueAvailability />} />
+                <Route path={createPageUrl("VenueAvailability")} element={<VenueAvailability />} />
                 
-                <Route path="/VenueSettings" element={<VenueSettings />} />
+                <Route path={createPageUrl("VenueSettings")} element={<VenueSettings />} />
                 
-                <Route path="/Checklist" element={<Checklist />} />
+                <Route path={createPageUrl("Checklist")} element={<Checklist />} />
                 
-                <Route path="/EventMarketingDashboard" element={<EventMarketingDashboard />} />
+                <Route path={createPageUrl("EventMarketingDashboard")} element={<EventMarketingDashboard />} />
                 
-                <Route path="/Marketing" element={<Marketing />} />
+                <Route path={createPageUrl("Marketing")} element={<Marketing />} />
                 
-                <Route path="/ProviderServices" element={<ProviderServices />} />
+                <Route path={createPageUrl("ProviderServices")} element={<ProviderServices />} />
                 
-                <Route path="/ProviderDocuments" element={<ProviderDocuments />} />
+                <Route path={createPageUrl("ProviderDocuments")} element={<ProviderDocuments />} />
                 
-                <Route path="/ProviderInsurance" element={<ProviderInsurance />} />
+                <Route path={createPageUrl("ProviderInsurance")} element={<ProviderInsurance />} />
                 
-                <Route path="/VenueMessages" element={<VenueMessages />} />
+                <Route path={createPageUrl("VenueMessages")} element={<VenueMessages />} />
                 
-                <Route path="/ProviderSettings" element={<ProviderSettings />} />
+                <Route path={createPageUrl("ProviderSettings")} element={<ProviderSettings />} />
                 
-                <Route path="/ProviderMessages" element={<ProviderMessages />} />
+                <Route path={createPageUrl("ProviderMessages")} element={<ProviderMessages />} />
                 
-                <Route path="/ProviderOrganization" element={<ProviderOrganization />} />
+                <Route path={createPageUrl("ProviderOrganization")} element={<ProviderOrganization />} />
                 
-                <Route path="/Messages" element={<Messages />} />
+                <Route path={createPageUrl("Messages")} element={<Messages />} />
                 
-                <Route path="/PaymentMethods" element={<PaymentMethods />} />
+                <Route path={createPageUrl("PaymentMethods")} element={<PaymentMethods />} />
                 
-                <Route path="/AddVenue" element={<AddVenue />} />
+                <Route path={createPageUrl("AddVenue")} element={<AddVenue />} />
                 
-                <Route path="/ProfileSettings" element={<ProfileSettings />} />
+                <Route path={createPageUrl("ProfileSettings")} element={<ProfileSettings />} />
                 
-                <Route path="/EventCalendar" element={<EventCalendar />} />
+                <Route path={createPageUrl("EventCalendar")} element={<EventCalendar />} />
                 
-                <Route path="/About" element={<About />} />
+                <Route path={createPageUrl("About")} element={<About />} />
                 
-                <Route path="/Contact" element={<Contact />} />
+                <Route path={createPageUrl("Contact")} element={<Contact />} />
                 
-                <Route path="/Terms" element={<Terms />} />
+                <Route path={createPageUrl("Terms")} element={<Terms />} />
                 
-                <Route path="/Privacy" element={<Privacy />} />
+                <Route path={createPageUrl("Privacy")} element={<Privacy />} />
                 
-                <Route path="/DashboardPreview" element={<DashboardPreview />} />
+                <Route path={createPageUrl("DashboardPreview")} element={<DashboardPreview />} />
                 
-                <Route path="/EditVenue" element={<EditVenue />} />
+                <Route path={createPageUrl("EditVenue")} element={<EditVenue />} />
                 
-                <Route path="/VerifyEmail" element={<VerifyEmail />} />
+                <Route path={createPageUrl("VerifyEmail")} element={<VerifyEmail />} />
                 
-                <Route path="/ResetPassword" element={<ResetPassword />} />
+                <Route path={createPageUrl("ResetPassword")} element={<ResetPassword />} />
                 
-                <Route path="/AppStrathwell" element={<AppStrathwell />} />
+                <Route path={createPageUrl("AppStrathwell")} element={<AppStrathwell />} />
                 
-                <Route path="/AppEntry" element={<AppEntry />} />
+                <Route path={createPageUrl("AppEntry")} element={<AppEntry />} />
                 
-                <Route path="/WhyStrathwell" element={<WhyStrathwell />} />
+                <Route path={createPageUrl("WhyStrathwell")} element={<WhyStrathwell />} />
                 
-                <Route path="/VirtualRobotics" element={<VirtualRobotics />} />
+                <Route path={createPageUrl("VirtualRobotics")} element={<VirtualRobotics />} />
                 
-                <Route path="/EventBuilder" element={<EventBuilder />} />
+                <Route path={createPageUrl("EventBuilder")} element={<EventBuilder />} />
                 
             </Routes>
         </Layout>

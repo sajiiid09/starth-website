@@ -88,6 +88,35 @@ export const createMockClient = (config) => {
   console.log("Initializing Mock Base44 Client", config);
   
   return {
+    functions: {
+      debugAuth: async () => ({ data: { success: true } }),
+      resetUserPassword: async () => ({ data: { success: true } }),
+      generateEventPlan: async () => ({ data: { plan: {}, success: true } }),
+      checkUserExists: async () => ({ data: { exists: false } }),
+      notifyVenueApproval: async () => ({ data: { success: true } }),
+      verifyPhoneOTP: async () => ({ data: { success: true } }),
+      loginUser: async () => ({ data: { success: true, user: mockUser } }),
+      verifyEmail: async () => ({
+        data: {
+          success: true,
+          already_verified: false,
+          message: "Email verified successfully.",
+          email: mockUser.email
+        }
+      }),
+      resetPassword: async () => ({ data: { success: true } }),
+      fixUserPassword: async () => ({ data: { success: true } }),
+      forgotPassword: async () => ({ data: { success: true } }),
+      registerUser: async () => ({ data: { success: true, user: mockUser } }),
+      authRegister: async () => ({ data: { success: true, user: mockUser } }),
+      sendPhoneOTP: async () => ({ data: { success: true } }),
+      getGooglePlacePhotos: async () => ({ data: { photos: [] } }),
+      sharePlan: async () => ({ data: { success: true } }),
+      authLogin: async () => ({ data: { success: true, user: mockUser } }),
+      invoke: async (name) => ({
+        data: { success: true, name }
+      })
+    },
     entities: {
       Venue: createMockEntity('Venue', mockVenues),
       ServiceProvider: createMockEntity('ServiceProvider', mockServices),

@@ -11,7 +11,7 @@ const FinalCTA: React.FC = () => {
   const theme = "light" as const;
 
   return (
-    <Section theme={theme}>
+    <Section theme={theme} id="home-cta" dataSection="final">
       <Container>
         <div
           className="flex flex-col"

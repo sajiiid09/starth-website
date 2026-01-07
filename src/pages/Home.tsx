@@ -7,11 +7,15 @@ import PlatformStack from "@/components/home-v2/PlatformStack";
 import SolutionsCarousel from "@/components/home-v2/SolutionsCarousel";
 import SocialProof from "@/components/home-v2/SocialProof";
 import FinalCTA from "@/components/home-v2/FinalCTA";
+import { NavThemeProvider } from "@/components/home-v2/state/navThemeStore";
+import { useNavThemeObserver } from "@/components/home-v2/hooks/useNavThemeObserver";
 
-export default function HomePage() {
+const HomeContent: React.FC = () => {
   const showDebugTokens =
     import.meta.env.DEV &&
     new URLSearchParams(window.location.search).get("debugTokens") === "1";
+
+  useNavThemeObserver();
 
   return (
     <div className="min-h-screen bg-white">
@@ -66,5 +70,13 @@ export default function HomePage() {
         </div>
       )}
     </div>
+  );
+};
+
+export default function HomePage() {
+  return (
+    <NavThemeProvider>
+      <HomeContent />
+    </NavThemeProvider>
   );
 }

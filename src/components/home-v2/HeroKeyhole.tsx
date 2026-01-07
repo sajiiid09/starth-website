@@ -11,7 +11,7 @@ const HeroKeyhole: React.FC = () => {
   const theme = "light" as const;
 
   return (
-    <Section theme={theme}>
+    <Section theme={theme} id="home-hero" dataSection="hero">
       <Container>
         <div
           className="flex flex-col"

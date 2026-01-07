@@ -10,7 +10,7 @@ const SocialProof: React.FC = () => {
   const theme = "light" as const;
 
   return (
-    <Section theme={theme}>
+    <Section theme={theme} id="home-proof" dataSection="social">
       <Container>
         <div
           className="flex flex-col"

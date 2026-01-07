@@ -10,7 +10,7 @@ const SolutionsCarousel: React.FC = () => {
   const theme = "blue" as const;
 
   return (
-    <Section theme={theme}>
+    <Section theme={theme} id="home-solutions" dataSection="solutions">
       <Container>
         <div
           className="flex flex-col"

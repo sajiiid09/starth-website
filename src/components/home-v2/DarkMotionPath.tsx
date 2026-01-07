@@ -10,7 +10,7 @@ const DarkMotionPath: React.FC = () => {
   const theme = "dark" as const;
 
   return (
-    <Section theme={theme}>
+    <Section theme={theme} id="home-motion" dataSection="dark-motion">
       <Container>
         <div
           className="flex flex-col"

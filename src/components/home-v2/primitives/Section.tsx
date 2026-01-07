@@ -7,6 +7,7 @@ type SectionProps = {
   theme: SectionTheme;
   className?: string;
   id?: string;
+  dataSection?: string;
   children: React.ReactNode;
 };
 
@@ -17,11 +18,12 @@ const themeClasses: Record<SectionTheme, string> = {
   blue: "bg-brand-blue"
 };
 
-const Section: React.FC<SectionProps> = ({ theme, className, id, children }) => {
+const Section: React.FC<SectionProps> = ({ theme, className, id, dataSection, children }) => {
   return (
     <section
       id={id}
       data-theme={theme}
+      data-section={dataSection}
       className={cn(
         "py-[var(--section-pad)] md:py-[var(--section-pad-desktop)]",
         themeClasses[theme],

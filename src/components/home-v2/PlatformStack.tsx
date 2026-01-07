@@ -10,7 +10,7 @@ const PlatformStack: React.FC = () => {
   const theme = "light" as const;
 
   return (
-    <Section theme={theme}>
+    <Section theme={theme} id="home-platform" dataSection="platform">
       <Container>
         <div
           className="flex flex-col"

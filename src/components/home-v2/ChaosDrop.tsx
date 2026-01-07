@@ -11,7 +11,7 @@ const ChaosDrop: React.FC = () => {
   const theme = "cream" as const;
 
   return (
-    <Section theme={theme}>
+    <Section theme={theme} id="home-chaos" dataSection="chaos">
       <Container>
         <div
           className="flex flex-col"

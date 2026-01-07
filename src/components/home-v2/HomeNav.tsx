@@ -1,13 +1,29 @@
 import React from "react";
+import Container from "@/components/home-v2/primitives/Container";
+import PillButton from "@/components/home-v2/primitives/PillButton";
 
 const HomeNav: React.FC = () => {
   return (
-    <section data-theme="light" className="min-h-[40vh]">
-      <div className="mx-auto max-w-6xl px-6 py-16">
-        <h1 className="text-2xl font-semibold text-gray-900">Home Navigation</h1>
-        <p className="mt-2 text-sm text-gray-500">Placeholder for Home v2 navigation.</p>
-      </div>
-    </section>
+    <nav className="border-b border-brand-dark/10 bg-brand-light" data-theme="light">
+      <Container className="flex min-h-[72px] items-center justify-between">
+        <div className="flex items-center gap-3">
+          <span className="text-sm font-semibold uppercase tracking-caps text-brand-dark">
+            Strathwell
+          </span>
+        </div>
+        <div className="hidden items-center gap-3 md:flex">
+          <PillButton variant="ghost" size="sm">
+            Platform
+          </PillButton>
+          <PillButton variant="ghost" size="sm">
+            Solutions
+          </PillButton>
+          <PillButton variant="secondary" size="sm">
+            Book demo
+          </PillButton>
+        </div>
+      </Container>
+    </nav>
   );
 };
 

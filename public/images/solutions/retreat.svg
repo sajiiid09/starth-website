@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="520" viewBox="0 0 800 520">
+  <rect width="800" height="520" fill="#F7F1E4"/>
+  <rect x="40" y="40" width="720" height="440" rx="32" fill="#FFFFFF" opacity="0.75"/>
+  <text x="80" y="140" font-family="Inter, sans-serif" font-size="36" fill="#221F1F" opacity="0.6">Corporate Retreat</text>
+  <rect x="80" y="200" width="240" height="140" rx="24" fill="#027F83" opacity="0.2"/>
+  <rect x="340" y="220" width="360" height="100" rx="24" fill="#027F83" opacity="0.15"/>
+</svg>

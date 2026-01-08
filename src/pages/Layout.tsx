@@ -8,7 +8,6 @@ import {
   MapPin,
   Users,
   Menu,
-  X,
   LayoutGrid,
   CheckCircle2,
   Megaphone,
@@ -36,9 +35,29 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { User } from "@/api/entities";
-import DemoRequestModal from "@/components/marketing/DemoRequestModal";
+import HomeNav from "@/components/home-v2/HomeNav";
+import { NavThemeProvider } from "@/components/home-v2/state/navThemeStore";
 
-const publicPages = ["Home", "AIPlanner", "Marketplace", "CaseStudies", "About", "Contact", "Terms", "Privacy", "DashboardPreview", "DFY", "VerifyEmail", "ResetPassword", "VirtualRobotics", "WhyStrathwell"];
+const publicPages = [
+  "Home",
+  "AIPlanner",
+  "Marketplace",
+  "CaseStudies",
+  "About",
+  "Contact",
+  "Terms",
+  "Privacy",
+  "DashboardPreview",
+  "DFY",
+  "VerifyEmail",
+  "ResetPassword",
+  "VirtualRobotics",
+  "WhyStrathwell",
+  "Templates",
+  "Vendors",
+  "Legals",
+  "Reviews"
+];
 
 const navigationItems = [
   {
@@ -79,12 +98,16 @@ const navigationItems = [
   }
 ];
 
-export default function Layout({ children, currentPageName }) {
+type LayoutProps = {
+  children: React.ReactNode;
+  currentPageName: string;
+};
+
+export default function Layout({ children, currentPageName }: LayoutProps) {
   const location = useLocation();
   const [user, setUser] = React.useState(null);
   const [loading, setLoading] = React.useState(true);
   const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false);
-  const [showDemoModal, setShowDemoModal] = React.useState(false);
 
   console.log("Layout render:", { currentPageName, loading, user, isPublic: publicPages.includes(currentPageName) });
 
@@ -144,69 +167,12 @@ export default function Layout({ children, currentPageName }) {
     // Fall through to authenticated layout below
   } else if (isPublicPage) {
     return (
-      <div className="min-h-screen bg-white">
-        <nav className="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-md border-b border-gray-100">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex justify-between items-center h-24">
-              <Link to={createPageUrl("Home")} className="flex items-center">
-                <img src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/68d4e38c341adad3b24950ed/ddf404508_Elegant_Simple_Aesthetic_Real_Estate_Logo__1_-removebg-preview.png" alt="Strathwell" className="h-24 w-auto" />
-              </Link>
-
-              <div className="hidden md:flex items-center gap-4">
-                <Link to={createPageUrl("About")}>
-                  <Button variant="ghost">About</Button>
-                </Link>
-                <Link to={createPageUrl("AIPlanner")}>
-                  <Button variant="ghost">AI Planner</Button>
-                </Link>
-                <Link to={createPageUrl("CaseStudies")}>
-                  <Button variant="ghost">Case Studies</Button>
-                </Link>
-                <Link to={createPageUrl("Contact")}>
-                  <Button variant="ghost">Contact</Button>
-                </Link>
-                <Button onClick={() => setShowDemoModal(true)}>
-                  Book a Demo
-                </Button>
-              </div>
-
-              <button
-                className="md:hidden p-2"
-                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              >
-                {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-              </button>
-            </div>
-          </div>
-
-          {mobileMenuOpen && (
-            <div className="md:hidden bg-white border-t">
-              <div className="px-4 py-4 space-y-2">
-                <Link to={createPageUrl("About")} className="block py-2">About</Link>
-                <Link to={createPageUrl("AIPlanner")} className="block py-2">AI Planner</Link>
-                <Link to={createPageUrl("CaseStudies")} className="block py-2">Case Studies</Link>
-                <Link to={createPageUrl("Contact")} className="block py-2">Contact</Link>
-                <Button onClick={() => setShowDemoModal(true)} className="w-full mt-4">
-                  Book a Demo
-                </Button>
-              </div>
-            </div>
-          )}
-        </nav>
-
-        <main className="pt-24">{children}</main>
-
-        <footer className="bg-gray-800 text-white py-12">
-          <div className="max-w-6xl mx-auto px-4 text-center">
-            <p>© 2025 Strathwell. All rights reserved.</p>
-          </div>
-        </footer>
-        
-        <DemoRequestModal
-          isOpen={showDemoModal}
-          onClose={() => setShowDemoModal(false)}
-        />
-      </div>
+      <NavThemeProvider>
+        <div className="min-h-screen bg-white">
+          <HomeNav />
+          <main className="pt-24">{children}</main>
+        </div>
+      </NavThemeProvider>
     );
   }
 

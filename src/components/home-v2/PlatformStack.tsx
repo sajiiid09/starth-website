@@ -6,6 +6,7 @@ import PillButton from "@/components/home-v2/primitives/PillButton";
 import FadeIn from "@/components/animations/FadeIn";
 import { usePlatformStack } from "@/components/home-v2/hooks/usePlatformStack";
 import { usePrefersReducedMotion } from "@/hooks/usePrefersReducedMotion";
+import PromptBox from "@/components/home-v2/PromptBox";
 
 const PlatformStack: React.FC = () => {
   const theme = "cream" as const;
@@ -34,6 +35,7 @@ const PlatformStack: React.FC = () => {
               </h2>
             </div>
           </FadeIn>
+          <PromptBox />
           <div
             ref={stackRef}
             className="relative flex flex-col gap-8 lg:min-h-[520px]"

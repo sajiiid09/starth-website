@@ -6,8 +6,26 @@ import { Input } from "@/components/ui/input";
 import { Sparkles, Send } from "lucide-react"; // Loader2 is removed from here as it's replaced by animated dots
 
 // Simple message bubble component for the chat
-const MessageBubble = ({ message }) => {
-  const isUser = message.role === 'user';
+type ChatMessage = {
+  role: "user" | "assistant";
+  content: string;
+};
+
+type ChatInterfaceProps = {
+  messages: ChatMessage[];
+  inputValue: string;
+  setInputValue: (value: string) => void;
+  isLoading: boolean;
+  onSendMessage: () => void;
+  onKeyPress: (
+    event: React.KeyboardEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => void;
+  showComposer?: boolean;
+  showPrompts?: boolean;
+};
+
+const MessageBubble = ({ message }: { message: ChatMessage }) => {
+  const isUser = message.role === "user";
   
   return (
     <div className={`flex gap-3 mb-4 message-bubble ${isUser ? 'justify-end' : 'justify-start'}`}>
@@ -32,14 +50,16 @@ const MessageBubble = ({ message }) => {
   );
 };
 
-export default function ChatInterface({ 
-  messages, 
-  inputValue, 
-  setInputValue, 
-  isLoading, 
-  onSendMessage, 
-  onKeyPress 
-}) {
+export default function ChatInterface({
+  messages,
+  inputValue,
+  setInputValue,
+  isLoading,
+  onSendMessage,
+  onKeyPress,
+  showComposer = true,
+  showPrompts = true
+}: ChatInterfaceProps) {
   const messagesEndRef = useRef(null);
 
   const scrollToBottom = () => {
@@ -113,50 +133,54 @@ export default function ChatInterface({
           <div ref={messagesEndRef} />
         </CardContent>
 
-        <div className="flex-shrink-0 p-6 border-t border-gray-100">
-          <div className="flex gap-2">
-            <Input
-              placeholder="Describe your event (e.g., 'Plan a 100-person wedding in NYC for June, budget $30k')"
-              value={inputValue}
-              onChange={(e) => setInputValue(e.target.value)}
-              onKeyPress={onKeyPress}
-              disabled={isLoading}
-              className="flex-1 h-12 text-base"
-            />
-            <Button 
-              onClick={onSendMessage}
-              disabled={!inputValue.trim() || isLoading}
-              size="icon"
-              className="h-12 w-12 bg-blue-600 hover:bg-blue-700"
-            >
-              <Send className="w-5 h-5" />
-            </Button>
+        {showComposer && (
+          <div className="flex-shrink-0 p-6 border-t border-gray-100">
+            <div className="flex gap-2">
+              <Input
+                placeholder="Describe your event (e.g., 'Plan a 100-person wedding in NYC for June, budget $30k')"
+                value={inputValue}
+                onChange={(e) => setInputValue(e.target.value)}
+                onKeyPress={onKeyPress}
+                disabled={isLoading}
+                className="flex-1 h-12 text-base"
+              />
+              <Button
+                onClick={onSendMessage}
+                disabled={!inputValue.trim() || isLoading}
+                size="icon"
+                className="h-12 w-12 bg-blue-600 hover:bg-blue-700"
+              >
+                <Send className="w-5 h-5" />
+              </Button>
+            </div>
           </div>
-        </div>
+        )}
       </Card>
 
       {/* Sample Prompts */}
-      <Card className="border-none shadow-lg">
-        <CardHeader>
-          <CardTitle className="text-lg text-gray-900">Try These Examples</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-3">
-          {[
-            "Plan a 120-guest product launch in San Francisco for March, budget $25k",
-            "Organize a 50-person corporate retreat in Boston for Q2, budget $15k", 
-            "Design a 200-guest wedding reception in NYC for September, budget $45k"
-          ].map((prompt, index) => (
-            <button 
-              key={index}
-              onClick={() => setInputValue(prompt)}
-              className="w-full text-left p-3 bg-gray-50 hover:bg-gray-100 rounded-lg text-gray-700 strathwell-transition text-sm"
-              disabled={isLoading}
-            >
-              {prompt}
-            </button>
-          ))}
-        </CardContent>
-      </Card>
+      {showPrompts && (
+        <Card className="border-none shadow-lg">
+          <CardHeader>
+            <CardTitle className="text-lg text-gray-900">Try These Examples</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            {[
+              "Plan a 120-guest product launch in San Francisco for March, budget $25k",
+              "Organize a 50-person corporate retreat in Boston for Q2, budget $15k",
+              "Design a 200-guest wedding reception in NYC for September, budget $45k"
+            ].map((prompt, index) => (
+              <button
+                key={index}
+                onClick={() => setInputValue(prompt)}
+                className="w-full text-left p-3 bg-gray-50 hover:bg-gray-100 rounded-lg text-gray-700 strathwell-transition text-sm"
+                disabled={isLoading}
+              >
+                {prompt}
+              </button>
+            ))}
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 }

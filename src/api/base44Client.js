@@ -1,4 +1,3 @@
-import { createClient } from '@base44/sdk';
 import { createMockClient } from './mockBase44Client';
 // import { getAccessToken } from '@base44/sdk/utils/auth-utils';
 

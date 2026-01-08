@@ -4,12 +4,31 @@ module.exports = {
     content: ["./index.html", "./src/**/*.{ts,tsx,js,jsx}"],
   theme: {
   	extend: {
+  		fontFamily: {
+  			display: ['"Inter Tight"', 'Inter', 'system-ui', 'sans-serif']
+  		},
   		borderRadius: {
+  			xl: '16px',
+  			'2xl': '24px',
+  			r16: '16px',
+  			r24: '24px',
   			lg: 'var(--radius)',
   			md: 'calc(var(--radius) - 2px)',
   			sm: 'calc(var(--radius) - 4px)'
   		},
   		colors: {
+  			brand: {
+  				dark: '#221F1F',
+  				light: '#FFFFFF',
+  				cream: '#FFFBF4',
+  				blue: '#D9EDF0',
+  				teal: '#027F83',
+  				coral: '#F2A07B'
+  			},
+  			ink: {
+  				DEFAULT: '#221F1F',
+  				muted: '#5D5656'
+  			},
   			background: 'hsl(var(--background))',
   			foreground: 'hsl(var(--foreground))',
   			card: {
@@ -60,6 +79,22 @@ module.exports = {
   				border: 'hsl(var(--sidebar-border))',
   				ring: 'hsl(var(--sidebar-ring))'
   			}
+  		},
+  		boxShadow: {
+  			soft: '0 8px 24px rgba(34, 31, 31, 0.08)',
+  			card: '0 16px 40px rgba(34, 31, 31, 0.12)',
+  			float: '0 24px 64px rgba(34, 31, 31, 0.16)'
+  		},
+  		letterSpacing: {
+  			caps: '0.08em'
+  		},
+  		transitionTimingFunction: {
+  			smooth: 'cubic-bezier(0.2, 0.8, 0.2, 1)'
+  		},
+  		transitionDuration: {
+  			150: '150ms',
+  			250: '250ms',
+  			400: '400ms'
   		},
   		keyframes: {
   			'accordion-down': {

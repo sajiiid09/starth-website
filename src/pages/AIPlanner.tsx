@@ -1,11 +1,11 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useLayoutEffect } from "react";
 import { Plan } from "@/api/entities";
 import { User } from "@/api/entities";
 import { Venue } from "@/api/entities";
 import { Service } from "@/api/entities";
 import { InvokeLLM, UploadFile } from "@/api/integrations";
 import { getGooglePlacePhotos } from "@/api/functions";
-import { Sparkles, Loader2, Mic, MicOff, Image as ImageIcon, Grid3x3, MessageSquare, Users, Search, MapPin } from "lucide-react";
+import { Sparkles, Loader2, Grid3x3, MessageSquare, Users, Search, MapPin } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import ChatInterface from "../components/planner/ChatInterface";
 import ResultsPanels from "../components/planner/ResultsPanels";
@@ -16,9 +16,16 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { toast } from "sonner";
+import { useSearchParams } from "react-router-dom";
+import gsap from "gsap";
+import PlannerPromptBox from "@/components/planner/PlannerPromptBox";
+import useGsapReveal from "@/components/utils/useGsapReveal";
+import { usePrefersReducedMotion } from "@/hooks/usePrefersReducedMotion";
 
 export default function AIPlannerPage() {
-  const [activeMode, setActiveMode] = useState("ai");
+  const [searchParams, setSearchParams] = useSearchParams();
+  const initialMode = searchParams.get("mode") === "marketplace" ? "marketplace" : "planner";
+  const [activeMode, setActiveMode] = useState(initialMode);
   const [messages, setMessages] = useState([
     {
       role: "assistant",
@@ -51,6 +58,10 @@ export default function AIPlannerPage() {
     category: "",
     eventType: ""
   });
+  const prefersReducedMotion = usePrefersReducedMotion();
+  const headerRef = React.useRef<HTMLDivElement>(null);
+  const plannerRef = React.useRef<HTMLDivElement>(null);
+  const marketplaceRef = React.useRef<HTMLDivElement>(null);
 
   const filterMarketplaceData = useCallback(() => {
     let filteredV = venues.filter(venue => {
@@ -148,10 +159,40 @@ export default function AIPlannerPage() {
   }, []);
 
   useEffect(() => {
-    if (activeMode === 'marketplace') {
+    if (activeMode === "marketplace") {
       filterMarketplaceData();
     }
   }, [activeMode, filterMarketplaceData]);
+
+  useEffect(() => {
+    setSearchParams((params) => {
+      params.set("mode", activeMode);
+      return params;
+    }, { replace: true });
+  }, [activeMode, setSearchParams]);
+
+  useLayoutEffect(() => {
+    if (prefersReducedMotion) {
+      return;
+    }
+
+    const target =
+      activeMode === "planner" ? plannerRef.current : marketplaceRef.current;
+
+    if (!target) {
+      return;
+    }
+
+    const context = gsap.context(() => {
+      gsap.fromTo(
+        target,
+        { opacity: 0, y: 24 },
+        { opacity: 1, y: 0, duration: 0.5, ease: "power3.out" }
+      );
+    }, target);
+
+    return () => context.revert();
+  }, [activeMode, prefersReducedMotion]);
 
   const checkUser = async () => {
     try {
@@ -1735,49 +1776,86 @@ Return the full JSON structure.`,
   };
 
   const handleAskAIAbout = (item, type) => {
-    setActiveMode('ai');
+    setActiveMode("planner");
     const query = type === 'venue' 
       ? `Tell me more about ${item.name} in ${item.city}. Is this a good venue for my event?`
       : `Tell me more about ${item.name}, a ${item.category} service provider. Would they be good for my event?`;
     setInputValue(query);
   };
 
-  return (
-    <div className="flex-1 overflow-auto">
-      <div className="max-w-7xl mx-auto p-4 md:p-8">
-        <div className="text-center mb-8">
-          <div className="inline-flex items-center gap-2 px-4 py-2 bg-blue-50 rounded-full text-sm font-medium text-blue-700 mb-4">
-            <Sparkles className="w-4 h-4" />
-            {user ? `Welcome back, ${user.full_name || 'Organizer'}!` : 'Strathwell AI Platform'}
-          </div>
-          <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-            {activeMode === 'ai' ? 'AI Event Planner' : 'Browse Marketplace'}
-          </h1>
-          
-          <Tabs value={activeMode} onValueChange={setActiveMode} className="max-w-md mx-auto mb-6">
-            <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="ai" className="flex items-center gap-2">
-                <MessageSquare className="w-4 h-4" />
-                AI Planner
-              </TabsTrigger>
-              <TabsTrigger value="marketplace" className="flex items-center gap-2">
-                <Grid3x3 className="w-4 h-4" />
-                Marketplace
-              </TabsTrigger>
-            </TabsList>
-          </Tabs>
+  useGsapReveal(headerRef);
 
-          <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-            {activeMode === 'ai' 
-              ? 'Tell me about your event, show me images, or speak to me - I\'ll find the perfect matches'
-              : 'Browse our curated venues and service providers'
-            }
+  return (
+    <div className="flex-1 overflow-auto bg-gradient-to-b from-brand-cream/60 via-white to-white">
+      <div className="mx-auto max-w-7xl px-4 py-10 md:px-8">
+        <div ref={headerRef} className="mb-10 text-center">
+          <div className="inline-flex items-center gap-2 rounded-full bg-brand-blue/60 px-4 py-2 text-sm font-medium text-brand-teal shadow-soft">
+            <Sparkles className="h-4 w-4" />
+            {user
+              ? `Welcome back, ${user.full_name || "Organizer"}!`
+              : "Strathwell AI Platform"}
+          </div>
+          <h1 className="mt-5 text-3xl font-semibold text-brand-dark md:text-4xl">
+            {activeMode === "planner"
+              ? "AI Event Planner"
+              : "Browse the Marketplace"}
+          </h1>
+          <p className="mt-3 text-lg text-brand-dark/60">
+            {activeMode === "planner"
+              ? "Describe your vision and let Strathwell craft the blueprint."
+              : "Browse our curated venues and service providers."}
           </p>
+
+          <div className="mt-6 flex items-center justify-center">
+            <div className="inline-flex rounded-full border border-brand-dark/10 bg-white/80 p-1 shadow-soft">
+              <button
+                type="button"
+                onClick={() => setActiveMode("planner")}
+                className={`inline-flex items-center gap-2 rounded-full px-5 py-2 text-sm font-semibold transition duration-250 ease-smooth ${
+                  activeMode === "planner"
+                    ? "bg-brand-teal text-white shadow-soft"
+                    : "text-brand-dark/60 hover:text-brand-dark"
+                }`}
+              >
+                <MessageSquare className="h-4 w-4" />
+                Planner
+              </button>
+              <button
+                type="button"
+                onClick={() => setActiveMode("marketplace")}
+                className={`inline-flex items-center gap-2 rounded-full px-5 py-2 text-sm font-semibold transition duration-250 ease-smooth ${
+                  activeMode === "marketplace"
+                    ? "bg-brand-teal text-white shadow-soft"
+                    : "text-brand-dark/60 hover:text-brand-dark"
+                }`}
+              >
+                <Grid3x3 className="h-4 w-4" />
+                Marketplace
+              </button>
+            </div>
+          </div>
         </div>
 
-        {activeMode === 'ai' ? (
-          <div className="grid lg:grid-cols-2 gap-8 items-start">
-            <div className="space-y-6 lg:sticky lg:top-8">
+        {activeMode === "planner" ? (
+          <div ref={plannerRef} className="grid gap-10 lg:grid-cols-[1.1fr_0.9fr]">
+            <div className="space-y-8">
+              <PlannerPromptBox
+                value={inputValue}
+                onChange={setInputValue}
+                onSubmit={handleSendMessage}
+                onKeyPress={handleKeyPress}
+                isLoading={isLoading}
+                isRecording={isRecording}
+                onToggleRecording={isRecording ? stopRecording : startRecording}
+                onUploadImages={handleImageUpload}
+                uploadedImages={uploadedImages}
+                uploadingImage={uploadingImage}
+                onRemoveImage={removeImage}
+              />
+              <p className="text-center text-xs text-brand-dark/50">
+                Disclaimer: Verified partner results are currently focused on MA,
+                SF, and NY.
+              </p>
               <ChatInterface
                 messages={messages}
                 inputValue={inputValue}
@@ -1785,132 +1863,52 @@ Return the full JSON structure.`,
                 isLoading={isLoading}
                 onSendMessage={handleSendMessage}
                 onKeyPress={handleKeyPress}
+                showComposer={false}
+                showPrompts={false}
               />
-              
-              <p className="text-xs text-center text-gray-500 px-4">
-                Disclaimer: Verified partner results are currently focused on MA, SF, and NY.
-              </p>
-
-              <Card className="border-none shadow-lg">
-                <CardContent className="p-4">
-                  <div className="flex items-center gap-3">
-                    <Button
-                      onClick={isRecording ? stopRecording : startRecording}
-                      variant={isRecording ? "destructive" : "outline"}
-                      className="flex items-center gap-2"
-                      disabled={isLoading}
-                    >
-                      {isRecording ? (
-                        <>
-                          <MicOff className="w-4 h-4" />
-                          Stop
-                        </>
-                      ) : (
-                        <>
-                          <Mic className="w-4 h-4" />
-                          Voice Input
-                        </>
-                      )}
-                    </Button>
-
-                    <label className="cursor-pointer">
-                      <input
-                        type="file"
-                        accept="image/*"
-                        multiple
-                        onChange={handleImageUpload}
-                        className="hidden"
-                        disabled={isLoading || uploadingImage}
-                      />
-                      <Button
-                        variant="outline"
-                        className="flex items-center gap-2"
-                        disabled={isLoading || uploadingImage}
-                        asChild
-                      >
-                        <span>
-                          <ImageIcon className="w-4 h-4" />
-                          {uploadingImage ? 'Uploading...' : 'Add Images'}
-                        </span>
-                      </Button>
-                    </label>
-                  </div>
-
-                  {uploadedImages.length > 0 && (
-                    <div className="mt-4 flex flex-wrap gap-2">
-                      {uploadedImages.map((url, index) => (
-                        <div key={index} className="relative">
-                          <img 
-                            src={url} 
-                            alt={`Uploaded ${index + 1}`} 
-                            className="w-16 h-16 object-cover rounded-lg"
-                          />
-                          <button
-                            onClick={() => removeImage(index)}
-                            className="absolute -top-2 -right-2 w-5 h-5 bg-red-500 text-white rounded-full text-xs hover:bg-red-600"
-                          >
-                            ×
-                          </button>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                  
-                  <p className="text-xs text-gray-500 mt-2">
-                    💡 Tip: Click the mic to speak naturally. Images max 5MB each.
-                  </p>
-                </CardContent>
-              </Card>
-
-              <Card className="border-none shadow-lg">
-                <CardContent className="p-4 space-y-2">
-                  <p className="text-sm font-medium text-gray-700">Try asking:</p>
-                  {[
-                    "Plan a 120-guest product launch in San Francisco for March",
-                    "Find a wedding venue in NYC for 200 guests under $50k", 
-                    "I need catering and AV for a corporate event in Boston"
-                  ].map((prompt, index) => (
-                    <button 
-                      key={index}
-                      onClick={() => setInputValue(prompt)}
-                      className="w-full text-left p-2 bg-gray-50 hover:bg-gray-100 rounded-lg text-gray-700 text-xs strathwell-transition"
-                      disabled={isLoading}
-                    >
-                      {prompt}
-                    </button>
-                  ))}
-                </CardContent>
-              </Card>
             </div>
 
             <div className="space-y-6">
               {isLoading ? (
-                <div className="bg-gray-50 p-8 rounded-lg text-center h-[600px] flex flex-col justify-center">
+                <div className="flex h-[600px] flex-col justify-center rounded-2xl bg-white/80 p-8 text-center shadow-soft">
                   <div className="flex flex-col items-center gap-4">
-                    <Loader2 className="w-8 h-8 animate-spin text-gray-400" />
-                    <p className="text-gray-500">{loadingMessage}</p>
+                    <Loader2 className="h-8 w-8 animate-spin text-brand-dark/40" />
+                    <p className="text-brand-dark/60">{loadingMessage}</p>
                   </div>
                 </div>
-              ) : currentPlan && (currentPlan.venues?.length > 0 || currentPlan.vendors?.length > 0 || currentPlan.creative_concepts) ? (
+              ) : currentPlan &&
+                (currentPlan.venues?.length > 0 ||
+                  currentPlan.vendors?.length > 0 ||
+                  currentPlan.creative_concepts) ? (
                 <ResultsPanels
                   plan={currentPlan}
                   onSavePlan={handleSavePlan}
                   user={user}
                 />
               ) : (
-                <div className="bg-gray-50 p-8 rounded-lg text-center h-[600px] flex flex-col justify-center">
+                <div className="flex h-[600px] flex-col justify-center rounded-2xl bg-white/80 p-8 text-center shadow-soft">
                   {searchPerformed ? (
                     <div>
-                      <p className="text-gray-500 mb-4">No specific matches found. Try broadening your search or specifying a location.</p>
-                      <Button onClick={() => setActiveMode('marketplace')} variant="outline">
+                      <p className="mb-4 text-brand-dark/60">
+                        No specific matches found. Try broadening your search or
+                        specifying a location.
+                      </p>
+                      <Button
+                        onClick={() => setActiveMode("marketplace")}
+                        variant="outline"
+                      >
                         Browse Marketplace Instead
                       </Button>
                     </div>
                   ) : (
                     <div>
-                      <Sparkles className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                      <p className="text-gray-500 mb-4">Describe your event to get started</p>
-                      <p className="text-sm text-gray-400">Use text, voice, or images</p>
+                      <Sparkles className="mx-auto mb-4 h-12 w-12 text-brand-dark/30" />
+                      <p className="mb-4 text-brand-dark/60">
+                        Describe your event to get started
+                      </p>
+                      <p className="text-sm text-brand-dark/40">
+                        Use text, voice, or images
+                      </p>
                     </div>
                   )}
                 </div>
@@ -1918,59 +1916,67 @@ Return the full JSON structure.`,
             </div>
           </div>
         ) : (
-          <div>
-            <Card className="border-none shadow-lg mb-8">
+          <div ref={marketplaceRef} className="space-y-8">
+            <Card className="border-none bg-white/80 shadow-soft">
               <CardContent className="p-6">
-                <div className="flex flex-col md:flex-row gap-4 mb-6">
-                  <div className="flex-1 relative">
-                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                <div className="flex flex-col gap-4 md:flex-row md:items-center">
+                  <div className="relative flex-1">
+                    <Search className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-brand-dark/40" />
                     <Input
                       placeholder="Search venues, services, or locations..."
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
-                      className="pl-10 h-12"
+                      className="h-12 bg-white pl-10"
                     />
                   </div>
-                  <Button 
-                    onClick={() => setActiveMode('ai')}
-                    className="bg-blue-600 hover:bg-blue-700 text-white"
+                  <Button
+                    onClick={() => setActiveMode("planner")}
+                    className="bg-brand-teal text-white hover:bg-brand-teal/90"
                   >
-                    <Sparkles className="w-4 h-4 mr-2" />
+                    <Sparkles className="mr-2 h-4 w-4" />
                     Ask AI Instead
                   </Button>
                 </div>
 
-                <MarketplaceFilters 
-                  filters={filters}
-                  setFilters={setFilters}
-                  activeTab="venues"
-                />
+                <div className="mt-6">
+                  <MarketplaceFilters
+                    filters={filters}
+                    setFilters={setFilters}
+                    activeTab="venues"
+                  />
+                </div>
               </CardContent>
             </Card>
 
             <Tabs defaultValue="venues" className="space-y-6">
-              <TabsList className="grid w-full grid-cols-2 max-w-md mx-auto">
-                <TabsTrigger value="venues" className="flex items-center gap-2">
-                  <MapPin className="w-4 h-4" />
+              <TabsList className="grid w-full max-w-md grid-cols-2 rounded-full bg-white/80 p-1 shadow-soft">
+                <TabsTrigger
+                  value="venues"
+                  className="flex items-center gap-2 rounded-full"
+                >
+                  <MapPin className="h-4 w-4" />
                   Venues ({filteredVenues.length})
                 </TabsTrigger>
-                <TabsTrigger value="providers" className="flex items-center gap-2">
-                  <Users className="w-4 h-4" />
+                <TabsTrigger
+                  value="providers"
+                  className="flex items-center gap-2 rounded-full"
+                >
+                  <Users className="h-4 w-4" />
                   Services ({filteredServices.length})
                 </TabsTrigger>
               </TabsList>
 
               <TabsContent value="venues">
-                <VenueGrid 
-                  venues={filteredVenues} 
-                  onAskAI={(venue) => handleAskAIAbout(venue, 'venue')}
+                <VenueGrid
+                  venues={filteredVenues}
+                  onAskAI={(venue) => handleAskAIAbout(venue, "venue")}
                 />
               </TabsContent>
 
               <TabsContent value="providers">
-                <ServiceProviderGrid 
+                <ServiceProviderGrid
                   services={filteredServices}
-                  onAskAI={(service) => handleAskAIAbout(service, 'service')}
+                  onAskAI={(service) => handleAskAIAbout(service, "service")}
                 />
               </TabsContent>
             </Tabs>

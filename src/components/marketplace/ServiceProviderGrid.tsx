@@ -29,20 +29,24 @@ export default function ServiceProviderGrid({ services, onAskAI }) { // Added on
   }
 
   return (
-    <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+    <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
       {services.map((service) => (
-        <Card key={service.id} className="border-none shadow-lg hover:shadow-xl strathwell-transition overflow-hidden group flex flex-col">
+        <Card
+          key={service.id}
+          data-marketplace-card
+          className="group flex flex-col overflow-hidden rounded-2xl border border-brand-dark/10 bg-white/90 shadow-soft transition duration-250 ease-smooth hover:-translate-y-1 hover:shadow-card"
+        >
           <Link to={createPageUrl(`ServiceDetails?id=${service.id}`)} className="block">
             <div className="relative">
               <SmartImage 
                 item={service}
                 type="service"
-                className="w-full h-48 object-cover"
+                className="h-48 w-full object-cover transition-transform duration-300 group-hover:scale-105"
                 alt={service.name}
               />
 
               {service.featured && (
-                <Badge className="absolute top-3 left-3 bg-green-600 text-white">
+                <Badge className="absolute top-3 left-3 bg-brand-teal text-white">
                   Featured
                 </Badge>
               )}
@@ -53,45 +57,47 @@ export default function ServiceProviderGrid({ services, onAskAI }) { // Added on
               )}
             </div>
 
-            <CardHeader className="p-4">
+            <CardHeader className="p-5">
               <div className="flex justify-between items-start mb-2">
-                <CardTitle className="text-lg font-bold text-gray-900 line-clamp-1">
+                <CardTitle className="text-lg font-semibold text-brand-dark line-clamp-1">
                   {service.name}
                 </CardTitle>
                 <div className="flex items-center gap-1 flex-shrink-0">
                   <Star className="w-4 h-4 text-yellow-400 fill-current" />
-                  <span className="text-sm font-medium">{service.rating || "4.8"}</span>
+                  <span className="text-sm font-medium text-brand-dark">
+                    {service.rating || "4.8"}
+                  </span>
                 </div>
               </div>
 
-              <Badge className="mb-3 w-fit bg-blue-100 text-blue-800 capitalize">
+              <Badge className="mb-3 w-fit bg-brand-blue/60 text-brand-dark capitalize">
                 {service.category.replace(/_/g, ' ')}
               </Badge>
 
-              <p className="text-gray-700 text-sm line-clamp-2 mb-3 h-10">
+              <p className="text-sm text-brand-dark/70 line-clamp-2 mb-3 h-10">
                 {service.description || `Professional ${service.category.replace(/_/g, ' ')} services for your event needs.`}
               </p>
             </CardHeader>
           </Link>
 
-          <CardContent className="p-4 pt-0 mt-auto">
+          <CardContent className="p-5 pt-0 mt-auto">
             {service.coverage_regions && service.coverage_regions.length > 0 && (
-              <div className="flex items-center gap-1 text-sm text-gray-600 mb-4">
+              <div className="mb-4 flex items-center gap-1 text-sm text-brand-dark/60">
                 <MapPin className="w-3 h-3" />
                 <span>Serves {service.coverage_regions.slice(0, 2).join(', ')}</span>
               </div>
             )}
 
             <div className="flex items-center justify-between mb-4">
-               <div className="text-gray-900 font-semibold text-lg">
+               <div className="text-lg font-semibold text-brand-dark">
                 ${service.rate_card_json?.base_rate?.toLocaleString() || "N/A"}
                </div>
-               <span className="text-xs text-gray-500">Starting from</span>
+               <span className="text-xs text-brand-dark/50">Starting from</span>
             </div>
 
             <div className="flex gap-2">
               <Link to={createPageUrl(`ServiceDetails?id=${service.id}`)} className="flex-1">
-                  <Button variant="outline" className="w-full">
+                  <Button variant="outline" className="w-full border-brand-dark/20 text-brand-dark">
                     View Details
                   </Button>
               </Link>

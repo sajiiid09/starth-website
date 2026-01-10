@@ -3,9 +3,7 @@ import { ChevronDown } from "lucide-react";
 import { Link } from "react-router-dom";
 import Container from "@/components/home-v2/primitives/Container";
 import PillButton from "@/components/home-v2/primitives/PillButton";
-import { navThemeClasses } from "@/components/home-v2/navTheme";
 import { cn } from "@/lib/utils";
-import { useNavTheme } from "@/components/home-v2/state/navThemeStore";
 import { createPageUrl } from "@/utils";
 import DemoRequestModal from "@/components/marketing/DemoRequestModal";
 import {
@@ -31,27 +29,20 @@ const exploreItems = [
 ];
 
 const HomeNav: React.FC = () => {
-  const { activeTheme } = useNavTheme();
-  const themeClasses = navThemeClasses[activeTheme] || navThemeClasses.light;
   const [showDemoModal, setShowDemoModal] = React.useState(false);
 
   const dropdownContentClasses = cn(
-    "w-[min(40vw,560px)] min-w-[320px] rounded-2xl border p-6 shadow-card backdrop-blur-xl",
-    themeClasses.dropdown
+    "w-[min(40vw,560px)] min-w-[320px] rounded-2xl border border-white/30 bg-white/70 p-6 text-brand-dark shadow-card backdrop-blur-2xl"
   );
   const dropdownItemClasses = cn(
-    "flex w-full items-center justify-between rounded-lg px-3 py-2 text-sm transition-colors duration-150 ease-smooth",
-    themeClasses.dropdownItem
+    "flex w-full items-center justify-between rounded-lg px-3 py-2 text-sm text-brand-dark/80 transition-colors duration-150 ease-smooth hover:bg-white/60 hover:text-brand-dark"
   );
 
   return (
     <nav
       className={cn(
-        "sticky top-0 z-50 w-full border-b",
-        themeClasses.shell,
-        themeClasses.border
+        "sticky top-0 z-50 w-full border-b border-white/20 bg-white/60 shadow-sm backdrop-blur-2xl"
       )}
-      data-theme={activeTheme}
     >
       <Container className="flex h-[72px] items-center justify-between">
         <Link to={createPageUrl("Home")} className="flex items-center">
@@ -66,9 +57,7 @@ const HomeNav: React.FC = () => {
           <Link
             to={createPageUrl("About")}
             className={cn(
-              "text-sm font-medium transition-colors duration-150 ease-smooth",
-              themeClasses.link,
-              themeClasses.linkHover
+              "text-sm font-medium text-brand-dark/80 transition-colors duration-150 ease-smooth hover:text-brand-dark"
             )}
           >
             About
@@ -76,9 +65,7 @@ const HomeNav: React.FC = () => {
           <Link
             to={createPageUrl("AIPlanner")}
             className={cn(
-              "text-sm font-medium transition-colors duration-150 ease-smooth",
-              themeClasses.link,
-              themeClasses.linkHover
+              "text-sm font-medium text-brand-dark/80 transition-colors duration-150 ease-smooth hover:text-brand-dark"
             )}
           >
             AI Planner
@@ -88,9 +75,7 @@ const HomeNav: React.FC = () => {
               <button
                 type="button"
                 className={cn(
-                  "inline-flex items-center gap-2 text-sm font-medium transition-colors duration-150 ease-smooth focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-teal/30 focus-visible:ring-offset-2",
-                  themeClasses.link,
-                  themeClasses.linkHover
+                  "inline-flex items-center gap-2 text-sm font-medium text-brand-dark/80 transition-colors duration-150 ease-smooth hover:text-brand-dark focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-teal/30 focus-visible:ring-offset-2"
                 )}
               >
                 Solutions
@@ -119,9 +104,7 @@ const HomeNav: React.FC = () => {
               <button
                 type="button"
                 className={cn(
-                  "inline-flex items-center gap-2 text-sm font-medium transition-colors duration-150 ease-smooth focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-teal/30 focus-visible:ring-offset-2",
-                  themeClasses.link,
-                  themeClasses.linkHover
+                  "inline-flex items-center gap-2 text-sm font-medium text-brand-dark/80 transition-colors duration-150 ease-smooth hover:text-brand-dark focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-teal/30 focus-visible:ring-offset-2"
                 )}
               >
                 Explore
@@ -151,9 +134,7 @@ const HomeNav: React.FC = () => {
           <Link
             to={createPageUrl("AppEntry")}
             className={cn(
-              "text-sm font-medium transition-colors duration-150 ease-smooth",
-              themeClasses.link,
-              themeClasses.linkHover
+              "text-sm font-medium text-brand-dark/80 transition-colors duration-150 ease-smooth hover:text-brand-dark"
             )}
           >
             Log in
@@ -162,9 +143,7 @@ const HomeNav: React.FC = () => {
             variant="secondary"
             size="sm"
             className={cn(
-              "min-h-[40px] px-5",
-              themeClasses.cta,
-              themeClasses.ctaHover
+              "min-h-[40px] border-brand-teal px-5 text-brand-teal hover:bg-brand-teal hover:text-brand-light"
             )}
             onClick={() => setShowDemoModal(true)}
           >
@@ -175,9 +154,7 @@ const HomeNav: React.FC = () => {
         <button
           type="button"
           className={cn(
-            "inline-flex items-center rounded-full border px-4 py-2 text-sm font-medium md:hidden",
-            themeClasses.border,
-            themeClasses.text
+            "inline-flex items-center rounded-full border border-white/30 px-4 py-2 text-sm font-medium text-brand-dark"
           )}
         >
           Menu
@@ -189,3 +166,5 @@ const HomeNav: React.FC = () => {
 
 
 };
+
+export default HomeNav;

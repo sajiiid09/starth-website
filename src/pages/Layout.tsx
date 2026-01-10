@@ -36,7 +36,6 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { User } from "@/api/entities";
 import HomeNav from "@/components/home-v2/HomeNav";
-import { NavThemeProvider } from "@/components/home-v2/state/navThemeStore";
 import Footer from "@/components/shared/Footer";
 
 const publicPages = [
@@ -57,7 +56,8 @@ const publicPages = [
   "Templates",
   "Vendors",
   "Legals",
-  "Reviews"
+  "Reviews",
+  "AppEntry"
 ];
 
 const navigationItems = [
@@ -168,13 +168,11 @@ export default function Layout({ children, currentPageName }: LayoutProps) {
     // Fall through to authenticated layout below
   } else if (isPublicPage) {
     return (
-      <NavThemeProvider>
-        <div className="min-h-screen bg-white">
-          <HomeNav />
-          <main className="pt-24">{children}</main>
-          <Footer />
-        </div>
-      </NavThemeProvider>
+      <div className="min-h-screen bg-brand-light text-brand-dark">
+        <HomeNav />
+        <main className="pt-24">{children}</main>
+        <Footer />
+      </div>
     );
   }
 

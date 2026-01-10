@@ -1,8 +1,8 @@
 import React from "react";
+import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { Card, CardContent } from "@/components/ui/card";
 import { 
-  TrendingUp, 
   Users, 
   Award, 
   Clock,
@@ -10,6 +10,8 @@ import {
   Star,
   Building
 } from "lucide-react";
+import Container from "@/components/home-v2/primitives/Container";
+import FadeIn from "@/components/animations/FadeIn";
 
 export default function SuccessMetrics() {
   const metrics = [
@@ -52,61 +54,64 @@ export default function SuccessMetrics() {
   ];
 
   return (
-    <section className="py-20 px-4 sm:px-6 lg:px-8 bg-white">
-      <div className="max-w-6xl mx-auto">
-        <div className="text-center mb-16">
-          <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+    <section className="py-20">
+      <Container>
+        <FadeIn className="text-center">
+          <h2 className="text-3xl font-semibold text-brand-dark md:text-4xl">
             Partnership Impact
           </h2>
-          <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+          <p className="mt-4 text-lg text-brand-dark/70">
             Verifiable results from our role in the Limitless Women in Tech Summit partnership
           </p>
-        </div>
+        </FadeIn>
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {metrics.map((metric, index) => (
-            <Card key={index} className="border-none shadow-lg text-center group hover:shadow-xl strathwell-transition">
+        <FadeIn className="mt-12 grid gap-6 md:grid-cols-2 lg:grid-cols-3" staggerChildren={0.08} childSelector=".metric-card">
+          {metrics.map((metric) => (
+            <Card
+              key={metric.label}
+              className="metric-card border border-white/40 bg-white/80 text-center shadow-card"
+            >
               <CardContent className="p-8">
-                <div className="w-16 h-16 mx-auto mb-6 bg-gradient-to-br from-pink-500 to-orange-600 rounded-2xl flex items-center justify-center group-hover:scale-110 strathwell-transition">
-                  <metric.icon className="w-8 h-8 text-white" />
+                <div className="mx-auto mb-6 flex h-12 w-12 items-center justify-center rounded-2xl bg-brand-teal/10">
+                  <metric.icon className="h-6 w-6 text-brand-teal" />
                 </div>
-                
+
                 <div className="space-y-2">
-                  <div className="text-4xl font-bold text-gray-900">{metric.value}</div>
-                  <div className="text-lg font-semibold text-gray-700">{metric.label}</div>
-                  <p className="text-gray-600 text-sm leading-relaxed">{metric.description}</p>
+                  <div className="text-3xl font-semibold text-brand-dark">{metric.value}</div>
+                  <div className="text-base font-semibold text-brand-dark/90">{metric.label}</div>
+                  <p className="text-sm leading-relaxed text-brand-dark/70">{metric.description}</p>
                 </div>
               </CardContent>
             </Card>
           ))}
-        </div>
+        </FadeIn>
 
         {/* Call to Action */}
-        <div className="mt-16">
-          <Card className="bg-gradient-to-r from-gray-900 to-gray-800 border-none text-white">
+        <FadeIn className="mt-16">
+          <Card className="border-none bg-gradient-to-r from-brand-dark to-brand-dark/90 text-brand-light shadow-card">
             <CardContent className="p-12 text-center">
-              <h3 className="text-3xl font-bold mb-4">
+              <h3 className="text-3xl font-semibold">
                 Ready to Create Your Success Story?
               </h3>
-              <p className="text-xl text-gray-300 mb-8 max-w-2xl mx-auto">
+              <p className="mt-4 text-lg text-brand-light/80">
                 Join the leading organizations that trust Strathwell to orchestrate their most important events.
               </p>
-              <div className="flex flex-col sm:flex-row gap-4 justify-center max-w-md mx-auto">
-                <a href={`${window.location.origin}${createPageUrl("AIPlanner")}`}>
-                  <button className="w-full sm:w-auto bg-white text-gray-900 hover:bg-gray-100 px-8 py-3 rounded-xl font-semibold strathwell-transition">
+              <div className="mt-8 flex flex-col justify-center gap-4 sm:flex-row">
+                <Link to={createPageUrl("AIPlanner")}>
+                  <button className="w-full rounded-full bg-white px-8 py-3 text-sm font-semibold text-brand-dark transition hover:bg-brand-cream sm:w-auto">
                     Plan with AI
                   </button>
-                </a>
-                <a href={`${window.location.origin}${createPageUrl("DFY")}`}>
-                  <button className="w-full sm:w-auto border-2 border-white text-white hover:bg-white hover:text-gray-900 px-8 py-3 rounded-xl font-semibold strathwell-transition">
+                </Link>
+                <Link to={createPageUrl("DFY")}>
+                  <button className="w-full rounded-full border border-white/60 px-8 py-3 text-sm font-semibold text-white transition hover:bg-white hover:text-brand-dark sm:w-auto">
                     Plan with Us
                   </button>
-                </a>
+                </Link>
               </div>
             </CardContent>
           </Card>
-        </div>
-      </div>
+        </FadeIn>
+      </Container>
     </section>
   );
 }

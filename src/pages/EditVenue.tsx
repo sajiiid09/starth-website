@@ -381,7 +381,7 @@ export default function EditVenuePage() {
                   <Input 
                     value={formData.hero_photo_url} 
                     onChange={(e) => handleInputChange("hero_photo_url", e.target.value)}
-                    placeholder="https://example.com/main-photo.jpg"
+                    placeholder="/images/marketplace/venue-rooftop.webp"
                   />
                   {formData.hero_photo_url && <img src={formData.hero_photo_url} alt="Hero preview" className="w-full h-48 object-cover rounded-lg mt-2" />}
                 </div>

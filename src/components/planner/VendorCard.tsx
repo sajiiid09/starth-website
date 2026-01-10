@@ -243,82 +243,82 @@ const PhotoCollage = ({ vendor }) => { // Changed props to accept a single 'vend
     const categoryImages = {
       catering: {
         default: [
-          "https://images.unsplash.com/photo-1555244162-803834f70033?w=800&h=600&fit=crop", // elegant plated meal
-          "https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?w=400&h=300&fit=crop", // pizza
-          "https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?w=400&h=300&fit=crop", // food prep
-          "https://images.unsplash.com/photo-1551782450-a2132b4ba21d?w=400&h=300&fit=crop" // pasta
+          "/images/marketplace/vendor-catering.webp",
+          "/images/marketplace/vendor-catering.webp",
+          "/images/marketplace/vendor-catering.webp",
+          "/images/marketplace/vendor-catering.webp"
         ],
         corporate: [
-          "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=800&h=600&fit=crop", // business lunch
-          "https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=400&h=300&fit=crop", // salad
-          "https://images.unsplash.com/photo-1546833999-b9f581a1996d?w=400&h=300&fit=crop", // sandwich spread
-          "https://images.unsplash.com/photo-1551218808-94e220e084d2?w=400&h=300&fit=crop" // coffee break
+          "/images/marketplace/vendor-catering.webp",
+          "/images/marketplace/vendor-catering.webp",
+          "/images/marketplace/vendor-catering.webp",
+          "/images/marketplace/vendor-catering.webp"
         ],
         wedding: [
-          "https://images.unsplash.com/photo-1464366400600-7168b8af9bc3?w=800&h=600&fit=crop", // wedding cake
-          "https://images.unsplash.com/photo-1571115764595-644a1f56a55c?w=400&h=300&fit=crop", // elegant appetizers
-          "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=400&h=300&fit=crop", // champagne
-          "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&h=300&fit=crop" // dessert table
+          "/images/marketplace/vendor-catering.webp",
+          "/images/marketplace/vendor-catering.webp",
+          "/images/marketplace/vendor-catering.webp",
+          "/images/marketplace/vendor-catering.webp"
         ]
       },
       photography: {
         default: [
-          "https://images.unsplash.com/photo-1556761175-4b46a572b786?w=800&h=600&fit=crop", // camera gear
-          "https://images.unsplash.com/photo-1542038784456-1ea8e935640e?w=400&h=300&fit=crop", // photographer at work
-          "https://images.unsplash.com/photo-1550985543-49bee3167284?w=400&h=300&fit=crop", // photography studio
-          "https://images.unsplash.com/photo-1493612276216-ee3925520721?w=400&h=300&fit=crop" // portrait session
+          "/images/marketplace/vendor-photo.webp",
+          "/images/marketplace/vendor-photo.webp",
+          "/images/marketplace/vendor-photo.webp",
+          "/images/marketplace/vendor-photo.webp"
         ],
         wedding: [
-          "https://images.unsplash.com/photo-1465495976277-4387d4b0e4a6?w=800&h=600&fit=crop", // wedding photography
-          "https://images.unsplash.com/photo-1583939003579-730e3918a45a?w=400&h=300&fit=crop", // bride and groom
-          "https://images.unsplash.com/photo-1519741497674-611481863552?w=400&h=300&fit=crop", // wedding rings
-          "https://images.unsplash.com/photo-1511285560929-80b456fea0bc?w=400&h=300&fit=crop" // wedding ceremony
+          "/images/marketplace/vendor-photo.webp",
+          "/images/marketplace/vendor-photo.webp",
+          "/images/marketplace/vendor-photo.webp",
+          "/images/marketplace/vendor-photo.webp"
         ]
       },
       'audio/visual': {
         default: [
-          "https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=800&h=600&fit=crop", // sound mixing board
-          "https://images.unsplash.com/photo-1574717024653-61fd2cf4d44d?w=400&h=300&fit=crop", // microphones
-          "https://images.unsplash.com/photo-1598300042247-d088f8ab3a91?w=400&h=300&fit=crop", // lighting equipment
-          "https://images.unsplash.com/photo-1516321497487-e288fb19713f?w=400&h=300&fit=crop" // stage setup
+          "/images/marketplace/vendor-av.webp",
+          "/images/marketplace/vendor-av.webp",
+          "/images/marketplace/vendor-av.webp",
+          "/images/marketplace/vendor-av.webp"
         ],
         dj: [
-          "https://images.unsplash.com/photo-1571266028243-d220c9fa96bb?w=800&h=600&fit=crop", // DJ setup
-          "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=400&h=300&fit=crop", // turntables
-          "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=400&h=300&fit=crop", // dance floor
-          "https://images.unsplash.com/photo-1459749411175-04bf5292ceea?w=400&h=300&fit=crop" // party lighting
+          "/images/marketplace/vendor-av.webp",
+          "/images/marketplace/vendor-av.webp",
+          "/images/marketplace/vendor-av.webp",
+          "/images/marketplace/vendor-av.webp"
         ]
       },
       entertainment: {
         default: [
-          "https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?w=800&h=600&fit=crop", // live performance
-          "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=400&h=300&fit=crop", // concert
-          "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=400&h=300&fit=crop", // dance
-          "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400&h=300&fit=crop" // musician
+          "/images/templates/template-wedding-gala.webp",
+          "/images/templates/template-wedding-gala.webp",
+          "/images/templates/template-wedding-gala.webp",
+          "/images/templates/template-wedding-gala.webp"
         ]
       },
       floral: {
         default: [
-          "https://images.unsplash.com/photo-1563241527-3004b7be0ffd?w=800&h=600&fit=crop", // flower arrangement
-          "https://images.unsplash.com/photo-1490750967868-88aa4486c946?w=400&h=300&fit=crop", // wedding flowers
-          "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=400&h=300&fit=crop", // bouquet
-          "https://images.unsplash.com/photo-1487070183336-b863922373d4?w=400&h=300&fit=crop" // centerpiece
+          "/images/marketplace/vendor-floral.webp",
+          "/images/marketplace/vendor-floral.webp",
+          "/images/marketplace/vendor-floral.webp",
+          "/images/marketplace/vendor-floral.webp"
         ]
       },
       decor: {
         default: [
-          "https://images.unsplash.com/photo-1464366400600-7168b8af9bc3?w=800&h=600&fit=crop", // event setup
-          "https://images.unsplash.com/photo-1519167758481-83f29b1fe26e?w=400&h=300&fit=crop", // elegant table
-          "https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=400&h=300&fit=crop", // lighting
-          "https://images.unsplash.com/photo-1540979388789-6cee28a1cdc9?w=400&h=300&fit=crop" // decor elements
+          "/images/templates/template-fundraiser.webp",
+          "/images/templates/template-fundraiser.webp",
+          "/images/templates/template-fundraiser.webp",
+          "/images/templates/template-fundraiser.webp"
         ]
       },
       default: {
         default: [
-          "https://images.unsplash.com/photo-1556761175-4b46a572b786?w=800&h=600&fit=crop",
-          "https://images.unsplash.com/photo-1542038784456-1ea8e935640e?w=400&h=300&fit=crop",
-          "https://images.unsplash.com/photo-1550985543-49bee3167284?w=400&h=300&fit=crop",
-          "https://images.unsplash.com/photo-1493612276216-ee3925520721?w=400&h=300&fit=crop"
+          "/images/misc/abstract-bg.webp",
+          "/images/misc/abstract-bg.webp",
+          "/images/misc/abstract-bg.webp",
+          "/images/misc/abstract-bg.webp"
         ]
       }
     };

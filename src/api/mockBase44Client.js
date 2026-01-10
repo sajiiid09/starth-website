@@ -160,11 +160,11 @@ export const createMockClient = (config) => {
         Core: {
             InvokeLLM: async () => "Mock LLM Response",
             SendEmail: async () => console.log("Mock Email Sent"),
-            UploadFile: async () => ({ url: "https://via.placeholder.com/150" }),
-            GenerateImage: async () => ({ url: "https://via.placeholder.com/150" }),
+            UploadFile: async () => ({ url: "/images/misc/abstract-bg.webp" }),
+            GenerateImage: async () => ({ url: "/images/misc/abstract-bg.webp" }),
             ExtractDataFromUploadedFile: async () => ({}),
-            CreateFileSignedUrl: async () => ({ signedUrl: "https://via.placeholder.com/150" }),
-            UploadPrivateFile: async () => ({ url: "https://via.placeholder.com/150" })
+            CreateFileSignedUrl: async () => ({ signedUrl: "/images/misc/abstract-bg.webp" }),
+            UploadPrivateFile: async () => ({ url: "/images/misc/abstract-bg.webp" })
         }
     }
   };

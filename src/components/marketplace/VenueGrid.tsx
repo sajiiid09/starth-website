@@ -66,19 +66,23 @@ export default function VenueGrid({ venues, onAskAI }) { // Added onAskAI prop
   }
 
   return (
-    <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+    <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
       {venues.map((venue) => (
-        <Card key={venue.id} className="border-none shadow-lg hover:shadow-xl strathwell-transition overflow-hidden group">
+        <Card
+          key={venue.id}
+          data-marketplace-card
+          className="group overflow-hidden rounded-2xl border border-brand-dark/10 bg-white/90 shadow-soft transition duration-250 ease-smooth hover:-translate-y-1 hover:shadow-card"
+        >
           <div className="relative">
             <SmartImage 
               item={venue}
               type="venue"
-              className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
+              className="h-48 w-full object-cover transition-transform duration-300 group-hover:scale-105"
               alt={venue.name}
             />
 
             {venue.featured && (
-              <Badge className="absolute top-3 left-3 bg-indigo-600 text-white">
+              <Badge className="absolute left-3 top-3 bg-brand-teal text-white">
                 Featured
               </Badge>
             )}
@@ -92,19 +96,21 @@ export default function VenueGrid({ venues, onAskAI }) { // Added onAskAI prop
             </div>
           </div>
 
-          <CardHeader className="p-4">
+          <CardHeader className="p-5">
             <div className="flex justify-between items-start mb-2">
-              <CardTitle className="text-lg font-bold text-gray-900 line-clamp-1">
+              <CardTitle className="text-lg font-semibold text-brand-dark line-clamp-1">
                 {venue.name}
               </CardTitle>
               <div className="flex items-center gap-1">
                 <Star className="w-4 h-4 text-yellow-400 fill-current" />
-                <span className="text-sm font-medium">{venue.rating || venue.google_rating || "4.5"}</span>
+                <span className="text-sm font-medium text-brand-dark">
+                  {venue.rating || venue.google_rating || "4.5"}
+                </span>
               </div>
             </div>
 
             <div className="flex items-center gap-2 mb-3">
-              <div className="flex items-center gap-1 text-gray-600">
+              <div className="flex items-center gap-1 text-brand-dark/60">
                 <MapPin className="w-3 h-3" />
                 <span className="text-sm">{venue.city}, {venue.state}</span>
               </div>
@@ -115,29 +121,29 @@ export default function VenueGrid({ venues, onAskAI }) { // Added onAskAI prop
               )}
             </div>
 
-            <p className="text-gray-700 text-sm line-clamp-2 mb-3">
+            <p className="text-sm text-brand-dark/70 line-clamp-2 mb-3">
               {venue.description || `Beautiful venue in ${venue.city} perfect for your next event.`}
             </p>
           </CardHeader>
 
-          <CardContent className="p-4 pt-0">
+          <CardContent className="p-5 pt-0">
             <div className="flex justify-between items-center mb-4">
-              <div className="flex items-center gap-1 text-sm text-gray-600">
+              <div className="flex items-center gap-1 text-sm text-brand-dark/60">
                 <Users className="w-3 h-3" />
                 <span>{venue.capacity_max} capacity</span>
               </div>
               <div className="text-right">
                 {venue.rate_card_json?.base_rate ? (
-                  <div className="flex items-center gap-1 text-lg font-bold text-gray-900">
+                  <div className="flex items-center gap-1 text-lg font-semibold text-brand-dark">
                     <DollarSign className="w-4 h-4" />
                     <span>{venue.rate_card_json.base_rate.toLocaleString()}</span>
                   </div>
                 ) : venue.rate_card_json?.hourly_rate ? (
-                  <div className="text-sm font-medium text-gray-700">
+                  <div className="text-sm font-medium text-brand-dark/70">
                     ${venue.rate_card_json.hourly_rate}/hour
                   </div>
                 ) : (
-                  <div className="text-sm font-medium text-gray-700">
+                  <div className="text-sm font-medium text-brand-dark/70">
                     Contact for pricing
                   </div>
                 )}
@@ -161,7 +167,7 @@ export default function VenueGrid({ venues, onAskAI }) { // Added onAskAI prop
 
             <div className="flex gap-2 mt-4">
               <a href={createPageUrl(`VenueDetails?id=${venue.id}`)} className="flex-1">
-                <Button className="w-full bg-indigo-600 hover:bg-indigo-700 text-white group">
+                <Button className="w-full bg-brand-teal text-white hover:bg-brand-teal/90 group">
                   View Details
                   <ExternalLink className="w-4 h-4 ml-2 group-hover:translate-x-1 strathwell-transition" />
                 </Button>

@@ -108,6 +108,10 @@ import Legals from "./Legals";
 
 import Reviews from "./Reviews";
 
+import TemplateDetails from "./TemplateDetails";
+
+import MarketplaceDetails from "./MarketplaceDetails";
+
 import { BrowserRouter as Router, Route, Routes, useLocation } from 'react-router-dom';
 import { createPageUrl } from "@/utils";
 
@@ -220,12 +224,20 @@ const PAGES = {
     Legals: Legals,
 
     Reviews: Reviews,
+
+    TemplateDetails: TemplateDetails,
     
 }
 
 function _getCurrentPage(url) {
     if (url.endsWith('/')) {
         url = url.slice(0, -1);
+    }
+    if (url.includes('/templates/') && !url.endsWith('/templates')) {
+        return 'Templates';
+    }
+    if (url.includes('/marketplace/') && !url.endsWith('/marketplace')) {
+        return 'Marketplace';
     }
     let urlLastPart = url.split('/').pop();
     if (urlLastPart.includes('?')) {
@@ -255,6 +267,8 @@ function PagesContent() {
                 <Route path={createPageUrl("DFY")} element={<DFY />} />
                 
                 <Route path={createPageUrl("Marketplace")} element={<Marketplace />} />
+
+                <Route path="/marketplace/:id" element={<MarketplaceDetails />} />
                 
                 <Route path={createPageUrl("CaseStudies")} element={<CaseStudies />} />
                 
@@ -349,6 +363,8 @@ function PagesContent() {
                 <Route path={createPageUrl("EventBuilder")} element={<EventBuilder />} />
 
                 <Route path={createPageUrl("Templates")} element={<Templates />} />
+
+                <Route path="/templates/:id" element={<TemplateDetails />} />
 
                 <Route path={createPageUrl("Vendors")} element={<Vendors />} />
 

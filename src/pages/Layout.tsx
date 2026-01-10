@@ -162,6 +162,7 @@ export default function Layout({ children, currentPageName }: LayoutProps) {
   };
 
   const isPublicPage = publicPages.includes(currentPageName);
+  const isAppEntry = currentPageName === "AppEntry";
 
   // If user is authenticated and on AIPlanner, use authenticated layout
   if (user && currentPageName === "AIPlanner") {
@@ -169,9 +170,9 @@ export default function Layout({ children, currentPageName }: LayoutProps) {
   } else if (isPublicPage) {
     return (
       <div className="min-h-screen bg-brand-light text-brand-dark">
-        <HomeNav />
-        <main className="pt-24">{children}</main>
-        <Footer />
+        {!isAppEntry && <HomeNav />}
+        <main className={isAppEntry ? "" : "pt-24"}>{children}</main>
+        {!isAppEntry && <Footer />}
       </div>
     );
   }

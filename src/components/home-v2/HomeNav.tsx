@@ -16,7 +16,7 @@ import {
 const solutionsItems = [
   { label: "Marketplace", to: createPageUrl("Marketplace") },
   { label: "Event Templates", to: createPageUrl("Templates"), comingSoon: true },
-  { label: "Popular Vendors", to: createPageUrl("Vendors"), comingSoon: true },
+  { label: "Popular Vendors", to: createPageUrl("Vendors") },
   { label: "Plan with Us", to: createPageUrl("DFY") },
   { label: "AI Planner", to: createPageUrl("AIPlanner") }
 ];
@@ -49,7 +49,7 @@ const HomeNav: React.FC = () => {
           <img
             src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/68d4e38c341adad3b24950ed/ddf404508_Elegant_Simple_Aesthetic_Real_Estate_Logo__1_-removebg-preview.png"
             alt="Strathwell"
-            className="h-12 w-auto"
+            className="h-12 w-auto sm:h-14 md:h-16"
           />
         </Link>
 
@@ -70,7 +70,7 @@ const HomeNav: React.FC = () => {
           >
             AI Planner
           </Link>
-          <DropdownMenu>
+          <DropdownMenu modal={false}>
             <DropdownMenuTrigger asChild>
               <button
                 type="button"
@@ -99,7 +99,7 @@ const HomeNav: React.FC = () => {
               </div>
             </DropdownMenuContent>
           </DropdownMenu>
-          <DropdownMenu>
+          <DropdownMenu modal={false}>
             <DropdownMenuTrigger asChild>
               <button
                 type="button"

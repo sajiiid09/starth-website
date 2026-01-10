@@ -68,14 +68,14 @@ export default function Hero() {
         <div className="flex flex-col items-center text-center">
           <FadeIn delay={0.1} direction="up">
             <span className="mb-6 block font-mono text-[10px] font-bold uppercase tracking-[0.2em] text-gray-500">
-              The OS for Autonomous Commerce
+              The OS for Autonomous Event Management
             </span>
           </FadeIn>
           <FadeIn delay={0.2} direction="up">
             <h1 className="max-w-6xl text-5xl font-bold leading-[1.05] tracking-tight text-brand-dark md:text-7xl lg:text-[5.5rem]">
-              Orchestrating autonomous <br />
-              vehicles for pickups, <br />
-              deliveries, and rideshare
+              Orchestrating events <br />
+              <span style={{ color: '#027F83' }}>from blueprint</span> <br />
+              to execution
             </h1>
           </FadeIn>
         </div>
@@ -90,8 +90,7 @@ export default function Hero() {
         <div className="flex flex-col items-center text-center gap-10">
           <FadeIn delay={0.3} direction="up">
             <p className="max-w-2xl text-lg font-medium leading-relaxed text-gray-600 md:text-xl">
-              Autolane transforms curbs into intelligent hubs where autonomous
-              vehicles seamlessly pick up orders, deliver goods, and coordinate rides
+              Strathwell transforms spaces into execution-ready event blueprints—mapping layouts, services, budgets, timelines, and risk so teams can approve and run events with confidence.
             </p>
           </FadeIn>
 
@@ -126,7 +125,7 @@ export default function Hero() {
           className="h-full w-full object-cover"
         >
           <source
-            src="https://r2.vidzflow.com/source/1745874a-6705-4be4-a457-bb30f3547675.mp4"
+            src="/public/herovid.mp4"
             type="video/mp4"
           />
         </video>

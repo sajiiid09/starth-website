@@ -6,17 +6,14 @@ import PlatformStack from "@/components/home-v2/PlatformStack";
 import SolutionsCarousel from "@/components/home-v2/SolutionsCarousel";
 import SocialProof from "@/components/home-v2/SocialProof";
 import FinalCTA from "@/components/home-v2/FinalCTA";
-import { useNavThemeObserver } from "@/components/home-v2/hooks/useNavThemeObserver";
 
 const HomeContent: React.FC = () => {
   const showDebugTokens =
     import.meta.env.DEV &&
     new URLSearchParams(window.location.search).get("debugTokens") === "1";
 
-  useNavThemeObserver();
-
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-brand-light">
       <HeroKeyhole />
       <DarkMotionPath />
       <ChaosDrop />

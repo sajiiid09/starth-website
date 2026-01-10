@@ -108,8 +108,43 @@ import Legals from "./Legals";
 
 import Reviews from "./Reviews";
 
+import TemplateDetails from "./TemplateDetails";
+
+import MarketplaceDetails from "./MarketplaceDetails";
+
+import UserDashboardHome from "./dashboard/UserDashboardHome";
+
+import UserEvents from "./dashboard/UserEvents";
+
+import UserCreateEvent from "./dashboard/UserCreateEvent";
+
+import UserMessages from "./dashboard/UserMessages";
+
+import UserSettings from "./dashboard/UserSettings";
+
+import VendorDashboardHome from "./vendor/VendorDashboardHome";
+
+import VendorListings from "./vendor/VendorListings";
+
+import VendorInquiries from "./vendor/VendorInquiries";
+
+import VendorCalendar from "./vendor/VendorCalendar";
+
+import VendorSettings from "./vendor/VendorSettings";
+
+import AdminDashboardHome from "./admin/AdminDashboardHome";
+
+import AdminUsers from "./admin/AdminUsers";
+
+import AdminVendors from "./admin/AdminVendors";
+
+import AdminTemplates from "./admin/AdminTemplates";
+
+import AdminSettings from "./admin/AdminSettings";
+
 import { BrowserRouter as Router, Route, Routes, useLocation } from 'react-router-dom';
 import { createPageUrl } from "@/utils";
+import RoleGate from "@/components/auth/RoleGate";
 
 const PAGES = {
     
@@ -220,12 +255,29 @@ const PAGES = {
     Legals: Legals,
 
     Reviews: Reviews,
+
+    TemplateDetails: TemplateDetails,
     
 }
 
 function _getCurrentPage(url) {
     if (url.endsWith('/')) {
         url = url.slice(0, -1);
+    }
+    if (url.startsWith('/dashboard')) {
+        return 'Dashboard';
+    }
+    if (url.startsWith('/vendor')) {
+        return 'Vendor';
+    }
+    if (url.startsWith('/admin')) {
+        return 'Admin';
+    }
+    if (url.includes('/templates/') && !url.endsWith('/templates')) {
+        return 'Templates';
+    }
+    if (url.includes('/marketplace/') && !url.endsWith('/marketplace')) {
+        return 'Marketplace';
     }
     let urlLastPart = url.split('/').pop();
     if (urlLastPart.includes('?')) {
@@ -255,10 +307,145 @@ function PagesContent() {
                 <Route path={createPageUrl("DFY")} element={<DFY />} />
                 
                 <Route path={createPageUrl("Marketplace")} element={<Marketplace />} />
+
+                <Route path="/marketplace/:id" element={<MarketplaceDetails />} />
                 
                 <Route path={createPageUrl("CaseStudies")} element={<CaseStudies />} />
                 
-                <Route path={createPageUrl("Dashboard")} element={<Dashboard />} />
+                <Route
+                  path={createPageUrl("Dashboard")}
+                  element={
+                    <RoleGate allowedRoles={["user"]}>
+                      <UserDashboardHome />
+                    </RoleGate>
+                  }
+                />
+
+                <Route
+                  path="/dashboard/events"
+                  element={
+                    <RoleGate allowedRoles={["user"]}>
+                      <UserEvents />
+                    </RoleGate>
+                  }
+                />
+
+                <Route
+                  path="/dashboard/create"
+                  element={
+                    <RoleGate allowedRoles={["user"]}>
+                      <UserCreateEvent />
+                    </RoleGate>
+                  }
+                />
+
+                <Route
+                  path="/dashboard/messages"
+                  element={
+                    <RoleGate allowedRoles={["user"]}>
+                      <UserMessages />
+                    </RoleGate>
+                  }
+                />
+
+                <Route
+                  path="/dashboard/settings"
+                  element={
+                    <RoleGate allowedRoles={["user"]}>
+                      <UserSettings />
+                    </RoleGate>
+                  }
+                />
+
+                <Route
+                  path="/vendor"
+                  element={
+                    <RoleGate allowedRoles={["vendor"]}>
+                      <VendorDashboardHome />
+                    </RoleGate>
+                  }
+                />
+
+                <Route
+                  path="/vendor/listings"
+                  element={
+                    <RoleGate allowedRoles={["vendor"]}>
+                      <VendorListings />
+                    </RoleGate>
+                  }
+                />
+
+                <Route
+                  path="/vendor/inquiries"
+                  element={
+                    <RoleGate allowedRoles={["vendor"]}>
+                      <VendorInquiries />
+                    </RoleGate>
+                  }
+                />
+
+                <Route
+                  path="/vendor/calendar"
+                  element={
+                    <RoleGate allowedRoles={["vendor"]}>
+                      <VendorCalendar />
+                    </RoleGate>
+                  }
+                />
+
+                <Route
+                  path="/vendor/settings"
+                  element={
+                    <RoleGate allowedRoles={["vendor"]}>
+                      <VendorSettings />
+                    </RoleGate>
+                  }
+                />
+
+                <Route
+                  path="/admin"
+                  element={
+                    <RoleGate allowedRoles={["admin"]}>
+                      <AdminDashboardHome />
+                    </RoleGate>
+                  }
+                />
+
+                <Route
+                  path="/admin/users"
+                  element={
+                    <RoleGate allowedRoles={["admin"]}>
+                      <AdminUsers />
+                    </RoleGate>
+                  }
+                />
+
+                <Route
+                  path="/admin/vendors"
+                  element={
+                    <RoleGate allowedRoles={["admin"]}>
+                      <AdminVendors />
+                    </RoleGate>
+                  }
+                />
+
+                <Route
+                  path="/admin/templates"
+                  element={
+                    <RoleGate allowedRoles={["admin"]}>
+                      <AdminTemplates />
+                    </RoleGate>
+                  }
+                />
+
+                <Route
+                  path="/admin/settings"
+                  element={
+                    <RoleGate allowedRoles={["admin"]}>
+                      <AdminSettings />
+                    </RoleGate>
+                  }
+                />
                 
                 <Route path={createPageUrl("CreateEvent")} element={<CreateEvent />} />
                 
@@ -349,6 +536,8 @@ function PagesContent() {
                 <Route path={createPageUrl("EventBuilder")} element={<EventBuilder />} />
 
                 <Route path={createPageUrl("Templates")} element={<Templates />} />
+
+                <Route path="/templates/:id" element={<TemplateDetails />} />
 
                 <Route path={createPageUrl("Vendors")} element={<Vendors />} />
 

@@ -1,23 +1,35 @@
 import React from "react";
-import { Link } from "react-router-dom";
-import { createPageUrl } from "@/utils";
+import Container from "@/components/home-v2/primitives/Container";
+import FadeIn from "@/components/animations/FadeIn";
+import TemplateCard from "@/components/templates/TemplateCard";
+import { dummyTemplates } from "@/data/dummyTemplates";
 
 const Templates: React.FC = () => {
   return (
-    <div className="mx-auto flex min-h-[70vh] max-w-4xl flex-col items-center justify-center px-6 text-center">
-      <h1 className="text-4xl font-semibold text-brand-dark md:text-5xl">
-        Event Templates
-      </h1>
-      <p className="mt-4 text-base text-brand-dark/70">
-        Coming soon. We’re building a curated gallery of event blueprints for every
-        team.
-      </p>
-      <Link
-        to={createPageUrl("Home")}
-        className="mt-6 inline-flex items-center rounded-full border border-brand-dark/20 px-5 py-2 text-sm font-medium text-brand-dark transition hover:border-brand-dark/40 hover:bg-brand-cream"
-      >
-        Back to Home
-      </Link>
+    <div className="pb-20 pt-10">
+      <Container>
+        <FadeIn className="text-center">
+          <p className="text-sm font-semibold uppercase tracking-[0.3em] text-brand-teal">
+            Templates
+          </p>
+          <h1 className="mt-4 text-4xl font-semibold text-brand-dark md:text-5xl">
+            Event Blueprint Gallery
+          </h1>
+          <p className="mt-4 text-base text-brand-dark/70 md:text-lg">
+            Browse curated event templates designed to accelerate your planning process.
+          </p>
+        </FadeIn>
+
+        <FadeIn className="mt-12" staggerChildren={0.08} childSelector=".template-card">
+          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {dummyTemplates.map((template) => (
+              <div key={template.id} className="template-card h-full">
+                <TemplateCard template={template} />
+              </div>
+            ))}
+          </div>
+        </FadeIn>
+      </Container>
     </div>
   );
 };

@@ -16,7 +16,7 @@ import {
 const solutionsItems = [
   { label: "Marketplace", to: createPageUrl("Marketplace") },
   { label: "Event Templates", to: createPageUrl("Templates"), comingSoon: true },
-  { label: "Popular Vendors", to: createPageUrl("Vendors"), comingSoon: true },
+  { label: "Popular Vendors", to: createPageUrl("Vendors") },
   { label: "Plan with Us", to: createPageUrl("DFY") },
   { label: "AI Planner", to: createPageUrl("AIPlanner") }
 ];

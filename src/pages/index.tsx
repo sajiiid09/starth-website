@@ -110,6 +110,8 @@ import Reviews from "./Reviews";
 
 import TemplateDetails from "./TemplateDetails";
 
+import MarketplaceDetails from "./MarketplaceDetails";
+
 import { BrowserRouter as Router, Route, Routes, useLocation } from 'react-router-dom';
 import { createPageUrl } from "@/utils";
 
@@ -234,6 +236,9 @@ function _getCurrentPage(url) {
     if (url.includes('/templates/') && !url.endsWith('/templates')) {
         return 'Templates';
     }
+    if (url.includes('/marketplace/') && !url.endsWith('/marketplace')) {
+        return 'Marketplace';
+    }
     let urlLastPart = url.split('/').pop();
     if (urlLastPart.includes('?')) {
         urlLastPart = urlLastPart.split('?')[0];
@@ -262,6 +267,8 @@ function PagesContent() {
                 <Route path={createPageUrl("DFY")} element={<DFY />} />
                 
                 <Route path={createPageUrl("Marketplace")} element={<Marketplace />} />
+
+                <Route path="/marketplace/:id" element={<MarketplaceDetails />} />
                 
                 <Route path={createPageUrl("CaseStudies")} element={<CaseStudies />} />
                 

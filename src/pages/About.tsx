@@ -4,12 +4,12 @@ import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import Container from "@/components/home-v2/primitives/Container";
+import FadeIn from "@/components/animations/FadeIn";
 import { 
   Users, 
   Target, 
-  Globe, 
   Award,
-  Building,
   Lightbulb,
   Heart,
   Sparkles
@@ -76,140 +76,149 @@ const teamMembers = [
 
 export default function AboutPage() {
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-brand-light text-brand-dark">
       {/* Hero Section */}
-      <section className="pt-24 pb-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-gray-50 to-white">
-        <div className="max-w-6xl mx-auto text-center">
-          <div className="inline-flex items-center gap-2 px-4 py-2 bg-blue-50 rounded-full text-sm font-medium text-blue-700 mb-6">
-            <Users className="w-4 h-4" />
-            About Strathwell
-          </div>
-          
-          <h1 className="text-4xl md:text-6xl font-bold text-gray-900 mb-6 leading-tight">
-            Transforming Events Through
-            <br />
-            <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-              AI Innovation
-            </span>
-          </h1>
-          
-          <p className="text-xl md:text-2xl text-gray-600 mb-8 max-w-4xl mx-auto leading-relaxed">
-            At Strathwell, we're pioneering the future of event orchestration with cutting-edge AI technology and world-class expertise.
-          </p>
-        </div>
+      <section className="pt-20 pb-16 bg-gradient-to-b from-brand-cream/70 via-brand-light to-brand-light">
+        <Container>
+          <FadeIn className="text-center">
+            <Badge className="mb-6 inline-flex items-center gap-2 rounded-full border border-white/60 bg-white/70 px-4 py-2 text-xs font-semibold uppercase tracking-[0.3em] text-brand-teal">
+              <Users className="h-4 w-4" />
+              About Strathwell
+            </Badge>
+
+            <h1 className="text-4xl font-semibold leading-tight md:text-6xl">
+              Transforming Events Through
+              <br />
+              <span className="bg-gradient-to-r from-brand-teal to-brand-dark bg-clip-text text-transparent">
+                AI Innovation
+              </span>
+            </h1>
+
+            <p className="mt-6 text-lg text-brand-dark/70 md:text-2xl">
+              At Strathwell, we're pioneering the future of event orchestration with cutting-edge AI technology and world-class expertise.
+            </p>
+          </FadeIn>
+        </Container>
       </section>
 
       {/* Mission & Vision */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-6xl mx-auto">
-          <div className="grid md:grid-cols-3 gap-8 mb-20">
-            <Card className="border-none shadow-lg text-center">
-              <CardContent className="p-8">
-                <div className="w-16 h-16 mx-auto mb-6 bg-blue-100 rounded-full flex items-center justify-center">
-                  <Target className="w-8 h-8 text-blue-600" />
-                </div>
-                <h3 className="text-xl font-bold text-gray-900 mb-4">Our Mission</h3>
-                <p className="text-gray-600 leading-relaxed">
-                  To revolutionize the events industry by making world-class event planning accessible through AI-powered orchestration and curated partnerships.
-                </p>
-              </CardContent>
-            </Card>
-
-            <Card className="border-none shadow-lg text-center">
-              <CardContent className="p-8">
-                <div className="w-16 h-16 mx-auto mb-6 bg-purple-100 rounded-full flex items-center justify-center">
-                  <Lightbulb className="w-8 h-8 text-purple-600" />
-                </div>
-                <h3 className="text-xl font-bold text-gray-900 mb-4">Our Vision</h3>
-                <p className="text-gray-600 leading-relaxed">
-                  A world where every event, from intimate gatherings to global conferences, is seamlessly orchestrated with precision and creativity.
-                </p>
-              </CardContent>
-            </Card>
-
-            <Card className="border-none shadow-lg text-center">
-              <CardContent className="p-8">
-                <div className="w-16 h-16 mx-auto mb-6 bg-green-100 rounded-full flex items-center justify-center">
-                  <Heart className="w-8 h-8 text-green-600" />
-                </div>
-                <h3 className="text-xl font-bold text-gray-900 mb-4">Our Values</h3>
-                <p className="text-gray-600 leading-relaxed">
-                  Innovation, excellence, and human connection drive everything we do. We believe technology should amplify human creativity, not replace it.
-                </p>
-              </CardContent>
-            </Card>
-          </div>
-        </div>
+      <section className="py-16">
+        <Container>
+          <FadeIn className="grid gap-6 md:grid-cols-3" staggerChildren={0.08} childSelector=".mission-card">
+            {[
+              {
+                title: "Our Mission",
+                description:
+                  "To revolutionize the events industry by making world-class event planning accessible through AI-powered orchestration and curated partnerships.",
+                icon: Target
+              },
+              {
+                title: "Our Vision",
+                description:
+                  "A world where every event, from intimate gatherings to global conferences, is seamlessly orchestrated with precision and creativity.",
+                icon: Lightbulb
+              },
+              {
+                title: "Our Values",
+                description:
+                  "Innovation, excellence, and human connection drive everything we do. We believe technology should amplify human creativity, not replace it.",
+                icon: Heart
+              }
+            ].map((item) => {
+              const Icon = item.icon;
+              return (
+                <Card key={item.title} className="mission-card border border-white/40 bg-white/80 text-center shadow-card">
+                  <CardContent className="p-8">
+                    <div className="mx-auto mb-6 flex h-14 w-14 items-center justify-center rounded-full bg-brand-teal/10">
+                      <Icon className="h-6 w-6 text-brand-teal" />
+                    </div>
+                    <h3 className="text-xl font-semibold text-brand-dark">{item.title}</h3>
+                    <p className="mt-4 text-sm leading-relaxed text-brand-dark/70">
+                      {item.description}
+                    </p>
+                  </CardContent>
+                </Card>
+              );
+            })}
+          </FadeIn>
+        </Container>
       </section>
 
       {/* Team Section */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8 bg-gray-50">
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-16">
-            <div className="inline-flex items-center gap-2 px-4 py-2 bg-purple-50 rounded-full text-sm font-medium text-purple-700 mb-6">
-              <Award className="w-4 h-4" />
+      <section className="py-20 bg-brand-cream/40">
+        <Container>
+          <FadeIn className="text-center">
+            <Badge className="mb-6 inline-flex items-center gap-2 rounded-full border border-white/60 bg-white/70 px-4 py-2 text-xs font-semibold uppercase tracking-[0.3em] text-brand-teal">
+              <Award className="h-4 w-4" />
               Our Team
-            </div>
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-              World-Class Experts
-            </h2>
-            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+            </Badge>
+            <h2 className="text-3xl font-semibold md:text-4xl">World-Class Experts</h2>
+            <p className="mt-4 text-lg text-brand-dark/70">
               Meet the visionaries behind Strathwell's revolutionary approach to event orchestration.
             </p>
-          </div>
+          </FadeIn>
 
-          <div className="space-y-24">
+          <FadeIn className="mt-16 space-y-16" staggerChildren={0.08} childSelector=".team-row">
             {teamMembers.map((member, index) => (
-              <div key={index} className="grid grid-cols-1 md:grid-cols-12 gap-8 md:gap-12 items-center">
-                <div className={`aspect-[4/5] rounded-lg overflow-hidden shadow-2xl md:col-span-4 ${index % 2 === 0 ? 'md:order-1' : 'md:order-2'}`}>
+              <div
+                key={member.name}
+                className="team-row grid grid-cols-1 items-center gap-8 md:grid-cols-12 md:gap-12"
+              >
+                <div
+                  className={`aspect-[4/5] overflow-hidden rounded-2xl border border-white/40 shadow-card md:col-span-4 ${
+                    index % 2 === 0 ? "md:order-1" : "md:order-2"
+                  }`}
+                >
                   <img
                     src={member.image}
                     alt={member.name}
-                    className="w-full h-full object-cover"
+                    className="h-full w-full object-cover"
                   />
                 </div>
-                <div className={`md:col-span-8 ${index % 2 === 0 ? 'md:order-2' : 'md:order-1'}`}>
-                  <h3 className="text-3xl font-bold text-gray-900">{member.name}</h3>
-                  <p className="text-lg font-medium text-blue-600 mt-1">{member.title}</p>
-                  <p className="text-sm font-semibold text-gray-500 uppercase tracking-wider mt-2 mb-6">{member.role}</p>
-                  <div className="space-y-4 text-gray-700 leading-relaxed">
+                <div className={`md:col-span-8 ${index % 2 === 0 ? "md:order-2" : "md:order-1"}`}>
+                  <h3 className="text-3xl font-semibold text-brand-dark">{member.name}</h3>
+                  <p className="mt-1 text-lg font-medium text-brand-teal">{member.title}</p>
+                  <p className="mt-2 text-xs font-semibold uppercase tracking-[0.3em] text-brand-dark/50">
+                    {member.role}
+                  </p>
+                  <div className="mt-6 space-y-4 text-sm leading-relaxed text-brand-dark/80">
                     <p>{member.description}</p>
                     {member.additionalInfo && <p>{member.additionalInfo}</p>}
                   </div>
                 </div>
               </div>
             ))}
-          </div>
-        </div>
+          </FadeIn>
+        </Container>
       </section>
 
       {/* Call to Action */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-4xl mx-auto text-center">
-          <Card className="bg-gradient-to-r from-gray-900 to-gray-800 border-none text-white">
-            <CardContent className="p-12">
-              <Sparkles className="w-16 h-16 mx-auto mb-6 text-yellow-400" />
-              <h3 className="text-3xl font-bold mb-4">
-                Ready to Transform Your Events?
-              </h3>
-              <p className="text-xl text-gray-300 mb-8 max-w-2xl mx-auto">
-                Join thousands of event organizers who trust Strathwell to orchestrate their most important moments.
-              </p>
-              <div className="flex flex-col sm:flex-row gap-4 justify-center max-w-md mx-auto">
-                <Link to={createPageUrl("AIPlanner")}>
-                  <button className="w-full sm:w-auto bg-white text-gray-900 hover:bg-gray-100 px-8 py-3 rounded-xl font-semibold strathwell-transition">
-                    Plan with AI
-                  </button>
-                </Link>
-                <Link to={createPageUrl("Contact")}>
-                  <button className="w-full sm:w-auto border-2 border-white text-white hover:bg-white hover:text-gray-900 px-8 py-3 rounded-xl font-semibold strathwell-transition">
-                    Contact Us
-                  </button>
-                </Link>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
+      <section className="py-20">
+        <Container>
+          <FadeIn>
+            <Card className="border-none bg-gradient-to-r from-brand-dark to-brand-dark/90 text-brand-light shadow-card">
+              <CardContent className="p-12 text-center">
+                <Sparkles className="mx-auto mb-6 h-12 w-12 text-brand-cream" />
+                <h3 className="text-3xl font-semibold">Ready to Transform Your Events?</h3>
+                <p className="mt-4 text-lg text-brand-light/80">
+                  Join thousands of event organizers who trust Strathwell to orchestrate their most important moments.
+                </p>
+                <div className="mt-8 flex flex-col justify-center gap-4 sm:flex-row">
+                  <Link to={createPageUrl("AIPlanner")}>
+                    <button className="w-full rounded-full bg-white px-8 py-3 text-sm font-semibold text-brand-dark transition hover:bg-brand-cream sm:w-auto">
+                      Plan with AI
+                    </button>
+                  </Link>
+                  <Link to={createPageUrl("Contact")}>
+                    <button className="w-full rounded-full border border-white/60 px-8 py-3 text-sm font-semibold text-white transition hover:bg-white hover:text-brand-dark sm:w-auto">
+                      Contact Us
+                    </button>
+                  </Link>
+                </div>
+              </CardContent>
+            </Card>
+          </FadeIn>
+        </Container>
       </section>
     </div>
   );

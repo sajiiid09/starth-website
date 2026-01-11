@@ -48,13 +48,13 @@ const FinalCTA: React.FC = () => {
               </DisplayH2>
             </div>
           </FadeIn>
-          <FadeIn>
+          <FadeIn delay={0.2} duration={0.9} ease="power2.out" direction="up" distance={40}>
             <Lead theme={theme}>
-              Tell us your first blueprint and we’ll tailor the Strathwell stack
+              Tell us your first blueprint and we'll tailor the Strathwell stack
               to match your moment.
             </Lead>
           </FadeIn>
-          <FadeIn>
+          <FadeIn delay={0.3} duration={0.9} ease="power2.out" direction="up" distance={40}>
             <div className="flex flex-col gap-6">
               <div className="text-sm font-semibold uppercase tracking-[0.2em] text-brand-dark/60">
                 Your first blueprint?
@@ -66,7 +66,7 @@ const FinalCTA: React.FC = () => {
               />
             </div>
           </FadeIn>
-          <FadeIn>
+          <FadeIn delay={0.4} duration={0.8} ease="power2.out" direction="up" distance={30}>
             <form
               onSubmit={handleSubmit}
               className="flex flex-col gap-3 sm:flex-row sm:items-center"

@@ -1,36 +1,57 @@
-import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import React, { useEffect, useMemo, useState } from "react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { AnimatePresence, motion } from "framer-motion";
+import { Loader2, Users, Briefcase } from "lucide-react";
+import { toast } from "sonner";
 import { createPageUrl } from "@/utils";
+import { AppRole, getRoleHomePath, setCurrentRole } from "@/utils/role";
 import { base44 } from "@/api/base44Client";
-import { DemoRequest } from "@/api/entities";
-import { authRegister } from "@/api/functions";
-import { SendEmail } from "@/api/integrations";
+import { authLogin, authRegister } from "@/api/functions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Loader2 } from "lucide-react";
-import { toast } from "sonner";
+import { cn } from "@/lib/utils";
 
+const roleOptions = [
+  {
+    id: "user",
+    title: "I’m an Organizer",
+    description: "Plan events, manage vendors, and launch faster.",
+    icon: Users
+  },
+  {
+    id: "vendor",
+    title: "I’m a Vendor",
+    description: "Showcase services, win leads, and manage bookings.",
+    icon: Briefcase
+  }
+] as const;
 
+type RoleOptionId = (typeof roleOptions)[number]["id"];
 
-const SignUpForm = ({ onSignUpSuccess }) => {
+type AuthView = "role" | "signup" | "login";
+
+type SignUpFormProps = {
+  selectedRole: RoleOptionId | null;
+  onSignUpSuccess: () => void;
+};
+
+const SignUpForm: React.FC<SignUpFormProps> = ({ selectedRole, onSignUpSuccess }) => {
   const [loading, setLoading] = useState(false);
+  const roleValue = selectedRole === "vendor" ? "service_provider" : "organizer";
   const [formData, setFormData] = useState({
-    fullName: '',
-    email: '',
-    password: '',
-    phone: '',
-    role: 'organizer'
+    fullName: "",
+    email: "",
+    password: "",
+    phone: ""
   });
 
-  const handleInputChange = (field, value) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
+  const handleInputChange = (field: keyof typeof formData, value: string) => {
+    setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
     setLoading(true);
 
     try {
@@ -39,15 +60,17 @@ const SignUpForm = ({ onSignUpSuccess }) => {
         password: formData.password,
         full_name: formData.fullName,
         phone: formData.phone,
-        role: formData.role
+        role: roleValue
       });
 
       if (data.success) {
-        toast.success("Account created! Please check your email to verify your account.", { duration: 5000 });
+        toast.success("Account created! Please check your email to verify your account.", {
+          duration: 5000
+        });
         onSignUpSuccess();
       }
-    } catch (error) {
-      console.error('Sign up error:', error);
+    } catch (error: any) {
+      console.error("Sign up error:", error);
       toast.error(error.response?.data?.error || "Registration failed. Please try again.");
     }
     setLoading(false);
@@ -57,112 +80,128 @@ const SignUpForm = ({ onSignUpSuccess }) => {
     <form onSubmit={handleSubmit} className="space-y-4">
       <div>
         <Label htmlFor="fullName">Full Name</Label>
-        <Input id="fullName" placeholder="John Doe" required value={formData.fullName} onChange={e => handleInputChange('fullName', e.target.value)} />
+        <Input
+          id="fullName"
+          placeholder="John Doe"
+          required
+          value={formData.fullName}
+          onChange={(e) => handleInputChange("fullName", e.target.value)}
+        />
       </div>
       <div>
         <Label htmlFor="signupEmail">Email</Label>
-        <Input id="signupEmail" type="email" placeholder="name@company.com" required value={formData.email} onChange={e => handleInputChange('email', e.target.value)} />
+        <Input
+          id="signupEmail"
+          type="email"
+          placeholder="name@company.com"
+          required
+          value={formData.email}
+          onChange={(e) => handleInputChange("email", e.target.value)}
+        />
       </div>
       <div>
         <Label htmlFor="signupPassword">Password</Label>
-        <Input id="signupPassword" type="password" placeholder="At least 8 characters" required value={formData.password} onChange={e => handleInputChange('password', e.target.value)} />
+        <Input
+          id="signupPassword"
+          type="password"
+          placeholder="At least 8 characters"
+          required
+          value={formData.password}
+          onChange={(e) => handleInputChange("password", e.target.value)}
+        />
       </div>
       <div>
         <Label htmlFor="phone">Phone (Optional)</Label>
-        <Input id="phone" type="tel" placeholder="+1 (555) 000-0000" value={formData.phone} onChange={e => handleInputChange('phone', e.target.value)} />
+        <Input
+          id="phone"
+          type="tel"
+          placeholder="+1 (555) 000-0000"
+          value={formData.phone}
+          onChange={(e) => handleInputChange("phone", e.target.value)}
+        />
       </div>
-      <div>
-        <Label htmlFor="role">I am a...</Label>
-        <Select value={formData.role} onValueChange={value => handleInputChange('role', value)}>
-          <SelectTrigger><SelectValue /></SelectTrigger>
-          <SelectContent>
-            <SelectItem value="organizer">Event Organizer</SelectItem>
-            <SelectItem value="venue_owner">Venue Owner</SelectItem>
-            <SelectItem value="service_provider">Service Provider</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
-      <Button type="submit" className="w-full" disabled={loading}>
-        {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : "Create Account"}
+      <Button
+        type="submit"
+        className="w-full rounded-full bg-brand-teal py-6 text-base text-brand-light hover:bg-brand-teal/90"
+        disabled={loading}
+      >
+        {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : "Create account"}
       </Button>
     </form>
   );
 };
 
-const DemoRequestForm = ({ onDemoRequestSuccess }) => {
+type LoginFormProps = {
+  onLoginSuccess: () => void;
+};
+
+const LoginForm: React.FC<LoginFormProps> = ({ onLoginSuccess }) => {
   const [loading, setLoading] = useState(false);
-  const [formData, setFormData] = useState({ fullName: '', email: '', company: '', role: 'event_organizer' });
+  const [formData, setFormData] = useState({ email: "", password: "" });
 
-  const handleInputChange = (field, value) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
     setLoading(true);
 
     try {
-      await DemoRequest.create({
-        full_name: formData.fullName,
+      const { data } = await authLogin({
         email: formData.email,
-        company: formData.company,
-        role: formData.role,
+        password: formData.password
       });
 
-      // Send notification to Strathwell admin
-      await SendEmail({
-        to: "info@renzairegroup.com",
-        subject: "New Demo Request - Strathwell",
-        body: `
-          <h2>New Demo Request Received</h2>
-          <p><strong>Name:</strong> ${formData.fullName}</p>
-          <p><strong>Email:</strong> ${formData.email}</p>
-          <p><strong>Company:</strong> ${formData.company || 'N/A'}</p>
-          <p><strong>Role:</strong> ${formData.role}</p>
-          <p><strong>Date:</strong> ${new Date().toLocaleString()}</p>
-        `
-      });
+      if (data?.user) {
+        sessionStorage.setItem("currentUser", JSON.stringify(data.user));
+        const userRoles = data.user.roles || ["organizer"];
+        const nextRole: AppRole = userRoles.includes("admin")
+          ? "admin"
+          : userRoles.includes("service_provider")
+            ? "vendor"
+            : "user";
+        setCurrentRole(nextRole);
+        window.location.href = getRoleHomePath(nextRole);
+        return;
+      }
 
-      toast.success("Thank you! Our team will be in touch shortly to schedule your demo.", { duration: 5000 });
-      onDemoRequestSuccess();
-
-    } catch (error) {
-      console.error('Demo Request Error:', error);
-      toast.error(error.message || "An error occurred. Please try again.");
+      toast.error("Login failed. Please try again.");
+    } catch (error: any) {
+      console.error("Login error:", error);
+      toast.error(error.response?.data?.error || "Login failed. Please try again.");
     }
+
     setLoading(false);
+    onLoginSuccess();
   };
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
-      <p className="text-sm text-center text-gray-600">
-        Book a demo with our team to see how Strathwell can help you.
-      </p>
       <div>
-        <Label htmlFor="fullName">Full Name</Label>
-        <Input id="fullName" placeholder="John Doe" required value={formData.fullName} onChange={e => handleInputChange('fullName', e.target.value)} />
-      </div>
-      <div>
-        <Label htmlFor="reqEmail">Work Email</Label>
-        <Input id="reqEmail" type="email" placeholder="name@company.com" required value={formData.email} onChange={e => handleInputChange('email', e.target.value)} />
-      </div>
-       <div>
-        <Label htmlFor="company">Company</Label>
-        <Input id="company" placeholder="Your Company Name" value={formData.company} onChange={e => handleInputChange('company', e.target.value)} />
+        <Label htmlFor="loginEmail">Email</Label>
+        <Input
+          id="loginEmail"
+          type="email"
+          placeholder="name@company.com"
+          required
+          value={formData.email}
+          onChange={(e) => setFormData((prev) => ({ ...prev, email: e.target.value }))}
+        />
       </div>
       <div>
-        <Label htmlFor="role">I am a...</Label>
-        <Select value={formData.role} onValueChange={value => handleInputChange('role', value)}>
-          <SelectTrigger><SelectValue /></SelectTrigger>
-          <SelectContent>
-            <SelectItem value="event_organizer">Event Organizer</SelectItem>
-            <SelectItem value="venue_owner">Venue Owner</SelectItem>
-            <SelectItem value="service_provider">Service Provider</SelectItem>
-          </SelectContent>
-        </Select>
+        <Label htmlFor="loginPassword">Password</Label>
+        <Input
+          id="loginPassword"
+          type="password"
+          placeholder="Your password"
+          required
+          value={formData.password}
+          onChange={(e) => setFormData((prev) => ({ ...prev, password: e.target.value }))}
+        />
       </div>
-      <Button type="submit" className="w-full" disabled={loading}>
-        {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : "Request a Demo"}
+      <Button
+        type="submit"
+        className="w-full rounded-full bg-brand-teal py-6 text-base text-brand-light hover:bg-brand-teal/90"
+        disabled={loading}
+      >
+        {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : "Log in"}
       </Button>
     </form>
   );
@@ -170,26 +209,33 @@ const DemoRequestForm = ({ onDemoRequestSuccess }) => {
 
 export default function AppEntryPage() {
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState("demo");
+  const [activeView, setActiveView] = useState<AuthView>("role");
+  const [selectedRole, setSelectedRole] = useState<RoleOptionId | null>(null);
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  const roleLabel = useMemo(() => {
+    if (!selectedRole) return "";
+    return selectedRole === "vendor" ? "Vendor" : "User";
+  }, [selectedRole]);
 
   useEffect(() => {
     const checkSession = async () => {
       try {
         const user = await base44.auth.me();
         if (user) {
-          sessionStorage.setItem('currentUser', JSON.stringify(user));
-          const userRoles = user.roles || ['organizer'];
-          let activeRole = localStorage.getItem('activeRole') || userRoles[0];
-          localStorage.setItem('activeRole', activeRole);
-
-          const destinationMap = {
-            'venue_owner': 'VenuePortal',
-            'service_provider': 'ProviderPortal'
-          };
-          window.location.href = createPageUrl(destinationMap[activeRole] || 'Dashboard');
+          sessionStorage.setItem("currentUser", JSON.stringify(user));
+          const userRoles = user.roles || ["organizer"];
+          const nextRole: AppRole = userRoles.includes("admin")
+            ? "admin"
+            : userRoles.includes("service_provider")
+              ? "vendor"
+              : "user";
+          setCurrentRole(nextRole);
+          window.location.href = getRoleHomePath(nextRole);
           return;
         }
-      } catch (e) {
+      } catch (error) {
         // Not logged in, show login screen
       }
       setLoading(false);
@@ -197,60 +243,228 @@ export default function AppEntryPage() {
     checkSession();
   }, []);
 
-
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const devRole = params.get("as");
+    if (import.meta.env.MODE !== "production" && devRole === "admin") {
+      setCurrentRole("admin");
+      navigate("/admin", { replace: true });
+    }
+  }, [location.search, navigate]);
 
   if (loading) {
     return (
-      <div className="min-h-screen w-full flex items-center justify-center bg-gray-50">
-        <Loader2 className="w-8 h-8 text-gray-400 animate-spin" />
+      <div className="min-h-screen w-full flex items-center justify-center bg-brand-light">
+        <Loader2 className="w-8 h-8 text-brand-dark/40 animate-spin" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen w-full grid lg:grid-cols-2">
-      <div className="hidden lg:flex flex-col items-center justify-center bg-gradient-to-br from-gray-900 via-indigo-900 to-purple-900 p-12 text-white">
-        <Link to={createPageUrl("Home")} className="mb-8">
-           <img 
-              src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/68d4e38c341adad3b24950ed/a98933634_Elegant_Simple_Aesthetic_Real_Estate_Logo-removebg-preview.png" 
-              alt="Strathwell" 
-              className="h-48 w-auto"
-            />
+    <div className="min-h-screen bg-brand-light text-brand-dark">
+      <header className="flex items-center justify-between px-6 py-5 lg:px-12">
+        <Link to={createPageUrl("Home")} className="text-lg font-semibold tracking-tight">
+          Strathwell
         </Link>
-        <h1 className="text-4xl font-bold mb-4 text-center">Event Orchestration, Reimagined.</h1>
-        <p className="text-lg text-gray-300 max-w-md text-center">
-          AI-powered planning, a curated marketplace, and seamless execution tools all in one platform.
-        </p>
-      </div>
+        <div className="flex items-center gap-3">
+          <Button
+            variant="ghost"
+            className="rounded-full text-sm text-brand-dark/70 hover:text-brand-dark"
+            onClick={() => setActiveView("login")}
+          >
+            Log in
+          </Button>
+          <Button
+            className="rounded-full bg-brand-dark px-5 text-brand-light hover:bg-brand-dark/90"
+            onClick={() => setActiveView(selectedRole ? "signup" : "role")}
+          >
+            Create account
+          </Button>
+        </div>
+      </header>
 
-      <div className="flex flex-col items-center justify-center p-8 bg-white">
-        <div className="w-full max-w-md">
-            <div className="lg:hidden mb-8 text-center">
-                <Link to={createPageUrl("Home")}>
-                    <img 
-                    src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/68d4e38c341adad3b24950ed/ddf404508_Elegant_Simple_Aesthetic_Real_Estate_Logo__1_-removebg-preview.png" 
-                    alt="Strathwell" 
-                    className="h-24 w-auto mx-auto"
-                    />
-                </Link>
+      <div className="grid min-h-[calc(100vh-80px)] grid-cols-1 lg:grid-cols-[70%_1fr]">
+        <div className="relative hidden h-full lg:flex">
+          <div className="absolute inset-0 bg-gradient-to-br from-brand-dark/90 via-brand-dark/70 to-brand-teal/60" />
+          <video
+            className="h-full w-full object-cover"
+            autoPlay
+            muted
+            loop
+            playsInline
+            poster="/images/solutions/launch.svg"
+          >
+            <source src="/herovid.mp4" type="video/mp4" />
+          </video>
+          <div className="absolute inset-0 bg-black/40" />
+          <div className="absolute z-10 flex h-full w-full flex-col justify-end p-12 text-brand-light">
+            <div className="max-w-md">
+              <p className="text-sm uppercase tracking-[0.3em] text-brand-light/70">
+                Strathwell Platform
+              </p>
+              <h1 className="mt-4 text-4xl font-semibold leading-tight">
+                Event orchestration, beautifully streamlined.
+              </h1>
+              <p className="mt-4 text-base text-brand-light/80">
+                AI-powered planning, a curated marketplace, and seamless execution tools
+                built for modern teams.
+              </p>
             </div>
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="demo">Request Demo</TabsTrigger>
-              <TabsTrigger value="signup">Sign Up</TabsTrigger>
-            </TabsList>
-            <TabsContent value="demo" className="pt-6">
-              <DemoRequestForm onDemoRequestSuccess={() => toast.success("Demo request submitted!")} />
-            </TabsContent>
-            <TabsContent value="signup" className="pt-6">
-              <SignUpForm onSignUpSuccess={() => toast.success("Account created! Check your email to verify.")} />
-            </TabsContent>
-          </Tabs>
-           <p className="px-8 text-center text-sm text-gray-500 mt-6">
-                By continuing, you agree to our{' '}
-                <Link to={createPageUrl("Terms")} className="underline hover:text-gray-700">Terms of Service</Link> and{' '}
-                <Link to={createPageUrl("Privacy")} className="underline hover:text-gray-700">Privacy Policy</Link>.
-            </p>
+          </div>
+        </div>
+
+        <div className="flex min-h-[calc(100vh-80px)] items-center justify-center px-6 py-8 lg:px-12">
+          <div className="w-full max-w-md">
+            <AnimatePresence mode="wait">
+              {activeView === "role" && (
+                <motion.div
+                  key="role"
+                  initial={{ opacity: 0, y: 16 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -16 }}
+                  transition={{ duration: 0.4, ease: "easeOut" }}
+                  className="space-y-8"
+                >
+                  <div className="space-y-4">
+                    <p className="text-sm font-semibold uppercase tracking-[0.3em] text-brand-teal">
+                      Choose your path
+                    </p>
+                    <h2 className="text-3xl font-semibold text-brand-dark">
+                      How will you use Strathwell?
+                    </h2>
+                    <p className="text-sm text-brand-dark/70">
+                      Select a role to personalize your onboarding experience.
+                    </p>
+                  </div>
+                  <div className="grid gap-4">
+                    {roleOptions.map((option) => {
+                      const Icon = option.icon;
+                      return (
+                        <button
+                          key={option.id}
+                          type="button"
+                          className={cn(
+                            "flex w-full items-center gap-4 rounded-2xl border border-white/60 bg-white/80 px-5 py-4 text-left shadow-card",
+                            "transition duration-200 ease-smooth hover:-translate-y-0.5 hover:border-white",
+                            "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-teal/40"
+                          )}
+                          onClick={() => {
+                            setSelectedRole(option.id);
+                            setCurrentRole(option.id === "vendor" ? "vendor" : "user");
+                            setActiveView("signup");
+                          }}
+                        >
+                          <span className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-brand-light">
+                            <Icon className="h-5 w-5 text-brand-teal" />
+                          </span>
+                          <span className="flex-1">
+                            <span className="block text-base font-semibold text-brand-dark">
+                              {option.title}
+                            </span>
+                            <span className="block text-sm text-brand-dark/70">
+                              {option.description}
+                            </span>
+                          </span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </motion.div>
+              )}
+
+              {activeView !== "role" && (
+                <motion.div
+                  key="auth"
+                  initial={{ opacity: 0, y: 16 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -16 }}
+                  transition={{ duration: 0.4, ease: "easeOut" }}
+                  className="space-y-8 rounded-3xl border border-white/40 bg-white/80 p-8 shadow-card"
+                >
+                  <div className="space-y-6">
+                    <div>
+                      <p className="text-sm font-semibold uppercase tracking-[0.3em] text-brand-teal">
+                        {activeView === "login" ? "Welcome back" : "Create account"}
+                      </p>
+                      <h2 className="mt-3 text-2xl font-semibold text-brand-dark">
+                        {activeView === "login" ? "Sign in to Strathwell" : "Start your event workspace"}
+                      </h2>
+                    </div>
+                    {activeView === "signup" && selectedRole && (
+                      <span className="inline-block rounded-full bg-brand-light px-3 py-1 text-xs font-semibold text-brand-teal">
+                        Signing up as {roleLabel}
+                      </span>
+                    )}
+                  </div>
+
+                  {activeView === "signup" ? (
+                    <SignUpForm
+                      selectedRole={selectedRole}
+                      onSignUpSuccess={() => toast.success("Account created! Check your email to verify.")}
+                    />
+                  ) : (
+                    <LoginForm onLoginSuccess={() => undefined} />
+                  )}
+
+                  <div className="space-y-4 border-t border-white/40 pt-6">
+                    <div className="text-center text-sm text-brand-dark/70">
+                      {activeView === "signup" ? (
+                        <span>
+                          Already a user?{" "}
+                          <button
+                            type="button"
+                            className="font-semibold text-brand-teal hover:text-brand-teal/80"
+                            onClick={() => setActiveView("login")}
+                          >
+                            Login
+                          </button>
+                        </span>
+                      ) : (
+                        <span>
+                          New here?{" "}
+                          <button
+                            type="button"
+                            className="font-semibold text-brand-teal hover:text-brand-teal/80"
+                            onClick={() => setActiveView("signup")}
+                          >
+                            Create an account
+                          </button>
+                        </span>
+                      )}
+                    </div>
+
+                    {activeView === "signup" && (
+                      <div className="flex flex-col gap-3 text-center text-xs text-brand-dark/60 sm:flex-row sm:items-center sm:justify-between">
+                        <button
+                          type="button"
+                          className="font-semibold text-brand-dark/60 hover:text-brand-dark"
+                          onClick={() => setActiveView("role")}
+                        >
+                          ← Change role
+                        </button>
+                        <Link to={createPageUrl("Home")} className="hover:text-brand-dark">
+                          Return home
+                        </Link>
+                      </div>
+                    )}
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+            <div className="mt-8 text-center text-xs text-brand-dark/60">
+              <p>
+                By continuing, you agree to our{" "}
+                <Link to={createPageUrl("Terms")} className="underline hover:text-brand-dark">
+                  Terms of Service
+                </Link>{" "}
+                and{" "}
+                <Link to={createPageUrl("Privacy")} className="underline hover:text-brand-dark">
+                  Privacy Policy
+                </Link>.
+              </p>
+            </div>
+          </div>
         </div>
       </div>
     </div>

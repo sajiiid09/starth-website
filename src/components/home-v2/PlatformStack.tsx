@@ -8,7 +8,7 @@ import PillButton from "@/components/home-v2/primitives/PillButton";
 import PromptBox from "@/components/home-v2/PromptBox";
 import type { SectionTheme } from "@/components/home-v2/types";
 
-// Custom hook for platform stack animations
+// Custom hook for platform stack animations (kept for future extensibility)
 const usePlatformStack = ({ sectionRef, stackRef, cardARef, cardBRef }: {
   sectionRef: React.RefObject<HTMLDivElement>;
   stackRef: React.RefObject<HTMLDivElement>;
@@ -27,7 +27,6 @@ const PlatformStack: React.FC<PlatformStackProps> = ({ theme = 'light' }) => {
   const stackRef = React.useRef<HTMLDivElement>(null);
   const cardARef = React.useRef<HTMLDivElement>(null);
   const cardBRef = React.useRef<HTMLDivElement>(null);
-  const prefersReducedMotion = usePrefersReducedMotion();
 
   usePlatformStack({
     sectionRef,
@@ -48,17 +47,26 @@ const PlatformStack: React.FC<PlatformStackProps> = ({ theme = 'light' }) => {
               </h2>
             </div>
           </FadeIn>
+          
           <PromptBox />
+          
+          {/* Layout Fixed: Changed from flex-col stack to a responsive grid */}
           <div
             ref={stackRef}
-            className="relative flex flex-col gap-8 lg:min-h-[520px]"
+            className="grid grid-cols-1 gap-8 lg:grid-cols-2"
           >
+            {/* Card A: Templates */}
             <div
               ref={cardARef}
-              className="relative z-20 rounded-2xl border border-brand-dark/10 bg-white shadow-soft transition duration-250 ease-smooth hover:-translate-y-1 hover:shadow-card"
+              className="relative z-20 overflow-hidden rounded-2xl border border-brand-dark/10 bg-white shadow-soft transition duration-300 ease-smooth hover:-translate-y-1 hover:shadow-card"
             >
-              <div className="overflow-hidden rounded-2xl border border-brand-dark/5 bg-brand-blue/40">
-                <div className="h-[220px] w-full bg-[radial-gradient(circle_at_30%_20%,rgba(2,127,131,0.15),transparent_60%),linear-gradient(120deg,rgba(34,31,31,0.05),rgba(34,31,31,0))]" />
+              <div className="group relative h-[240px] w-full overflow-hidden border-b border-brand-dark/5 bg-brand-blue/10">
+                <img 
+                  src="https://images.unsplash.com/photo-1611224885990-ab7363d1f2a9?auto=format&fit=crop&q=80&w=1000" 
+                  alt="Event Planning Templates" 
+                  className="h-full w-full object-cover transition-transform duration-700 ease-in-out group-hover:scale-105"
+                />
+                <div className="absolute inset-0 bg-brand-dark/5 mix-blend-multiply" />
               </div>
               <div className="flex flex-col gap-4 p-6 md:p-8">
                 <div className="text-xs font-semibold uppercase tracking-[0.2em] text-brand-dark/60">
@@ -81,14 +89,19 @@ const PlatformStack: React.FC<PlatformStackProps> = ({ theme = 'light' }) => {
                 </PillButton>
               </div>
             </div>
+
+            {/* Card B: Blueprint OS */}
             <div
               ref={cardBRef}
-              className={`relative z-10 rounded-2xl border border-brand-dark/10 bg-white shadow-soft transition duration-250 ease-smooth hover:-translate-y-1 hover:shadow-card ${
-                prefersReducedMotion ? "" : "lg:-mt-24"
-              }`}
+              className="relative z-10 overflow-hidden rounded-2xl border border-brand-dark/10 bg-white shadow-soft transition duration-300 ease-smooth hover:-translate-y-1 hover:shadow-card"
             >
-              <div className="overflow-hidden rounded-2xl border border-brand-dark/5 bg-brand-blue/30">
-                <div className="h-[220px] w-full bg-[radial-gradient(circle_at_70%_10%,rgba(2,127,131,0.18),transparent_55%),linear-gradient(130deg,rgba(34,31,31,0.06),rgba(34,31,31,0))]" />
+              <div className="group relative h-[240px] w-full overflow-hidden border-b border-brand-dark/5 bg-brand-blue/10">
+                <img 
+                  src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&q=80&w=1000" 
+                  alt="Blueprint OS Dashboard" 
+                  className="h-full w-full object-cover transition-transform duration-700 ease-in-out group-hover:scale-105"
+                />
+                <div className="absolute inset-0 bg-brand-dark/5 mix-blend-multiply" />
               </div>
               <div className="flex flex-col gap-4 p-6 md:p-8">
                 <div className="text-xs font-semibold uppercase tracking-[0.2em] text-brand-dark/60">

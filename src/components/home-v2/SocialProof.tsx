@@ -26,7 +26,7 @@ const SocialProof: React.FC = () => {
     <Section theme={theme} id="home-social" dataSection="social">
       <Container>
         <div className="flex flex-col items-center gap-12 text-center">
-          <FadeIn>
+          <FadeIn duration={0.9} ease="power2.out" direction="up" distance={30}>
             <div className="flex flex-wrap items-center justify-center gap-8">
               {partners.map((partner) => (
                 <img
@@ -39,19 +39,19 @@ const SocialProof: React.FC = () => {
               ))}
             </div>
           </FadeIn>
-          <FadeIn>
+          <FadeIn delay={0.2} duration={1} ease="power3.out" direction="up" distance={50}>
             <div className="flex max-w-[900px] flex-col gap-6">
               <p className="text-3xl font-medium leading-[1.3] text-brand-dark md:text-5xl">
-                “Strathwell turns our event planning into a calm, repeatable
+                "Strathwell turns our event planning into a calm, repeatable
                 system—every team knows the blueprint before a single guest
-                arrives.”
+                arrives."
               </p>
               <div className="text-sm font-medium uppercase tracking-[0.2em] text-brand-dark/60">
                 Avery Collins • Director of Operations, Northbridge Collective
               </div>
             </div>
           </FadeIn>
-          <FadeIn>
+          <FadeIn delay={0.3} duration={0.8} ease="power2.out" direction="up" distance={30}>
             <div className="flex flex-col items-center gap-4">
               <div className="text-xs font-semibold uppercase tracking-[0.2em] text-brand-dark/60">
                 Built for

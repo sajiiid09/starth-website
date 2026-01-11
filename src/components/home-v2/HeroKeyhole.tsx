@@ -66,12 +66,12 @@ export default function Hero() {
         
         {/* --- Top Title --- */}
         <div className="flex flex-col items-center text-center">
-          <FadeIn delay={0.1} direction="up">
+          <FadeIn delay={0.1} direction="up" duration={0.8} ease="power2.out" distance={30}>
             <span className="mb-6 block font-mono text-[10px] font-bold uppercase tracking-[0.2em] text-gray-500">
               The OS for Autonomous Event Management
             </span>
           </FadeIn>
-          <FadeIn delay={0.2} direction="up">
+          <FadeIn delay={0.3} direction="up" duration={1.2} ease="power3.out" distance={60}>
             <h1 className="max-w-6xl text-5xl font-bold leading-[1.05] tracking-tight text-brand-dark md:text-7xl lg:text-[5.5rem]">
               Orchestrating events <br />
               <span style={{ color: '#027F83' }}>from blueprint</span> <br />

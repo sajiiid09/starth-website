@@ -22,7 +22,7 @@ const SolutionsCarousel: React.FC = () => {
     <Section theme={theme} id="home-solutions" dataSection="solutions">
       <Container>
         <div className="flex flex-col gap-10">
-          <FadeIn>
+          <FadeIn duration={1} ease="power3.out" direction="up" distance={50}>
             <div className="flex flex-col gap-4">
               <Eyebrow theme={theme}>Solutions</Eyebrow>
               <DisplayH2 theme={theme}>
@@ -30,7 +30,7 @@ const SolutionsCarousel: React.FC = () => {
               </DisplayH2>
             </div>
           </FadeIn>
-          <FadeIn>
+          <FadeIn delay={0.2} duration={0.9} ease="power2.out" direction="up" distance={40}>
             <div
               ref={wrapperRef}
               className={`relative ${prefersReducedMotion ? "" : "cursor-none"}`}

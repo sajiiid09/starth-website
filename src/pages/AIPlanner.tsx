@@ -19,6 +19,8 @@ import { toast } from "sonner";
 import { useSearchParams } from "react-router-dom";
 import gsap from "gsap";
 import PlannerPromptBox from "@/components/planner/PlannerPromptBox";
+import TemplateShowcase from "@/components/planner/TemplateShowcase";
+import PlannerTutorial from "@/components/planner/PlannerTutorial";
 import useGsapReveal from "@/components/utils/useGsapReveal";
 import { usePrefersReducedMotion } from "@/hooks/usePrefersReducedMotion";
 
@@ -1837,84 +1839,88 @@ Return the full JSON structure.`,
         </div>
 
         {activeMode === "planner" ? (
-          <div ref={plannerRef} className="grid gap-10 lg:grid-cols-[1.1fr_0.9fr]">
-            <div className="space-y-8">
-              <PlannerPromptBox
-                value={inputValue}
-                onChange={setInputValue}
-                onSubmit={handleSendMessage}
-                onKeyPress={handleKeyPress}
-                isLoading={isLoading}
-                isRecording={isRecording}
-                onToggleRecording={isRecording ? stopRecording : startRecording}
-                onUploadImages={handleImageUpload}
-                uploadedImages={uploadedImages}
-                uploadingImage={uploadingImage}
-                onRemoveImage={removeImage}
-              />
-              <p className="text-center text-xs text-brand-dark/50">
-                Disclaimer: Verified partner results are currently focused on MA,
-                SF, and NY.
-              </p>
-              <ChatInterface
-                messages={messages}
-                inputValue={inputValue}
-                setInputValue={setInputValue}
-                isLoading={isLoading}
-                onSendMessage={handleSendMessage}
-                onKeyPress={handleKeyPress}
-                showComposer={false}
-                showPrompts={false}
-              />
-            </div>
-
-            <div className="space-y-6">
-              {isLoading ? (
-                <div className="flex h-[600px] flex-col justify-center rounded-2xl bg-white/80 p-8 text-center shadow-soft">
-                  <div className="flex flex-col items-center gap-4">
-                    <Loader2 className="h-8 w-8 animate-spin text-brand-dark/40" />
-                    <p className="text-brand-dark/60">{loadingMessage}</p>
-                  </div>
-                </div>
-              ) : currentPlan &&
-                (currentPlan.venues?.length > 0 ||
-                  currentPlan.vendors?.length > 0 ||
-                  currentPlan.creative_concepts) ? (
-                <ResultsPanels
-                  plan={currentPlan}
-                  onSavePlan={handleSavePlan}
-                  user={user}
+          <>
+            <div ref={plannerRef} className="grid gap-10 lg:grid-cols-[1.1fr_0.9fr]">
+              <div className="space-y-8">
+                <PlannerPromptBox
+                  value={inputValue}
+                  onChange={setInputValue}
+                  onSubmit={handleSendMessage}
+                  onKeyPress={handleKeyPress}
+                  isLoading={isLoading}
+                  isRecording={isRecording}
+                  onToggleRecording={isRecording ? stopRecording : startRecording}
+                  onUploadImages={handleImageUpload}
+                  uploadedImages={uploadedImages}
+                  uploadingImage={uploadingImage}
+                  onRemoveImage={removeImage}
                 />
-              ) : (
-                <div className="flex h-[600px] flex-col justify-center rounded-2xl bg-white/80 p-8 text-center shadow-soft">
-                  {searchPerformed ? (
-                    <div>
-                      <p className="mb-4 text-brand-dark/60">
-                        No specific matches found. Try broadening your search or
-                        specifying a location.
-                      </p>
-                      <Button
-                        onClick={() => setActiveMode("marketplace")}
-                        variant="outline"
-                      >
-                        Browse Marketplace Instead
-                      </Button>
+                <p className="text-center text-xs text-brand-dark/50">
+                  Disclaimer: Verified partner results are currently focused on MA,
+                  SF, and NY.
+                </p>
+                <ChatInterface
+                  messages={messages}
+                  inputValue={inputValue}
+                  setInputValue={setInputValue}
+                  isLoading={isLoading}
+                  onSendMessage={handleSendMessage}
+                  onKeyPress={handleKeyPress}
+                  showComposer={false}
+                  showPrompts={false}
+                />
+              </div>
+
+              <div className="space-y-6">
+                {isLoading ? (
+                  <div className="flex h-[600px] flex-col justify-center rounded-2xl bg-white/80 p-8 text-center shadow-soft">
+                    <div className="flex flex-col items-center gap-4">
+                      <Loader2 className="h-8 w-8 animate-spin text-brand-dark/40" />
+                      <p className="text-brand-dark/60">{loadingMessage}</p>
                     </div>
-                  ) : (
-                    <div>
-                      <Sparkles className="mx-auto mb-4 h-12 w-12 text-brand-dark/30" />
-                      <p className="mb-4 text-brand-dark/60">
-                        Describe your event to get started
-                      </p>
-                      <p className="text-sm text-brand-dark/40">
-                        Use text, voice, or images
-                      </p>
-                    </div>
-                  )}
-                </div>
-              )}
+                  </div>
+                ) : currentPlan &&
+                  (currentPlan.venues?.length > 0 ||
+                    currentPlan.vendors?.length > 0 ||
+                    currentPlan.creative_concepts) ? (
+                  <ResultsPanels
+                    plan={currentPlan}
+                    onSavePlan={handleSavePlan}
+                    user={user}
+                  />
+                ) : (
+                  <div className="flex h-[600px] flex-col justify-center rounded-2xl bg-white/80 p-8 text-center shadow-soft">
+                    {searchPerformed ? (
+                      <div>
+                        <p className="mb-4 text-brand-dark/60">
+                          No specific matches found. Try broadening your search or
+                          specifying a location.
+                        </p>
+                        <Button
+                          onClick={() => setActiveMode("marketplace")}
+                          variant="outline"
+                        >
+                          Browse Marketplace Instead
+                        </Button>
+                      </div>
+                    ) : (
+                      <div>
+                        <Sparkles className="mx-auto mb-4 h-12 w-12 text-brand-dark/30" />
+                        <p className="mb-4 text-brand-dark/60">
+                          Describe your event to get started
+                        </p>
+                        <p className="text-sm text-brand-dark/40">
+                          Use text, voice, or images
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
             </div>
-          </div>
+            <TemplateShowcase />
+            <PlannerTutorial />
+          </>
         ) : (
           <div ref={marketplaceRef} className="space-y-8">
             <Card className="border-none bg-white/80 shadow-soft">

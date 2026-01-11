@@ -7,7 +7,7 @@ import SuccessMetrics from "../components/case-studies/SuccessMetrics";
 
 export default function CaseStudiesPage() {
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-brand-light text-brand-dark">
       <CaseStudyHero />
       <FeaturedCase />
       <LimitlessSchedule />

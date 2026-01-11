@@ -27,19 +27,21 @@ type FadeInProps = {
   childSelector?: string;
 };
 
-const FadeIn: React.FC<FadeInProps> = ({
-  children,
-  className,
-  delay = 0,
-  direction = "up",
-  distance = 40,
-  duration = 1,
-  ease = "power3.out",
-  start = "top 85%",
-  once = true,
-  staggerChildren = 0,
-  childSelector
-}) => {
+const FadeIn: React.FC<FadeInProps> = (props) => {
+  const {
+    children,
+    className,
+    delay = 0,
+    direction = "up",
+    distance = 40,
+    duration = 1,
+    ease = "power3.out",
+    start = "top 85%",
+    once = true,
+    staggerChildren = 0,
+    childSelector
+  } = props || {};
+
   const prefersReducedMotion = usePrefersReducedMotion();
   const wrapperRef = React.useRef<HTMLDivElement | null>(null);
 
@@ -77,6 +79,11 @@ const FadeIn: React.FC<FadeInProps> = ({
       staggerChildren > 0
         ? element.querySelectorAll(childSelector || ":scope > *")
         : element;
+
+    // Guard: Skip animation if no targets found
+    if (staggerChildren > 0 && targets instanceof NodeList && targets.length === 0) {
+      return;
+    }
 
     const context = gsap.context(() => {
       gsap.fromTo(

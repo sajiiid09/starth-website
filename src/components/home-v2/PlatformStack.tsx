@@ -7,6 +7,8 @@ import Eyebrow from "@/components/home-v2/primitives/Eyebrow";
 import PillButton from "@/components/home-v2/primitives/PillButton";
 import PromptBox from "@/components/home-v2/PromptBox";
 import type { SectionTheme } from "@/components/home-v2/types";
+import { createPageUrl } from "@/utils";
+import { useNavigate } from "react-router-dom";
 
 // Custom hook for platform stack animations (kept for future extensibility)
 const usePlatformStack = ({ sectionRef, stackRef, cardARef, cardBRef }: {
@@ -27,6 +29,7 @@ const PlatformStack: React.FC<PlatformStackProps> = ({ theme = 'light' }) => {
   const stackRef = React.useRef<HTMLDivElement>(null);
   const cardARef = React.useRef<HTMLDivElement>(null);
   const cardBRef = React.useRef<HTMLDivElement>(null);
+  const navigate = useNavigate();
 
   usePlatformStack({
     sectionRef,
@@ -84,7 +87,13 @@ const PlatformStack: React.FC<PlatformStackProps> = ({ theme = 'light' }) => {
                 <div className="text-sm font-medium text-brand-dark/70">
                   ✓ Ready-to-run operating plan
                 </div>
-                <PillButton variant="secondary" size="sm" className="self-start">
+                <PillButton
+                  variant="secondary"
+                  size="sm"
+                  className="self-start"
+                  type="button"
+                  onClick={() => navigate(createPageUrl("Templates"))}
+                >
                   Explore Templates
                 </PillButton>
               </div>
@@ -119,7 +128,13 @@ const PlatformStack: React.FC<PlatformStackProps> = ({ theme = 'light' }) => {
                 <div className="text-sm font-medium text-brand-dark/70">
                   ✓ Includes dependencies &amp; compliance
                 </div>
-                <PillButton variant="secondary" size="sm" className="self-start">
+                <PillButton
+                  variant="secondary"
+                  size="sm"
+                  className="self-start"
+                  type="button"
+                  onClick={() => navigate(createPageUrl("AIPlanner"))}
+                >
                   Explore the OS
                 </PillButton>
               </div>

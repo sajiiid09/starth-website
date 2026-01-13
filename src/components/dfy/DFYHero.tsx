@@ -1,55 +1,97 @@
 import React from "react";
-import { Badge } from "@/components/ui/badge";
-import { Users, Clock, Award, CheckCircle } from "lucide-react";
+import { Link } from "react-router-dom";
+import { Clock, Award, CheckCircle } from "lucide-react";
+import { createPageUrl } from "@/utils";
+import Container from "@/components/home-v2/primitives/Container";
+import Section from "@/components/home-v2/primitives/Section";
+import Eyebrow from "@/components/home-v2/primitives/Eyebrow";
+import DisplayH1 from "@/components/home-v2/primitives/DisplayH1";
+import Lead from "@/components/home-v2/primitives/Lead";
+import PillButton from "@/components/home-v2/primitives/PillButton";
+import FadeIn from "@/components/animations/FadeIn";
+import DemoRequestModal from "@/components/marketing/DemoRequestModal";
+import { cn } from "@/lib/utils";
+
+const highlights = [
+  {
+    title: "24-hour response",
+    description: "Receive a curated proposal within one business day.",
+    icon: Clock
+  },
+  {
+    title: "Expert curation",
+    description: "Hand-picked venues and vendors aligned to your vision.",
+    icon: Award
+  },
+  {
+    title: "Full execution",
+    description: "Dedicated coordination from planning to day-of delivery.",
+    icon: CheckCircle
+  }
+];
 
 export default function DFYHero() {
+  const [showDemoModal, setShowDemoModal] = React.useState(false);
+
   return (
-    <section className="pt-24 pb-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-gray-50 to-white">
-      <div className="max-w-4xl mx-auto text-center">
-        <Badge className="inline-flex items-center gap-2 px-4 py-2 bg-purple-50 text-purple-700 border-purple-200 mb-6">
-          <Users className="w-4 h-4" />
-          Full-Service Event Planning
-        </Badge>
-        
-        <h1 className="text-4xl md:text-6xl font-bold text-gray-900 mb-6 leading-tight">
-          Your Event,
-          <br />
-          <span className="bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
-            Our Expertise
-          </span>
-        </h1>
-        
-        <p className="text-xl md:text-2xl text-gray-600 mb-8 max-w-3xl mx-auto leading-relaxed">
-          Short on time? Our concierge team will plan and execute the entire event for you—from concept to completion.
-        </p>
-
-        {/* Key Benefits */}
-        <div className="grid md:grid-cols-3 gap-6 mt-12">
-          <div className="text-center">
-            <div className="w-16 h-16 mx-auto mb-4 bg-purple-100 rounded-2xl flex items-center justify-center">
-              <Clock className="w-8 h-8 text-purple-600" />
+    <Section theme="cream" className="relative overflow-hidden">
+      <Container>
+        <div className="flex flex-col gap-12 text-center">
+          <FadeIn>
+            <div className="mx-auto flex max-w-3xl flex-col gap-6">
+              <Eyebrow theme="cream">Done-for-you orchestration</Eyebrow>
+              <DisplayH1 theme="cream">
+                Done-for-you event orchestration
+                <span className="block bg-gradient-to-r from-brand-teal to-brand-dark bg-clip-text text-transparent">
+                  with concierge-level execution.
+                </span>
+              </DisplayH1>
+              <Lead theme="cream">
+                Short on time? Our concierge team plans and executes your entire event—from
+                concept to completion—so you can stay focused on your guests.
+              </Lead>
+              <div className="flex flex-col items-center justify-center gap-3 sm:flex-row">
+                <PillButton onClick={() => setShowDemoModal(true)}>
+                  Book a demo
+                </PillButton>
+                <Link to={createPageUrl("Templates")}>
+                  <PillButton
+                    variant="secondary"
+                    className="border-brand-dark/20 text-brand-dark hover:border-brand-dark"
+                  >
+                    Explore templates
+                  </PillButton>
+                </Link>
+              </div>
             </div>
-            <h3 className="font-bold text-gray-900 mb-2">24hr Response</h3>
-            <p className="text-gray-600">We'll reach out within one business day with your custom proposal</p>
-          </div>
+          </FadeIn>
 
-          <div className="text-center">
-            <div className="w-16 h-16 mx-auto mb-4 bg-purple-100 rounded-2xl flex items-center justify-center">
-              <Award className="w-8 h-8 text-purple-600" />
-            </div>
-            <h3 className="font-bold text-gray-900 mb-2">Expert Curation</h3>
-            <p className="text-gray-600">Hand-picked venues and vendors tailored to your exact needs</p>
-          </div>
-
-          <div className="text-center">
-            <div className="w-16 h-16 mx-auto mb-4 bg-purple-100 rounded-2xl flex items-center justify-center">
-              <CheckCircle className="w-8 h-8 text-purple-600" />
-            </div>
-            <h3 className="font-bold text-gray-900 mb-2">Full Execution</h3>
-            <p className="text-gray-600">We handle everything from planning to day-of coordination</p>
-          </div>
+          <FadeIn
+            className="grid gap-6 text-left sm:grid-cols-2 lg:grid-cols-3"
+            staggerChildren={0.1}
+            childSelector=".dfy-highlight"
+          >
+            {highlights.map((item) => {
+              const Icon = item.icon;
+              return (
+                <div
+                  key={item.title}
+                  className={cn(
+                    "dfy-highlight rounded-3xl border border-white/50 bg-white/80 p-6 shadow-card"
+                  )}
+                >
+                  <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-brand-teal/10">
+                    <Icon className="h-6 w-6 text-brand-teal" />
+                  </div>
+                  <h3 className="mt-4 text-lg font-semibold text-brand-dark">{item.title}</h3>
+                  <p className="mt-2 text-sm text-brand-dark/70">{item.description}</p>
+                </div>
+              );
+            })}
+          </FadeIn>
         </div>
-      </div>
-    </section>
+      </Container>
+      <DemoRequestModal isOpen={showDemoModal} onClose={() => setShowDemoModal(false)} />
+    </Section>
   );
 }

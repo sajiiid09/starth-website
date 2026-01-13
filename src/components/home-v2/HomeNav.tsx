@@ -15,7 +15,7 @@ import {
 
 const solutionsItems = [
   { label: "Marketplace", to: createPageUrl("Marketplace") },
-  { label: "Event Templates", to: createPageUrl("Templates"), comingSoon: true },
+  { label: "Event Templates", to: createPageUrl("Templates") },
   { label: "Popular Vendors", to: createPageUrl("Vendors") },
   { label: "Plan with Us", to: createPageUrl("DFY") },
   { label: "AI Planner", to: createPageUrl("AIPlanner") }
@@ -23,9 +23,9 @@ const solutionsItems = [
 
 const exploreItems = [
   { label: "Case Studies", to: createPageUrl("CaseStudies") },
-  { label: "Customer Review", to: createPageUrl("Reviews") },
+  { label: "Reviews", to: createPageUrl("Reviews") },
   { label: "Contact", to: createPageUrl("Contact") },
-  { label: "Legals", to: createPageUrl("Legals"), comingSoon: true }
+  { label: "Legal", to: createPageUrl("Legal") }
 ];
 
 const HomeNav: React.FC = () => {
@@ -44,12 +44,12 @@ const HomeNav: React.FC = () => {
         "sticky top-0 z-50 w-full border-b border-white/20 bg-white/60 shadow-sm backdrop-blur-2xl"
       )}
     >
-      <Container className="flex h-[72px] items-center justify-between">
+      <Container className="flex h-[80px] items-center justify-between">
         <Link to={createPageUrl("Home")} className="flex items-center">
           <img
             src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/68d4e38c341adad3b24950ed/ddf404508_Elegant_Simple_Aesthetic_Real_Estate_Logo__1_-removebg-preview.png"
             alt="Strathwell"
-            className="h-12 w-auto sm:h-14 md:h-16"
+            className="h-14 w-auto sm:h-16 md:h-[72px]"
           />
         </Link>
 
@@ -88,11 +88,7 @@ const HomeNav: React.FC = () => {
                   <DropdownMenuItem key={item.label} asChild>
                     <Link to={item.to} className={dropdownItemClasses}>
                       <span>{item.label}</span>
-                      {item.comingSoon && (
-                        <span className="text-xs uppercase tracking-[0.2em] text-brand-dark/50">
-                          Coming soon
-                        </span>
-                      )}
+                      
                     </Link>
                   </DropdownMenuItem>
                 ))}
@@ -117,11 +113,7 @@ const HomeNav: React.FC = () => {
                   <DropdownMenuItem key={item.label} asChild>
                     <Link to={item.to} className={dropdownItemClasses}>
                       <span>{item.label}</span>
-                      {item.comingSoon && (
-                        <span className="text-xs uppercase tracking-[0.2em] text-brand-dark/50">
-                          Coming soon
-                        </span>
-                      )}
+                      
                     </Link>
                   </DropdownMenuItem>
                 ))}

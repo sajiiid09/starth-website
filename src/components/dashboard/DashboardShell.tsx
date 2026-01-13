@@ -22,9 +22,15 @@ import {
   SelectValue
 } from "@/components/ui/select";
 import { sidebarUser } from "@/config/sidebarUser";
-import { sidebarVendor } from "@/config/sidebarVendor";
+import { getSidebarVendor } from "@/config/sidebarVendor";
 import { sidebarAdmin } from "@/config/sidebarAdmin";
 import { AppRole, clearRole, getCurrentRole, getRoleHomePath, setCurrentRole } from "@/utils/role";
+import {
+  getSessionState,
+  setVendorOnboardingStatus,
+  setVendorType,
+  updateVendorProfileDraft
+} from "@/utils/session";
 
 const isDev = import.meta.env.MODE !== "production";
 
@@ -39,13 +45,22 @@ const DashboardShell: React.FC<DashboardShellProps> = ({ children }) => {
 
   const navItems = React.useMemo(() => {
     if (role === "admin") return sidebarAdmin;
-    if (role === "vendor") return sidebarVendor;
+    if (role === "vendor") {
+      const session = getSessionState();
+      return getSidebarVendor({
+        vendorType: session.vendorType,
+        status: session.vendorOnboardingStatus
+      });
+    }
     return sidebarUser;
   }, [role]);
 
   const handleSignOut = () => {
     sessionStorage.removeItem("currentUser");
     clearRole();
+    setVendorType(null);
+    setVendorOnboardingStatus("draft");
+    updateVendorProfileDraft({});
     navigate("/appentry");
   };
 

@@ -13,7 +13,7 @@ const templates = [
     title: "Save-the-Date", 
     description: "Announce your event and get it on calendars.",
     defaultHeadline: "Save the Date - You're Invited!",
-    defaultBody: "We're excited to invite you to our upcoming event. Mark your calendar and stay tuned for more details!\n\n📅 Date: [Event Date]\n📍 Location: [Event Location]\n\nMore information and registration coming soon!",
+    defaultBody: "We're excited to invite you to our upcoming event. Mark your calendar and stay tuned for more details!\n\n📅 Date: [Event Date]\n📍 Location: [Event Location]\n\nMore information and registration details will be shared shortly!",
     defaultCTA: "Learn More"
   },
   { 
@@ -91,7 +91,7 @@ const CampaignEditor = ({ eventId, template, onSave, onCancel }) => {
 
   const generateInstagramCaption = (templateType) => {
     const captions = {
-      save_the_date: "📅 SAVE THE DATE! Something amazing is coming your way... ✨ Mark your calendars and stay tuned for all the details! 🎉 #SaveTheDate #Event #ComingSoon #Excited",
+      save_the_date: "📅 SAVE THE DATE! Something amazing is on the way... ✨ Mark your calendars and stay tuned for all the details! 🎉 #SaveTheDate #Event #Excited",
       early_bird: "🐦 EARLY BIRD ALERT! 🚨 Get your tickets now and save big! Limited time offer - don't miss out on this incredible opportunity! 💫 #EarlyBird #EventTickets #LimitedTime #SaveMoney",
       reminder: "⏰ REMINDER: Don't miss out! Registration is still open but not for long... Secure your spot today! 🎯 #DontMissOut #RegisterNow #LastChance #EventReminder",
       speaker_spotlight: "🌟 SPEAKER SPOTLIGHT! We're incredibly excited to announce our keynote speaker! Get ready to be inspired! 🎤✨ #Speaker #Keynote #Inspiration #EventSpeaker",
@@ -103,7 +103,7 @@ const CampaignEditor = ({ eventId, template, onSave, onCancel }) => {
 
   const generateLinkedInCaption = (templateType) => {
     const captions = {
-      save_the_date: "Exciting news! Our upcoming event is designed to bring together industry leaders and innovators. Save the date and be part of something transformative. Details coming soon. #Professional #Networking #Industry",
+      save_the_date: "Exciting news! Our upcoming event is designed to bring together industry leaders and innovators. Save the date and be part of something transformative. Details will be shared shortly. #Professional #Networking #Industry",
       early_bird: "Take advantage of our early bird pricing and join industry professionals for an exceptional learning experience. Limited time offer - secure your investment in professional development today. #ProfessionalDevelopment #EarlyBird #Industry",
       reminder: "Don't miss this opportunity to advance your career and expand your network. Registration is still open, but spaces are limited. Join us for insights that will shape your professional journey. #CareerDevelopment #Networking #Professional",
       speaker_spotlight: "We're honored to feature an industry thought leader who will share invaluable insights and strategies. This keynote presentation will provide actionable takeaways for your professional growth. #ThoughtLeadership #Professional #Industry",

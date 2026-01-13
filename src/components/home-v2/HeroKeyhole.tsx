@@ -98,11 +98,21 @@ export default function Hero() {
             <span className="text-[10px] font-bold uppercase tracking-widest text-gray-400">
               Trusted By
             </span>
-            <div className="flex items-center gap-8 grayscale opacity-60">
-               {/* Logos */}
-               <div className="h-6 w-20 bg-gray-300 rounded" />
-               <div className="h-6 w-20 bg-gray-300 rounded" />
-               <div className="h-6 w-20 bg-gray-300 rounded" />
+            <div className="flex items-center gap-6">
+              {[
+                "/partners/ashbury.svg",
+                "/partners/crescent.svg",
+                "/partners/lakeview.svg",
+                "/partners/northbridge.svg"
+              ].map((logo) => (
+                <img
+                  key={logo}
+                  src={logo}
+                  alt="Partner logo"
+                  className="h-6 w-auto opacity-60 grayscale"
+                  loading="lazy"
+                />
+              ))}
             </div>
           </FadeIn>
         </div>
@@ -125,7 +135,7 @@ export default function Hero() {
           className="h-full w-full object-cover"
         >
           <source
-            src="/public/herovid.mp4"
+            src="/herovid.mp4"
             type="video/mp4"
           />
         </video>

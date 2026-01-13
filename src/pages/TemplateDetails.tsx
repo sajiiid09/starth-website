@@ -416,6 +416,206 @@ const TemplateDetails: React.FC = () => {
           </div>
         </FadeIn>
 
+        {layout && (
+          <FadeIn className="mt-10 rounded-3xl border border-white/40 bg-white/70 p-8 shadow-card">
+            <div className="flex flex-wrap items-center justify-between gap-4">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-[0.3em] text-brand-teal">
+                  Space Transformation Plan
+                </p>
+                <h2 className="mt-2 text-2xl font-semibold text-brand-dark">
+                  Venue layout schematic
+                </h2>
+                <p className="mt-2 text-sm text-brand-dark/60">
+                  Preview optimized vs. max layouts for a {guestCount}-guest
+                  blueprint.
+                </p>
+              </div>
+              <div className="flex flex-wrap items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => setShowComparison((prev) => !prev)}
+                  className={cn(
+                    "rounded-full border px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] transition",
+                    showComparison
+                      ? "border-brand-teal/50 bg-brand-teal/10 text-brand-teal"
+                      : "border-brand-dark/20 bg-white text-brand-dark/70 hover:border-brand-dark/40"
+                  )}
+                >
+                  Before / After
+                </button>
+              </div>
+            </div>
+
+            <div className="mt-6">
+              {showComparison ? (
+                <div className="grid gap-6 lg:grid-cols-2">
+                  <SpacePlannerSchematic
+                    venue={featuredVenue}
+                    layout={layout}
+                    guestCount={guestCount}
+                    inventory={layout.baselineInventory}
+                    mode={layoutMode}
+                    variant="before"
+                  />
+                  <SpacePlannerSchematic
+                    venue={featuredVenue}
+                    layout={layout}
+                    guestCount={guestCount}
+                    inventory={layout.baselineInventory}
+                    mode={layoutMode}
+                    variant="after"
+                  />
+                </div>
+              ) : (
+                <SpacePlannerSchematic
+                  venue={featuredVenue}
+                  layout={layout}
+                  guestCount={guestCount}
+                  inventory={layout.baselineInventory}
+                  mode={layoutMode}
+                  variant="after"
+                />
+              )}
+            </div>
+          </FadeIn>
+        )}
+
+        {layout && (
+          <FadeIn className="mt-10 rounded-3xl border border-white/40 bg-white/70 p-8 shadow-card">
+            <div className="flex flex-wrap items-center justify-between gap-4">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-[0.3em] text-brand-teal">
+                  Inventory & Utilization
+                </p>
+                <h2 className="mt-2 text-2xl font-semibold text-brand-dark">
+                  Inventory optimizer
+                </h2>
+                <p className="mt-2 text-sm text-brand-dark/60">
+                  Counts update as you adjust guest load and layout mode.
+                </p>
+              </div>
+            </div>
+            {(() => {
+              const scalingFactor = Math.min(
+                1.3,
+                Math.max(
+                  0.7,
+                  guestCount / Math.max(layout.guestRangeRecommended.max, 1)
+                )
+              );
+              const recommendedInventory = {
+                chairs: Math.ceil(layout.baselineInventory.chairs * scalingFactor),
+                tables: Math.max(6, Math.ceil(layout.baselineInventory.tables * scalingFactor)),
+                stageModules: Math.max(2, Math.ceil(layout.baselineInventory.stageModules)),
+                buffetStations: Math.max(1, Math.ceil(layout.baselineInventory.buffetStations)),
+                cocktailTables: Math.max(
+                  2,
+                  Math.ceil(layout.baselineInventory.cocktailTables * scalingFactor)
+                )
+              };
+              const requiredSqft = estimateRequiredSqft(
+                guestCount,
+                layoutMode,
+                recommendedInventory
+              );
+              const fitStatus = computeFitStatus(featuredVenue.sqft, requiredSqft);
+              const alternativeVenues =
+                fitStatus === "OVER"
+                  ? suggestAlternativeVenues(venues, requiredSqft)
+                  : [];
+              const adjustments =
+                fitStatus === "OVER"
+                  ? suggestAdjustments({
+                      venueSqft: featuredVenue.sqft,
+                      guestCount,
+                      mode: layoutMode,
+                      inventoryMix: recommendedInventory
+                    })
+                  : [];
+
+              return (
+                <div className="mt-6 grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    {[
+                      { label: "Chairs", value: recommendedInventory.chairs },
+                      { label: "Tables", value: recommendedInventory.tables },
+                      { label: "Stage Modules", value: recommendedInventory.stageModules },
+                      { label: "Buffet Stations", value: recommendedInventory.buffetStations },
+                      { label: "Cocktail Tables", value: recommendedInventory.cocktailTables }
+                    ].map((item) => (
+                      <div
+                        key={item.label}
+                        className="rounded-2xl border border-white/40 bg-white/80 px-4 py-3"
+                      >
+                        <p className="text-xs uppercase tracking-[0.2em] text-brand-dark/50">
+                          {item.label}
+                        </p>
+                        <p className="mt-2 text-2xl font-semibold text-brand-dark">
+                          {item.value}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="space-y-4">
+                    <div className="rounded-2xl border border-white/40 bg-white/80 px-4 py-4 text-sm text-brand-dark/70">
+                      <p className="text-xs font-semibold uppercase tracking-[0.2em] text-brand-dark/50">
+                        Space utilization
+                      </p>
+                      <p className="mt-3 text-lg font-semibold text-brand-dark">
+                        {requiredSqft.toLocaleString()} sq ft required
+                      </p>
+                      <p className="mt-2">
+                        {fitStatus === "OVER"
+                          ? "Current plan exceeds the venue footprint. Suggested pivots below."
+                          : fitStatus === "TIGHT"
+                          ? "This plan is tight. Expect closer seating and tighter circulation."
+                          : "This configuration fits with comfortable circulation."}
+                      </p>
+                    </div>
+                    {fitStatus === "OVER" && (
+                      <div className="rounded-2xl border border-white/40 bg-white/80 px-4 py-4">
+                        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-brand-dark/50">
+                          Adjustments
+                        </p>
+                        <ul className="mt-3 space-y-2 text-sm text-brand-dark/70">
+                          {adjustments.map((adjustment, index) => (
+                            <li key={`${adjustment.type}-${index}`}>
+                              {adjustment.type === "reduce-guest-count" &&
+                                `Reduce guest count to ${adjustment.suggestedGuestCount}.`}
+                              {adjustment.type === "reduce-stage-modules" &&
+                                `Reduce stage modules to ${adjustment.suggestedStageModules}.`}
+                              {adjustment.type === "reduce-tables" &&
+                                `Reduce tables to ${adjustment.suggestedTables}.`}
+                              {adjustment.type === "switch-mode" &&
+                                `Switch to ${adjustment.suggestedMode} mode.`}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                    {fitStatus === "OVER" && alternativeVenues.length > 0 && (
+                      <div className="rounded-2xl border border-white/40 bg-white/80 px-4 py-4">
+                        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-brand-dark/50">
+                          Alternative venues
+                        </p>
+                        <ul className="mt-3 space-y-2 text-sm text-brand-dark/70">
+                          {alternativeVenues.map((venue) => (
+                            <li key={venue.id}>
+                              {venue.name} · {venue.sqft.toLocaleString()} sq ft ·{" "}
+                              {venue.location}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              );
+            })()}
+          </FadeIn>
+        )}
+
         <div className="mt-10 grid gap-8 lg:grid-cols-[1.2fr_0.8fr]">
           {layout && (
             <FadeIn className="lg:col-start-1 lg:row-start-1">

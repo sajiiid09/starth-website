@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Sparkles, Send } from "lucide-react"; // Loader2 is removed from here as it's replaced by animated dots
+import { cn } from "@/lib/utils";
 
 // Simple message bubble component for the chat
 type ChatMessage = {
@@ -22,6 +23,9 @@ type ChatInterfaceProps = {
   ) => void;
   showComposer?: boolean;
   showPrompts?: boolean;
+  className?: string;
+  cardClassName?: string;
+  heightClassName?: string;
 };
 
 const MessageBubble = ({ message }: { message: ChatMessage }) => {
@@ -30,20 +34,20 @@ const MessageBubble = ({ message }: { message: ChatMessage }) => {
   return (
     <div className={`flex gap-3 mb-4 message-bubble ${isUser ? 'justify-end' : 'justify-start'}`}>
       {!isUser && (
-        <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center flex-shrink-0">
-          <Sparkles className="w-4 h-4 text-white" />
+        <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-brand-teal">
+          <Sparkles className="h-4 w-4 text-white" />
         </div>
       )}
       <div className={`max-w-[80%] p-3 rounded-2xl ${
         isUser 
-          ? 'bg-blue-600 text-white' 
-          : 'bg-gray-100 text-gray-900'
+          ? 'bg-brand-teal text-white' 
+          : 'bg-brand-light/80 text-brand-dark'
       }`}>
         <p className="text-sm leading-relaxed">{message.content}</p>
       </div>
       {isUser && (
-        <div className="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center flex-shrink-0">
-          <span className="text-gray-700 font-semibold text-xs">You</span>
+        <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-brand-dark/10">
+          <span className="text-xs font-semibold text-brand-dark">You</span>
         </div>
       )}
     </div>
@@ -58,7 +62,10 @@ export default function ChatInterface({
   onSendMessage,
   onKeyPress,
   showComposer = true,
-  showPrompts = true
+  showPrompts = true,
+  className,
+  cardClassName,
+  heightClassName = "h-[520px]"
 }: ChatInterfaceProps) {
   const messagesEndRef = useRef(null);
 
@@ -71,7 +78,7 @@ export default function ChatInterface({
   }, [messages, isLoading]);
 
   return (
-    <div className="space-y-6">
+    <div className={cn("space-y-6", className)}>
       <style>{`
         @keyframes slide-in-fade-in {
           0% {
@@ -95,17 +102,23 @@ export default function ChatInterface({
         .typing-dot:nth-child(2) { animation-delay: 0.15s; }
         .typing-dot:nth-child(3) { animation-delay: 0.3s; }
       `}</style>
-      <Card className="border-none shadow-lg h-[600px] flex flex-col">
-        <CardHeader className="flex-shrink-0 border-b border-gray-100 p-6">
+      <Card
+        className={cn(
+          "flex flex-col rounded-3xl border border-white/50 bg-white/85 shadow-card",
+          heightClassName,
+          cardClassName
+        )}
+      >
+        <CardHeader className="flex-shrink-0 border-b border-brand-dark/10 p-6">
           <CardTitle className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center">
-              <Sparkles className="w-5 h-5 text-white" />
+            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-brand-teal">
+              <Sparkles className="h-5 w-5 text-white" />
             </div>
             <div>
-              <span className="text-lg font-bold text-gray-900">Strathwell AI</span>
+              <span className="text-lg font-semibold text-brand-dark">Strathwell AI</span>
               <div className="flex items-center gap-2">
-                <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
-                <span className="text-xs text-gray-500">Ready to plan</span>
+                <div className="h-2 w-2 rounded-full bg-brand-teal/80" />
+                <span className="text-xs text-brand-dark/60">Ready to plan</span>
               </div>
             </div>
           </CardTitle>
@@ -119,13 +132,13 @@ export default function ChatInterface({
           {isLoading && (
             <div className="flex justify-start message-bubble">
               <div className="flex items-center gap-3">
-                <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center">
-                  <Sparkles className="w-4 h-4 text-white" />
+                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-brand-teal">
+                  <Sparkles className="h-4 w-4 text-white" />
                 </div>
-                <div className="bg-gray-100 p-3 rounded-2xl flex items-center gap-1">
-                  <div className="w-1.5 h-1.5 bg-gray-500 rounded-full typing-dot"></div>
-                  <div className="w-1.5 h-1.5 bg-gray-500 rounded-full typing-dot"></div>
-                  <div className="w-1.5 h-1.5 bg-gray-500 rounded-full typing-dot"></div>
+                <div className="flex items-center gap-1 rounded-2xl bg-brand-cream/60 p-3">
+                  <div className="h-1.5 w-1.5 rounded-full bg-brand-dark/50 typing-dot"></div>
+                  <div className="h-1.5 w-1.5 rounded-full bg-brand-dark/50 typing-dot"></div>
+                  <div className="h-1.5 w-1.5 rounded-full bg-brand-dark/50 typing-dot"></div>
                 </div>
               </div>
             </div>
@@ -134,7 +147,7 @@ export default function ChatInterface({
         </CardContent>
 
         {showComposer && (
-          <div className="flex-shrink-0 p-6 border-t border-gray-100">
+          <div className="flex-shrink-0 border-t border-brand-dark/10 p-6">
             <div className="flex gap-2">
               <Input
                 placeholder="Describe your event (e.g., 'Plan a 100-person wedding in NYC for June, budget $30k')"
@@ -142,13 +155,13 @@ export default function ChatInterface({
                 onChange={(e) => setInputValue(e.target.value)}
                 onKeyPress={onKeyPress}
                 disabled={isLoading}
-                className="flex-1 h-12 text-base"
+                className="h-12 flex-1 text-base"
               />
               <Button
                 onClick={onSendMessage}
                 disabled={!inputValue.trim() || isLoading}
                 size="icon"
-                className="h-12 w-12 bg-blue-600 hover:bg-blue-700"
+                className="h-12 w-12 bg-brand-teal text-white hover:bg-brand-dark"
               >
                 <Send className="w-5 h-5" />
               </Button>
@@ -159,9 +172,9 @@ export default function ChatInterface({
 
       {/* Sample Prompts */}
       {showPrompts && (
-        <Card className="border-none shadow-lg">
+        <Card className="rounded-3xl border border-white/50 bg-white/85 shadow-card">
           <CardHeader>
-            <CardTitle className="text-lg text-gray-900">Try These Examples</CardTitle>
+            <CardTitle className="text-lg text-brand-dark">Try These Examples</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
             {[
@@ -172,7 +185,7 @@ export default function ChatInterface({
               <button
                 key={index}
                 onClick={() => setInputValue(prompt)}
-                className="w-full text-left p-3 bg-gray-50 hover:bg-gray-100 rounded-lg text-gray-700 strathwell-transition text-sm"
+                className="w-full rounded-lg bg-brand-cream/40 p-3 text-left text-sm text-brand-dark/70 transition hover:bg-brand-cream/60"
                 disabled={isLoading}
               >
                 {prompt}

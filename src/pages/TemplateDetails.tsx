@@ -7,31 +7,45 @@ import { dummyTemplates } from "@/data/dummyTemplates";
 import SpacePlannerSchematic from "@/components/os/SpacePlannerSchematic";
 import { venues } from "@/data/venues";
 import { venueLayouts, type LayoutMode } from "@/data/venueLayouts";
+import {
+  computeFitStatus,
+  estimateRequiredSqft,
+  suggestAdjustments,
+  suggestAlternativeVenues
+} from "@/utils/spaceFit";
 
 const TemplateDetails: React.FC = () => {
   const { id } = useParams();
   const template = dummyTemplates.find((item) => item.id === id);
-  const [layoutMode, setLayoutMode] = React.useState<LayoutMode>("optimized");
+  const [layoutMode, setLayoutMode] = React.useState<LayoutMode>(
+    template?.recommendedMode ?? "optimized"
+  );
   const [showComparison, setShowComparison] = React.useState(false);
-  const featuredVenue = venues[0];
+  const featuredVenue = venues.find((venue) => venue.id === template?.venueId) ?? venues[0];
   const layout =
     venueLayouts.find(
       (item) => item.venueId === featuredVenue.id && item.mode === layoutMode
     ) ?? venueLayouts.find((item) => item.venueId === featuredVenue.id);
 
-  const guestCount =
-    template?.stats?.reduce((value, stat) => {
-      if (value) {
-        return value;
-      }
-      if (!/guest|attendee/i.test(stat.label)) {
-        return value;
-      }
-      const parsed = Number.parseInt(stat.value.replace(/[^0-9]/g, ""), 10);
-      return Number.isNaN(parsed) ? value : parsed;
-    }, 0) ||
-    layout?.guestRangeRecommended.min ||
-    120;
+  const initialGuestCount = React.useMemo(() => {
+    if (template?.defaultGuestCount) {
+      return template.defaultGuestCount;
+    }
+    const fromStats =
+      template?.stats?.reduce((value, stat) => {
+        if (value) {
+          return value;
+        }
+        if (!/guest|attendee/i.test(stat.label)) {
+          return value;
+        }
+        const parsed = Number.parseInt(stat.value.replace(/[^0-9]/g, ""), 10);
+        return Number.isNaN(parsed) ? value : parsed;
+      }, 0) ?? 0;
+    return fromStats || layout?.guestRangeRecommended.min || 120;
+  }, [layout?.guestRangeRecommended.min, template?.defaultGuestCount, template?.stats]);
+
+  const [guestCount, setGuestCount] = React.useState(initialGuestCount);
 
   if (!template) {
     return (
@@ -63,6 +77,106 @@ const TemplateDetails: React.FC = () => {
   return (
     <div className="pb-24 pt-10">
       <Container>
+        <FadeIn>
+          <div className="rounded-3xl border border-white/40 bg-white/80 p-6 shadow-card">
+            <div className="flex flex-wrap items-center justify-between gap-4">
+              <div className="space-y-2">
+                <p className="text-xs font-semibold uppercase tracking-[0.3em] text-brand-teal">
+                  Event OS Simulation
+                </p>
+                <div className="flex flex-wrap items-center gap-3 text-base font-semibold text-brand-dark">
+                  <span>{featuredVenue.name}</span>
+                  <span className="text-sm font-medium text-brand-dark/50">
+                    {featuredVenue.sqft.toLocaleString()} sq ft · {featuredVenue.location}
+                  </span>
+                </div>
+              </div>
+              {layout && (
+                <div className="flex flex-wrap items-center gap-3">
+                  {(() => {
+                    const requiredSqft = estimateRequiredSqft(
+                      guestCount,
+                      layoutMode,
+                      layout.baselineInventory
+                    );
+                    const fitStatus = computeFitStatus(featuredVenue.sqft, requiredSqft);
+                    const fitClasses =
+                      fitStatus === "FIT"
+                        ? "bg-brand-teal/15 text-brand-teal"
+                        : fitStatus === "TIGHT"
+                        ? "bg-brand-coral/15 text-brand-coral"
+                        : "bg-brand-dark text-brand-light";
+                    return (
+                      <span
+                        className={cn(
+                          "rounded-full px-4 py-1 text-xs font-semibold uppercase tracking-[0.2em]",
+                          fitClasses
+                        )}
+                      >
+                        {fitStatus}
+                      </span>
+                    );
+                  })()}
+                  <div className="text-sm font-semibold text-brand-dark">
+                    {template.budget?.total} est.
+                  </div>
+                </div>
+              )}
+            </div>
+            <div className="mt-5 flex flex-wrap items-center gap-3">
+              <div className="flex items-center gap-2 rounded-full border border-brand-dark/10 bg-white px-3 py-2">
+                <button
+                  type="button"
+                  onClick={() => setGuestCount((prev) => Math.max(10, prev - 10))}
+                  className="h-8 w-8 rounded-full border border-brand-dark/10 text-sm font-semibold text-brand-dark/70 transition hover:border-brand-dark/30 hover:text-brand-dark"
+                >
+                  –
+                </button>
+                <span className="min-w-[120px] text-center text-sm font-semibold text-brand-dark">
+                  {guestCount} guests
+                </span>
+                <button
+                  type="button"
+                  onClick={() =>
+                    setGuestCount((prev) =>
+                      Math.min(template.maxGuestCount ?? prev + 10, prev + 10)
+                    )
+                  }
+                  className="h-8 w-8 rounded-full border border-brand-dark/10 text-sm font-semibold text-brand-dark/70 transition hover:border-brand-dark/30 hover:text-brand-dark"
+                >
+                  +
+                </button>
+              </div>
+              <div className="flex flex-wrap items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => setLayoutMode("optimized")}
+                  className={cn(
+                    "rounded-full border px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] transition",
+                    layoutMode === "optimized"
+                      ? "border-brand-dark bg-brand-dark text-brand-light"
+                      : "border-brand-dark/20 bg-white text-brand-dark/70 hover:border-brand-dark/40"
+                  )}
+                >
+                  Optimized
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setLayoutMode("max")}
+                  className={cn(
+                    "rounded-full border px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] transition",
+                    layoutMode === "max"
+                      ? "border-brand-dark bg-brand-dark text-brand-light"
+                      : "border-brand-dark/20 bg-white text-brand-dark/70 hover:border-brand-dark/40"
+                  )}
+                >
+                  Max
+                </button>
+              </div>
+            </div>
+          </div>
+        </FadeIn>
+
         <FadeIn>
           <Link
             to="/templates"
@@ -115,7 +229,7 @@ const TemplateDetails: React.FC = () => {
             <div className="flex flex-wrap items-center justify-between gap-4">
               <div>
                 <p className="text-xs font-semibold uppercase tracking-[0.3em] text-brand-teal">
-                  Space blueprint
+                  Space Transformation Plan
                 </p>
                 <h2 className="mt-2 text-2xl font-semibold text-brand-dark">
                   Venue layout schematic
@@ -126,30 +240,6 @@ const TemplateDetails: React.FC = () => {
                 </p>
               </div>
               <div className="flex flex-wrap items-center gap-2">
-                <button
-                  type="button"
-                  onClick={() => setLayoutMode("optimized")}
-                  className={cn(
-                    "rounded-full border px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] transition",
-                    layoutMode === "optimized"
-                      ? "border-brand-dark bg-brand-dark text-brand-light"
-                      : "border-brand-dark/20 bg-white text-brand-dark/70 hover:border-brand-dark/40"
-                  )}
-                >
-                  Optimized
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setLayoutMode("max")}
-                  className={cn(
-                    "rounded-full border px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] transition",
-                    layoutMode === "max"
-                      ? "border-brand-dark bg-brand-dark text-brand-light"
-                      : "border-brand-dark/20 bg-white text-brand-dark/70 hover:border-brand-dark/40"
-                  )}
-                >
-                  Max
-                </button>
                 <button
                   type="button"
                   onClick={() => setShowComparison((prev) => !prev)}
@@ -199,9 +289,144 @@ const TemplateDetails: React.FC = () => {
           </FadeIn>
         )}
 
+        {layout && (
+          <FadeIn className="mt-10 rounded-3xl border border-white/40 bg-white/70 p-8 shadow-card">
+            <div className="flex flex-wrap items-center justify-between gap-4">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-[0.3em] text-brand-teal">
+                  Inventory & Utilization
+                </p>
+                <h2 className="mt-2 text-2xl font-semibold text-brand-dark">
+                  Inventory optimizer
+                </h2>
+                <p className="mt-2 text-sm text-brand-dark/60">
+                  Counts update as you adjust guest load and layout mode.
+                </p>
+              </div>
+            </div>
+            {(() => {
+              const scalingFactor = Math.min(
+                1.3,
+                Math.max(
+                  0.7,
+                  guestCount / Math.max(layout.guestRangeRecommended.max, 1)
+                )
+              );
+              const recommendedInventory = {
+                chairs: Math.ceil(layout.baselineInventory.chairs * scalingFactor),
+                tables: Math.max(6, Math.ceil(layout.baselineInventory.tables * scalingFactor)),
+                stageModules: Math.max(2, Math.ceil(layout.baselineInventory.stageModules)),
+                buffetStations: Math.max(1, Math.ceil(layout.baselineInventory.buffetStations)),
+                cocktailTables: Math.max(
+                  2,
+                  Math.ceil(layout.baselineInventory.cocktailTables * scalingFactor)
+                )
+              };
+              const requiredSqft = estimateRequiredSqft(
+                guestCount,
+                layoutMode,
+                recommendedInventory
+              );
+              const fitStatus = computeFitStatus(featuredVenue.sqft, requiredSqft);
+              const alternativeVenues =
+                fitStatus === "OVER"
+                  ? suggestAlternativeVenues(venues, requiredSqft)
+                  : [];
+              const adjustments =
+                fitStatus === "OVER"
+                  ? suggestAdjustments({
+                      venueSqft: featuredVenue.sqft,
+                      guestCount,
+                      mode: layoutMode,
+                      inventoryMix: recommendedInventory
+                    })
+                  : [];
+
+              return (
+                <div className="mt-6 grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    {[
+                      { label: "Chairs", value: recommendedInventory.chairs },
+                      { label: "Tables", value: recommendedInventory.tables },
+                      { label: "Stage Modules", value: recommendedInventory.stageModules },
+                      { label: "Buffet Stations", value: recommendedInventory.buffetStations },
+                      { label: "Cocktail Tables", value: recommendedInventory.cocktailTables }
+                    ].map((item) => (
+                      <div
+                        key={item.label}
+                        className="rounded-2xl border border-white/40 bg-white/80 px-4 py-3"
+                      >
+                        <p className="text-xs uppercase tracking-[0.2em] text-brand-dark/50">
+                          {item.label}
+                        </p>
+                        <p className="mt-2 text-2xl font-semibold text-brand-dark">
+                          {item.value}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="space-y-4">
+                    <div className="rounded-2xl border border-white/40 bg-white/80 px-4 py-4 text-sm text-brand-dark/70">
+                      <p className="text-xs font-semibold uppercase tracking-[0.2em] text-brand-dark/50">
+                        Space utilization
+                      </p>
+                      <p className="mt-3 text-lg font-semibold text-brand-dark">
+                        {requiredSqft.toLocaleString()} sq ft required
+                      </p>
+                      <p className="mt-2">
+                        {fitStatus === "OVER"
+                          ? "Current plan exceeds the venue footprint. Suggested pivots below."
+                          : fitStatus === "TIGHT"
+                          ? "This plan is tight. Expect closer seating and tighter circulation."
+                          : "This configuration fits with comfortable circulation."}
+                      </p>
+                    </div>
+                    {fitStatus === "OVER" && (
+                      <div className="rounded-2xl border border-white/40 bg-white/80 px-4 py-4">
+                        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-brand-dark/50">
+                          Adjustments
+                        </p>
+                        <ul className="mt-3 space-y-2 text-sm text-brand-dark/70">
+                          {adjustments.map((adjustment, index) => (
+                            <li key={`${adjustment.type}-${index}`}>
+                              {adjustment.type === "reduce-guest-count" &&
+                                `Reduce guest count to ${adjustment.suggestedGuestCount}.`}
+                              {adjustment.type === "reduce-stage-modules" &&
+                                `Reduce stage modules to ${adjustment.suggestedStageModules}.`}
+                              {adjustment.type === "reduce-tables" &&
+                                `Reduce tables to ${adjustment.suggestedTables}.`}
+                              {adjustment.type === "switch-mode" &&
+                                `Switch to ${adjustment.suggestedMode} mode.`}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                    {fitStatus === "OVER" && alternativeVenues.length > 0 && (
+                      <div className="rounded-2xl border border-white/40 bg-white/80 px-4 py-4">
+                        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-brand-dark/50">
+                          Alternative venues
+                        </p>
+                        <ul className="mt-3 space-y-2 text-sm text-brand-dark/70">
+                          {alternativeVenues.map((venue) => (
+                            <li key={venue.id}>
+                              {venue.name} · {venue.sqft.toLocaleString()} sq ft ·{" "}
+                              {venue.location}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              );
+            })()}
+          </FadeIn>
+        )}
+
         <div className="mt-10 grid gap-8 lg:grid-cols-[1.2fr_0.8fr]">
           <FadeIn className="rounded-3xl border border-white/40 bg-white/70 p-8 shadow-card">
-            <h2 className="text-2xl font-semibold text-brand-dark">Timeline</h2>
+            <h2 className="text-2xl font-semibold text-brand-dark">Timeline & Dependencies</h2>
             <div className="mt-6 space-y-5">
               {(template.timeline || []).map((item) => (
                 <div key={item.time} className="flex gap-4">
@@ -223,7 +448,23 @@ const TemplateDetails: React.FC = () => {
 
           <div className="space-y-8">
             <FadeIn className="rounded-3xl border border-white/40 bg-white/70 p-8 shadow-card">
-              <h2 className="text-2xl font-semibold text-brand-dark">Preferred Vendors</h2>
+              <h2 className="text-2xl font-semibold text-brand-dark">Risk & Compliance</h2>
+              <div className="mt-6 space-y-3 text-sm text-brand-dark/70">
+                <p>
+                  Venue notes: {featuredVenue.notes || "Standard safety protocols apply."}
+                </p>
+                <p>
+                  Staffing buffer: add 10% for guest services, AV, and wayfinding.
+                </p>
+                <p>
+                  Compliance: confirm load-in windows and fire-code occupancy before final
+                  production.
+                </p>
+              </div>
+            </FadeIn>
+
+            <FadeIn className="rounded-3xl border border-white/40 bg-white/70 p-8 shadow-card">
+              <h2 className="text-2xl font-semibold text-brand-dark">Vendor Coverage</h2>
               <div className="mt-6 space-y-4">
                 {(template.vendors || []).map((vendor) => (
                   <div
@@ -243,7 +484,7 @@ const TemplateDetails: React.FC = () => {
             </FadeIn>
 
             <FadeIn className="rounded-3xl border border-white/40 bg-white/70 p-8 shadow-card">
-              <h2 className="text-2xl font-semibold text-brand-dark">Budget</h2>
+              <h2 className="text-2xl font-semibold text-brand-dark">Budget Simulation</h2>
               <div className="mt-6 flex items-center justify-between rounded-2xl border border-white/40 bg-white/80 px-4 py-3">
                 <p className="text-sm font-semibold uppercase tracking-[0.2em] text-brand-dark/50">
                   Total Budget

@@ -1,8 +1,5 @@
 import React, { useState } from "react";
 import { DFYLead } from "@/api/entities";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { CheckCircle, Users, Clock, Award, ArrowRight } from "lucide-react";
 
 import DFYHero from "../components/dfy/DFYHero";
 import DFYProcess from "../components/dfy/DFYProcess";
@@ -29,7 +26,7 @@ export default function DFYPage() {
   }
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-brand-light text-brand-dark">
       <DFYHero />
       <DFYProcess />
       <DFYForm onSubmit={handleFormSubmit} />

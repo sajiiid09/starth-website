@@ -5,6 +5,9 @@ import PillButton from "@/components/home-v2/primitives/PillButton";
 import useGsapReveal from "@/components/utils/useGsapReveal";
 import { motionTokens } from "@/components/utils/motion";
 import { usePrefersReducedMotion } from "@/hooks/usePrefersReducedMotion";
+import { createPageUrl } from "@/utils";
+import { toast } from "sonner";
+import { useNavigate } from "react-router-dom";
 
 const promptSuggestions = [
   "Plan a 120-guest product launch in San Francisco for March, budget $25k",
@@ -56,6 +59,11 @@ const PromptBox: React.FC = () => {
   const containerRef = React.useRef<HTMLDivElement>(null);
   const chipsRef = React.useRef<HTMLDivElement>(null);
   const templatesRef = React.useRef<HTMLDivElement>(null);
+  const navigate = useNavigate();
+
+  const handleComingSoon = (label: string) => {
+    toast.info(`${label} is not in the demo yet.`);
+  };
 
   useGsapReveal(containerRef);
   useGsapReveal(chipsRef, {
@@ -98,12 +106,14 @@ const PromptBox: React.FC = () => {
               <div className="flex flex-wrap items-center gap-3 text-sm text-brand-dark/60">
                 <button
                   type="button"
+                  onClick={() => handleComingSoon("Style presets")}
                   className="inline-flex items-center gap-2 rounded-full border border-brand-dark/10 bg-white px-3 py-1 text-xs font-medium text-brand-dark/70 transition duration-250 ease-smooth hover:border-brand-dark/20 hover:text-brand-dark"
                 >
                   Styles <ChevronDown className="h-3 w-3" />
                 </button>
                 <button
                   type="button"
+                  onClick={() => handleComingSoon("Attachments")}
                   className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-brand-dark/10 bg-white text-brand-dark/60 transition duration-250 ease-smooth hover:text-brand-dark"
                 >
                   <Paperclip className="h-4 w-4" />
@@ -115,11 +125,17 @@ const PromptBox: React.FC = () => {
               <div className="flex items-center gap-3">
                 <button
                   type="button"
+                  onClick={() => handleComingSoon("Voice input")}
                   className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-brand-dark/10 bg-white text-brand-dark/60 transition duration-250 ease-smooth hover:text-brand-dark"
                 >
                   <Mic className="h-4 w-4" />
                 </button>
-                <PillButton variant="primary" size="sm">
+                <PillButton
+                  variant="primary"
+                  size="sm"
+                  type="button"
+                  onClick={() => handleComingSoon("Prompt generation")}
+                >
                   Generate
                 </PillButton>
               </div>
@@ -175,6 +191,7 @@ const PromptBox: React.FC = () => {
             </div>
             <button
               type="button"
+              onClick={() => navigate(createPageUrl("Templates"))}
               className="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-brand-teal transition duration-200 ease-smooth hover:text-brand-dark"
             >
               View template <span aria-hidden>→</span>

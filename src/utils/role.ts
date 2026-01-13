@@ -1,3 +1,5 @@
+import { updateSessionState } from "@/utils/session";
+
 export type AppRole = "user" | "vendor" | "admin";
 
 const ROLE_STORAGE_KEY = "activeRole";
@@ -5,6 +7,7 @@ const ROLE_STORAGE_KEY = "activeRole";
 const storageToRole: Record<string, AppRole> = {
   organizer: "user",
   service_provider: "vendor",
+  venue_owner: "vendor",
   admin: "admin",
   user: "user",
   vendor: "vendor"
@@ -32,6 +35,7 @@ export const setCurrentRole = (role: AppRole) => {
     return;
   }
   window.localStorage.setItem(ROLE_STORAGE_KEY, roleToStorage[role]);
+  updateSessionState({ role: role === "user" ? "organizer" : role });
 };
 
 export const clearRole = () => {
@@ -39,6 +43,7 @@ export const clearRole = () => {
     return;
   }
   window.localStorage.removeItem(ROLE_STORAGE_KEY);
+  updateSessionState({ role: "organizer" });
 };
 
 export const getRoleHomePath = (role: AppRole) => {

@@ -1,11 +1,20 @@
-import React, { useState, useEffect, useCallback, useLayoutEffect } from "react";
+import React, { useState, useEffect, useCallback, useLayoutEffect, useMemo } from "react";
 import { Plan } from "@/api/entities";
 import { User } from "@/api/entities";
 import { Venue } from "@/api/entities";
 import { Service } from "@/api/entities";
 import { InvokeLLM, UploadFile } from "@/api/integrations";
 import { getGooglePlacePhotos } from "@/api/functions";
-import { Sparkles, Loader2, Grid3x3, MessageSquare, Users, Search, MapPin } from "lucide-react";
+import {
+  Sparkles,
+  Loader2,
+  Grid3x3,
+  MessageSquare,
+  Users,
+  Search,
+  MapPin,
+  ArrowUpRight
+} from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import ChatInterface from "../components/planner/ChatInterface";
 import ResultsPanels from "../components/planner/ResultsPanels";
@@ -16,13 +25,15 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { toast } from "sonner";
-import { useSearchParams } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import gsap from "gsap";
 import PlannerPromptBox from "@/components/planner/PlannerPromptBox";
 import TemplateShowcase from "@/components/planner/TemplateShowcase";
 import PlannerTutorial from "@/components/planner/PlannerTutorial";
 import useGsapReveal from "@/components/utils/useGsapReveal";
 import { usePrefersReducedMotion } from "@/hooks/usePrefersReducedMotion";
+import { dummyTemplates } from "@/data/dummyTemplates";
+import { createPageUrl } from "@/utils";
 
 export default function AIPlannerPage() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -1785,6 +1796,114 @@ Return the full JSON structure.`,
     setInputValue(query);
   };
 
+  const lastUserMessage = useMemo(
+    () => [...messages].reverse().find((message) => message.role === "user")?.content ?? "",
+    [messages]
+  );
+  const queryText = useMemo(
+    () => (inputValue.trim() ? inputValue.trim() : lastUserMessage),
+    [inputValue, lastUserMessage]
+  );
+  const queryTokens = useMemo(
+    () =>
+      queryText
+        .toLowerCase()
+        .replace(/[^a-z0-9\s]/g, " ")
+        .split(/\s+/)
+        .filter((token) => token.length > 2),
+    [queryText]
+  );
+
+  const scoreText = useCallback(
+    (text = "") =>
+      queryTokens.reduce((score, token) => (text.includes(token) ? score + 1 : score), 0),
+    [queryTokens]
+  );
+
+  const {
+    relevantTemplates,
+    hasTemplateMatches
+  } = useMemo(() => {
+    const ranked = dummyTemplates
+      .map((template) => {
+        const matchText = `${template.title} ${template.description}`.toLowerCase();
+        return { template, score: scoreText(matchText) };
+      })
+      .sort((a, b) => b.score - a.score);
+
+    const matched = ranked.filter((item) => item.score > 0).map((item) => item.template);
+    return {
+      relevantTemplates: (queryTokens.length > 0 && matched.length > 0 ? matched : dummyTemplates).slice(0, 6),
+      hasTemplateMatches: matched.length > 0
+    };
+  }, [queryTokens, scoreText]);
+
+  const {
+    relevantMarketplace,
+    hasMarketplaceMatches
+  } = useMemo(() => {
+    const venueItems = venues.map((venue) => {
+      const matchText = [
+        venue.name,
+        venue.city,
+        venue.state,
+        venue.description,
+        ...(venue.tags || [])
+      ]
+        .filter(Boolean)
+        .join(" ")
+        .toLowerCase();
+      return {
+        id: `venue-${venue.id}`,
+        title: venue.name,
+        description: venue.city ? `${venue.city}, ${venue.state || ""}`.trim() : "Venue listing",
+        image:
+          venue.image_url ||
+          venue.photos?.[0] ||
+          "/images/marketplace/venue-hall.webp",
+        href: `/marketplace/${venue.id}`,
+        meta: venue.capacity_max ? `${venue.capacity_max} guests` : "Venue",
+        kind: "venue",
+        score: scoreText(matchText)
+      };
+    });
+
+    const serviceItems = services.map((service) => {
+      const matchText = [
+        service.name,
+        service.category,
+        service.city,
+        service.state,
+        ...(service.event_types || [])
+      ]
+        .filter(Boolean)
+        .join(" ")
+        .toLowerCase();
+      return {
+        id: `service-${service.id}`,
+        title: service.name,
+        description: service.category || "Service provider",
+        image:
+          service.image_url ||
+          service.photos?.[0] ||
+          "/images/marketplace/vendor-av.webp",
+        href: `/marketplace/${service.id}`,
+        meta: service.category || "Service",
+        kind: "service",
+        score: scoreText(matchText)
+      };
+    });
+
+    const ranked = [...venueItems, ...serviceItems].sort((a, b) => b.score - a.score);
+    const matched = ranked.filter((item) => item.score > 0);
+    const featured = ranked.slice(0, 6);
+
+    return {
+      relevantMarketplace: (queryTokens.length > 0 && matched.length > 0 ? matched : featured).slice(0, 6),
+      hasMarketplaceMatches: matched.length > 0
+    };
+  }, [venues, services, queryTokens, scoreText]);
+
   useGsapReveal(headerRef);
 
   return (
@@ -1854,11 +1973,8 @@ Return the full JSON structure.`,
                   uploadedImages={uploadedImages}
                   uploadingImage={uploadingImage}
                   onRemoveImage={removeImage}
+                  showTemplatePreviews={false}
                 />
-                <p className="text-center text-xs text-brand-dark/50">
-                  Disclaimer: Verified partner results are currently focused on MA,
-                  SF, and NY.
-                </p>
                 <ChatInterface
                   messages={messages}
                   inputValue={inputValue}
@@ -1868,54 +1984,146 @@ Return the full JSON structure.`,
                   onKeyPress={handleKeyPress}
                   showComposer={false}
                   showPrompts={false}
+                  heightClassName="h-[520px]"
                 />
               </div>
 
               <div className="space-y-6">
-                {isLoading ? (
-                  <div className="flex h-[600px] flex-col justify-center rounded-2xl bg-white/80 p-8 text-center shadow-soft">
-                    <div className="flex flex-col items-center gap-4">
-                      <Loader2 className="h-8 w-8 animate-spin text-brand-dark/40" />
-                      <p className="text-brand-dark/60">{loadingMessage}</p>
+                <div className="rounded-3xl border border-white/50 bg-white/85 p-6 shadow-card">
+                  <div className="flex items-start justify-between gap-4">
+                    <div>
+                      <p className="text-xs font-semibold uppercase tracking-[0.3em] text-brand-teal">
+                        Relevant matches
+                      </p>
+                      <h2 className="mt-2 text-xl font-semibold text-brand-dark">
+                        Curated templates and marketplace options.
+                      </h2>
+                      <p className="mt-2 text-sm text-brand-dark/60">
+                        Based on your prompt, we surface the closest-fit blueprints and partners.
+                      </p>
                     </div>
-                  </div>
-                ) : currentPlan &&
-                  (currentPlan.venues?.length > 0 ||
-                    currentPlan.vendors?.length > 0 ||
-                    currentPlan.creative_concepts) ? (
-                  <ResultsPanels
-                    plan={currentPlan}
-                    onSavePlan={handleSavePlan}
-                    user={user}
-                  />
-                ) : (
-                  <div className="flex h-[600px] flex-col justify-center rounded-2xl bg-white/80 p-8 text-center shadow-soft">
-                    {searchPerformed ? (
-                      <div>
-                        <p className="mb-4 text-brand-dark/60">
-                          No specific matches found. Try broadening your search or
-                          specifying a location.
-                        </p>
-                        <Button
-                          onClick={() => setActiveMode("marketplace")}
-                          variant="outline"
-                        >
-                          Browse Marketplace Instead
-                        </Button>
-                      </div>
-                    ) : (
-                      <div>
-                        <Sparkles className="mx-auto mb-4 h-12 w-12 text-brand-dark/30" />
-                        <p className="mb-4 text-brand-dark/60">
-                          Describe your event to get started
-                        </p>
-                        <p className="text-sm text-brand-dark/40">
-                          Use text, voice, or images
-                        </p>
+                    {isLoading && (
+                      <div className="flex items-center gap-2 text-xs text-brand-dark/60">
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                        {loadingMessage}
                       </div>
                     )}
                   </div>
+
+                  <Tabs defaultValue="templates" className="mt-6 space-y-4">
+                    <TabsList className="grid w-full grid-cols-2 rounded-full bg-brand-cream/60 p-1">
+                      <TabsTrigger value="templates" className="rounded-full">
+                        Templates
+                      </TabsTrigger>
+                      <TabsTrigger value="marketplace" className="rounded-full">
+                        Marketplace
+                      </TabsTrigger>
+                    </TabsList>
+
+                    <TabsContent value="templates" className="space-y-4">
+                      <div className="space-y-3">
+                        {relevantTemplates.map((template) => (
+                          <Link
+                            key={template.id}
+                            to={`/templates/${template.id}`}
+                            className="group flex items-center gap-4 rounded-2xl border border-white/50 bg-white/90 p-4 shadow-soft transition hover:-translate-y-0.5"
+                          >
+                            <div className="h-16 w-16 overflow-hidden rounded-xl bg-brand-cream/60">
+                              <img
+                                src={template.image}
+                                alt={template.title}
+                                className="h-full w-full object-contain p-2"
+                                loading="lazy"
+                              />
+                            </div>
+                            <div className="flex-1">
+                              <p className="text-sm font-semibold text-brand-dark">
+                                {template.title}
+                              </p>
+                              <p className="mt-1 text-xs text-brand-dark/60">
+                                {template.description}
+                              </p>
+                            </div>
+                            <ArrowUpRight className="h-4 w-4 text-brand-dark/40 transition group-hover:text-brand-dark" />
+                          </Link>
+                        ))}
+                      </div>
+                      {!hasTemplateMatches && queryTokens.length > 0 && (
+                        <div className="rounded-2xl border border-brand-dark/10 bg-brand-cream/40 p-4 text-xs text-brand-dark/60">
+                          Try adding a location, date, or budget to refine template matches.
+                        </div>
+                      )}
+                    </TabsContent>
+
+                    <TabsContent value="marketplace" className="space-y-4">
+                      <div className="space-y-3">
+                        {relevantMarketplace.map((item) => (
+                          <Link
+                            key={item.id}
+                            to={item.href}
+                            className="group flex items-center gap-4 rounded-2xl border border-white/50 bg-white/90 p-4 shadow-soft transition hover:-translate-y-0.5"
+                          >
+                            <div className="h-16 w-16 overflow-hidden rounded-xl bg-brand-cream/60">
+                              <img
+                                src={item.image}
+                                alt={item.title}
+                                className="h-full w-full object-cover"
+                                loading="lazy"
+                              />
+                            </div>
+                            <div className="flex-1">
+                              <p className="text-sm font-semibold text-brand-dark">{item.title}</p>
+                              <p className="mt-1 text-xs text-brand-dark/60">{item.description}</p>
+                              <p className="mt-1 text-[11px] uppercase tracking-[0.2em] text-brand-dark/40">
+                                {item.meta}
+                              </p>
+                            </div>
+                            <ArrowUpRight className="h-4 w-4 text-brand-dark/40 transition group-hover:text-brand-dark" />
+                          </Link>
+                        ))}
+                      </div>
+                      {!hasMarketplaceMatches && queryTokens.length > 0 && (
+                        <div className="rounded-2xl border border-brand-dark/10 bg-brand-cream/40 p-4 text-xs text-brand-dark/60">
+                          Try adding a location, guest count, or vendor category to refine matches.
+                        </div>
+                      )}
+                      <Link to={createPageUrl("Marketplace")}>
+                        <Button variant="outline" className="w-full rounded-full">
+                          Browse all Marketplace
+                        </Button>
+                      </Link>
+                    </TabsContent>
+                  </Tabs>
+                </div>
+
+                {currentPlan &&
+                (currentPlan.venues?.length > 0 ||
+                  currentPlan.vendors?.length > 0 ||
+                  currentPlan.creative_concepts) ? (
+                  <details className="rounded-3xl border border-white/50 bg-white/85 p-4 shadow-card">
+                    <summary className="cursor-pointer text-sm font-semibold text-brand-dark">
+                      View detailed AI plan
+                    </summary>
+                    <div className="mt-4">
+                      <ResultsPanels
+                        plan={currentPlan}
+                        onSavePlan={handleSavePlan}
+                        user={user}
+                      />
+                    </div>
+                  </details>
+                ) : (
+                  searchPerformed && (
+                    <div className="rounded-3xl border border-white/50 bg-white/80 p-6 text-sm text-brand-dark/60 shadow-soft">
+                      No specific plan results yet. Try adding more detail like location or budget.
+                    </div>
+                  )
                 )}
+
+                <p className="text-center text-xs text-brand-dark/50">
+                  Disclaimer: Verified partner results are currently focused on MA,
+                  SF, and NY.
+                </p>
               </div>
             </div>
             <TemplateShowcase />

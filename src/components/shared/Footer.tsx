@@ -32,6 +32,7 @@ const footerSections = [
   {
     title: "Legal",
     links: [
+      { label: "Legal", to: createPageUrl("Legal") },
       { label: "Terms", to: createPageUrl("Terms") },
       { label: "Privacy", to: createPageUrl("Privacy") },
       { label: "Legals", to: createPageUrl("Legals") }

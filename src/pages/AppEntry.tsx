@@ -5,6 +5,14 @@ import { Loader2, Users, Briefcase } from "lucide-react";
 import { toast } from "sonner";
 import { createPageUrl } from "@/utils";
 import { AppRole, getRoleHomePath, setCurrentRole } from "@/utils/role";
+import {
+  getSessionState,
+  getVendorOnboardingPath,
+  resetVendorSession,
+  setVendorOnboardingStatus,
+  setVendorType,
+  type VendorType
+} from "@/utils/session";
 import { base44 } from "@/api/base44Client";
 import { authLogin, authRegister } from "@/api/functions";
 import { Button } from "@/components/ui/button";
@@ -33,12 +41,18 @@ type AuthView = "role" | "signup" | "login";
 
 type SignUpFormProps = {
   selectedRole: RoleOptionId | null;
+  vendorType: VendorType | null;
   onSignUpSuccess: () => void;
 };
 
-const SignUpForm: React.FC<SignUpFormProps> = ({ selectedRole, onSignUpSuccess }) => {
+const SignUpForm: React.FC<SignUpFormProps> = ({
+  selectedRole,
+  vendorType,
+  onSignUpSuccess
+}) => {
   const [loading, setLoading] = useState(false);
-  const roleValue = selectedRole === "vendor" ? "service_provider" : "organizer";
+  const roleValue =
+    selectedRole === "vendor" ? vendorType ?? "service_provider" : "organizer";
   const [formData, setFormData] = useState({
     fullName: "",
     email: "",
@@ -67,6 +81,11 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ selectedRole, onSignUpSuccess }
         toast.success("Account created! Please check your email to verify your account.", {
           duration: 5000
         });
+        if (selectedRole === "vendor") {
+          setCurrentRole("vendor");
+          setVendorType(roleValue as VendorType);
+          setVendorOnboardingStatus("draft");
+        }
         onSignUpSuccess();
       }
     } catch (error: any) {
@@ -154,10 +173,26 @@ const LoginForm: React.FC<LoginFormProps> = ({ onLoginSuccess }) => {
         const userRoles = data.user.roles || ["organizer"];
         const nextRole: AppRole = userRoles.includes("admin")
           ? "admin"
-          : userRoles.includes("service_provider")
+          : userRoles.includes("service_provider") || userRoles.includes("venue_owner")
             ? "vendor"
             : "user";
         setCurrentRole(nextRole);
+        if (nextRole === "vendor") {
+          const derivedVendorType = userRoles.includes("venue_owner")
+            ? "venue_owner"
+            : "service_provider";
+          setVendorType(derivedVendorType);
+          setVendorOnboardingStatus(
+            getSessionState().vendorOnboardingStatus ?? "draft"
+          );
+          const onboardingPath = getVendorOnboardingPath(derivedVendorType);
+          const needsOnboarding =
+            getSessionState().vendorOnboardingStatus !== "approved";
+          window.location.href = needsOnboarding
+            ? onboardingPath
+            : getRoleHomePath(nextRole);
+          return;
+        }
         window.location.href = getRoleHomePath(nextRole);
         return;
       }
@@ -211,6 +246,7 @@ export default function AppEntryPage() {
   const [loading, setLoading] = useState(true);
   const [activeView, setActiveView] = useState<AuthView>("role");
   const [selectedRole, setSelectedRole] = useState<RoleOptionId | null>(null);
+  const [vendorType, setVendorTypeState] = useState<VendorType | null>(null);
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -228,10 +264,26 @@ export default function AppEntryPage() {
           const userRoles = user.roles || ["organizer"];
           const nextRole: AppRole = userRoles.includes("admin")
             ? "admin"
-            : userRoles.includes("service_provider")
+            : userRoles.includes("service_provider") || userRoles.includes("venue_owner")
               ? "vendor"
               : "user";
           setCurrentRole(nextRole);
+          if (nextRole === "vendor") {
+            const derivedVendorType = userRoles.includes("venue_owner")
+              ? "venue_owner"
+              : "service_provider";
+            setVendorType(derivedVendorType);
+            setVendorOnboardingStatus(
+              getSessionState().vendorOnboardingStatus ?? "draft"
+            );
+            const onboardingPath = getVendorOnboardingPath(derivedVendorType);
+            const needsOnboarding =
+              getSessionState().vendorOnboardingStatus !== "approved";
+            window.location.href = needsOnboarding
+              ? onboardingPath
+              : getRoleHomePath(nextRole);
+            return;
+          }
           window.location.href = getRoleHomePath(nextRole);
           return;
         }
@@ -276,7 +328,17 @@ export default function AppEntryPage() {
           </Button>
           <Button
             className="rounded-full bg-brand-dark px-5 text-brand-light hover:bg-brand-dark/90"
-            onClick={() => setActiveView(selectedRole ? "signup" : "role")}
+            onClick={() => {
+              if (!selectedRole) {
+                setActiveView("role");
+                return;
+              }
+              if (selectedRole === "vendor" && !vendorType) {
+                setActiveView("role");
+                return;
+              }
+              setActiveView("signup");
+            }}
           >
             Create account
           </Button>
@@ -351,7 +413,13 @@ export default function AppEntryPage() {
                           onClick={() => {
                             setSelectedRole(option.id);
                             setCurrentRole(option.id === "vendor" ? "vendor" : "user");
-                            setActiveView("signup");
+                            if (option.id === "vendor") {
+                              setVendorTypeState(null);
+                              resetVendorSession();
+                              setActiveView("role");
+                            } else {
+                              setActiveView("signup");
+                            }
                           }}
                         >
                           <span className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-brand-light">
@@ -369,6 +437,74 @@ export default function AppEntryPage() {
                       );
                     })}
                   </div>
+                  {selectedRole === "vendor" && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 12 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.3, ease: "easeOut" }}
+                      className="mt-6 space-y-4 rounded-3xl border border-white/40 bg-white/80 p-6 shadow-card"
+                    >
+                      <div className="space-y-2">
+                        <p className="text-xs font-semibold uppercase tracking-[0.3em] text-brand-teal">
+                          Vendor type
+                        </p>
+                        <h3 className="text-xl font-semibold text-brand-dark">
+                          Choose your vendor subtype
+                        </h3>
+                        <p className="text-sm text-brand-dark/60">
+                          This sets your onboarding path and dashboard experience.
+                        </p>
+                      </div>
+                      <div className="grid gap-4">
+                        {[
+                          {
+                            id: "venue_owner",
+                            title: "Venue Owner",
+                            description: "Own or manage event spaces.",
+                            icon: Users
+                          },
+                          {
+                            id: "service_provider",
+                            title: "Service Provider",
+                            description: "Catering, AV, staffing, and more.",
+                            icon: Briefcase
+                          }
+                        ].map((option) => {
+                          const Icon = option.icon;
+                          return (
+                            <button
+                              key={option.id}
+                              type="button"
+                              className={cn(
+                                "flex w-full items-center gap-4 rounded-2xl border border-white/60 bg-white/90 px-5 py-4 text-left shadow-soft",
+                                "transition duration-200 ease-smooth hover:-translate-y-0.5 hover:border-white",
+                                "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-teal/40"
+                              )}
+                              onClick={() => {
+                                const chosenType = option.id as VendorType;
+                                setVendorTypeState(chosenType);
+                                setVendorType(chosenType);
+                                setVendorOnboardingStatus("draft");
+                                setActiveView("signup");
+                              }}
+                            >
+                              <span className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-brand-light">
+                                <Icon className="h-5 w-5 text-brand-teal" />
+                              </span>
+                              <span className="flex-1">
+                                <span className="block text-base font-semibold text-brand-dark">
+                                  {option.title}
+                                </span>
+                                <span className="block text-sm text-brand-dark/70">
+                                  {option.description}
+                                </span>
+                              </span>
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </motion.div>
+                  )}
                 </motion.div>
               )}
 
@@ -393,6 +529,9 @@ export default function AppEntryPage() {
                     {activeView === "signup" && selectedRole && (
                       <span className="inline-block rounded-full bg-brand-light px-3 py-1 text-xs font-semibold text-brand-teal">
                         Signing up as {roleLabel}
+                        {selectedRole === "vendor" && vendorType
+                          ? ` · ${vendorType === "venue_owner" ? "Venue Owner" : "Service Provider"}`
+                          : ""}
                       </span>
                     )}
                   </div>
@@ -400,7 +539,15 @@ export default function AppEntryPage() {
                   {activeView === "signup" ? (
                     <SignUpForm
                       selectedRole={selectedRole}
-                      onSignUpSuccess={() => toast.success("Account created! Check your email to verify.")}
+                      vendorType={vendorType}
+                      onSignUpSuccess={() => {
+                        toast.success("Account created! Check your email to verify.");
+                        if (selectedRole === "vendor") {
+                          navigate(getVendorOnboardingPath(vendorType));
+                          return;
+                        }
+                        navigate(getRoleHomePath("user"));
+                      }}
                     />
                   ) : (
                     <LoginForm onLoginSuccess={() => undefined} />
@@ -438,7 +585,11 @@ export default function AppEntryPage() {
                         <button
                           type="button"
                           className="font-semibold text-brand-dark/60 hover:text-brand-dark"
-                          onClick={() => setActiveView("role")}
+                          onClick={() => {
+                            setSelectedRole(null);
+                            setVendorTypeState(null);
+                            setActiveView("role");
+                          }}
                         >
                           ← Change role
                         </button>

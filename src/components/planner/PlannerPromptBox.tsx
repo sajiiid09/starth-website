@@ -48,6 +48,7 @@ type PlannerPromptBoxProps = {
   uploadedImages: string[];
   uploadingImage: boolean;
   onRemoveImage: (index: number) => void;
+  showTemplatePreviews?: boolean;
 };
 
 const hoverTween = (
@@ -78,7 +79,8 @@ const PlannerPromptBox: React.FC<PlannerPromptBoxProps> = ({
   onUploadImages,
   uploadedImages,
   uploadingImage,
-  onRemoveImage
+  onRemoveImage,
+  showTemplatePreviews = true
 }) => {
   const prefersReducedMotion = usePrefersReducedMotion();
   const containerRef = React.useRef<HTMLDivElement>(null);
@@ -221,37 +223,39 @@ const PlannerPromptBox: React.FC<PlannerPromptBoxProps> = ({
         ))}
       </div>
 
-      <div ref={templatesRef} className="grid gap-4 md:grid-cols-3">
-        {templatePreviews.map((template) => (
-          <div
-            key={template.title}
-            data-template-card
-            onMouseEnter={(event) =>
-              hoverTween(event.currentTarget, prefersReducedMotion, true)
-            }
-            onMouseLeave={(event) =>
-              hoverTween(event.currentTarget, prefersReducedMotion, false)
-            }
-            className="rounded-2xl border border-brand-dark/10 bg-white/90 p-5 shadow-soft transition duration-250 ease-smooth"
-          >
-            <div className="text-xs font-semibold uppercase tracking-[0.2em] text-brand-dark/50">
-              {template.type}
-            </div>
-            <div className="mt-3 text-lg font-semibold text-brand-dark">
-              {template.title}
-            </div>
-            <div className="mt-2 text-sm text-brand-dark/60">
-              {template.meta}
-            </div>
-            <button
-              type="button"
-              className="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-brand-teal transition duration-200 ease-smooth hover:text-brand-dark"
+      {showTemplatePreviews && (
+        <div ref={templatesRef} className="grid gap-4 md:grid-cols-3">
+          {templatePreviews.map((template) => (
+            <div
+              key={template.title}
+              data-template-card
+              onMouseEnter={(event) =>
+                hoverTween(event.currentTarget, prefersReducedMotion, true)
+              }
+              onMouseLeave={(event) =>
+                hoverTween(event.currentTarget, prefersReducedMotion, false)
+              }
+              className="rounded-2xl border border-brand-dark/10 bg-white/90 p-5 shadow-soft transition duration-250 ease-smooth"
             >
-              View template <span aria-hidden>→</span>
-            </button>
-          </div>
-        ))}
-      </div>
+              <div className="text-xs font-semibold uppercase tracking-[0.2em] text-brand-dark/50">
+                {template.type}
+              </div>
+              <div className="mt-3 text-lg font-semibold text-brand-dark">
+                {template.title}
+              </div>
+              <div className="mt-2 text-sm text-brand-dark/60">
+                {template.meta}
+              </div>
+              <button
+                type="button"
+                className="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-brand-teal transition duration-200 ease-smooth hover:text-brand-dark"
+              >
+                View template <span aria-hidden>→</span>
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 };

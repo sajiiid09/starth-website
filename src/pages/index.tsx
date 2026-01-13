@@ -108,6 +108,8 @@ import Legals from "./Legals";
 
 import Reviews from "./Reviews";
 
+import Legal from "./Legal";
+
 import TemplateDetails from "./TemplateDetails";
 
 import MarketplaceDetails from "./MarketplaceDetails";
@@ -131,6 +133,16 @@ import VendorInquiries from "./vendor/VendorInquiries";
 import VendorCalendar from "./vendor/VendorCalendar";
 
 import VendorSettings from "./vendor/VendorSettings";
+
+import VenueOnboarding from "./vendor/VenueOnboarding";
+
+import ServiceOnboarding from "./vendor/ServiceOnboarding";
+
+import VendorTypeSelect from "./vendor/VendorTypeSelect";
+
+import VendorProfile from "./vendor/VendorProfile";
+
+import VendorSubmission from "./vendor/VendorSubmission";
 
 import AdminDashboardHome from "./admin/AdminDashboardHome";
 
@@ -251,10 +263,12 @@ const PAGES = {
     Templates: Templates,
 
     Vendors: Vendors,
-
+    
     Legals: Legals,
-
+    
     Reviews: Reviews,
+
+    Legal: Legal,
 
     TemplateDetails: TemplateDetails,
     
@@ -403,6 +417,51 @@ function PagesContent() {
                 />
 
                 <Route
+                  path="/vendor/onboarding/select"
+                  element={
+                    <RoleGate allowedRoles={["vendor"]}>
+                      <VendorTypeSelect />
+                    </RoleGate>
+                  }
+                />
+
+                <Route
+                  path="/vendor/onboarding/venue"
+                  element={
+                    <RoleGate allowedRoles={["vendor"]}>
+                      <VenueOnboarding />
+                    </RoleGate>
+                  }
+                />
+
+                <Route
+                  path="/vendor/onboarding/service"
+                  element={
+                    <RoleGate allowedRoles={["vendor"]}>
+                      <ServiceOnboarding />
+                    </RoleGate>
+                  }
+                />
+
+                <Route
+                  path="/vendor/profile"
+                  element={
+                    <RoleGate allowedRoles={["vendor"]}>
+                      <VendorProfile />
+                    </RoleGate>
+                  }
+                />
+
+                <Route
+                  path="/vendor/submission"
+                  element={
+                    <RoleGate allowedRoles={["vendor"]}>
+                      <VendorSubmission />
+                    </RoleGate>
+                  }
+                />
+
+                <Route
                   path="/admin"
                   element={
                     <RoleGate allowedRoles={["admin"]}>
@@ -544,6 +603,8 @@ function PagesContent() {
                 <Route path={createPageUrl("Legals")} element={<Legals />} />
 
                 <Route path={createPageUrl("Reviews")} element={<Reviews />} />
+
+                <Route path={createPageUrl("Legal")} element={<Legal />} />
                 
             </Routes>
         </Layout>

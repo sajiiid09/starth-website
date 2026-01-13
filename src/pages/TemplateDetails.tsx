@@ -4,10 +4,34 @@ import Container from "@/components/home-v2/primitives/Container";
 import FadeIn from "@/components/animations/FadeIn";
 import { cn } from "@/lib/utils";
 import { dummyTemplates } from "@/data/dummyTemplates";
+import SpacePlannerSchematic from "@/components/os/SpacePlannerSchematic";
+import { venues } from "@/data/venues";
+import { venueLayouts, type LayoutMode } from "@/data/venueLayouts";
 
 const TemplateDetails: React.FC = () => {
   const { id } = useParams();
   const template = dummyTemplates.find((item) => item.id === id);
+  const [layoutMode, setLayoutMode] = React.useState<LayoutMode>("optimized");
+  const [showComparison, setShowComparison] = React.useState(false);
+  const featuredVenue = venues[0];
+  const layout =
+    venueLayouts.find(
+      (item) => item.venueId === featuredVenue.id && item.mode === layoutMode
+    ) ?? venueLayouts.find((item) => item.venueId === featuredVenue.id);
+
+  const guestCount =
+    template?.stats?.reduce((value, stat) => {
+      if (value) {
+        return value;
+      }
+      if (!/guest|attendee/i.test(stat.label)) {
+        return value;
+      }
+      const parsed = Number.parseInt(stat.value.replace(/[^0-9]/g, ""), 10);
+      return Number.isNaN(parsed) ? value : parsed;
+    }, 0) ||
+    layout?.guestRangeRecommended.min ||
+    120;
 
   if (!template) {
     return (
@@ -85,6 +109,95 @@ const TemplateDetails: React.FC = () => {
             </div>
           </div>
         </FadeIn>
+
+        {layout && (
+          <FadeIn className="mt-10 rounded-3xl border border-white/40 bg-white/70 p-8 shadow-card">
+            <div className="flex flex-wrap items-center justify-between gap-4">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-[0.3em] text-brand-teal">
+                  Space blueprint
+                </p>
+                <h2 className="mt-2 text-2xl font-semibold text-brand-dark">
+                  Venue layout schematic
+                </h2>
+                <p className="mt-2 text-sm text-brand-dark/60">
+                  Preview optimized vs. max layouts for a {guestCount}-guest
+                  blueprint.
+                </p>
+              </div>
+              <div className="flex flex-wrap items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => setLayoutMode("optimized")}
+                  className={cn(
+                    "rounded-full border px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] transition",
+                    layoutMode === "optimized"
+                      ? "border-brand-dark bg-brand-dark text-brand-light"
+                      : "border-brand-dark/20 bg-white text-brand-dark/70 hover:border-brand-dark/40"
+                  )}
+                >
+                  Optimized
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setLayoutMode("max")}
+                  className={cn(
+                    "rounded-full border px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] transition",
+                    layoutMode === "max"
+                      ? "border-brand-dark bg-brand-dark text-brand-light"
+                      : "border-brand-dark/20 bg-white text-brand-dark/70 hover:border-brand-dark/40"
+                  )}
+                >
+                  Max
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setShowComparison((prev) => !prev)}
+                  className={cn(
+                    "rounded-full border px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] transition",
+                    showComparison
+                      ? "border-brand-teal/50 bg-brand-teal/10 text-brand-teal"
+                      : "border-brand-dark/20 bg-white text-brand-dark/70 hover:border-brand-dark/40"
+                  )}
+                >
+                  Before / After
+                </button>
+              </div>
+            </div>
+
+            <div className="mt-6">
+              {showComparison ? (
+                <div className="grid gap-6 lg:grid-cols-2">
+                  <SpacePlannerSchematic
+                    venue={featuredVenue}
+                    layout={layout}
+                    guestCount={guestCount}
+                    inventory={layout.baselineInventory}
+                    mode={layoutMode}
+                    variant="before"
+                  />
+                  <SpacePlannerSchematic
+                    venue={featuredVenue}
+                    layout={layout}
+                    guestCount={guestCount}
+                    inventory={layout.baselineInventory}
+                    mode={layoutMode}
+                    variant="after"
+                  />
+                </div>
+              ) : (
+                <SpacePlannerSchematic
+                  venue={featuredVenue}
+                  layout={layout}
+                  guestCount={guestCount}
+                  inventory={layout.baselineInventory}
+                  mode={layoutMode}
+                  variant="after"
+                />
+              )}
+            </div>
+          </FadeIn>
+        )}
 
         <div className="mt-10 grid gap-8 lg:grid-cols-[1.2fr_0.8fr]">
           <FadeIn className="rounded-3xl border border-white/40 bg-white/70 p-8 shadow-card">

@@ -4,10 +4,22 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
+} from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Send, Loader2 } from "lucide-react";
+import { Loader2, Send, Sparkles } from "lucide-react";
 import { SendEmail } from "@/api/integrations";
+import Container from "@/components/home-v2/primitives/Container";
+import Section from "@/components/home-v2/primitives/Section";
+import Eyebrow from "@/components/home-v2/primitives/Eyebrow";
+import DisplayH2 from "@/components/home-v2/primitives/DisplayH2";
+import Lead from "@/components/home-v2/primitives/Lead";
+import FadeIn from "@/components/animations/FadeIn";
 
 export default function DFYForm({ onSubmit }) {
   const [formData, setFormData] = useState({
@@ -88,191 +100,232 @@ Please respond within 24 hours as promised on the website.
   };
 
   return (
-    <section className="py-20 px-4 sm:px-6 lg:px-8 bg-white">
-      <div className="max-w-3xl mx-auto">
-        <Card className="border-none shadow-lg">
-          <CardHeader className="text-center p-8 border-b">
-            <CardTitle className="text-2xl font-bold text-gray-900 mb-4">
-              Plan with Us
-            </CardTitle>
-            <p className="text-gray-600">
-              Tell us about your event and we'll create a custom proposal within 24 hours
-            </p>
-          </CardHeader>
-          
-          <CardContent className="p-8">
-            <form onSubmit={handleSubmit} className="space-y-6">
-              {/* Contact Information */}
-              <div className="grid md:grid-cols-2 gap-6">
-                <div>
-                  <Label htmlFor="contact_name">Full Name *</Label>
-                  <Input
-                    id="contact_name"
-                    value={formData.contact_name}
-                    onChange={(e) => handleChange("contact_name", e.target.value)}
-                    placeholder="Your full name"
-                    required
-                    className="mt-2"
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="contact_email">Email Address *</Label>
-                  <Input
-                    id="contact_email"
-                    type="email"
-                    value={formData.contact_email}
-                    onChange={(e) => handleChange("contact_email", e.target.value)}
-                    placeholder="your@email.com"
-                    required
-                    className="mt-2"
-                  />
+    <Section theme="cream">
+      <Container>
+        <div className="grid gap-10 lg:grid-cols-[1.1fr_0.9fr] lg:items-start">
+          <div className="flex flex-col gap-6">
+            <FadeIn>
+              <div className="space-y-4">
+                <Eyebrow theme="cream">Request a proposal</Eyebrow>
+                <DisplayH2 theme="cream">Plan with us in 24 hours.</DisplayH2>
+                <Lead theme="cream">
+                  Tell us about your event and we’ll deliver a tailored plan with curated venues,
+                  vendors, and timelines.
+                </Lead>
+              </div>
+            </FadeIn>
+            <FadeIn delay={0.1}>
+              <div className="rounded-3xl border border-white/50 bg-white/80 p-6 shadow-card">
+                <div className="flex items-start gap-4">
+                  <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-brand-teal/10">
+                    <Sparkles className="h-6 w-6 text-brand-teal" />
+                  </span>
+                  <div>
+                    <p className="text-sm font-semibold text-brand-dark">
+                      Concierge response guarantee
+                    </p>
+                    <p className="mt-2 text-sm text-brand-dark/70">
+                      We’ll confirm your intake and share the first proposal within one business day.
+                    </p>
+                  </div>
                 </div>
               </div>
+            </FadeIn>
+          </div>
 
-              <div className="grid md:grid-cols-2 gap-6">
-                <div>
-                  <Label htmlFor="contact_phone">Phone Number</Label>
-                  <Input
-                    id="contact_phone"
-                    type="tel"
-                    value={formData.contact_phone}
-                    onChange={(e) => handleChange("contact_phone", e.target.value)}
-                    placeholder="+1 (555) 123-4567"
-                    className="mt-2"
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="organization">Organization</Label>
-                  <Input
-                    id="organization"
-                    value={formData.organization}
-                    onChange={(e) => handleChange("organization", e.target.value)}
-                    placeholder="Company or organization name"
-                    className="mt-2"
-                  />
-                </div>
-              </div>
+          <FadeIn className="lg:sticky lg:top-24">
+            <Card className="border border-white/50 bg-white/90 shadow-card">
+              <CardHeader className="border-b border-brand-dark/10 p-6 text-center">
+                <CardTitle className="text-2xl font-semibold text-brand-dark">
+                  Plan with Us
+                </CardTitle>
+                <p className="mt-2 text-sm text-brand-dark/70">
+                  Share the essentials so we can build the right event blueprint.
+                </p>
+              </CardHeader>
 
-              {/* Event Details */}
-              <div>
-                <Label htmlFor="event_goals">Event Goals & Objectives *</Label>
-                <Textarea
-                  id="event_goals"
-                  value={formData.event_goals}
-                  onChange={(e) => handleChange("event_goals", e.target.value)}
-                  placeholder="What do you want to achieve with this event? Who is your target audience?"
-                  required
-                  className="mt-2 h-24"
-                />
-              </div>
+              <CardContent className="p-6">
+                <form onSubmit={handleSubmit} className="space-y-6">
+                  <div className="grid gap-6 md:grid-cols-2">
+                    <div>
+                      <Label htmlFor="contact_name">Full Name *</Label>
+                      <Input
+                        id="contact_name"
+                        value={formData.contact_name}
+                        onChange={(e) => handleChange("contact_name", e.target.value)}
+                        placeholder="Your full name"
+                        required
+                        className="mt-2"
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="contact_email">Email Address *</Label>
+                      <Input
+                        id="contact_email"
+                        type="email"
+                        value={formData.contact_email}
+                        onChange={(e) => handleChange("contact_email", e.target.value)}
+                        placeholder="your@email.com"
+                        required
+                        className="mt-2"
+                      />
+                    </div>
+                  </div>
 
-              <div className="grid md:grid-cols-2 gap-6">
-                <div>
-                  <Label htmlFor="preferred_date">Preferred Date *</Label>
-                  <Input
-                    id="preferred_date"
-                    type="date"
-                    value={formData.preferred_date}
-                    onChange={(e) => handleChange("preferred_date", e.target.value)}
-                    required
-                    className="mt-2"
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="guest_count">Expected Guest Count</Label>
-                  <Input
-                    id="guest_count"
-                    type="number"
-                    value={formData.guest_count}
-                    onChange={(e) => handleChange("guest_count", e.target.value)}
-                    placeholder="50"
-                    className="mt-2"
-                  />
-                </div>
-              </div>
+                  <div className="grid gap-6 md:grid-cols-2">
+                    <div>
+                      <Label htmlFor="contact_phone">Phone Number</Label>
+                      <Input
+                        id="contact_phone"
+                        type="tel"
+                        value={formData.contact_phone}
+                        onChange={(e) => handleChange("contact_phone", e.target.value)}
+                        placeholder="+1 (555) 123-4567"
+                        className="mt-2"
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="organization">Organization</Label>
+                      <Input
+                        id="organization"
+                        value={formData.organization}
+                        onChange={(e) => handleChange("organization", e.target.value)}
+                        placeholder="Company or organization name"
+                        className="mt-2"
+                      />
+                    </div>
+                  </div>
 
-              <div className="grid md:grid-cols-2 gap-6">
-                <div>
-                  <Label htmlFor="budget_range">Budget Range</Label>
-                  <Select value={formData.budget_range} onValueChange={(value) => handleChange("budget_range", value)}>
-                    <SelectTrigger className="mt-2">
-                      <SelectValue placeholder="Select budget range" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="under_10k">Under $10,000</SelectItem>
-                      <SelectItem value="10k_25k">$10,000 - $25,000</SelectItem>
-                      <SelectItem value="25k_50k">$25,000 - $50,000</SelectItem>
-                      <SelectItem value="50k_100k">$50,000 - $100,000</SelectItem>
-                      <SelectItem value="100k_plus">$100,000+</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div>
-                  <Label htmlFor="location_preference">Location Preference</Label>
-                  <Input
-                    id="location_preference"
-                    value={formData.location_preference}
-                    onChange={(e) => handleChange("location_preference", e.target.value)}
-                    placeholder="Boston, NYC, London, etc."
-                    className="mt-2"
-                  />
-                </div>
-              </div>
+                  <div>
+                    <Label htmlFor="event_goals">Event Goals & Objectives *</Label>
+                    <Textarea
+                      id="event_goals"
+                      value={formData.event_goals}
+                      onChange={(e) => handleChange("event_goals", e.target.value)}
+                      placeholder="What do you want to achieve with this event? Who is your target audience?"
+                      required
+                      className="mt-2 h-24"
+                    />
+                  </div>
 
-              <div>
-                <Label htmlFor="event_vibe">Event Atmosphere & Style</Label>
-                <Textarea
-                  id="event_vibe"
-                  value={formData.event_vibe}
-                  onChange={(e) => handleChange("event_vibe", e.target.value)}
-                  placeholder="Professional, casual, elegant, modern, traditional, fun, intimate..."
-                  className="mt-2 h-20"
-                />
-              </div>
+                  <div className="grid gap-6 md:grid-cols-2">
+                    <div>
+                      <Label htmlFor="preferred_date">Preferred Date *</Label>
+                      <Input
+                        id="preferred_date"
+                        type="date"
+                        value={formData.preferred_date}
+                        onChange={(e) => handleChange("preferred_date", e.target.value)}
+                        required
+                        className="mt-2"
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="guest_count">Expected Guest Count</Label>
+                      <Input
+                        id="guest_count"
+                        type="number"
+                        value={formData.guest_count}
+                        onChange={(e) => handleChange("guest_count", e.target.value)}
+                        placeholder="50"
+                        className="mt-2"
+                      />
+                    </div>
+                  </div>
 
-              <div>
-                <Label htmlFor="timeline">Timeline & Key Deadlines</Label>
-                <Textarea
-                  id="timeline"
-                  value={formData.timeline}
-                  onChange={(e) => handleChange("timeline", e.target.value)}
-                  placeholder="Any specific deadlines, milestones, or timeline constraints?"
-                  className="mt-2 h-20"
-                />
-              </div>
+                  <div className="grid gap-6 md:grid-cols-2">
+                    <div>
+                      <Label htmlFor="budget_range">Budget Range</Label>
+                      <Select
+                        value={formData.budget_range}
+                        onValueChange={(value) => handleChange("budget_range", value)}
+                      >
+                        <SelectTrigger className="mt-2">
+                          <SelectValue placeholder="Select budget range" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="under_10k">Under $10,000</SelectItem>
+                          <SelectItem value="10k_25k">$10,000 - $25,000</SelectItem>
+                          <SelectItem value="25k_50k">$25,000 - $50,000</SelectItem>
+                          <SelectItem value="50k_100k">$50,000 - $100,000</SelectItem>
+                          <SelectItem value="100k_plus">$100,000+</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div>
+                      <Label htmlFor="location_preference">Location Preference</Label>
+                      <Input
+                        id="location_preference"
+                        value={formData.location_preference}
+                        onChange={(e) => handleChange("location_preference", e.target.value)}
+                        placeholder="Boston, NYC, London, etc."
+                        className="mt-2"
+                      />
+                    </div>
+                  </div>
 
-              <div>
-                <Label htmlFor="additional_notes">Additional Requirements</Label>
-                <Textarea
-                  id="additional_notes"
-                  value={formData.additional_notes}
-                  onChange={(e) => handleChange("additional_notes", e.target.value)}
-                  placeholder="Special requirements, accessibility needs, dietary restrictions, etc."
-                  className="mt-2 h-24"
-                />
-              </div>
+                  <div>
+                    <Label htmlFor="event_vibe">Event Atmosphere & Style</Label>
+                    <Textarea
+                      id="event_vibe"
+                      value={formData.event_vibe}
+                      onChange={(e) => handleChange("event_vibe", e.target.value)}
+                      placeholder="Professional, casual, elegant, modern, traditional, fun, intimate..."
+                      className="mt-2 h-20"
+                    />
+                  </div>
 
-              <Button
-                type="submit"
-                disabled={isSubmitting || !formData.contact_name || !formData.contact_email || !formData.event_goals || !formData.preferred_date}
-                className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white py-3 text-lg font-semibold strathwell-transition"
-              >
-                {isSubmitting ? (
-                  <>
-                    <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                    Submitting Request...
-                  </>
-                ) : (
-                  <>
-                    <Send className="w-5 h-5 mr-2" />
-                    Request Plan with Us Service
-                  </>
-                )}
-              </Button>
-            </form>
-          </CardContent>
-        </Card>
-      </div>
-    </section>
+                  <div>
+                    <Label htmlFor="timeline">Timeline & Key Deadlines</Label>
+                    <Textarea
+                      id="timeline"
+                      value={formData.timeline}
+                      onChange={(e) => handleChange("timeline", e.target.value)}
+                      placeholder="Any specific deadlines, milestones, or timeline constraints?"
+                      className="mt-2 h-20"
+                    />
+                  </div>
+
+                  <div>
+                    <Label htmlFor="additional_notes">Additional Requirements</Label>
+                    <Textarea
+                      id="additional_notes"
+                      value={formData.additional_notes}
+                      onChange={(e) => handleChange("additional_notes", e.target.value)}
+                      placeholder="Special requirements, accessibility needs, dietary restrictions, etc."
+                      className="mt-2 h-24"
+                    />
+                  </div>
+
+                  <Button
+                    type="submit"
+                    disabled={
+                      isSubmitting ||
+                      !formData.contact_name ||
+                      !formData.contact_email ||
+                      !formData.event_goals ||
+                      !formData.preferred_date
+                    }
+                    className="w-full rounded-full bg-brand-teal text-brand-light hover:bg-brand-dark"
+                  >
+                    {isSubmitting ? (
+                      <>
+                        <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                        Submitting Request...
+                      </>
+                    ) : (
+                      <>
+                        <Send className="mr-2 h-5 w-5" />
+                        Request Plan with Us Service
+                      </>
+                    )}
+                  </Button>
+                </form>
+              </CardContent>
+            </Card>
+          </FadeIn>
+        </div>
+      </Container>
+    </Section>
   );
 }

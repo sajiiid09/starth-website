@@ -10,10 +10,12 @@ import FadeIn from "@/components/animations/FadeIn";
 import { solutions } from "@/components/home-v2/config/solutions";
 import { useFollowCursor } from "@/components/home-v2/hooks/useFollowCursor";
 import { usePrefersReducedMotion } from "@/hooks/usePrefersReducedMotion";
+import { useNavigate } from "react-router-dom";
 
 const SolutionsCarousel: React.FC = () => {
   const theme = "cream" as const;
   const prefersReducedMotion = usePrefersReducedMotion();
+  const navigate = useNavigate();
   const { wrapperRef, cursorRef, isActive } = useFollowCursor({
     enabled: !prefersReducedMotion
   });
@@ -77,6 +79,8 @@ const SolutionsCarousel: React.FC = () => {
                           variant="secondary"
                           size="sm"
                           className="self-start"
+                          type="button"
+                          onClick={() => navigate(solution.href)}
                         >
                           {solution.ctaLabel}
                         </PillButton>

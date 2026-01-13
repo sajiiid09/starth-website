@@ -3,6 +3,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
 import { AppRole, getCurrentRole, getRoleHomePath, setCurrentRole } from "@/utils/role";
+import { getSessionState, getVendorOnboardingPath } from "@/utils/session";
 
 const isDev = import.meta.env.MODE !== "production";
 
@@ -36,6 +37,29 @@ const RoleGate: React.FC<RoleGateProps> = ({ allowedRoles, children }) => {
       toast.error("You don't have access to that dashboard.");
       navigate(getRoleHomePath(role), { replace: true });
       return;
+    }
+
+    if (role === "vendor") {
+      const session = getSessionState();
+      const onboardingPath = getVendorOnboardingPath(session.vendorType);
+      const isOnboardingRoute = location.pathname.startsWith("/vendor/onboarding");
+      const isProfileRoute = location.pathname.startsWith("/vendor/profile");
+      const isSubmissionRoute = location.pathname.startsWith("/vendor/submission");
+
+      if (!session.vendorType) {
+        navigate("/vendor/onboarding/select", { replace: true });
+        return;
+      }
+
+      if (
+        session.vendorOnboardingStatus !== "approved" &&
+        !isOnboardingRoute &&
+        !isProfileRoute &&
+        !isSubmissionRoute
+      ) {
+        navigate(onboardingPath, { replace: true });
+        return;
+      }
     }
 
     setIsReady(true);

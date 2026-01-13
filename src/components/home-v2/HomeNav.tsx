@@ -23,9 +23,9 @@ const solutionsItems = [
 
 const exploreItems = [
   { label: "Case Studies", to: createPageUrl("CaseStudies") },
-  { label: "Customer Review", to: createPageUrl("Reviews") },
+  { label: "Reviews", to: createPageUrl("Reviews") },
   { label: "Contact", to: createPageUrl("Contact") },
-  { label: "Legals", to: createPageUrl("Legals"), comingSoon: true }
+  { label: "Legal", to: createPageUrl("Legal") }
 ];
 
 const HomeNav: React.FC = () => {

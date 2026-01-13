@@ -3,79 +3,77 @@ import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { CheckCircle, Calendar, Mail, Phone, ArrowLeft } from "lucide-react";
+import { CheckCircle, Mail, Phone, ArrowLeft } from "lucide-react";
+import Container from "@/components/home-v2/primitives/Container";
+import Section from "@/components/home-v2/primitives/Section";
+import FadeIn from "@/components/animations/FadeIn";
 
 export default function DFYSuccess({ data }) {
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
-      <Card className="max-w-2xl w-full border-none shadow-xl">
-        <CardContent className="p-12 text-center">
-          <div className="w-20 h-20 mx-auto mb-8 bg-green-100 rounded-full flex items-center justify-center">
-            <CheckCircle className="w-10 h-10 text-green-600" />
-          </div>
-          
-          <h1 className="text-3xl font-bold text-gray-900 mb-4">
-            Request Submitted Successfully!
-          </h1>
-          
-          <p className="text-xl text-gray-600 mb-8 leading-relaxed">
-            Thank you for choosing our Plan with Us service. We've received your event details and our expert team is already working on your custom proposal.
-          </p>
-
-          <div className="bg-gray-50 rounded-xl p-6 mb-8">
-            <h3 className="font-semibold text-gray-900 mb-4">What happens next:</h3>
-            <div className="space-y-3 text-left">
-              <div className="flex items-start gap-3">
-                <div className="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-                  <span className="text-blue-600 font-semibold text-sm">1</span>
+    <Section theme="cream" className="min-h-screen">
+      <Container>
+        <div className="flex min-h-[70vh] items-center justify-center">
+          <FadeIn className="w-full">
+            <Card className="mx-auto w-full max-w-2xl border border-white/50 bg-white/90 shadow-card">
+              <CardContent className="p-10 text-center">
+                <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-brand-teal/10">
+                  <CheckCircle className="h-8 w-8 text-brand-teal" />
                 </div>
-                <p className="text-gray-700">We'll review your requirements and begin venue research</p>
-              </div>
-              <div className="flex items-start gap-3">
-                <div className="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-                  <span className="text-blue-600 font-semibold text-sm">2</span>
-                </div>
-                <p className="text-gray-700">Our team will reach out within 24 hours with your custom proposal</p>
-              </div>
-              <div className="flex items-start gap-3">
-                <div className="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-                  <span className="text-blue-600 font-semibold text-sm">3</span>
-                </div>
-                <p className="text-gray-700">Once approved, we'll handle all planning and execution</p>
-              </div>
-            </div>
-          </div>
 
-          {/* Contact Information */}
-          <div className="bg-blue-50 rounded-xl p-6 mb-8">
-            <h3 className="font-semibold text-gray-900 mb-4">Contact Information</h3>
-            <div className="grid md:grid-cols-2 gap-4 text-sm">
-              <div className="flex items-center gap-2">
-                <Mail className="w-4 h-4 text-blue-600" />
-                <span>dfy@strathwell.com</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <Phone className="w-4 h-4 text-blue-600" />
-                <span>+1 (555) 123-4567</span>
-              </div>
-            </div>
-          </div>
+                <h1 className="text-3xl font-semibold text-brand-dark">
+                  Request submitted successfully.
+                </h1>
 
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link to={createPageUrl("Home")}>
-              <Button variant="outline" className="flex items-center gap-2">
-                <ArrowLeft className="w-4 h-4" />
-                Back to Home
-              </Button>
-            </Link>
-            <Link to={createPageUrl("AIPlanner")}>
-              <Button className="bg-blue-600 hover:bg-blue-700">
-                Try Plan with AI
-              </Button>
-            </Link>
-          </div>
-        </CardContent>
-      </Card>
-    </div>
+                <p className="mt-4 text-lg text-brand-dark/70">
+                  Thanks for choosing Plan with Us. We’ve received your event details and our team is
+                  already shaping your custom proposal.
+                </p>
+
+                <div className="mt-8 rounded-2xl border border-brand-dark/10 bg-brand-light/80 p-6 text-left">
+                  <h3 className="text-sm font-semibold uppercase tracking-[0.2em] text-brand-dark/60">
+                    What happens next
+                  </h3>
+                  <ol className="mt-4 space-y-3 text-sm text-brand-dark/70">
+                    <li>1. We review your requirements and begin venue research.</li>
+                    <li>2. A concierge planner reaches out within 24 hours with your proposal.</li>
+                    <li>3. We refine the plan and execute once approved.</li>
+                  </ol>
+                </div>
+
+                <div className="mt-6 rounded-2xl border border-brand-teal/20 bg-brand-teal/10 p-6 text-left">
+                  <h3 className="text-sm font-semibold uppercase tracking-[0.2em] text-brand-dark/60">
+                    Contact information
+                  </h3>
+                  <div className="mt-4 grid gap-3 text-sm text-brand-dark/70 md:grid-cols-2">
+                    <div className="flex items-center gap-2">
+                      <Mail className="h-4 w-4 text-brand-teal" />
+                      <span>dfy@strathwell.com</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Phone className="h-4 w-4 text-brand-teal" />
+                      <span>+1 (555) 123-4567</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
+                  <Link to={createPageUrl("Home")}>
+                    <Button variant="outline" className="flex items-center gap-2 rounded-full">
+                      <ArrowLeft className="h-4 w-4" />
+                      Back to Home
+                    </Button>
+                  </Link>
+                  <Link to={createPageUrl("AIPlanner")}>
+                    <Button className="rounded-full bg-brand-teal text-brand-light hover:bg-brand-dark">
+                      Try Plan with AI
+                    </Button>
+                  </Link>
+                </div>
+              </CardContent>
+            </Card>
+          </FadeIn>
+        </div>
+      </Container>
+    </Section>
   );
 }

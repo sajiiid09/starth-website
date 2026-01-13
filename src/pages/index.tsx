@@ -108,6 +108,8 @@ import Legals from "./Legals";
 
 import Reviews from "./Reviews";
 
+import Legal from "./Legal";
+
 import TemplateDetails from "./TemplateDetails";
 
 import MarketplaceDetails from "./MarketplaceDetails";
@@ -261,10 +263,12 @@ const PAGES = {
     Templates: Templates,
 
     Vendors: Vendors,
-
+    
     Legals: Legals,
-
+    
     Reviews: Reviews,
+
+    Legal: Legal,
 
     TemplateDetails: TemplateDetails,
     
@@ -599,6 +603,8 @@ function PagesContent() {
                 <Route path={createPageUrl("Legals")} element={<Legals />} />
 
                 <Route path={createPageUrl("Reviews")} element={<Reviews />} />
+
+                <Route path={createPageUrl("Legal")} element={<Legal />} />
                 
             </Routes>
         </Layout>

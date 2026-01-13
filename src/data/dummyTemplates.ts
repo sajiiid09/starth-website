@@ -21,6 +21,10 @@ export type DummyTemplate = {
   image: string;
   description: string;
   fullDetails: string;
+  venueId?: string;
+  defaultGuestCount?: number;
+  recommendedMode?: "optimized" | "max";
+  maxGuestCount?: number;
   timeline?: TemplateTimelineItem[];
   vendors?: TemplateVendorItem[];
   budget?: TemplateBudget;
@@ -35,6 +39,10 @@ export const dummyTemplates: DummyTemplate[] = [
     description: "A timeless ceremony-to-reception flow with elevated guest moments.",
     fullDetails:
       "A modern wedding blueprint built for seamless transitions, curated guest experiences, and a refined aesthetic from ceremony to late-night celebration.",
+    venueId: "harborview-hall",
+    defaultGuestCount: 180,
+    recommendedMode: "optimized",
+    maxGuestCount: 420,
     stats: [
       { label: "Guest Count", value: "180" },
       { label: "Duration", value: "8 hours" },
@@ -96,6 +104,10 @@ export const dummyTemplates: DummyTemplate[] = [
     description: "A two-day leadership reset focused on alignment and recharge.",
     fullDetails:
       "Designed for high-impact leadership teams, this retreat blueprint balances strategic planning sessions with wellness-forward experiences.",
+    venueId: "orchard-house",
+    defaultGuestCount: 24,
+    recommendedMode: "optimized",
+    maxGuestCount: 140,
     stats: [
       { label: "Attendees", value: "24" },
       { label: "Duration", value: "2 days" },
@@ -157,6 +169,10 @@ export const dummyTemplates: DummyTemplate[] = [
     description: "A cinematic reveal experience with press and VIP guests.",
     fullDetails:
       "Crafted for tech and consumer product launches, this blueprint blends immersive storytelling with a high-energy reveal moment.",
+    venueId: "summit-terrace",
+    defaultGuestCount: 150,
+    recommendedMode: "optimized",
+    maxGuestCount: 310,
     stats: [
       { label: "Guests", value: "150" },
       { label: "Format", value: "Evening Event" },
@@ -218,6 +234,10 @@ export const dummyTemplates: DummyTemplate[] = [
     description: "A donor-first gala with auction strategy baked in.",
     fullDetails:
       "Built for high-impact fundraising, this blueprint focuses on storytelling, donor engagement, and seamless auction flow.",
+    venueId: "foundry-warehouse",
+    defaultGuestCount: 320,
+    recommendedMode: "max",
+    maxGuestCount: 520,
     stats: [
       { label: "Guests", value: "320" },
       { label: "Target", value: "$250k" },
@@ -279,6 +299,10 @@ export const dummyTemplates: DummyTemplate[] = [
     description: "A warm, intimate memorial gathering with thoughtful touches.",
     fullDetails:
       "A calming, respectful blueprint that prioritizes guest comfort, memory sharing, and meaningful rituals.",
+    venueId: "heritage-studio",
+    defaultGuestCount: 80,
+    recommendedMode: "optimized",
+    maxGuestCount: 180,
     stats: [
       { label: "Guests", value: "80" },
       { label: "Format", value: "Half-day" },
@@ -335,6 +359,10 @@ export const dummyTemplates: DummyTemplate[] = [
     description: "A repeatable lecture format for academic audiences.",
     fullDetails:
       "Optimized for universities and speaker series, this blueprint covers AV, guest flow, and post-event engagement.",
+    venueId: "granite-conservatory",
+    defaultGuestCount: 220,
+    recommendedMode: "optimized",
+    maxGuestCount: 420,
     stats: [
       { label: "Attendees", value: "220" },
       { label: "Format", value: "Evening" },

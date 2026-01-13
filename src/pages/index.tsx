@@ -132,9 +132,9 @@ import VendorCalendar from "./vendor/VendorCalendar";
 
 import VendorSettings from "./vendor/VendorSettings";
 
-import VendorOnboardingVenue from "./vendor/VendorOnboardingVenue";
+import VenueOnboarding from "./vendor/VenueOnboarding";
 
-import VendorOnboardingService from "./vendor/VendorOnboardingService";
+import ServiceOnboarding from "./vendor/ServiceOnboarding";
 
 import VendorTypeSelect from "./vendor/VendorTypeSelect";
 
@@ -425,7 +425,7 @@ function PagesContent() {
                   path="/vendor/onboarding/venue"
                   element={
                     <RoleGate allowedRoles={["vendor"]}>
-                      <VendorOnboardingVenue />
+                      <VenueOnboarding />
                     </RoleGate>
                   }
                 />
@@ -434,7 +434,7 @@ function PagesContent() {
                   path="/vendor/onboarding/service"
                   element={
                     <RoleGate allowedRoles={["vendor"]}>
-                      <VendorOnboardingService />
+                      <ServiceOnboarding />
                     </RoleGate>
                   }
                 />

@@ -21,9 +21,13 @@ export default function Layout({ children, currentPageName }: LayoutProps) {
   }
 
   return (
-    <div className="min-h-screen bg-brand-light text-brand-dark">
+    <div
+      className={`min-h-screen bg-brand-light text-brand-dark font-sans antialiased ${
+        isAppEntry ? "" : "flex flex-col"
+      }`}
+    >
       {!isAppEntry && <HomeNav />}
-      <main className={isAppEntry ? "" : ""}>{children}</main>
+      <main className={isAppEntry ? "" : "flex-1"}>{children}</main>
       {!isAppEntry && <Footer />}
     </div>
   );

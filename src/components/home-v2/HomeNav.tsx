@@ -44,12 +44,12 @@ const HomeNav: React.FC = () => {
         "sticky top-0 z-50 w-full border-b border-white/20 bg-white/60 shadow-sm backdrop-blur-2xl"
       )}
     >
-      <Container className="flex h-[72px] items-center justify-between">
+      <Container className="flex h-[80px] items-center justify-between">
         <Link to={createPageUrl("Home")} className="flex items-center">
           <img
             src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/68d4e38c341adad3b24950ed/ddf404508_Elegant_Simple_Aesthetic_Real_Estate_Logo__1_-removebg-preview.png"
             alt="Strathwell"
-            className="h-12 w-auto sm:h-14 md:h-16"
+            className="h-14 w-auto sm:h-16 md:h-[72px]"
           />
         </Link>
 

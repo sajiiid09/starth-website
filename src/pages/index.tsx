@@ -132,6 +132,16 @@ import VendorCalendar from "./vendor/VendorCalendar";
 
 import VendorSettings from "./vendor/VendorSettings";
 
+import VendorOnboardingVenue from "./vendor/VendorOnboardingVenue";
+
+import VendorOnboardingService from "./vendor/VendorOnboardingService";
+
+import VendorTypeSelect from "./vendor/VendorTypeSelect";
+
+import VendorProfile from "./vendor/VendorProfile";
+
+import VendorSubmission from "./vendor/VendorSubmission";
+
 import AdminDashboardHome from "./admin/AdminDashboardHome";
 
 import AdminUsers from "./admin/AdminUsers";
@@ -398,6 +408,51 @@ function PagesContent() {
                   element={
                     <RoleGate allowedRoles={["vendor"]}>
                       <VendorSettings />
+                    </RoleGate>
+                  }
+                />
+
+                <Route
+                  path="/vendor/onboarding/select"
+                  element={
+                    <RoleGate allowedRoles={["vendor"]}>
+                      <VendorTypeSelect />
+                    </RoleGate>
+                  }
+                />
+
+                <Route
+                  path="/vendor/onboarding/venue"
+                  element={
+                    <RoleGate allowedRoles={["vendor"]}>
+                      <VendorOnboardingVenue />
+                    </RoleGate>
+                  }
+                />
+
+                <Route
+                  path="/vendor/onboarding/service"
+                  element={
+                    <RoleGate allowedRoles={["vendor"]}>
+                      <VendorOnboardingService />
+                    </RoleGate>
+                  }
+                />
+
+                <Route
+                  path="/vendor/profile"
+                  element={
+                    <RoleGate allowedRoles={["vendor"]}>
+                      <VendorProfile />
+                    </RoleGate>
+                  }
+                />
+
+                <Route
+                  path="/vendor/submission"
+                  element={
+                    <RoleGate allowedRoles={["vendor"]}>
+                      <VendorSubmission />
                     </RoleGate>
                   }
                 />

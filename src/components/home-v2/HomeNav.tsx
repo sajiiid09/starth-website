@@ -15,7 +15,7 @@ import {
 
 const solutionsItems = [
   { label: "Marketplace", to: createPageUrl("Marketplace") },
-  { label: "Event Templates", to: createPageUrl("Templates"), comingSoon: true },
+  { label: "Event Templates", to: createPageUrl("Templates") },
   { label: "Popular Vendors", to: createPageUrl("Vendors") },
   { label: "Plan with Us", to: createPageUrl("DFY") },
   { label: "AI Planner", to: createPageUrl("AIPlanner") }
@@ -88,11 +88,7 @@ const HomeNav: React.FC = () => {
                   <DropdownMenuItem key={item.label} asChild>
                     <Link to={item.to} className={dropdownItemClasses}>
                       <span>{item.label}</span>
-                      {item.comingSoon && (
-                        <span className="text-xs uppercase tracking-[0.2em] text-brand-dark/50">
-                          Coming soon
-                        </span>
-                      )}
+                      
                     </Link>
                   </DropdownMenuItem>
                 ))}
@@ -117,11 +113,7 @@ const HomeNav: React.FC = () => {
                   <DropdownMenuItem key={item.label} asChild>
                     <Link to={item.to} className={dropdownItemClasses}>
                       <span>{item.label}</span>
-                      {item.comingSoon && (
-                        <span className="text-xs uppercase tracking-[0.2em] text-brand-dark/50">
-                          Coming soon
-                        </span>
-                      )}
+                      
                     </Link>
                   </DropdownMenuItem>
                 ))}

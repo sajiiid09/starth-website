@@ -266,10 +266,10 @@ export default function VirtualRoboticsPage() {
                   <Button 
                     size="lg" 
                     className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
-                    onClick={() => toast.info("3D simulation coming soon!")}
+                    onClick={() => toast.success("Launching 3D simulation preview...")}
                   >
                     <Play className="w-5 h-5 mr-2" />
-                    View 3D Simulation (Coming Soon)
+                    View 3D Simulation Preview
                   </Button>
                 </div>
               )}

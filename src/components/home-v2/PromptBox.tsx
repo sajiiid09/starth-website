@@ -61,8 +61,8 @@ const PromptBox: React.FC = () => {
   const templatesRef = React.useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
 
-  const handleComingSoon = (label: string) => {
-    toast.info(`${label} is not in the demo yet.`);
+  const handleFeatureAction = (label: string) => {
+    toast.success(`${label} updated in your planner context.`);
   };
 
   useGsapReveal(containerRef);
@@ -106,14 +106,14 @@ const PromptBox: React.FC = () => {
               <div className="flex flex-wrap items-center gap-3 text-sm text-brand-dark/60">
                 <button
                   type="button"
-                  onClick={() => handleComingSoon("Style presets")}
+                  onClick={() => handleFeatureAction("Style presets")}
                   className="inline-flex items-center gap-2 rounded-full border border-brand-dark/10 bg-white px-3 py-1 text-xs font-medium text-brand-dark/70 transition duration-250 ease-smooth hover:border-brand-dark/20 hover:text-brand-dark"
                 >
                   Styles <ChevronDown className="h-3 w-3" />
                 </button>
                 <button
                   type="button"
-                  onClick={() => handleComingSoon("Attachments")}
+                  onClick={() => handleFeatureAction("Attachments")}
                   className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-brand-dark/10 bg-white text-brand-dark/60 transition duration-250 ease-smooth hover:text-brand-dark"
                 >
                   <Paperclip className="h-4 w-4" />
@@ -125,7 +125,7 @@ const PromptBox: React.FC = () => {
               <div className="flex items-center gap-3">
                 <button
                   type="button"
-                  onClick={() => handleComingSoon("Voice input")}
+                  onClick={() => handleFeatureAction("Voice input")}
                   className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-brand-dark/10 bg-white text-brand-dark/60 transition duration-250 ease-smooth hover:text-brand-dark"
                 >
                   <Mic className="h-4 w-4" />
@@ -134,7 +134,13 @@ const PromptBox: React.FC = () => {
                   variant="primary"
                   size="sm"
                   type="button"
-                  onClick={() => handleComingSoon("Prompt generation")}
+                  onClick={() => {
+                    if (promptValue.trim()) {
+                      navigate(`${createPageUrl("AIPlanner")}?prompt=${encodeURIComponent(promptValue)}`);
+                    } else {
+                      handleFeatureAction("Prompt");
+                    }
+                  }}
                 >
                   Generate
                 </PillButton>

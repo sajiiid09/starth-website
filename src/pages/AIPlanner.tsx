@@ -25,7 +25,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { toast } from "sonner";
-import { Link, useSearchParams } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import gsap from "gsap";
 import PlannerPromptBox from "@/components/planner/PlannerPromptBox";
 import TemplateShowcase from "@/components/planner/TemplateShowcase";
@@ -34,9 +34,16 @@ import useGsapReveal from "@/components/utils/useGsapReveal";
 import { usePrefersReducedMotion } from "@/hooks/usePrefersReducedMotion";
 import { dummyTemplates } from "@/data/dummyTemplates";
 import { createPageUrl } from "@/utils";
+import { isAuthenticated } from "@/utils/authSession";
+import {
+  clearPendingPlannerIntent,
+  getPendingPlannerIntent,
+  setPendingPlannerIntent
+} from "@/utils/pendingIntent";
 
 export default function AIPlannerPage() {
   const [searchParams, setSearchParams] = useSearchParams();
+  const navigate = useNavigate();
   const initialMode = searchParams.get("mode") === "marketplace" ? "marketplace" : "planner";
   const [activeMode, setActiveMode] = useState(initialMode);
   const [messages, setMessages] = useState([
@@ -170,6 +177,20 @@ export default function AIPlannerPage() {
       setRecognition(recognitionInstance);
     }
   }, []);
+
+  useEffect(() => {
+    const pendingIntent = getPendingPlannerIntent();
+    if (pendingIntent?.prompt) {
+      setInputValue(pendingIntent.prompt);
+      clearPendingPlannerIntent();
+      return;
+    }
+
+    const promptParam = searchParams.get("prompt");
+    if (promptParam && !inputValue.trim()) {
+      setInputValue(promptParam);
+    }
+  }, [inputValue, searchParams]);
 
   useEffect(() => {
     if (activeMode === "marketplace") {
@@ -1781,10 +1802,29 @@ Return the full JSON structure.`,
       }
   };
 
+  const handlePlannerGenerate = async () => {
+    if (!inputValue.trim() || isLoading) {
+      return;
+    }
+
+    if (!isAuthenticated()) {
+      setPendingPlannerIntent({
+        prompt: inputValue.trim(),
+        returnPath: createPageUrl("AIPlanner"),
+        source: "ai-planner"
+      });
+      toast("Create an account to generate your blueprint.");
+      navigate(createPageUrl("AppEntry"));
+      return;
+    }
+
+    await handleSendMessage();
+  };
+
   const handleKeyPress = (e) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
-      handleSendMessage();
+      handlePlannerGenerate();
     }
   };
 
@@ -1964,7 +2004,7 @@ Return the full JSON structure.`,
                 <PlannerPromptBox
                   value={inputValue}
                   onChange={setInputValue}
-                  onSubmit={handleSendMessage}
+                  onSubmit={handlePlannerGenerate}
                   onKeyPress={handleKeyPress}
                   isLoading={isLoading}
                   isRecording={isRecording}
@@ -1980,7 +2020,7 @@ Return the full JSON structure.`,
                   inputValue={inputValue}
                   setInputValue={setInputValue}
                   isLoading={isLoading}
-                  onSendMessage={handleSendMessage}
+                  onSendMessage={handlePlannerGenerate}
                   onKeyPress={handleKeyPress}
                   showComposer={false}
                   showPrompts={false}

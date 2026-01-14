@@ -49,7 +49,7 @@ export type VenueOnboardingDraft = {
 export type ServiceIdentity = {
   businessName: string;
   baseLocation: string;
-  coverageArea: string;
+  coverageAreas: string[];
   providerType: string;
 };
 
@@ -116,7 +116,7 @@ const defaultServiceDraft: ServiceOnboardingDraft = {
   identity: {
     businessName: "",
     baseLocation: "",
-    coverageArea: "",
+    coverageAreas: [],
     providerType: ""
   },
   services: [],

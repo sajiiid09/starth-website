@@ -11,6 +11,7 @@ import {
   resetVendorSession,
   setVendorOnboardingStatus,
   setVendorType,
+  updateVendorProfileDraft,
   type VendorType
 } from "@/utils/session";
 import { base44 } from "@/api/base44Client";
@@ -19,6 +20,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
+import {
+  serviceAreaOptions,
+  serviceCategoryOptions
+} from "@/data/vendorOnboardingOptions";
 import {
   clearPendingPlannerIntent,
   getPendingPlannerIntent
@@ -55,6 +60,7 @@ const SignUpForm: React.FC<SignUpFormProps> = ({
   onSignUpSuccess
 }) => {
   const [loading, setLoading] = useState(false);
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const roleValue =
     selectedRole === "vendor" ? vendorType ?? "service_provider" : "organizer";
   const [formData, setFormData] = useState({
@@ -63,13 +69,71 @@ const SignUpForm: React.FC<SignUpFormProps> = ({
     password: "",
     phone: ""
   });
+  const [venueDetails, setVenueDetails] = useState({
+    sqft: "",
+    location: ""
+  });
+  const [serviceCategories, setServiceCategories] = useState<string[]>([]);
+  const [serviceAreas, setServiceAreas] = useState<string[]>([]);
+
+  const isVenueOwner = selectedRole === "vendor" && vendorType === "venue_owner";
+  const isServiceProvider =
+    selectedRole === "vendor" && vendorType === "service_provider";
 
   const handleInputChange = (field: keyof typeof formData, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
+  const toggleMultiValue = (values: string[], value: string) =>
+    values.includes(value) ? values.filter((item) => item !== value) : [...values, value];
+
+  const vendorFieldsValid = useMemo(() => {
+    if (isVenueOwner) {
+      return (
+        venueDetails.location.trim().length > 0 &&
+        Number(venueDetails.sqft) > 0
+      );
+    }
+    if (isServiceProvider) {
+      return serviceCategories.length > 0 && serviceAreas.length > 0;
+    }
+    return true;
+  }, [
+    isServiceProvider,
+    isVenueOwner,
+    serviceAreas.length,
+    serviceCategories.length,
+    venueDetails.location,
+    venueDetails.sqft
+  ]);
+
+  const validateVendorFields = () => {
+    const nextErrors: Record<string, string> = {};
+    if (isVenueOwner) {
+      if (!venueDetails.location.trim()) {
+        nextErrors.venueLocation = "Venue location is required.";
+      }
+      if (!venueDetails.sqft || Number(venueDetails.sqft) <= 0) {
+        nextErrors.venueSqft = "Square footage must be greater than 0.";
+      }
+    }
+    if (isServiceProvider) {
+      if (serviceCategories.length === 0) {
+        nextErrors.serviceCategories = "Select at least one category.";
+      }
+      if (serviceAreas.length === 0) {
+        nextErrors.serviceAreas = "Select at least one coverage area.";
+      }
+    }
+    setFieldErrors(nextErrors);
+    return Object.keys(nextErrors).length === 0;
+  };
+
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    if ((isVenueOwner || isServiceProvider) && !validateVendorFields()) {
+      return;
+    }
     setLoading(true);
 
     try {
@@ -89,6 +153,41 @@ const SignUpForm: React.FC<SignUpFormProps> = ({
           setCurrentRole("vendor");
           setVendorType(roleValue as VendorType);
           setVendorOnboardingStatus("draft");
+          const existingDraft = getSessionState().vendorProfileDraft as Record<
+            string,
+            unknown
+          >;
+          const nextDraft = {
+            ...existingDraft,
+            vendorType: roleValue as VendorType
+          } as Record<string, unknown>;
+
+          if (roleValue === "venue_owner") {
+            nextDraft.venueOwner = {
+              ...(existingDraft as any)?.venueOwner,
+              basics: {
+                ...((existingDraft as any)?.venueOwner?.basics ?? {}),
+                location: venueDetails.location.trim()
+              },
+              space: {
+                ...((existingDraft as any)?.venueOwner?.space ?? {}),
+                sqft: venueDetails.sqft
+              }
+            };
+          }
+
+          if (roleValue === "service_provider") {
+            nextDraft.serviceProvider = {
+              ...(existingDraft as any)?.serviceProvider,
+              services: serviceCategories,
+              identity: {
+                ...((existingDraft as any)?.serviceProvider?.identity ?? {}),
+                coverageAreas: serviceAreas
+              }
+            };
+          }
+
+          updateVendorProfileDraft(nextDraft);
         }
         onSignUpSuccess();
       }
@@ -143,10 +242,118 @@ const SignUpForm: React.FC<SignUpFormProps> = ({
           onChange={(e) => handleInputChange("phone", e.target.value)}
         />
       </div>
+      {(isVenueOwner || isServiceProvider) && (
+        <div className="space-y-4 rounded-2xl border border-white/60 bg-brand-light/70 p-4">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-[0.3em] text-brand-teal">
+              Additional details
+            </p>
+            <p className="mt-2 text-sm text-brand-dark/70">
+              {isVenueOwner
+                ? "Used to match your venue to optimal blueprints."
+                : "Used to match you to relevant event stacks."}
+            </p>
+          </div>
+          {isVenueOwner && (
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div className="space-y-1">
+                <Label htmlFor="venueSqft">Venue square feet</Label>
+                <Input
+                  id="venueSqft"
+                  type="number"
+                  min="1"
+                  placeholder="8500"
+                  value={venueDetails.sqft}
+                  onChange={(e) =>
+                    setVenueDetails((prev) => ({ ...prev, sqft: e.target.value }))
+                  }
+                />
+                {fieldErrors.venueSqft && (
+                  <p className="text-xs text-brand-coral">{fieldErrors.venueSqft}</p>
+                )}
+              </div>
+              <div className="space-y-1">
+                <Label htmlFor="venueLocation">Venue location</Label>
+                <Input
+                  id="venueLocation"
+                  placeholder="Seaport District"
+                  value={venueDetails.location}
+                  onChange={(e) =>
+                    setVenueDetails((prev) => ({ ...prev, location: e.target.value }))
+                  }
+                />
+                {fieldErrors.venueLocation && (
+                  <p className="text-xs text-brand-coral">{fieldErrors.venueLocation}</p>
+                )}
+              </div>
+            </div>
+          )}
+          {isServiceProvider && (
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label>Service categories</Label>
+                <div className="flex flex-wrap gap-2">
+                  {serviceCategoryOptions.map((category) => {
+                    const isSelected = serviceCategories.includes(category);
+                    return (
+                      <button
+                        key={category}
+                        type="button"
+                        className={cn(
+                          "rounded-full border px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em]",
+                          isSelected
+                            ? "border-brand-dark bg-brand-dark text-brand-light"
+                            : "border-brand-dark/20 bg-white text-brand-dark/60"
+                        )}
+                        onClick={() =>
+                          setServiceCategories((prev) => toggleMultiValue(prev, category))
+                        }
+                      >
+                        {category}
+                      </button>
+                    );
+                  })}
+                </div>
+                {fieldErrors.serviceCategories && (
+                  <p className="text-xs text-brand-coral">
+                    {fieldErrors.serviceCategories}
+                  </p>
+                )}
+              </div>
+              <div className="space-y-2">
+                <Label>Service areas</Label>
+                <div className="flex flex-wrap gap-2">
+                  {serviceAreaOptions.map((area) => {
+                    const isSelected = serviceAreas.includes(area);
+                    return (
+                      <button
+                        key={area}
+                        type="button"
+                        className={cn(
+                          "rounded-full border px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em]",
+                          isSelected
+                            ? "border-brand-dark bg-brand-dark text-brand-light"
+                            : "border-brand-dark/20 bg-white text-brand-dark/60"
+                        )}
+                        onClick={() => setServiceAreas((prev) => toggleMultiValue(prev, area))}
+                      >
+                        {area}
+                      </button>
+                    );
+                  })}
+                </div>
+                {fieldErrors.serviceAreas && (
+                  <p className="text-xs text-brand-coral">{fieldErrors.serviceAreas}</p>
+                )}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
       <Button
         type="submit"
         className="w-full rounded-full bg-brand-teal py-6 text-base text-brand-light hover:bg-brand-teal/90"
-        disabled={loading}
+        disabled={loading || (selectedRole === "vendor" && !vendorFieldsValid)}
       >
         {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : "Create account"}
       </Button>

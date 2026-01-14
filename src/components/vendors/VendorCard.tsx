@@ -1,16 +1,21 @@
 import React from "react";
-import { Badge } from "@/components/ui/badge";
+import TagPill from "@/components/home-v2/primitives/TagPill";
+import PillButton from "@/components/home-v2/primitives/PillButton";
 import { cn } from "@/lib/utils";
+import type { PublicVendor } from "@/data/dummyVendors";
 
-export type VendorCardData = {
-  name: string;
-  category: string;
-  location: string;
-  description: string;
-  image: string;
+type VendorCardProps = {
+  vendor: PublicVendor;
+  onViewProfile?: (vendor: PublicVendor) => void;
+  onInvite?: (vendor: PublicVendor) => void;
 };
 
-const VendorCard: React.FC<{ vendor: VendorCardData }> = ({ vendor }) => {
+const VendorCard: React.FC<VendorCardProps> = ({ vendor, onViewProfile, onInvite }) => {
+  const isVenueOwner = vendor.vendorType === "venue_owner";
+  const vendorTypeLabel = isVenueOwner ? "Venue Owner" : "Service Provider";
+  const categories = vendor.categories?.slice(0, 3) ?? [];
+  const areas = vendor.areas?.slice(0, 2) ?? [];
+
   return (
     <div
       className={cn(
@@ -20,19 +25,66 @@ const VendorCard: React.FC<{ vendor: VendorCardData }> = ({ vendor }) => {
     >
       <div className="relative aspect-[4/3] w-full overflow-hidden bg-brand-cream/60">
         <img
-          src={vendor.image}
+          src={vendor.heroImage}
           alt={vendor.name}
-          className="h-full w-full object-contain p-10 transition duration-300 ease-smooth group-hover:scale-105"
+          className="h-full w-full object-cover transition duration-300 ease-smooth group-hover:scale-105"
           loading="lazy"
         />
+        <div className="absolute left-5 top-5">
+          <TagPill variant="dark" size="sm">
+            {vendorTypeLabel}
+          </TagPill>
+        </div>
       </div>
-      <div className="flex flex-1 flex-col gap-3 px-6 pb-6 pt-5">
-        <Badge variant="secondary" className="w-fit rounded-full px-3 py-1 text-xs">
-          {vendor.category}
-        </Badge>
-        <h3 className="text-xl font-semibold text-brand-dark">{vendor.name}</h3>
-        <p className="text-sm leading-relaxed text-brand-dark/70">{vendor.description}</p>
-        <span className="mt-auto text-sm text-brand-dark/60">{vendor.location}</span>
+      <div className="flex flex-1 flex-col gap-4 px-6 pb-6 pt-5">
+        <div>
+          <h3 className="text-xl font-semibold text-brand-dark">{vendor.name}</h3>
+          <p className="mt-2 text-sm leading-relaxed text-brand-dark/70">{vendor.description}</p>
+        </div>
+        {isVenueOwner ? (
+          <div className="grid gap-2 text-sm text-brand-dark/70">
+            <span>
+              <span className="font-semibold text-brand-dark">Venue size:</span>{" "}
+              {vendor.sqft ? `${vendor.sqft.toLocaleString()} sqft` : "Custom footprint"}
+            </span>
+            <span>
+              <span className="font-semibold text-brand-dark">Guest range:</span>{" "}
+              {vendor.guestRange ?? "Flexible"}
+            </span>
+          </div>
+        ) : (
+          <div className="flex flex-wrap gap-2">
+            {categories.map((category) => (
+              <TagPill key={category} variant="neutral" size="sm">
+                {category}
+              </TagPill>
+            ))}
+            {areas.length > 0 && (
+              <TagPill variant="coral" size="sm">
+                {areas.join(" • ")}
+              </TagPill>
+            )}
+          </div>
+        )}
+        <span className="text-sm text-brand-dark/60">{vendor.location}</span>
+        <div className="mt-auto flex flex-wrap gap-3">
+          <PillButton
+            size="sm"
+            variant="primary"
+            className="min-h-[40px] flex-1"
+            onClick={() => onViewProfile?.(vendor)}
+          >
+            View profile
+          </PillButton>
+          <PillButton
+            size="sm"
+            variant="secondary"
+            className="min-h-[40px] flex-1"
+            onClick={() => onInvite?.(vendor)}
+          >
+            Invite to blueprint
+          </PillButton>
+        </div>
       </div>
     </div>
   );

@@ -19,6 +19,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
+import {
+  clearPendingPlannerIntent,
+  getPendingPlannerIntent
+} from "@/utils/pendingIntent";
 
 const roleOptions = [
   {
@@ -151,7 +155,7 @@ const SignUpForm: React.FC<SignUpFormProps> = ({
 };
 
 type LoginFormProps = {
-  onLoginSuccess: () => void;
+  onLoginSuccess: (role: AppRole) => void;
 };
 
 const LoginForm: React.FC<LoginFormProps> = ({ onLoginSuccess }) => {
@@ -193,7 +197,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onLoginSuccess }) => {
             : getRoleHomePath(nextRole);
           return;
         }
-        window.location.href = getRoleHomePath(nextRole);
+        onLoginSuccess(nextRole);
         return;
       }
 
@@ -204,7 +208,6 @@ const LoginForm: React.FC<LoginFormProps> = ({ onLoginSuccess }) => {
     }
 
     setLoading(false);
-    onLoginSuccess();
   };
 
   return (
@@ -255,6 +258,21 @@ export default function AppEntryPage() {
     return selectedRole === "vendor" ? "Vendor" : "User";
   }, [selectedRole]);
 
+  const handlePendingPlannerRedirect = (role: AppRole) => {
+    if (role !== "user") {
+      return false;
+    }
+
+    const pendingIntent = getPendingPlannerIntent();
+    if (pendingIntent?.returnPath) {
+      clearPendingPlannerIntent();
+      navigate(pendingIntent.returnPath, { replace: true });
+      return true;
+    }
+
+    return false;
+  };
+
   useEffect(() => {
     const checkSession = async () => {
       try {
@@ -284,7 +302,9 @@ export default function AppEntryPage() {
               : getRoleHomePath(nextRole);
             return;
           }
-          window.location.href = getRoleHomePath(nextRole);
+          if (!handlePendingPlannerRedirect(nextRole)) {
+            navigate(getRoleHomePath(nextRole), { replace: true });
+          }
           return;
         }
       } catch (error) {
@@ -546,11 +566,19 @@ export default function AppEntryPage() {
                           navigate(getVendorOnboardingPath(vendorType));
                           return;
                         }
-                        navigate(getRoleHomePath("user"));
+                        if (!handlePendingPlannerRedirect("user")) {
+                          navigate(getRoleHomePath("user"));
+                        }
                       }}
                     />
                   ) : (
-                    <LoginForm onLoginSuccess={() => undefined} />
+                    <LoginForm
+                      onLoginSuccess={(role) => {
+                        if (!handlePendingPlannerRedirect(role)) {
+                          navigate(getRoleHomePath(role));
+                        }
+                      }}
+                    />
                   )}
 
                   <div className="space-y-4 border-t border-white/40 pt-6">

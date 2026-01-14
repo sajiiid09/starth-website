@@ -157,6 +157,7 @@ import AdminSettings from "./admin/AdminSettings";
 import { BrowserRouter as Router, Route, Routes, useLocation } from 'react-router-dom';
 import { createPageUrl } from "@/utils";
 import RoleGate from "@/components/auth/RoleGate";
+import ScrollToTop from "@/components/shared/ScrollToTop";
 
 const PAGES = {
     
@@ -308,7 +309,9 @@ function PagesContent() {
     const currentPage = _getCurrentPage(location.pathname);
     
     return (
-        <Layout currentPageName={currentPage}>
+        <>
+            <ScrollToTop />
+            <Layout currentPageName={currentPage}>
             <Routes>            
                 
                     <Route path="/" element={<Home />} />
@@ -607,7 +610,8 @@ function PagesContent() {
                 <Route path={createPageUrl("Legal")} element={<Legal />} />
                 
             </Routes>
-        </Layout>
+            </Layout>
+        </>
     );
 }
 

@@ -6,6 +6,8 @@ import useGsapReveal from "@/components/utils/useGsapReveal";
 import { motionTokens } from "@/components/utils/motion";
 import { usePrefersReducedMotion } from "@/hooks/usePrefersReducedMotion";
 import { createPageUrl } from "@/utils";
+import { isAuthenticated } from "@/utils/authSession";
+import { setPendingPlannerIntent } from "@/utils/pendingIntent";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 
@@ -136,6 +138,16 @@ const PromptBox: React.FC = () => {
                   type="button"
                   onClick={() => {
                     if (promptValue.trim()) {
+                      if (!isAuthenticated()) {
+                        setPendingPlannerIntent({
+                          prompt: promptValue.trim(),
+                          returnPath: createPageUrl("AIPlanner"),
+                          source: "home"
+                        });
+                        toast("Create an account to generate your blueprint.");
+                        navigate(createPageUrl("AppEntry"));
+                        return;
+                      }
                       navigate(`${createPageUrl("AIPlanner")}?prompt=${encodeURIComponent(promptValue)}`);
                     } else {
                       handleFeatureAction("Prompt");

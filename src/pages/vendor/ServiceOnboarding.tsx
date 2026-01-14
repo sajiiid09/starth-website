@@ -8,6 +8,10 @@ import VendorStatusBanner from "@/components/vendor/VendorStatusBanner";
 import OnboardingWizardShell from "@/components/vendor/OnboardingWizardShell";
 import { cn } from "@/lib/utils";
 import {
+  serviceAreaOptions,
+  serviceCategoryOptions
+} from "@/data/vendorOnboardingOptions";
+import {
   getSessionState,
   getVendorOnboardingPath,
   setVendorOnboardingStatus,
@@ -16,17 +20,6 @@ import {
 import { useVendorOnboarding, type ServiceDetail } from "@/hooks/useVendorOnboarding";
 import { Textarea } from "@/components/ui/textarea";
 
-const serviceOptions = [
-  "Catering",
-  "DJ/Music",
-  "Bartending",
-  "Security",
-  "Photography",
-  "Decor",
-  "AV/Lighting"
-];
-
-const coverageOptions = ["Local", "Citywide", "Nationwide"];
 const providerTypes = ["Individual", "Company"];
 const availabilityOptions = ["Weekdays", "Weekends"];
 const portfolioImages = [
@@ -203,27 +196,36 @@ const ServiceOnboarding: React.FC = () => {
               )}
             </div>
             <div className="space-y-1">
-              <Label htmlFor="coverageArea">Coverage area</Label>
+              <Label htmlFor="coverageAreas">Coverage areas</Label>
               <div className="flex flex-wrap gap-2">
-                {coverageOptions.map((option) => (
-                  <button
-                    key={option}
-                    type="button"
-                    className={cn(
-                      "rounded-full border px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em]",
-                      draft.serviceProvider.identity.coverageArea === option
-                        ? "border-brand-dark bg-brand-dark text-brand-light"
-                        : "border-brand-dark/20 bg-white text-brand-dark/60"
-                    )}
-                    onClick={() =>
-                      updateServiceDraft({
-                        identity: { ...draft.serviceProvider.identity, coverageArea: option }
-                      })
-                    }
-                  >
-                    {option}
-                  </button>
-                ))}
+                {serviceAreaOptions.map((option) => {
+                  const isSelected = draft.serviceProvider.identity.coverageAreas.includes(option);
+                  return (
+                    <button
+                      key={option}
+                      type="button"
+                      className={cn(
+                        "rounded-full border px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em]",
+                        isSelected
+                          ? "border-brand-dark bg-brand-dark text-brand-light"
+                          : "border-brand-dark/20 bg-white text-brand-dark/60"
+                      )}
+                      onClick={() =>
+                        updateServiceDraft({
+                          identity: {
+                            ...draft.serviceProvider.identity,
+                            coverageAreas: toggleMultiValue(
+                              draft.serviceProvider.identity.coverageAreas,
+                              option
+                            )
+                          }
+                        })
+                      }
+                    >
+                      {option}
+                    </button>
+                  );
+                })}
               </div>
             </div>
             <div className="space-y-1">
@@ -256,7 +258,7 @@ const ServiceOnboarding: React.FC = () => {
         {stepIndex === 1 && (
           <div className="space-y-4">
             <div className="grid gap-3 sm:grid-cols-2">
-              {serviceOptions.map((service) => {
+              {serviceCategoryOptions.map((service) => {
                 const isSelected = draft.serviceProvider.services.includes(service);
                 return (
                   <button

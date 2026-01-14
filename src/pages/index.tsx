@@ -124,6 +124,8 @@ import UserMessages from "./dashboard/UserMessages";
 
 import UserSettings from "./dashboard/UserSettings";
 
+import PlanWithAI from "./dashboard/PlanWithAI";
+
 import VendorDashboardHome from "./vendor/VendorDashboardHome";
 
 import VendorListings from "./vendor/VendorListings";
@@ -157,6 +159,7 @@ import AdminSettings from "./admin/AdminSettings";
 import { BrowserRouter as Router, Route, Routes, useLocation } from 'react-router-dom';
 import { createPageUrl } from "@/utils";
 import RoleGate from "@/components/auth/RoleGate";
+import ScrollToTop from "@/components/shared/ScrollToTop";
 
 const PAGES = {
     
@@ -308,7 +311,9 @@ function PagesContent() {
     const currentPage = _getCurrentPage(location.pathname);
     
     return (
-        <Layout currentPageName={currentPage}>
+        <>
+            <ScrollToTop />
+            <Layout currentPageName={currentPage}>
             <Routes>            
                 
                     <Route path="/" element={<Home />} />
@@ -358,6 +363,15 @@ function PagesContent() {
                   element={
                     <RoleGate allowedRoles={["user"]}>
                       <UserMessages />
+                    </RoleGate>
+                  }
+                />
+
+                <Route
+                  path="/dashboard/plan-with-ai"
+                  element={
+                    <RoleGate allowedRoles={["user"]}>
+                      <PlanWithAI />
                     </RoleGate>
                   }
                 />
@@ -607,7 +621,8 @@ function PagesContent() {
                 <Route path={createPageUrl("Legal")} element={<Legal />} />
                 
             </Routes>
-        </Layout>
+            </Layout>
+        </>
     );
 }
 

@@ -124,6 +124,8 @@ import UserMessages from "./dashboard/UserMessages";
 
 import UserSettings from "./dashboard/UserSettings";
 
+import PlanWithAI from "./dashboard/PlanWithAI";
+
 import VendorDashboardHome from "./vendor/VendorDashboardHome";
 
 import VendorListings from "./vendor/VendorListings";
@@ -361,6 +363,15 @@ function PagesContent() {
                   element={
                     <RoleGate allowedRoles={["user"]}>
                       <UserMessages />
+                    </RoleGate>
+                  }
+                />
+
+                <Route
+                  path="/dashboard/plan-with-ai"
+                  element={
+                    <RoleGate allowedRoles={["user"]}>
+                      <PlanWithAI />
                     </RoleGate>
                   }
                 />

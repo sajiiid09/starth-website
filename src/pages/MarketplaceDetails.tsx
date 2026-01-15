@@ -12,6 +12,7 @@ import { dummyMarketplaceItems } from "@/data/dummyMarketplace";
 const MarketplaceDetails: React.FC = () => {
   const { id } = useParams();
   const item = dummyMarketplaceItems.find((entry) => entry.id === id);
+  const galleryImages = item?.images ?? [];
 
   if (!item) {
     return (
@@ -102,6 +103,26 @@ const MarketplaceDetails: React.FC = () => {
             </div>
           </div>
         </FadeIn>
+
+        {galleryImages.length > 0 && (
+          <FadeIn className="mt-8">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+              {galleryImages.map((image, index) => (
+                <div
+                  key={`${image}-${index}`}
+                  className="h-48 overflow-hidden rounded-2xl bg-brand-dark/5"
+                >
+                  <img
+                    src={image}
+                    alt={`${item.title} preview ${index + 1}`}
+                    loading={index === 0 ? "eager" : "lazy"}
+                    className="h-full w-full object-cover"
+                  />
+                </div>
+              ))}
+            </div>
+          </FadeIn>
+        )}
 
         <FadeIn className="mt-10">
           <Tabs defaultValue="overview" className="rounded-3xl border border-white/40 bg-white/70 p-6 shadow-card">

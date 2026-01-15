@@ -1,6 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { ArrowUpRight, Globe, BoxSelect } from "lucide-react"; // Added icons for the logo graphic
+import { ArrowUpRight } from "lucide-react";
 import { createPageUrl } from "@/utils";
 import useGsapReveal from "@/components/utils/useGsapReveal";
 
@@ -30,10 +30,10 @@ const footerSections = [
     ]
   },
   {
-    title: "Legals ",
+    title: "Legals",
     links: [
-      { label: "Privacy", to: createPageUrl("Terms") },
-      { label: "Terms & Conditions", to: createPageUrl("Legals") }
+      { label: "Privacy", to: createPageUrl("Privacy") },
+      { label: "Terms & Conditions", to: createPageUrl("Terms") }
     ]
   }
 ];

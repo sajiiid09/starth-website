@@ -72,10 +72,14 @@ const DashboardShell: React.FC<DashboardShellProps> = ({ children }) => {
   return (
     <SidebarProvider>
       <div className="min-h-screen flex w-full bg-gray-50">
-        <Sidebar className="border-r border-gray-200 hidden md:flex flex-col">
-          <SidebarHeader className="border-b p-6">
-            <Link to="/" className="text-lg font-semibold text-gray-900">
-              Strathwell
+        <Sidebar className="hidden md:flex flex-col bg-white">
+          <SidebarHeader className="p-6">
+            <Link to="/" className="inline-flex items-center">
+              <img
+                src="/images/strathwell_logo_clean.png"
+                alt="Strathwell"
+                className="h-7 w-auto sm:h-8"
+              />
             </Link>
           </SidebarHeader>
 
@@ -107,7 +111,7 @@ const DashboardShell: React.FC<DashboardShellProps> = ({ children }) => {
             </SidebarGroup>
           </SidebarContent>
 
-          <SidebarFooter className="border-t p-4">
+          <SidebarFooter className="p-4">
             <Button variant="ghost" onClick={handleSignOut} className="w-full justify-start">
               Sign Out
             </Button>
@@ -115,7 +119,7 @@ const DashboardShell: React.FC<DashboardShellProps> = ({ children }) => {
         </Sidebar>
 
         <main className="flex-1">
-          <header className="flex items-center justify-between border-b bg-white px-6 py-4">
+          <header className="flex items-center justify-between bg-white px-6 py-4">
             <div className="text-sm font-semibold text-gray-700">
               {role ? `${role.charAt(0).toUpperCase()}${role.slice(1)} Dashboard` : "Dashboard"}
             </div>

@@ -267,7 +267,7 @@ const TemplateDetails: React.FC = () => {
               </div>
 
               {/* KPI Stats */}
-              <div className="flex gap-3">
+              <div className="grid w-full gap-3 sm:grid-cols-3">
                 {[
                   {
                     label: "Est. Total Cost",
@@ -288,7 +288,7 @@ const TemplateDetails: React.FC = () => {
                 ].map((kpi) => (
                   <div
                     key={kpi.label}
-                    className="flex flex-col justify-center rounded-2xl bg-white px-5 py-4 shadow-sm min-w-[140px]"
+                    className="flex flex-col justify-center rounded-2xl bg-white px-5 py-4 shadow-sm"
                   >
                     <div className="flex items-center gap-2 mb-1">
                       <kpi.icon className="h-3.5 w-3.5 text-brand-dark/40" />
@@ -332,7 +332,7 @@ const TemplateDetails: React.FC = () => {
 
               {layout ? (
                 <div className="rounded-3xl bg-white p-6 shadow-sm border border-brand-dark/5">
-                  <div className="grid grid-cols-[1fr_auto_1fr] gap-4 items-center mb-6">
+                  <div className="grid gap-4 items-center mb-6 md:grid-cols-[1fr_auto_1fr]">
                     {/* Before View */}
                     <div className="flex flex-col gap-3">
                        <p className="text-[10px] font-bold uppercase tracking-widest text-brand-dark/40">BEFORE: EMPTY SHELL</p>
@@ -349,7 +349,7 @@ const TemplateDetails: React.FC = () => {
                     </div>
 
                     {/* Arrow */}
-                    <div className="mt-6 text-brand-teal/50">
+                    <div className="mt-6 hidden text-brand-teal/50 md:block">
                       <ArrowRight className="h-5 w-5" />
                     </div>
 

@@ -292,7 +292,7 @@ const Legal: React.FC = () => {
     <div className="min-h-screen bg-[#F8F7F4] text-brand-dark">
       
       {/* Hero Header */}
-      <Section theme="cream" className="border-b border-brand-dark/5 bg-white pb-20 pt-32">
+      <Section theme="cream" className="border-b border-brand-dark/5 bg-white pb-12 pt-24 md:pb-20 md:pt-32">
         <Container>
           <FadeIn className="text-center">
             <div className="mx-auto mb-6 flex h-14 w-14 items-center justify-center rounded-2xl bg-brand-dark/5 text-brand-dark">
@@ -313,7 +313,7 @@ const Legal: React.FC = () => {
         </Container>
       </Section>
 
-      <Section theme="light" className="py-20">
+      <Section theme="light" className="py-12 md:py-20">
         <Container>
           {/* Important: Removed 'items-start' to allow sidebar container to stretch for sticky */}
           <div className="grid gap-16 lg:grid-cols-[280px_1fr]">

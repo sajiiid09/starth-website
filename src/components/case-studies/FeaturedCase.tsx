@@ -63,28 +63,28 @@ const additionalCases = [
 
 export default function FeaturedCase() {
   return (
-    <section className="py-24 bg-gradient-to-b from-white to-brand-cream/20">
+    <section className="py-16 bg-gradient-to-b from-white to-brand-cream/20 md:py-24">
       <Container>
         
         {/* --- Section Header --- */}
-        <FadeIn className="text-center mb-16">
+        <FadeIn className="text-center mb-10 md:mb-16">
           <Badge variant="outline" className="mb-6 inline-flex items-center gap-2 rounded-full border border-brand-teal/20 bg-brand-teal/5 px-4 py-2 text-xs font-semibold uppercase tracking-[0.3em] text-brand-teal">
             <Award className="h-4 w-4" />
             Case Studies
           </Badge>
-          <h2 className="text-4xl font-bold text-brand-dark md:text-5xl leading-tight">
+          <h2 className="text-3xl font-bold text-brand-dark sm:text-4xl md:text-5xl leading-tight">
             Real-World Impact
           </h2>
-          <p className="mx-auto mt-6 max-w-2xl text-xl text-brand-dark/60">
+          <p className="mx-auto mt-4 max-w-2xl text-base text-brand-dark/60 sm:text-lg md:mt-6 md:text-xl">
             See how Strathwell's orchestration platform transforms chaos into clarity for global leaders.
           </p>
         </FadeIn>
 
         {/* --- Hero: Featured Partnership (Existing) --- */}
         <FadeIn>
-          <div className="mb-20">
+          <div className="mb-16 md:mb-20">
             <Card className="group overflow-hidden border border-brand-dark/5 bg-white shadow-2xl transition-all hover:shadow-[0_20px_50px_-12px_rgba(0,0,0,0.1)]">
-              <div className="md:flex min-h-[500px]">
+              <div className="md:flex md:min-h-[500px]">
                 {/* Image Side */}
                 <div className="relative md:w-1/2 overflow-hidden">
                   <div className="absolute inset-0 bg-brand-dark/10 transition-opacity group-hover:opacity-0 z-10" />
@@ -99,7 +99,7 @@ export default function FeaturedCase() {
                 </div>
 
                 {/* Content Side */}
-                <div className="flex flex-col justify-between p-8 md:w-1/2 md:p-12 lg:p-16">
+                <div className="flex flex-col justify-between p-6 md:w-1/2 md:p-12 lg:p-16">
                   <div>
                     <div className="mb-8 flex items-start justify-between">
                       <div>
@@ -118,7 +118,7 @@ export default function FeaturedCase() {
                       </Link>
                     </div>
 
-                    <p className="text-lg leading-relaxed text-brand-dark/70 mb-8">
+                    <p className="text-base leading-relaxed text-brand-dark/70 mb-6 sm:text-lg md:mb-8">
                       Strathwell's AI orchestration platform powered seamless coordination for 194 attendees, managing complex vendor logistics and venue constraints with zero friction.
                     </p>
 

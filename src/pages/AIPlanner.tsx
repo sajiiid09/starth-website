@@ -1961,18 +1961,18 @@ Return the full JSON structure.`,
               ? "AI Event Planner"
               : "Browse the Marketplace"}
           </h1>
-          <p className="mt-3 text-lg text-brand-dark/60">
+          <p className="mt-3 text-base text-brand-dark/60 md:text-lg">
             {activeMode === "planner"
               ? "Describe your vision and let Strathwell craft the blueprint."
               : "Browse our curated venues and service providers."}
           </p>
 
           <div className="mt-6 flex items-center justify-center">
-            <div className="inline-flex rounded-full border border-brand-dark/10 bg-white/80 p-1 shadow-soft">
+            <div className="inline-flex flex-wrap justify-center gap-2 rounded-full border border-brand-dark/10 bg-white/80 p-1 shadow-soft">
               <button
                 type="button"
                 onClick={() => setActiveMode("planner")}
-                className={`inline-flex items-center gap-2 rounded-full px-5 py-2 text-sm font-semibold transition duration-250 ease-smooth ${
+                className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold transition duration-250 ease-smooth sm:px-5 ${
                   activeMode === "planner"
                     ? "bg-brand-teal text-white shadow-soft"
                     : "text-brand-dark/60 hover:text-brand-dark"
@@ -1984,7 +1984,7 @@ Return the full JSON structure.`,
               <button
                 type="button"
                 onClick={() => setActiveMode("marketplace")}
-                className={`inline-flex items-center gap-2 rounded-full px-5 py-2 text-sm font-semibold transition duration-250 ease-smooth ${
+                className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold transition duration-250 ease-smooth sm:px-5 ${
                   activeMode === "marketplace"
                     ? "bg-brand-teal text-white shadow-soft"
                     : "text-brand-dark/60 hover:text-brand-dark"
@@ -2024,7 +2024,7 @@ Return the full JSON structure.`,
                   onKeyPress={handleKeyPress}
                   showComposer={false}
                   showPrompts={false}
-                  heightClassName="h-[520px]"
+                  heightClassName="h-[420px] md:h-[520px]"
                 />
               </div>
 

@@ -117,7 +117,7 @@ const Vendors: React.FC = () => {
                   </SelectContent>
                 </Select>
               </div>
-              <div className="mt-5 flex flex-wrap gap-3">
+              <div className="mt-5 flex flex-wrap gap-3 sm:items-center">
                 {vendorTypeOptions.map((option) => (
                   <button
                     key={option.value}
@@ -133,7 +133,7 @@ const Vendors: React.FC = () => {
                     {option.label}
                   </button>
                 ))}
-                <span className="ml-auto text-xs font-semibold uppercase tracking-[0.2em] text-brand-dark/50">
+                <span className="w-full text-xs font-semibold uppercase tracking-[0.2em] text-brand-dark/50 sm:ml-auto sm:w-auto">
                   {filteredVendors.length} results
                 </span>
               </div>

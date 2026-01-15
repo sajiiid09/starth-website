@@ -176,7 +176,7 @@ ${formData.message}
   return (
     <div ref={containerRef} className="min-h-screen bg-brand-light">
       {/* Hero Section */}
-      <section className="relative overflow-hidden bg-brand-cream pb-20 pt-24 md:pt-32">
+      <section className="relative overflow-hidden bg-brand-cream pb-16 pt-20 md:pb-20 md:pt-32">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-white via-brand-cream to-brand-cream opacity-50" />
         
         <Container className="relative z-10 text-center">
@@ -185,12 +185,12 @@ ${formData.message}
             Get in Touch
           </div>
 
-          <h1 className="hero-text mx-auto max-w-4xl font-display text-5xl font-bold leading-[1.1] tracking-tight text-brand-dark md:text-7xl">
+          <h1 className="hero-text mx-auto max-w-4xl font-display text-4xl font-bold leading-[1.1] tracking-tight text-brand-dark sm:text-5xl md:text-7xl">
             Let's orchestrate <br />
             <span className="text-brand-teal">something extraordinary.</span>
           </h1>
 
-          <p className="hero-text mx-auto mt-8 max-w-2xl text-lg leading-relaxed text-brand-dark/60 md:text-xl">
+          <p className="hero-text mx-auto mt-6 max-w-2xl text-base leading-relaxed text-brand-dark/60 sm:text-lg md:mt-8 md:text-xl">
             Have a project in mind or simply want to learn more about Strathwell? 
             Our team is ready to help you transform your vision into reality.
           </p>

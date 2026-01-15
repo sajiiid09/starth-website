@@ -6,7 +6,7 @@ import FadeIn from "@/components/animations/FadeIn";
 
 export default function CaseStudyHero() {
   return (
-    <section className="pt-20 pb-16 bg-gradient-to-b from-brand-cream/70 via-brand-light to-brand-light">
+    <section className="pt-16 pb-12 bg-gradient-to-b from-brand-cream/70 via-brand-light to-brand-light md:pt-20 md:pb-16">
       <Container>
         <FadeIn className="text-center">
           <Badge className="mb-6 inline-flex items-center gap-2 rounded-full border border-white/60 bg-white/70 px-4 py-2 text-xs font-semibold uppercase tracking-[0.3em] text-brand-teal">
@@ -14,7 +14,7 @@ export default function CaseStudyHero() {
             Success Stories
           </Badge>
 
-          <h1 className="text-4xl font-semibold leading-tight md:text-6xl">
+          <h1 className="text-3xl font-semibold leading-tight sm:text-4xl md:text-6xl">
             Events That
             <br />
             <span className="bg-gradient-to-r from-brand-teal to-brand-dark bg-clip-text text-transparent">
@@ -22,7 +22,7 @@ export default function CaseStudyHero() {
             </span>
           </h1>
 
-          <p className="mt-6 text-lg text-brand-dark/70 md:text-2xl">
+          <p className="mt-4 text-base text-brand-dark/70 sm:text-lg md:mt-6 md:text-2xl">
             See how Strathwell helps create memorable experiences that drive business results and foster lasting connections.
           </p>
         </FadeIn>

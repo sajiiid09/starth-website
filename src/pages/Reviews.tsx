@@ -163,11 +163,11 @@ const Reviews: React.FC = () => {
       <Section theme="blue">
         <Container>
           <FadeIn>
-            <div className="rounded-3xl border border-white/50 bg-white/80 p-10 text-center shadow-card">
-              <h2 className="text-3xl font-semibold text-brand-dark">
+            <div className="rounded-3xl border border-white/50 bg-white/80 p-6 text-center shadow-card sm:p-10">
+              <h2 className="text-2xl font-semibold text-brand-dark sm:text-3xl">
                 See how teams orchestrate the impossible.
               </h2>
-              <p className="mt-4 text-sm text-brand-dark/70">
+              <p className="mt-3 text-sm text-brand-dark/70 sm:mt-4">
                 Dive deeper into our case studies to learn how we deliver premium event outcomes.
               </p>
               <div className="mt-6 flex flex-col justify-center gap-3 sm:flex-row">

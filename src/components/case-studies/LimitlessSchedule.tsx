@@ -7,7 +7,7 @@ import FadeIn from "@/components/animations/FadeIn";
 
 export default function LimitlessSchedule() {
   return (
-    <section className="py-20 bg-brand-cream/40">
+    <section className="py-14 bg-brand-cream/40 md:py-20">
       <Container>
         {/* Section Header */}
         <FadeIn className="text-center">
@@ -15,10 +15,10 @@ export default function LimitlessSchedule() {
             <Clock className="h-4 w-4" />
             Inside Our Flagship Event
           </div>
-          <h2 className="text-3xl font-semibold text-brand-dark md:text-4xl">
+          <h2 className="text-2xl font-semibold text-brand-dark sm:text-3xl md:text-4xl">
             Limitless Women in Tech Summit 2025
           </h2>
-          <p className="mt-4 text-lg text-brand-dark/70">
+          <p className="mt-3 text-base text-brand-dark/70 sm:text-lg md:mt-4">
             See how we orchestrated a full day of industry-leading sessions at Google HQ, connecting 194 participants with meaningful content and networking.
           </p>
         </FadeIn>
@@ -66,12 +66,10 @@ export default function LimitlessSchedule() {
               <div className="mt-6 flex justify-center">
                 <iframe
                   src="https://www.linkedin.com/embed/feed/update/urn:li:ugcPost:7375961992446025728?compact=1"
-                  height="399"
-                  width="504"
                   frameBorder="0"
                   allowFullScreen
                   title="Embedded post"
-                  className="rounded-2xl border border-white/40 shadow-card"
+                  className="h-[360px] w-full max-w-[504px] rounded-2xl border border-white/40 shadow-card sm:h-[399px]"
                 ></iframe>
               </div>
             </CardContent>

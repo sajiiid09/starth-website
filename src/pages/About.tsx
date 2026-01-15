@@ -157,7 +157,7 @@ export default function AboutPage() {
       <div className="relative z-10">
         
         {/* Hero Section */}
-        <section className="pt-24 pb-20 bg-gradient-to-b from-brand-cream/80 via-transparent to-transparent backdrop-blur-sm">
+        <section className="pt-20 pb-16 bg-gradient-to-b from-brand-cream/80 via-transparent to-transparent backdrop-blur-sm md:pt-24 md:pb-20">
           <Container>
             <FadeIn className="text-center">
               <Badge className="mb-6 inline-flex items-center gap-2 rounded-full border border-brand-teal/20 bg-white/50 px-4 py-2 text-xs font-semibold uppercase tracking-[0.3em] text-brand-teal shadow-sm">
@@ -165,7 +165,7 @@ export default function AboutPage() {
                 About Strathwell
               </Badge>
 
-              <h1 className="text-5xl font-bold leading-[1.1] tracking-tight md:text-7xl">
+              <h1 className="text-4xl font-bold leading-[1.1] tracking-tight sm:text-5xl md:text-7xl">
                 Transforming Events Through
                 <br />
                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-teal to-brand-dark">
@@ -173,7 +173,7 @@ export default function AboutPage() {
                 </span>
               </h1>
 
-              <p className="mx-auto mt-8 max-w-2xl text-xl leading-relaxed text-brand-dark/70">
+              <p className="mx-auto mt-6 max-w-2xl text-base leading-relaxed text-brand-dark/70 sm:text-lg md:mt-8 md:text-xl">
                 At Strathwell, we're pioneering the future of event orchestration with cutting-edge AI technology and world-class expertise.
               </p>
             </FadeIn>
@@ -181,7 +181,7 @@ export default function AboutPage() {
         </section>
 
         {/* Mission & Vision */}
-        <section className="py-20">
+        <section className="py-16 md:py-20">
           <Container>
             <FadeIn className="grid gap-8 md:grid-cols-3" staggerChildren={0.1}>
               {[
@@ -204,7 +204,7 @@ export default function AboutPage() {
                 const Icon = item.icon;
                 return (
                   <Card key={item.title} className="group border border-brand-dark/5 bg-white/80 text-center shadow-lg transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:border-brand-teal/20">
-                    <CardContent className="p-10">
+                    <CardContent className="p-6 sm:p-8 md:p-10">
                       <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-brand-teal/5 text-brand-teal transition-colors group-hover:bg-brand-teal group-hover:text-white">
                         <Icon className="h-8 w-8" />
                       </div>
@@ -221,22 +221,22 @@ export default function AboutPage() {
         </section>
 
         {/* Categorized Team Section */}
-        <section className="py-24">
+        <section className="py-16 md:py-24">
           <Container>
-            <FadeIn className="text-center mb-24">
+            <FadeIn className="text-center mb-12 md:mb-24">
               <Badge className="mb-6 inline-flex items-center gap-2 rounded-full border border-brand-dark/10 bg-white px-4 py-2 text-xs font-semibold uppercase tracking-[0.3em] text-brand-dark">
                 <Award className="h-4 w-4" />
                 Our Team
               </Badge>
-              <h2 className="text-4xl font-bold md:text-5xl">World-Class Experts</h2>
-              <p className="mx-auto mt-6 max-w-2xl text-lg text-brand-dark/60">
+              <h2 className="text-3xl font-bold sm:text-4xl md:text-5xl">World-Class Experts</h2>
+              <p className="mx-auto mt-4 max-w-2xl text-base text-brand-dark/60 sm:text-lg md:mt-6">
                 Meet the visionaries behind Strathwell's revolutionary approach to event orchestration.
               </p>
             </FadeIn>
 
-            <div className="space-y-32">
+            <div className="space-y-20 md:space-y-32">
               {teamGroups.map((group) => (
-                <div key={group.category} className="space-y-12">
+                <div key={group.category} className="space-y-10 md:space-y-12">
                   
                   {/* Category Header */}
                   <FadeIn>
@@ -245,7 +245,7 @@ export default function AboutPage() {
                         <div className="flex h-10 w-10 items-center justify-center rounded-full bg-brand-teal text-white shadow-md">
                           <group.icon className="h-5 w-5" />
                         </div>
-                        <h3 className="text-2xl font-bold uppercase tracking-widest text-brand-dark">
+                        <h3 className="text-xl font-bold uppercase tracking-widest text-brand-dark sm:text-2xl">
                           {group.category}
                         </h3>
                       </div>
@@ -259,10 +259,10 @@ export default function AboutPage() {
                   <div className="grid gap-12">
                     {group.members.map((member, index) => (
                       <FadeIn key={member.name} delay={index * 0.1}>
-                        <div className="group relative grid grid-cols-1 gap-8 overflow-hidden rounded-3xl border border-brand-dark/5 bg-white p-8 shadow-xl transition-all duration-300 md:grid-cols-12 md:gap-12 md:p-0">
+                        <div className="group relative grid grid-cols-1 gap-8 overflow-hidden rounded-3xl border border-brand-dark/5 bg-white p-6 shadow-xl transition-all duration-300 sm:p-8 md:grid-cols-12 md:gap-12 md:p-0">
                           
                           {/* Image Column */}
-                          <div className={`relative h-[400px] w-full overflow-hidden md:col-span-5 md:h-auto ${
+                          <div className={`relative h-64 w-full overflow-hidden sm:h-72 md:col-span-5 md:h-auto ${
                             index % 2 === 0 ? "md:order-1" : "md:order-2"
                           }`}>
                             {member.image ? (
@@ -282,11 +282,11 @@ export default function AboutPage() {
                           </div>
 
                           {/* Content Column */}
-                          <div className={`flex flex-col justify-center py-8 md:col-span-7 md:px-12 md:py-16 ${
+                          <div className={`flex flex-col justify-center py-6 md:col-span-7 md:px-12 md:py-16 ${
                             index % 2 === 0 ? "md:order-2" : "md:order-1"
                           }`}>
                             <div>
-                              <h3 className="font-display text-4xl font-bold text-brand-dark md:text-5xl">
+                              <h3 className="font-display text-3xl font-bold text-brand-dark sm:text-4xl md:text-5xl">
                                 {member.name}
                               </h3>
                               <p className="mt-2 text-lg font-medium text-brand-teal">
@@ -297,7 +297,7 @@ export default function AboutPage() {
                               </Badge>
                             </div>
                             
-                            <div className="mt-8 space-y-4 text-base leading-relaxed text-brand-dark/80">
+                            <div className="mt-6 space-y-4 text-sm leading-relaxed text-brand-dark/80 sm:text-base md:mt-8">
                               <p>{member.description || "Bio coming soon..."}</p>
                               {member.additionalInfo && (
                                 <p className="text-brand-dark/60 italic">{member.additionalInfo}</p>
@@ -315,7 +315,7 @@ export default function AboutPage() {
         </section>
 
         {/* Call to Action */}
-        <section className="py-24">
+        <section className="py-16 md:py-24">
           <Container>
             <FadeIn>
               <Card className="relative overflow-hidden border-none bg-brand-dark text-white shadow-2xl">
@@ -323,10 +323,10 @@ export default function AboutPage() {
                 <div className="absolute -right-20 -top-20 h-96 w-96 rounded-full bg-brand-teal/20 blur-3xl" />
                 <div className="absolute -left-20 -bottom-20 h-96 w-96 rounded-full bg-brand-cream/10 blur-3xl" />
                 
-                <CardContent className="relative z-10 p-16 text-center">
+                <CardContent className="relative z-10 p-8 text-center sm:p-12 md:p-16">
                   <Sparkles className="mx-auto mb-8 h-12 w-12 text-brand-teal" />
-                  <h3 className="text-4xl font-bold md:text-5xl">Ready to Transform Your Events?</h3>
-                  <p className="mx-auto mt-6 max-w-2xl text-xl text-white/80">
+                  <h3 className="text-3xl font-bold sm:text-4xl md:text-5xl">Ready to Transform Your Events?</h3>
+                  <p className="mx-auto mt-4 max-w-2xl text-base text-white/80 sm:text-lg md:mt-6 md:text-xl">
                     Join thousands of event organizers who trust Strathwell to orchestrate their most important moments.
                   </p>
                   <div className="mt-12 flex flex-col justify-center gap-6 sm:flex-row">

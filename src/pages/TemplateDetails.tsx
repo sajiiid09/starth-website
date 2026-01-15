@@ -22,6 +22,7 @@ import FadeIn from "@/components/animations/FadeIn";
 import { cn } from "@/lib/utils";
 import { dummyTemplates } from "@/data/dummyTemplates";
 import SpacePlannerSchematic from "@/components/os/SpacePlannerSchematic";
+import TemplateGallery from "@/components/templates/detail/TemplateGallery";
 import { venues } from "@/data/venues";
 import { venueLayouts, type LayoutMode } from "@/data/venueLayouts";
 import {
@@ -40,6 +41,11 @@ type BudgetSlice = {
 };
 
 const budgetColors = ["#1F2937", "#1FB6AA", "#F7B27D", "#6FB1FC"];
+const defaultGalleryImages = [
+  "https://images.unsplash.com/photo-1472653431158-6364773b2a56?auto=format&fit=crop&w=1600&q=80",
+  "https://images.unsplash.com/photo-1511795409834-ef04bbd61622?auto=format&fit=crop&w=1600&q=80",
+  "https://images.unsplash.com/photo-1505373877841-8d25f7d46678?auto=format&fit=crop&w=1600&q=80"
+];
 
 const parseCurrency = (value?: string) => {
   if (!value) {
@@ -261,7 +267,7 @@ const TemplateDetails: React.FC = () => {
               </div>
 
               {/* KPI Stats */}
-              <div className="flex gap-3">
+              <div className="grid w-full gap-3 sm:grid-cols-3">
                 {[
                   {
                     label: "Est. Total Cost",
@@ -282,7 +288,7 @@ const TemplateDetails: React.FC = () => {
                 ].map((kpi) => (
                   <div
                     key={kpi.label}
-                    className="flex flex-col justify-center rounded-2xl bg-white px-5 py-4 shadow-sm min-w-[140px]"
+                    className="flex flex-col justify-center rounded-2xl bg-white px-5 py-4 shadow-sm"
                   >
                     <div className="flex items-center gap-2 mb-1">
                       <kpi.icon className="h-3.5 w-3.5 text-brand-dark/40" />
@@ -298,6 +304,14 @@ const TemplateDetails: React.FC = () => {
               </div>
             </div>
           </div>
+        </FadeIn>
+
+        <FadeIn delay={0.05} className="mt-10">
+          <TemplateGallery
+            title="Blueprint Reference Gallery"
+            images={template.images ?? defaultGalleryImages}
+            templateTitle={template.title}
+          />
         </FadeIn>
 
         {/* Main Grid: Space & Service Stack */}
@@ -318,7 +332,7 @@ const TemplateDetails: React.FC = () => {
 
               {layout ? (
                 <div className="rounded-3xl bg-white p-6 shadow-sm border border-brand-dark/5">
-                  <div className="grid grid-cols-[1fr_auto_1fr] gap-4 items-center mb-6">
+                  <div className="grid gap-4 items-center mb-6 md:grid-cols-[1fr_auto_1fr]">
                     {/* Before View */}
                     <div className="flex flex-col gap-3">
                        <p className="text-[10px] font-bold uppercase tracking-widest text-brand-dark/40">BEFORE: EMPTY SHELL</p>
@@ -335,7 +349,7 @@ const TemplateDetails: React.FC = () => {
                     </div>
 
                     {/* Arrow */}
-                    <div className="mt-6 text-brand-teal/50">
+                    <div className="mt-6 hidden text-brand-teal/50 md:block">
                       <ArrowRight className="h-5 w-5" />
                     </div>
 

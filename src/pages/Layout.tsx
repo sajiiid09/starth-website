@@ -11,9 +11,12 @@ type LayoutProps = {
 
 export default function Layout({ children, currentPageName }: LayoutProps) {
   const location = useLocation();
-  const isDashboardRoute = ["/dashboard", "/vendor", "/admin"].some((path) =>
-    location.pathname.startsWith(path)
-  );
+  const isDashboardRoute = 
+    location.pathname.startsWith("/dashboard") ||
+    location.pathname === "/vendor" ||
+    location.pathname.startsWith("/vendor/") ||
+    location.pathname === "/admin" ||
+    location.pathname.startsWith("/admin/");
   const isAppEntry = currentPageName === "AppEntry" || location.pathname.startsWith("/appentry");
 
   if (isDashboardRoute) {

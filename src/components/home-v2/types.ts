@@ -1,1 +1,1 @@
-export type SectionTheme = "light" | "cream" | "blue";
+export type SectionTheme = "light" | "cream" | "blue" | "dark";

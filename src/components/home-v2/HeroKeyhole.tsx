@@ -125,7 +125,7 @@ export default function Hero() {
       */}
       <div 
         ref={videoContainerRef} 
-        className="absolute z-20 overflow-hidden shadow-2xl top-[45%] left-1/2 -translate-x-1/2 -translate-y-1/2" // Manually positioned to sit in the gap
+        className="absolute z-20 overflow-hidden shadow-2xl top-[40%] left-1/2 -translate-x-1/2 -translate-y-1/2" // Manually positioned to sit in the gap
       >
         <video
           autoPlay
@@ -135,7 +135,7 @@ export default function Hero() {
           className="h-full w-full object-cover"
         >
           <source
-            src="/herovid.mp4"
+            src="/137629.mp4"
             type="video/mp4"
           />
         </video>

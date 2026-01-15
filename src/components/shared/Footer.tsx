@@ -138,7 +138,7 @@ export default function Footer() {
 
           {/* Massive Text */}
           <h1 className="mt-4 font-sans text-[12vw] font-bold leading-[0.8] tracking-tighter text-[#FFFBF4] lg:text-[10rem]">
-            Starthwell
+            Strathwell
           </h1>
         </div>
 
@@ -151,7 +151,7 @@ export default function Footer() {
             Back to top <ArrowUpRight className="h-4 w-4" />
           </Link>
           <div className="opacity-60">
-            © {currentYear} Starthwell LLC
+            © {currentYear} strathwell LLC
           </div>
         </div>
       </div>

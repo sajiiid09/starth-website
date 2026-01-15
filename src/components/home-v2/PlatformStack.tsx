@@ -99,7 +99,7 @@ const PlatformStack: React.FC<PlatformStackProps> = ({ theme = 'light' }) => {
               </div>
             </div>
 
-            {/* Card B: Blueprint OS */}
+            {/* Card B: Marketplace */}
             <div
               ref={cardBRef}
               className="relative z-10 overflow-hidden rounded-2xl border border-brand-dark/10 bg-white shadow-soft transition duration-300 ease-smooth hover:-translate-y-1 hover:shadow-card"
@@ -114,7 +114,7 @@ const PlatformStack: React.FC<PlatformStackProps> = ({ theme = 'light' }) => {
               </div>
               <div className="flex flex-col gap-4 p-6 md:p-8">
                 <div className="text-xs font-semibold uppercase tracking-[0.2em] text-brand-dark/60">
-                  Blueprint OS
+                  Marketplace
                 </div>
                 <div>
                   <h3 className="text-2xl font-semibold text-brand-dark">
@@ -133,9 +133,9 @@ const PlatformStack: React.FC<PlatformStackProps> = ({ theme = 'light' }) => {
                   size="sm"
                   className="self-start"
                   type="button"
-                  onClick={() => navigate(createPageUrl("AIPlanner"))}
+                  onClick={() => navigate(createPageUrl("Marketplace"))}
                 >
-                  Explore the OS
+                  Explore Marketplace
                 </PillButton>
               </div>
             </div>

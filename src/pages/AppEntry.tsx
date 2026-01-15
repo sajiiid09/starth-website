@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
-import { Loader2, Users, Briefcase } from "lucide-react";
+import { Loader2, Users, Briefcase, ArrowRight, CheckCircle2 } from "lucide-react";
 import { toast } from "sonner";
 import { createPageUrl } from "@/utils";
 import { AppRole, getRoleHomePath, setCurrentRole } from "@/utils/role";
@@ -29,6 +29,7 @@ import {
   getPendingPlannerIntent
 } from "@/utils/pendingIntent";
 
+// --- Configuration ---
 const roleOptions = [
   {
     id: "user",
@@ -45,8 +46,9 @@ const roleOptions = [
 ] as const;
 
 type RoleOptionId = (typeof roleOptions)[number]["id"];
-
 type AuthView = "role" | "signup" | "login";
+
+// --- Components ---
 
 type SignUpFormProps = {
   selectedRole: RoleOptionId | null;
@@ -199,99 +201,113 @@ const SignUpForm: React.FC<SignUpFormProps> = ({
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
-      <div>
-        <Label htmlFor="fullName">Full Name</Label>
-        <Input
-          id="fullName"
-          placeholder="John Doe"
-          required
-          value={formData.fullName}
-          onChange={(e) => handleInputChange("fullName", e.target.value)}
-        />
+    <form onSubmit={handleSubmit} className="space-y-5">
+      <div className="space-y-4">
+        <div className="space-y-1.5">
+          <Label htmlFor="fullName" className="text-xs font-semibold uppercase tracking-wider text-brand-dark/60">Full Name</Label>
+          <Input
+            id="fullName"
+            placeholder="Jane Doe"
+            required
+            className="h-12 border-brand-dark/10 bg-white/60 text-base focus:border-brand-teal focus:ring-brand-teal/20"
+            value={formData.fullName}
+            onChange={(e) => handleInputChange("fullName", e.target.value)}
+          />
+        </div>
+        <div className="space-y-1.5">
+          <Label htmlFor="signupEmail" className="text-xs font-semibold uppercase tracking-wider text-brand-dark/60">Email Address</Label>
+          <Input
+            id="signupEmail"
+            type="email"
+            placeholder="name@company.com"
+            required
+            className="h-12 border-brand-dark/10 bg-white/60 text-base focus:border-brand-teal focus:ring-brand-teal/20"
+            value={formData.email}
+            onChange={(e) => handleInputChange("email", e.target.value)}
+          />
+        </div>
+        <div className="space-y-1.5">
+          <Label htmlFor="signupPassword" className="text-xs font-semibold uppercase tracking-wider text-brand-dark/60">Password</Label>
+          <Input
+            id="signupPassword"
+            type="password"
+            placeholder="At least 8 characters"
+            required
+            className="h-12 border-brand-dark/10 bg-white/60 text-base focus:border-brand-teal focus:ring-brand-teal/20"
+            value={formData.password}
+            onChange={(e) => handleInputChange("password", e.target.value)}
+          />
+        </div>
+        <div className="space-y-1.5">
+          <Label htmlFor="phone" className="text-xs font-semibold uppercase tracking-wider text-brand-dark/60">Phone (Optional)</Label>
+          <Input
+            id="phone"
+            type="tel"
+            placeholder="+1 (555) 000-0000"
+            className="h-12 border-brand-dark/10 bg-white/60 text-base focus:border-brand-teal focus:ring-brand-teal/20"
+            value={formData.phone}
+            onChange={(e) => handleInputChange("phone", e.target.value)}
+          />
+        </div>
       </div>
-      <div>
-        <Label htmlFor="signupEmail">Email</Label>
-        <Input
-          id="signupEmail"
-          type="email"
-          placeholder="name@company.com"
-          required
-          value={formData.email}
-          onChange={(e) => handleInputChange("email", e.target.value)}
-        />
-      </div>
-      <div>
-        <Label htmlFor="signupPassword">Password</Label>
-        <Input
-          id="signupPassword"
-          type="password"
-          placeholder="At least 8 characters"
-          required
-          value={formData.password}
-          onChange={(e) => handleInputChange("password", e.target.value)}
-        />
-      </div>
-      <div>
-        <Label htmlFor="phone">Phone (Optional)</Label>
-        <Input
-          id="phone"
-          type="tel"
-          placeholder="+1 (555) 000-0000"
-          value={formData.phone}
-          onChange={(e) => handleInputChange("phone", e.target.value)}
-        />
-      </div>
+
       {(isVenueOwner || isServiceProvider) && (
-        <div className="space-y-4 rounded-2xl border border-white/60 bg-brand-light/70 p-4">
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.3em] text-brand-teal">
+        <motion.div 
+          initial={{ opacity: 0, height: 0 }}
+          animate={{ opacity: 1, height: "auto" }}
+          className="overflow-hidden rounded-xl border border-brand-teal/20 bg-brand-teal/5 p-5"
+        >
+          <div className="mb-4">
+            <p className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-brand-teal">
+              <SparklesIcon className="h-3 w-3" />
               Additional details
             </p>
-            <p className="mt-2 text-sm text-brand-dark/70">
+            <p className="mt-1 text-sm text-brand-dark/70">
               {isVenueOwner
-                ? "Used to match your venue to optimal blueprints."
-                : "Used to match you to relevant event stacks."}
+                ? "Help us match your venue to optimal blueprints."
+                : "Help us match you to relevant event stacks."}
             </p>
           </div>
           {isVenueOwner && (
             <div className="grid gap-4 sm:grid-cols-2">
-              <div className="space-y-1">
-                <Label htmlFor="venueSqft">Venue square feet</Label>
+              <div className="space-y-1.5">
+                <Label htmlFor="venueSqft" className="text-xs text-brand-dark/60">Square Footage</Label>
                 <Input
                   id="venueSqft"
                   type="number"
                   min="1"
-                  placeholder="8500"
+                  placeholder="e.g. 5000"
+                  className="h-10 bg-white"
                   value={venueDetails.sqft}
                   onChange={(e) =>
                     setVenueDetails((prev) => ({ ...prev, sqft: e.target.value }))
                   }
                 />
                 {fieldErrors.venueSqft && (
-                  <p className="text-xs text-brand-coral">{fieldErrors.venueSqft}</p>
+                  <p className="text-xs font-medium text-red-500">{fieldErrors.venueSqft}</p>
                 )}
               </div>
-              <div className="space-y-1">
-                <Label htmlFor="venueLocation">Venue location</Label>
+              <div className="space-y-1.5">
+                <Label htmlFor="venueLocation" className="text-xs text-brand-dark/60">Location</Label>
                 <Input
                   id="venueLocation"
-                  placeholder="Seaport District"
+                  placeholder="e.g. Seaport District"
+                  className="h-10 bg-white"
                   value={venueDetails.location}
                   onChange={(e) =>
                     setVenueDetails((prev) => ({ ...prev, location: e.target.value }))
                   }
                 />
                 {fieldErrors.venueLocation && (
-                  <p className="text-xs text-brand-coral">{fieldErrors.venueLocation}</p>
+                  <p className="text-xs font-medium text-red-500">{fieldErrors.venueLocation}</p>
                 )}
               </div>
             </div>
           )}
           {isServiceProvider && (
-            <div className="space-y-4">
+            <div className="space-y-5">
               <div className="space-y-2">
-                <Label>Service categories</Label>
+                <Label className="text-xs text-brand-dark/60">Service Categories</Label>
                 <div className="flex flex-wrap gap-2">
                   {serviceCategoryOptions.map((category) => {
                     const isSelected = serviceCategories.includes(category);
@@ -300,10 +316,10 @@ const SignUpForm: React.FC<SignUpFormProps> = ({
                         key={category}
                         type="button"
                         className={cn(
-                          "rounded-full border px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em]",
+                          "rounded-lg border px-3 py-1.5 text-xs font-semibold transition-all duration-200",
                           isSelected
-                            ? "border-brand-dark bg-brand-dark text-brand-light"
-                            : "border-brand-dark/20 bg-white text-brand-dark/60"
+                            ? "border-brand-dark bg-brand-dark text-white shadow-md"
+                            : "border-brand-dark/10 bg-white text-brand-dark/60 hover:border-brand-dark/30"
                         )}
                         onClick={() =>
                           setServiceCategories((prev) => toggleMultiValue(prev, category))
@@ -315,13 +331,13 @@ const SignUpForm: React.FC<SignUpFormProps> = ({
                   })}
                 </div>
                 {fieldErrors.serviceCategories && (
-                  <p className="text-xs text-brand-coral">
+                  <p className="text-xs font-medium text-red-500">
                     {fieldErrors.serviceCategories}
                   </p>
                 )}
               </div>
               <div className="space-y-2">
-                <Label>Service areas</Label>
+                <Label className="text-xs text-brand-dark/60">Service Areas</Label>
                 <div className="flex flex-wrap gap-2">
                   {serviceAreaOptions.map((area) => {
                     const isSelected = serviceAreas.includes(area);
@@ -330,10 +346,10 @@ const SignUpForm: React.FC<SignUpFormProps> = ({
                         key={area}
                         type="button"
                         className={cn(
-                          "rounded-full border px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em]",
+                          "rounded-lg border px-3 py-1.5 text-xs font-semibold transition-all duration-200",
                           isSelected
-                            ? "border-brand-dark bg-brand-dark text-brand-light"
-                            : "border-brand-dark/20 bg-white text-brand-dark/60"
+                            ? "border-brand-dark bg-brand-dark text-white shadow-md"
+                            : "border-brand-dark/10 bg-white text-brand-dark/60 hover:border-brand-dark/30"
                         )}
                         onClick={() => setServiceAreas((prev) => toggleMultiValue(prev, area))}
                       >
@@ -343,19 +359,25 @@ const SignUpForm: React.FC<SignUpFormProps> = ({
                   })}
                 </div>
                 {fieldErrors.serviceAreas && (
-                  <p className="text-xs text-brand-coral">{fieldErrors.serviceAreas}</p>
+                  <p className="text-xs font-medium text-red-500">{fieldErrors.serviceAreas}</p>
                 )}
               </div>
             </div>
           )}
-        </div>
+        </motion.div>
       )}
       <Button
         type="submit"
-        className="w-full rounded-full bg-brand-teal py-6 text-base text-brand-light hover:bg-brand-teal/90"
+        className="group mt-2 w-full rounded-full bg-brand-teal py-6 text-base font-semibold text-white shadow-lg transition-all hover:bg-brand-dark hover:shadow-xl hover:translate-y-[-1px]"
         disabled={loading || (selectedRole === "vendor" && !vendorFieldsValid)}
       >
-        {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : "Create account"}
+        {loading ? (
+          <Loader2 className="h-5 w-5 animate-spin" />
+        ) : (
+          <span className="flex items-center gap-2">
+            Create Account <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+          </span>
+        )}
       </Button>
     </form>
   );
@@ -418,39 +440,70 @@ const LoginForm: React.FC<LoginFormProps> = ({ onLoginSuccess }) => {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
-      <div>
-        <Label htmlFor="loginEmail">Email</Label>
+    <form onSubmit={handleSubmit} className="space-y-5">
+      <div className="space-y-1.5">
+        <Label htmlFor="loginEmail" className="text-xs font-semibold uppercase tracking-wider text-brand-dark/60">Email</Label>
         <Input
           id="loginEmail"
           type="email"
           placeholder="name@company.com"
           required
+          className="h-12 border-brand-dark/10 bg-white/60 text-base focus:border-brand-teal focus:ring-brand-teal/20"
           value={formData.email}
           onChange={(e) => setFormData((prev) => ({ ...prev, email: e.target.value }))}
         />
       </div>
-      <div>
-        <Label htmlFor="loginPassword">Password</Label>
+      <div className="space-y-1.5">
+        <div className="flex items-center justify-between">
+          <Label htmlFor="loginPassword" className="text-xs font-semibold uppercase tracking-wider text-brand-dark/60">Password</Label>
+          <button type="button" className="text-xs font-medium text-brand-teal hover:text-brand-dark transition-colors">Forgot?</button>
+        </div>
         <Input
           id="loginPassword"
           type="password"
-          placeholder="Your password"
+          placeholder="••••••••"
           required
+          className="h-12 border-brand-dark/10 bg-white/60 text-base focus:border-brand-teal focus:ring-brand-teal/20"
           value={formData.password}
           onChange={(e) => setFormData((prev) => ({ ...prev, password: e.target.value }))}
         />
       </div>
       <Button
         type="submit"
-        className="w-full rounded-full bg-brand-teal py-6 text-base text-brand-light hover:bg-brand-teal/90"
+        className="group w-full rounded-full bg-brand-teal py-6 text-base font-semibold text-white shadow-lg transition-all hover:bg-brand-dark hover:shadow-xl hover:translate-y-[-1px]"
         disabled={loading}
       >
-        {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : "Log in"}
+        {loading ? (
+          <Loader2 className="h-5 w-5 animate-spin" />
+        ) : (
+          <span className="flex items-center gap-2">
+            Log In <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+          </span>
+        )}
       </Button>
     </form>
   );
 };
+
+// Simple Icon for decoration
+function SparklesIcon(props: React.SVGProps<SVGSVGElement>) {
+  return (
+    <svg
+      {...props}
+      xmlns="http://www.w3.org/2000/svg"
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z" />
+    </svg>
+  )
+}
 
 export default function AppEntryPage() {
   const [loading, setLoading] = useState(true);
@@ -540,21 +593,22 @@ export default function AppEntryPage() {
   }
 
   return (
-    <div className="min-h-screen bg-brand-light text-brand-dark">
-      <header className="flex items-center justify-between px-6 py-5 lg:px-12">
-        <Link to={createPageUrl("Home")} className="text-lg font-semibold tracking-tight">
+    <div className="min-h-screen bg-[#F8F7F4] text-brand-dark">
+      {/* Header */}
+      <header className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 py-5 lg:px-12 backdrop-blur-sm bg-white/50 border-b border-brand-dark/5">
+        <Link to={createPageUrl("Home")} className="text-xl font-bold tracking-tight text-brand-dark">
           Strathwell
         </Link>
         <div className="flex items-center gap-3">
           <Button
             variant="ghost"
-            className="rounded-full text-sm text-brand-dark/70 hover:text-brand-dark"
+            className="rounded-full text-sm font-medium text-brand-dark/70 hover:text-brand-dark hover:bg-brand-dark/5"
             onClick={() => setActiveView("login")}
           >
             Log in
           </Button>
           <Button
-            className="rounded-full bg-brand-dark px-5 text-brand-light hover:bg-brand-dark/90"
+            className="rounded-full bg-brand-dark px-6 py-2 text-sm font-semibold text-brand-light shadow-md transition-all hover:bg-brand-dark/90 hover:shadow-lg hover:translate-y-[-1px]"
             onClick={() => {
               if (!selectedRole) {
                 setActiveView("role");
@@ -572,11 +626,17 @@ export default function AppEntryPage() {
         </div>
       </header>
 
-      <div className="grid min-h-[calc(100vh-80px)] grid-cols-1 lg:grid-cols-[70%_1fr]">
-        <div className="relative hidden h-full lg:flex">
-          <div className="absolute inset-0 bg-gradient-to-br from-brand-dark/90 via-brand-dark/70 to-brand-teal/60" />
+      {/* Main Layout */}
+      <div className="grid min-h-screen grid-cols-1 lg:grid-cols-[1fr_600px] xl:grid-cols-[1fr_700px]">
+        
+        {/* Left Column: Cinematic Video */}
+        <div className="relative hidden lg:block sticky top-0 h-screen overflow-hidden">
+          {/* Enhanced Overlay for Text Readability */}
+          <div className="absolute inset-0 bg-gradient-to-t from-brand-dark via-brand-dark/40 to-transparent opacity-90 z-10" />
+          <div className="absolute inset-0 bg-brand-teal/20 mix-blend-multiply z-10" />
+          
           <video
-            className="h-full w-full object-cover"
+            className="h-full w-full object-cover scale-105"
             autoPlay
             muted
             loop
@@ -585,57 +645,65 @@ export default function AppEntryPage() {
           >
             <source src="/herovid.mp4" type="video/mp4" />
           </video>
-          <div className="absolute inset-0 bg-black/40" />
-          <div className="absolute z-10 flex h-full w-full flex-col justify-end p-12 text-brand-light">
-            <div className="max-w-md">
-              <p className="text-sm uppercase tracking-[0.3em] text-brand-light/70">
-                Strathwell Platform
-              </p>
-              <h1 className="mt-4 text-4xl font-semibold leading-tight">
-                Event orchestration, beautifully streamlined.
+          
+          <div className="absolute z-20 bottom-0 left-0 w-full p-16 text-brand-light">
+            <div className="max-w-xl space-y-6">
+              <div className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 py-1.5 backdrop-blur-md">
+                <SparklesIcon className="w-3 h-3 text-brand-teal" />
+                <span className="text-xs font-bold uppercase tracking-widest">Platform Access</span>
+              </div>
+              <h1 className="text-5xl font-semibold leading-[1.1] tracking-tight">
+                Orchestration, <br/>
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-teal via-white to-white">
+                  beautifully streamlined.
+                </span>
               </h1>
-              <p className="mt-4 text-base text-brand-light/80">
-                AI-powered planning, a curated marketplace, and seamless execution tools
-                built for modern teams.
+              <p className="text-lg text-brand-light/80 leading-relaxed max-w-md">
+                Join the ecosystem where AI-powered planning meets a curated marketplace of world-class vendors.
               </p>
             </div>
           </div>
         </div>
 
-        <div className="flex min-h-[calc(100vh-80px)] items-center justify-center px-6 py-8 lg:px-12">
-          <div className="w-full max-w-md">
+        {/* Right Column: Form Container */}
+        <div className="flex min-h-screen flex-col items-center justify-center bg-[#F8F7F4] px-6 py-24 lg:px-12">
+          <div className="w-full max-w-[420px]">
             <AnimatePresence mode="wait">
               {activeView === "role" && (
                 <motion.div
                   key="role"
-                  initial={{ opacity: 0, y: 16 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -16 }}
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -20 }}
                   transition={{ duration: 0.4, ease: "easeOut" }}
                   className="space-y-8"
                 >
-                  <div className="space-y-4">
-                    <p className="text-sm font-semibold uppercase tracking-[0.3em] text-brand-teal">
-                      Choose your path
+                  <div className="space-y-3">
+                    <p className="text-xs font-bold uppercase tracking-[0.2em] text-brand-teal">
+                      Get Started
                     </p>
-                    <h2 className="text-3xl font-semibold text-brand-dark">
-                      How will you use Strathwell?
+                    <h2 className="text-4xl font-bold tracking-tight text-brand-dark">
+                      Choose your path
                     </h2>
-                    <p className="text-sm text-brand-dark/70">
-                      Select a role to personalize your onboarding experience.
+                    <p className="text-base text-brand-dark/60">
+                      Select your primary role to customize your workspace.
                     </p>
                   </div>
+                  
                   <div className="grid gap-4">
                     {roleOptions.map((option) => {
                       const Icon = option.icon;
+                      const isSelected = selectedRole === option.id;
                       return (
                         <button
                           key={option.id}
                           type="button"
                           className={cn(
-                            "flex w-full items-center gap-4 rounded-2xl border border-white/60 bg-white/80 px-5 py-4 text-left shadow-card",
-                            "transition duration-200 ease-smooth hover:-translate-y-0.5 hover:border-white",
-                            "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-teal/40"
+                            "group relative flex w-full items-start gap-5 rounded-2xl border bg-white p-5 text-left shadow-sm transition-all duration-300",
+                            "hover:-translate-y-1 hover:shadow-md hover:border-brand-teal/50",
+                            isSelected 
+                              ? "border-brand-teal ring-1 ring-brand-teal bg-brand-teal/5" 
+                              : "border-brand-dark/5"
                           )}
                           onClick={() => {
                             setSelectedRole(option.id);
@@ -643,20 +711,26 @@ export default function AppEntryPage() {
                             if (option.id === "vendor") {
                               setVendorTypeState(null);
                               resetVendorSession();
-                              setActiveView("role");
+                              // Keep viewing role to show subtypes
                             } else {
                               setActiveView("signup");
                             }
                           }}
                         >
-                          <span className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-brand-light">
-                            <Icon className="h-5 w-5 text-brand-teal" />
+                          <span className={cn(
+                            "flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-xl transition-colors duration-300",
+                            isSelected ? "bg-brand-teal text-white" : "bg-brand-dark/5 text-brand-dark group-hover:bg-brand-teal/10 group-hover:text-brand-teal"
+                          )}>
+                            <Icon className="h-6 w-6" />
                           </span>
-                          <span className="flex-1">
-                            <span className="block text-base font-semibold text-brand-dark">
-                              {option.title}
+                          <span className="flex-1 space-y-1">
+                            <span className="flex items-center justify-between">
+                              <span className="block text-base font-bold text-brand-dark">
+                                {option.title}
+                              </span>
+                              {isSelected && <CheckCircle2 className="h-5 w-5 text-brand-teal" />}
                             </span>
-                            <span className="block text-sm text-brand-dark/70">
+                            <span className="block text-sm text-brand-dark/60 leading-relaxed">
                               {option.description}
                             </span>
                           </span>
@@ -664,71 +738,53 @@ export default function AppEntryPage() {
                       );
                     })}
                   </div>
+
                   {selectedRole === "vendor" && (
                     <motion.div
-                      initial={{ opacity: 0, y: 12 }}
-                      animate={{ opacity: 1, y: 0 }}
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: "auto" }}
                       transition={{ duration: 0.3, ease: "easeOut" }}
-                      className="mt-6 space-y-4 rounded-3xl border border-white/40 bg-white/80 p-6 shadow-card"
+                      className="mt-6 space-y-4 overflow-hidden rounded-2xl border border-brand-teal/20 bg-white/50 p-6 backdrop-blur-sm"
                     >
-                      <div className="space-y-2">
-                        <p className="text-xs font-semibold uppercase tracking-[0.3em] text-brand-teal">
-                          Vendor type
-                        </p>
-                        <h3 className="text-xl font-semibold text-brand-dark">
-                          Choose your vendor subtype
+                      <div className="space-y-1">
+                        <h3 className="text-sm font-semibold text-brand-dark">
+                          Select Vendor Type
                         </h3>
-                        <p className="text-sm text-brand-dark/60">
-                          This sets your onboarding path and dashboard experience.
-                        </p>
                       </div>
-                      <div className="grid gap-4">
+                      <div className="grid grid-cols-2 gap-3">
                         {[
                           {
                             id: "venue_owner",
                             title: "Venue Owner",
-                            description: "Own or manage event spaces.",
                             icon: Users
                           },
                           {
                             id: "service_provider",
                             title: "Service Provider",
-                            description: "Catering, AV, staffing, and more.",
                             icon: Briefcase
                           }
-                        ].map((option) => {
-                          const Icon = option.icon;
-                          return (
-                            <button
-                              key={option.id}
-                              type="button"
-                              className={cn(
-                                "flex w-full items-center gap-4 rounded-2xl border border-white/60 bg-white/90 px-5 py-4 text-left shadow-soft",
-                                "transition duration-200 ease-smooth hover:-translate-y-0.5 hover:border-white",
-                                "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-teal/40"
-                              )}
-                              onClick={() => {
-                                const chosenType = option.id as VendorType;
-                                setVendorTypeState(chosenType);
-                                setVendorType(chosenType);
-                                setVendorOnboardingStatus("draft");
-                                setActiveView("signup");
-                              }}
-                            >
-                              <span className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-brand-light">
-                                <Icon className="h-5 w-5 text-brand-teal" />
-                              </span>
-                              <span className="flex-1">
-                                <span className="block text-base font-semibold text-brand-dark">
-                                  {option.title}
-                                </span>
-                                <span className="block text-sm text-brand-dark/70">
-                                  {option.description}
-                                </span>
-                              </span>
-                            </button>
-                          );
-                        })}
+                        ].map((option) => (
+                          <button
+                            key={option.id}
+                            type="button"
+                            className={cn(
+                              "flex flex-col items-center justify-center gap-3 rounded-xl border p-4 text-center transition-all duration-200",
+                              "hover:border-brand-teal/50 hover:bg-white hover:shadow-sm",
+                              vendorType === option.id 
+                                ? "border-brand-teal bg-white ring-1 ring-brand-teal" 
+                                : "border-transparent bg-white/60"
+                            )}
+                            onClick={() => {
+                              const chosenType = option.id as VendorType;
+                              setVendorTypeState(chosenType);
+                              setVendorType(chosenType);
+                              setVendorOnboardingStatus("draft");
+                              setActiveView("signup");
+                            }}
+                          >
+                            <span className="text-sm font-medium text-brand-dark">{option.title}</span>
+                          </button>
+                        ))}
                       </div>
                     </motion.div>
                   )}
@@ -738,114 +794,91 @@ export default function AppEntryPage() {
               {activeView !== "role" && (
                 <motion.div
                   key="auth"
-                  initial={{ opacity: 0, y: 16 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -16 }}
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -20 }}
                   transition={{ duration: 0.4, ease: "easeOut" }}
-                  className="space-y-8 rounded-3xl border border-white/40 bg-white/80 p-8 shadow-card"
+                  className="space-y-8"
                 >
-                  <div className="space-y-6">
-                    <div>
-                      <p className="text-sm font-semibold uppercase tracking-[0.3em] text-brand-teal">
-                        {activeView === "login" ? "Welcome back" : "Create account"}
-                      </p>
-                      <h2 className="mt-3 text-2xl font-semibold text-brand-dark">
-                        {activeView === "login" ? "Sign in to Strathwell" : "Start your event workspace"}
-                      </h2>
-                    </div>
+                  <div className="space-y-2">
+                    <button
+                      type="button"
+                      className="group flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-brand-dark/40 hover:text-brand-teal transition-colors"
+                      onClick={() => {
+                        if (activeView === "signup") setActiveView("role");
+                        else setActiveView("signup"); // Back to sign up from login
+                      }}
+                    >
+                      <ArrowRight className="h-3 w-3 rotate-180 group-hover:-translate-x-1 transition-transform" />
+                      Back
+                    </button>
+                    <h2 className="text-3xl font-bold tracking-tight text-brand-dark">
+                      {activeView === "login" ? "Welcome back" : "Create your account"}
+                    </h2>
                     {activeView === "signup" && selectedRole && (
-                      <span className="inline-block rounded-full bg-brand-light px-3 py-1 text-xs font-semibold text-brand-teal">
-                        Signing up as {roleLabel}
+                      <p className="text-sm text-brand-dark/60">
+                        You are registering as a <span className="font-semibold text-brand-teal">{roleLabel}</span>
                         {selectedRole === "vendor" && vendorType
-                          ? ` · ${vendorType === "venue_owner" ? "Venue Owner" : "Service Provider"}`
-                          : ""}
-                      </span>
+                          ? ` (${vendorType === "venue_owner" ? "Venue Owner" : "Service Provider"})`
+                          : ""}.
+                      </p>
                     )}
                   </div>
 
-                  {activeView === "signup" ? (
-                    <SignUpForm
-                      selectedRole={selectedRole}
-                      vendorType={vendorType}
-                      onSignUpSuccess={() => {
-                        toast.success("Account created! Check your email to verify.");
-                        if (selectedRole === "vendor") {
-                          navigate(getVendorOnboardingPath(vendorType));
-                          return;
-                        }
-                        if (!handlePendingPlannerRedirect("user")) {
-                          navigate(getRoleHomePath("user"));
-                        }
-                      }}
-                    />
-                  ) : (
-                    <LoginForm
-                      onLoginSuccess={(role) => {
-                        if (!handlePendingPlannerRedirect(role)) {
-                          navigate(getRoleHomePath(role));
-                        }
-                      }}
-                    />
-                  )}
-
-                  <div className="space-y-4 border-t border-white/40 pt-6">
-                    <div className="text-center text-sm text-brand-dark/70">
+                  {/* Form Card */}
+                  <div className="rounded-3xl border border-white/60 bg-white/80 p-1 shadow-2xl shadow-brand-dark/5 backdrop-blur-xl">
+                    <div className="rounded-[20px] border border-brand-dark/5 bg-white/50 p-6 sm:p-8">
                       {activeView === "signup" ? (
-                        <span>
-                          Already a user?{" "}
-                          <button
-                            type="button"
-                            className="font-semibold text-brand-teal hover:text-brand-teal/80"
-                            onClick={() => setActiveView("login")}
-                          >
-                            Login
-                          </button>
-                        </span>
+                        <SignUpForm
+                          selectedRole={selectedRole}
+                          vendorType={vendorType}
+                          onSignUpSuccess={() => {
+                            toast.success("Account created! Check your email to verify.");
+                            if (selectedRole === "vendor") {
+                              navigate(getVendorOnboardingPath(vendorType));
+                              return;
+                            }
+                            if (!handlePendingPlannerRedirect("user")) {
+                              navigate(getRoleHomePath("user"));
+                            }
+                          }}
+                        />
                       ) : (
-                        <span>
-                          New here?{" "}
-                          <button
-                            type="button"
-                            className="font-semibold text-brand-teal hover:text-brand-teal/80"
-                            onClick={() => setActiveView("signup")}
-                          >
-                            Create an account
-                          </button>
-                        </span>
+                        <LoginForm
+                          onLoginSuccess={(role) => {
+                            if (!handlePendingPlannerRedirect(role)) {
+                              navigate(getRoleHomePath(role));
+                            }
+                          }}
+                        />
                       )}
                     </div>
+                  </div>
 
-                    {activeView === "signup" && (
-                      <div className="flex flex-col gap-3 text-center text-xs text-brand-dark/60 sm:flex-row sm:items-center sm:justify-between">
-                        <button
-                          type="button"
-                          className="font-semibold text-brand-dark/60 hover:text-brand-dark"
-                          onClick={() => {
-                            setSelectedRole(null);
-                            setVendorTypeState(null);
-                            setActiveView("role");
-                          }}
-                        >
-                          ← Change role
-                        </button>
-                        <Link to={createPageUrl("Home")} className="hover:text-brand-dark">
-                          Return home
-                        </Link>
-                      </div>
-                    )}
+                  <div className="text-center">
+                    <p className="text-sm text-brand-dark/60">
+                      {activeView === "signup" ? "Already have an account?" : "Don't have an account?"}{" "}
+                      <button
+                        type="button"
+                        className="font-semibold text-brand-teal hover:underline decoration-2 underline-offset-4"
+                        onClick={() => setActiveView(activeView === "signup" ? "login" : "signup")}
+                      >
+                        {activeView === "signup" ? "Log in" : "Sign up"}
+                      </button>
+                    </p>
                   </div>
                 </motion.div>
               )}
             </AnimatePresence>
 
-            <div className="mt-8 text-center text-xs text-brand-dark/60">
-              <p>
+            <div className="mt-12 text-center">
+              <p className="text-[10px] text-brand-dark/40">
                 By continuing, you agree to our{" "}
-                <Link to={createPageUrl("Terms")} className="underline hover:text-brand-dark">
+                <Link to={createPageUrl("Terms")} className="hover:text-brand-dark transition-colors">
                   Terms of Service
                 </Link>{" "}
                 and{" "}
-                <Link to={createPageUrl("Privacy")} className="underline hover:text-brand-dark">
+                <Link to={createPageUrl("Privacy")} className="hover:text-brand-dark transition-colors">
                   Privacy Policy
                 </Link>.
               </p>

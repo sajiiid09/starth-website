@@ -241,21 +241,6 @@ ${formData.message}
                   </div>
                 </div>
               </div>
-
-              {/* Quick Links Card */}
-              <div className="contact-card overflow-hidden rounded-3xl bg-brand-dark p-8 text-brand-light shadow-card">
-                <h3 className="mb-6 font-display text-xl font-semibold">Explore More</h3>
-                <div className="space-y-4">
-                  <a href="/AIPlanner" className="group flex items-center justify-between rounded-xl bg-white/5 p-4 transition-colors hover:bg-white/10">
-                    <Building className="h-5 w-5 text-brand-teal" />
-                    <span className="font-medium">Plan with AI</span>
-                  </a>
-                  <a href="/DFY" className="group flex items-center justify-between rounded-xl bg-white/5 p-4 transition-colors hover:bg-white/10">
-                    <Users className="h-5 w-5 text-brand-teal" />
-                    <span className="font-medium">Plan with Us</span>
-                  </a>
-                </div>
-              </div>
             </div>
 
             {/* Right Column: Contact Form */}

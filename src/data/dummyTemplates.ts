@@ -21,6 +21,7 @@ export type DummyTemplate = {
   image: string;
   description: string;
   fullDetails: string;
+  images?: string[];
   venueId?: string;
   defaultGuestCount?: number;
   recommendedMode?: "optimized" | "max";

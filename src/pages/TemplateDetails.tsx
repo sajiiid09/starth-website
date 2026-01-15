@@ -22,6 +22,7 @@ import FadeIn from "@/components/animations/FadeIn";
 import { cn } from "@/lib/utils";
 import { dummyTemplates } from "@/data/dummyTemplates";
 import SpacePlannerSchematic from "@/components/os/SpacePlannerSchematic";
+import TemplateGallery from "@/components/templates/detail/TemplateGallery";
 import { venues } from "@/data/venues";
 import { venueLayouts, type LayoutMode } from "@/data/venueLayouts";
 import {
@@ -40,6 +41,11 @@ type BudgetSlice = {
 };
 
 const budgetColors = ["#1F2937", "#1FB6AA", "#F7B27D", "#6FB1FC"];
+const defaultGalleryImages = [
+  "https://images.unsplash.com/photo-1472653431158-6364773b2a56?auto=format&fit=crop&w=1600&q=80",
+  "https://images.unsplash.com/photo-1511795409834-ef04bbd61622?auto=format&fit=crop&w=1600&q=80",
+  "https://images.unsplash.com/photo-1505373877841-8d25f7d46678?auto=format&fit=crop&w=1600&q=80"
+];
 
 const parseCurrency = (value?: string) => {
   if (!value) {
@@ -298,6 +304,14 @@ const TemplateDetails: React.FC = () => {
               </div>
             </div>
           </div>
+        </FadeIn>
+
+        <FadeIn delay={0.05} className="mt-10">
+          <TemplateGallery
+            title="Blueprint Reference Gallery"
+            images={template.images ?? defaultGalleryImages}
+            templateTitle={template.title}
+          />
         </FadeIn>
 
         {/* Main Grid: Space & Service Stack */}

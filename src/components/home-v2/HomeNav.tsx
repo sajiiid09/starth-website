@@ -1,5 +1,5 @@
 import React from "react";
-import { ChevronDown } from "lucide-react";
+import { ChevronDown, Menu, X } from "lucide-react";
 import { Link } from "react-router-dom";
 import Container from "@/components/home-v2/primitives/Container";
 import PillButton from "@/components/home-v2/primitives/PillButton";
@@ -30,6 +30,22 @@ const exploreItems = [
 
 const HomeNav: React.FC = () => {
   const [showDemoModal, setShowDemoModal] = React.useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState(false);
+
+  React.useEffect(() => {
+    if (!isMobileMenuOpen) {
+      return undefined;
+    }
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setIsMobileMenuOpen(false);
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [isMobileMenuOpen]);
 
   const dropdownContentClasses = cn(
     "w-[min(40vw,560px)] min-w-[320px] rounded-2xl border border-white/30 bg-white/70 p-6 text-brand-dark shadow-card backdrop-blur-2xl"
@@ -143,8 +159,109 @@ const HomeNav: React.FC = () => {
           </PillButton>
         </div>
 
-        
+        <div className="flex items-center gap-3 md:hidden">
+          <button
+            type="button"
+            className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-brand-dark/10 bg-white/80 text-brand-dark shadow-soft transition hover:border-brand-dark/30"
+            aria-label={isMobileMenuOpen ? "Close menu" : "Open menu"}
+            aria-expanded={isMobileMenuOpen}
+            onClick={() => setIsMobileMenuOpen((open) => !open)}
+          >
+            {isMobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+          </button>
+        </div>
       </Container>
+
+      {isMobileMenuOpen && (
+        <div className="md:hidden">
+          <button
+            type="button"
+            aria-label="Close menu overlay"
+            className="fixed inset-0 z-40 bg-brand-dark/30 backdrop-blur-sm"
+            onClick={() => setIsMobileMenuOpen(false)}
+          />
+          <div className="absolute left-0 right-0 top-full z-50 border-b border-white/30 bg-white/95 shadow-card backdrop-blur-2xl">
+            <div className="mx-auto flex max-h-[calc(100vh-96px)] w-full max-w-[1400px] flex-col gap-6 overflow-y-auto px-6 py-6">
+              <div className="flex flex-col gap-3">
+                <Link
+                  to={createPageUrl("About")}
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="rounded-xl border border-brand-dark/10 bg-white/70 px-4 py-3 text-sm font-semibold text-brand-dark"
+                >
+                  About
+                </Link>
+                <Link
+                  to={createPageUrl("AIPlanner")}
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="rounded-xl border border-brand-dark/10 bg-white/70 px-4 py-3 text-sm font-semibold text-brand-dark"
+                >
+                  AI Planner
+                </Link>
+              </div>
+
+              <div className="grid gap-6 sm:grid-cols-2">
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-[0.3em] text-brand-dark/40">
+                    Solutions
+                  </p>
+                  <div className="mt-3 flex flex-col gap-2">
+                    {solutionsItems.map((item) => (
+                      <Link
+                        key={item.label}
+                        to={item.to}
+                        onClick={() => setIsMobileMenuOpen(false)}
+                        className="rounded-xl border border-brand-dark/10 bg-white/70 px-4 py-3 text-sm font-medium text-brand-dark/80"
+                      >
+                        {item.label}
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-[0.3em] text-brand-dark/40">
+                    Explore
+                  </p>
+                  <div className="mt-3 flex flex-col gap-2">
+                    {exploreItems.map((item) => (
+                      <Link
+                        key={item.label}
+                        to={item.to}
+                        onClick={() => setIsMobileMenuOpen(false)}
+                        className="rounded-xl border border-brand-dark/10 bg-white/70 px-4 py-3 text-sm font-medium text-brand-dark/80"
+                      >
+                        {item.label}
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex flex-col gap-3">
+                <Link
+                  to={createPageUrl("AppEntry")}
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="rounded-full border border-brand-dark/10 bg-white px-4 py-3 text-center text-sm font-semibold text-brand-dark"
+                >
+                  Log in
+                </Link>
+                <PillButton
+                  variant="secondary"
+                  size="sm"
+                  className={cn(
+                    "min-h-[44px] border-brand-teal px-5 text-brand-teal hover:bg-brand-teal hover:text-brand-light"
+                  )}
+                  onClick={() => {
+                    setShowDemoModal(true);
+                    setIsMobileMenuOpen(false);
+                  }}
+                >
+                  Book a demo
+                </PillButton>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
       <DemoRequestModal isOpen={showDemoModal} onClose={() => setShowDemoModal(false)} />
     </nav>
   );

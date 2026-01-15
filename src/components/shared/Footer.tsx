@@ -1,6 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { ArrowUpRight, Globe, BoxSelect } from "lucide-react"; // Added icons for the logo graphic
+import { ArrowUpRight } from "lucide-react";
 import { createPageUrl } from "@/utils";
 import useGsapReveal from "@/components/utils/useGsapReveal";
 
@@ -30,9 +30,9 @@ const footerSections = [
     ]
   },
   {
-    title: "Legals ",
+    title: "Legals",
     links: [
-      { label: "Privacy", to: createPageUrl("Terms") },
+      { label: "Privacy", to: createPageUrl("Privacy") },
       { label: "Terms & Conditions", to: createPageUrl("Legals") }
     ]
   }
@@ -49,14 +49,14 @@ export default function Footer() {
   return (
     <footer
       ref={footerRef}
-      className="relative mt-20 w-full overflow-hidden bg-[#027F83] text-[#FFFBF4]"
+      className="relative mt-16 w-full overflow-hidden bg-[#027F83] text-[#FFFBF4] md:mt-20"
     >
       {/* Top Section: Meta & Links */}
       <div className="mx-auto flex max-w-[1400px] flex-col lg:flex-row">
         
         {/* Left: Time/Location Indicators (Replicating reference top-left) */}
-        <div className="flex w-full flex-col gap-8 border-b border-[#FFFBF4]/20 p-8 lg:w-1/3 lg:border-r lg:border-b-0">
-          <div className="flex items-start gap-12 text-xs font-medium uppercase tracking-widest opacity-80">
+        <div className="flex w-full flex-col gap-6 border-b border-[#FFFBF4]/20 p-6 sm:p-8 lg:w-1/3 lg:border-r lg:border-b-0">
+          <div className="flex items-start gap-6 text-xs font-medium uppercase tracking-widest opacity-80 sm:gap-12">
             <div className="flex gap-3">
               <div className="mt-1 h-3 w-3 animate-pulse rounded-full bg-[#FFFBF4]" />
               <div className="flex flex-col gap-1">
@@ -75,8 +75,8 @@ export default function Footer() {
         </div>
 
         {/* Right: Navigation Grid */}
-        <div className="w-full border-b border-[#FFFBF4]/20 p-8 lg:w-2/3 lg:border-b-0">
-          <div className="grid grid-cols-2 gap-10 md:grid-cols-4">
+        <div className="w-full border-b border-[#FFFBF4]/20 p-6 sm:p-8 lg:w-2/3 lg:border-b-0">
+          <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 md:grid-cols-4">
             {footerSections.map((section) => (
               <div key={section.title} className="flex flex-col gap-4">
                 <h4 className="font-mono text-xs uppercase tracking-widest text-[#FFFBF4]/50">
@@ -87,7 +87,7 @@ export default function Footer() {
                     <li key={link.label}>
                       <Link
                         to={link.to}
-                        className="group relative inline-block overflow-hidden text-sm font-medium"
+                        className="group relative inline-block overflow-hidden text-sm font-medium leading-6"
                       >
                         <span className="inline-block transition-transform duration-300 ease-smooth group-hover:-translate-y-full">
                           {link.label}
@@ -109,7 +109,7 @@ export default function Footer() {
       <div className="mx-auto w-full max-w-[1400px] border-t border-[#FFFBF4]/20" />
 
       {/* Main Bottom Section */}
-      <div className="mx-auto flex max-w-[1400px] flex-col justify-between px-8 py-16 lg:flex-row lg:items-end">
+      <div className="mx-auto flex max-w-[1400px] flex-col justify-between px-6 py-12 sm:px-8 sm:py-16 lg:flex-row lg:items-end">
         
         {/* Big Branding Area */}
         <div className="flex flex-col gap-6">
@@ -118,20 +118,20 @@ export default function Footer() {
              {/* Abstract Logo Icon Box */}
              
              
-             <div className="max-w-xs text-normal font-light leading-snug tracking-wide opacity-90">
+             <div className="max-w-xs text-sm font-light leading-snug tracking-wide opacity-90 sm:text-base">
                TURNING UNTAPPED SPACES AND SERVICES INTO  <br />
                UNFORGETTABLE EVENTS WITH PATENTED AI MATCHING
              </div>
           </div>
 
           {/* Massive Text */}
-          <h1 className="mt-4 font-sans text-[12vw] font-bold leading-[0.8] tracking-tighter text-[#FFFBF4] lg:text-[10rem]">
+          <h1 className="mt-4 font-sans text-[14vw] font-bold leading-[0.85] tracking-tighter text-[#FFFBF4] sm:text-[10vw] lg:text-[10rem]">
             Strathwell
           </h1>
         </div>
 
         {/* Bottom Right: Copyright & Back to Top */}
-        <div className="mt-12 flex flex-col items-start gap-4 text-xs font-medium uppercase tracking-widest lg:items-end lg:text-right">
+        <div className="mt-10 flex flex-col items-start gap-4 text-xs font-medium uppercase tracking-widest lg:items-end lg:text-right">
           <Link 
             to={createPageUrl("Home")}
             className="flex items-center gap-2 border-b border-transparent pb-1 transition-colors hover:border-[#FFFBF4]"

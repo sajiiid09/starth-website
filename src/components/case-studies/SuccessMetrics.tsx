@@ -57,13 +57,13 @@ export default function SuccessMetrics() {
   ];
 
   return (
-    <section className="py-20">
+    <section className="py-14 md:py-20">
       <Container>
         <FadeIn className="text-center">
-          <h2 className="text-3xl font-semibold text-brand-dark md:text-4xl">
+          <h2 className="text-2xl font-semibold text-brand-dark sm:text-3xl md:text-4xl">
             Partnership Impact
           </h2>
-          <p className="mt-4 text-lg text-brand-dark/70">
+          <p className="mt-3 text-base text-brand-dark/70 sm:text-lg md:mt-4">
             Verifiable results from our role in the Limitless Women in Tech Summit partnership
           </p>
         </FadeIn>
@@ -97,7 +97,7 @@ export default function SuccessMetrics() {
             <div className="absolute top-0 right-0 -mt-20 -mr-20 h-[500px] w-[500px] rounded-full bg-brand-teal/20 blur-[120px] opacity-60 pointer-events-none" />
             <div className="absolute bottom-0 left-0 -mb-20 -ml-20 h-[400px] w-[400px] rounded-full bg-indigo-500/20 blur-[100px] opacity-40 pointer-events-none" />
             
-            <CardContent className="relative z-10 flex flex-col items-center p-12 text-center md:p-20">
+            <CardContent className="relative z-10 flex flex-col items-center p-8 text-center sm:p-12 md:p-20">
               
               {/* Floating Icon */}
               <div className="mb-8 flex h-16 w-16 items-center justify-center rounded-2xl bg-white/5 shadow-inner ring-1 ring-white/10 backdrop-blur-md">
@@ -105,14 +105,14 @@ export default function SuccessMetrics() {
               </div>
 
               {/* Headlines */}
-              <h3 className="max-w-3xl text-4xl font-bold tracking-tight md:text-5xl lg:text-6xl">
+              <h3 className="max-w-3xl text-3xl font-bold tracking-tight sm:text-4xl md:text-5xl lg:text-6xl">
                 Ready to Create Your <br className="hidden md:block" />
                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-white via-white to-brand-teal/80">
                   Success Story?
                 </span>
               </h3>
               
-              <p className="mt-6 max-w-xl text-lg text-white/60 leading-relaxed md:text-xl">
+              <p className="mt-4 max-w-xl text-base text-white/60 leading-relaxed sm:text-lg md:mt-6 md:text-xl">
                 Join the leading organizations that trust Strathwell to orchestrate their most important events with precision and ease.
               </p>
 

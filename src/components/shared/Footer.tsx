@@ -30,12 +30,10 @@ const footerSections = [
     ]
   },
   {
-    title: "Legal",
+    title: "Legals ",
     links: [
-      { label: "Legal", to: createPageUrl("Legal") },
-      { label: "Terms", to: createPageUrl("Terms") },
-      { label: "Privacy", to: createPageUrl("Privacy") },
-      { label: "Legals", to: createPageUrl("Legals") }
+      { label: "Privacy", to: createPageUrl("Terms") },
+      { label: "Terms & Conditions", to: createPageUrl("Legals") }
     ]
   }
 ];
@@ -63,16 +61,8 @@ export default function Footer() {
               <div className="mt-1 h-3 w-3 animate-pulse rounded-full bg-[#FFFBF4]" />
               <div className="flex flex-col gap-1">
                 <span>9:41 AM ET</span>
-                <span>New York</span>
-                <span>USA</span>
-              </div>
-            </div>
-            <div className="flex gap-3">
-              <div className="mt-1 h-3 w-3 rounded-full bg-[#FFFBF4]/40" />
-              <div className="flex flex-col gap-1">
-                <span>2:41 PM GMT</span>
-                <span>London</span>
-                <span>UK</span>
+                <span>2 Hawthorne Pl</span>
+                <span>Boston, MA 02114</span>
               </div>
             </div>
           </div>
@@ -126,13 +116,11 @@ export default function Footer() {
           {/* Logo Graphic & Description */}
           <div className="flex flex-col items-start gap-6 md:flex-row md:items-center">
              {/* Abstract Logo Icon Box */}
-             <div className="flex h-16 w-16 items-center justify-center border border-[#FFFBF4]/30 bg-[#FFFBF4]/5 backdrop-blur-sm">
-                <BoxSelect className="h-8 w-8 stroke-1 text-[#FFFBF4]" />
-             </div>
              
-             <div className="max-w-xs text-lg font-light leading-snug tracking-wide opacity-90">
-               AN INTELLIGENT EVENT <br />
-               & PLANNING STUDIO
+             
+             <div className="max-w-xs text-normal font-light leading-snug tracking-wide opacity-90">
+               TURNING UNTAPPED SPACES AND SERVICES INTO  <br />
+               UNFORGETTABLE EVENTS WITH PATENTED AI MATCHING
              </div>
           </div>
 
@@ -151,7 +139,7 @@ export default function Footer() {
             Back to top <ArrowUpRight className="h-4 w-4" />
           </Link>
           <div className="opacity-60">
-            © {currentYear} strathwell LLC
+            © {currentYear} strathwell Inc. All rights reserved.
           </div>
         </div>
       </div>

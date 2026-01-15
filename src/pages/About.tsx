@@ -137,7 +137,7 @@ const teamGroups = [
     members: [
       {
         name: "MEHMET",
-        title: "IT Lead", 
+        title: "Strategic Systems & Innovation Engineering Intern", 
         role: "STRATHWELL",
         image: " /public/team/mehmet.png", // Placeholder
         description: "Mehmet Topal is a senior at Brown University pursuing a double major in Computer Engineering and Economics. Mehmet brings a unique perspective shaped by his multilingual background and hands-on engineering experience across research, product development, and competitive design.",

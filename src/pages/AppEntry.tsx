@@ -596,8 +596,12 @@ export default function AppEntryPage() {
     <div className="min-h-screen bg-[#F8F7F4] text-brand-dark">
       {/* Header */}
       <header className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 py-5 lg:px-12 backdrop-blur-sm bg-white/50 border-b border-brand-dark/5">
-        <Link to={createPageUrl("Home")} className="text-xl font-bold tracking-tight text-brand-dark">
-          Strathwell
+        <Link to={createPageUrl("Home")}>
+          <img 
+            src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/68d4e38c341adad3b24950ed/ddf404508_Elegant_Simple_Aesthetic_Real_Estate_Logo__1_-removebg-preview.png" 
+            alt="Strathwell" 
+            className="h-16 w-auto sm:h-20 md:h-[72px]"
+          />
         </Link>
         <div className="flex items-center gap-3">
           <Button

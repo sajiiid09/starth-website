@@ -98,18 +98,17 @@ export default function Hero() {
             <span className="text-[10px] font-bold uppercase tracking-widest text-gray-400">
               Trusted By
             </span>
-            <div className="flex items-center gap-6">
+            <div className="flex items-center gap-8 grayscale-0">
               {[
-                "/partners/ashbury.svg",
-                "/partners/crescent.svg",
-                "/partners/lakeview.svg",
-                "/partners/northbridge.svg"
-              ].map((logo) => (
+                { src: "/partners/google.png", className: "h-8" },
+                { src: "/partners/nvidia.png", className: "h-8" },
+                { src: "/partners/founder.png", className: "h-6" }
+              ].map((partner) => (
                 <img
-                  key={logo}
-                  src={logo}
+                  key={partner.src}
+                  src={partner.src}
                   alt="Partner logo"
-                  className="h-6 w-auto opacity-60 grayscale"
+                  className={`w-auto object-contain ${partner.className}`}
                   loading="lazy"
                 />
               ))}

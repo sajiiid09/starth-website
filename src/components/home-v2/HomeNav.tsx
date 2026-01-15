@@ -49,7 +49,7 @@ const HomeNav: React.FC = () => {
           <img
             src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/68d4e38c341adad3b24950ed/ddf404508_Elegant_Simple_Aesthetic_Real_Estate_Logo__1_-removebg-preview.png"
             alt="Strathwell"
-            className="h-14 w-auto sm:h-16 md:h-[72px]"
+            className="h-16 w-auto sm:h-20 md:h-[88px]"
           />
         </Link>
 

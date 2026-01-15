@@ -35,7 +35,7 @@ export const dummyTemplates: DummyTemplate[] = [
   {
     id: "wedding-gala",
     title: "Modern Wedding Gala",
-    image: "/images/templates/template-wedding-gala.webp",
+    image: "https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&q=80&w=1000",
     description: "A timeless ceremony-to-reception flow with elevated guest moments.",
     fullDetails:
       "A modern wedding blueprint built for seamless transitions, curated guest experiences, and a refined aesthetic from ceremony to late-night celebration.",
@@ -100,7 +100,7 @@ export const dummyTemplates: DummyTemplate[] = [
   {
     id: "executive-retreat",
     title: "Executive Offsite Retreat",
-    image: "/images/templates/template-retreat.webp",
+    image: "https://images.unsplash.com/photo-1510798831971-661eb04b3739?auto=format&fit=crop&q=80&w=1000",
     description: "A two-day leadership reset focused on alignment and recharge.",
     fullDetails:
       "Designed for high-impact leadership teams, this retreat blueprint balances strategic planning sessions with wellness-forward experiences.",
@@ -165,7 +165,7 @@ export const dummyTemplates: DummyTemplate[] = [
   {
     id: "product-launch",
     title: "Product Launch Night",
-    image: "/images/templates/template-launch.webp",
+    image: "https://images.unsplash.com/photo-1505373877841-8d25f7d46678?auto=format&fit=crop&q=80&w=1000",
     description: "A cinematic reveal experience with press and VIP guests.",
     fullDetails:
       "Crafted for tech and consumer product launches, this blueprint blends immersive storytelling with a high-energy reveal moment.",
@@ -230,7 +230,7 @@ export const dummyTemplates: DummyTemplate[] = [
   {
     id: "fundraiser",
     title: "Nonprofit Fundraiser Gala",
-    image: "/images/templates/template-fundraiser.webp",
+    image: "https://images.unsplash.com/photo-1561489413-985b06da5bee?auto=format&fit=crop&q=80&w=1000",
     description: "A donor-first gala with auction strategy baked in.",
     fullDetails:
       "Built for high-impact fundraising, this blueprint focuses on storytelling, donor engagement, and seamless auction flow.",
@@ -295,7 +295,7 @@ export const dummyTemplates: DummyTemplate[] = [
   {
     id: "memorial",
     title: "Celebration of Life",
-    image: "/images/templates/template-memorial.webp",
+    image: "https://images.unsplash.com/photo-1518173946687-a4c8892bbd9f?auto=format&fit=crop&q=80&w=1000",
     description: "A warm, intimate memorial gathering with thoughtful touches.",
     fullDetails:
       "A calming, respectful blueprint that prioritizes guest comfort, memory sharing, and meaningful rituals.",
@@ -355,7 +355,7 @@ export const dummyTemplates: DummyTemplate[] = [
   {
     id: "campus-lecture",
     title: "Campus Lecture Series",
-    image: "/images/templates/template-conference.webp",
+    image: "https://images.unsplash.com/photo-1544531586-fde5298cdd40?auto=format&fit=crop&q=80&w=1000",
     description: "A repeatable lecture format for academic audiences.",
     fullDetails:
       "Optimized for universities and speaker series, this blueprint covers AV, guest flow, and post-event engagement.",

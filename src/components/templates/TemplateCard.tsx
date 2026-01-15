@@ -16,7 +16,7 @@ const TemplateCard: React.FC<{ template: DummyTemplate }> = ({ template }) => {
         <img
           src={template.image}
           alt={template.title}
-          className="h-full w-full object-contain p-10 transition duration-300 ease-smooth group-hover:scale-105"
+          className="h-full w-full object-cover transition duration-300 ease-smooth group-hover:scale-105"
           loading="lazy"
         />
       </div>

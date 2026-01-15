@@ -234,10 +234,11 @@ const TemplateDetails: React.FC = () => {
   }
 
   return (
-    <div className="pb-24 pt-10">
+    <div className="pb-24 pt-10 bg-[#F8F7F4] min-h-screen">
       <Container>
+        {/* Breadcrumb & Header */}
         <FadeIn>
-          <div className="flex flex-wrap items-center justify-between gap-4">
+          <div className="flex flex-col gap-6">
             <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.2em] text-brand-dark/50">
               <Link to="/templates" className="transition hover:text-brand-dark">
                 Templates
@@ -245,101 +246,211 @@ const TemplateDetails: React.FC = () => {
               <ArrowRight className="h-3 w-3" />
               <span className="text-brand-dark/70">{template.title}</span>
             </div>
-            <span className="rounded-full border border-brand-dark/10 bg-white px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.3em] text-brand-dark/50">
-              Blueprint detail
-            </span>
+
+            <div className="flex flex-wrap items-start justify-between gap-8">
+              <div className="max-w-2xl">
+                <p className="text-xs font-semibold uppercase tracking-[0.3em] text-brand-teal mb-2">
+                  Blueprint Detail
+                </p>
+                <h1 className="text-3xl font-bold text-brand-dark md:text-4xl">
+                  {template.title}
+                </h1>
+                <p className="mt-4 text-base text-brand-dark/70 leading-relaxed">
+                  {template.fullDetails || template.description}
+                </p>
+              </div>
+
+              {/* KPI Stats */}
+              <div className="flex gap-3">
+                {[
+                  {
+                    label: "Est. Total Cost",
+                    value: budgetTotalLabel,
+                    icon: DollarSign
+                  },
+                  {
+                    label: "Cost per Attendee",
+                    value: costPerAttendee ? `$${costPerAttendee.toLocaleString()}` : "—",
+                    icon: Users
+                  },
+                  {
+                    label: "Execution Confidence",
+                    value: `${executionConfidence.percent}% - ${executionConfidence.label}`,
+                    valueColor: executionConfidence.percent > 80 ? "text-brand-teal" : "text-brand-dark",
+                    icon: ShieldCheck
+                  }
+                ].map((kpi) => (
+                  <div
+                    key={kpi.label}
+                    className="flex flex-col justify-center rounded-2xl bg-white px-5 py-4 shadow-sm min-w-[140px]"
+                  >
+                    <div className="flex items-center gap-2 mb-1">
+                      <kpi.icon className="h-3.5 w-3.5 text-brand-dark/40" />
+                      <p className="text-[10px] font-bold uppercase tracking-wider text-brand-dark/40">
+                        {kpi.label}
+                      </p>
+                    </div>
+                    <p className={cn("text-lg font-bold", kpi.valueColor || "text-brand-dark")}>
+                      {kpi.value}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
         </FadeIn>
 
-        <FadeIn className="mt-5">
-          <div className="grid gap-6 rounded-3xl border border-white/40 bg-white/80 p-6 shadow-card lg:grid-cols-[1.1fr_0.9fr]">
-            <div className="space-y-4">
-              <div>
-                <p className="text-xs font-semibold uppercase tracking-[0.3em] text-brand-teal">
-                  {featuredVenue.name}
-                </p>
-                <h1 className="mt-3 text-3xl font-semibold text-brand-dark md:text-4xl">
-                  {template.title}
-                </h1>
-                <p className="mt-3 text-base text-brand-dark/70">
-                  {template.description || template.fullDetails}
-                </p>
-                <p className="mt-3 text-sm text-brand-dark/60">
-                  {template.fullDetails}
-                </p>
+        {/* Main Grid: Space & Service Stack */}
+        <div className="mt-12 grid gap-8 lg:grid-cols-[1.4fr_1fr]">
+          
+          {/* Left Column: Space Transformation */}
+          <FadeIn delay={0.1}>
+            <div className="flex flex-col gap-6">
+              <div className="flex items-center justify-between">
+                <h3 className="text-lg font-bold text-brand-dark">Space Transformation</h3>
+                <div className="flex items-center gap-2">
+                  <span className="flex items-center gap-1.5 rounded-full bg-brand-teal/10 px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-brand-teal">
+                    <Sparkles className="h-3 w-3" />
+                    Optimal Flow
+                  </span>
+                </div>
               </div>
-              <div className="flex flex-wrap items-center gap-3 text-sm text-brand-dark/60">
-                <span className="flex items-center gap-2 rounded-full border border-brand-dark/10 bg-white px-3 py-1">
-                  <LayoutGrid className="h-4 w-4 text-brand-dark/50" />
-                  {featuredVenue.sqft.toLocaleString()} sq ft
-                </span>
-                <span className="flex items-center gap-2 rounded-full border border-brand-dark/10 bg-white px-3 py-1">
-                  <Users className="h-4 w-4 text-brand-dark/50" />
-                  {guestCount} guests
-                </span>
-                <span className="flex items-center gap-2 rounded-full border border-brand-dark/10 bg-white px-3 py-1">
-                  <BadgeCheck className="h-4 w-4 text-brand-dark/50" />
-                  {featuredVenue.location}
-                </span>
-              </div>
-              <div className="rounded-2xl border border-white/40 bg-brand-cream/60 p-4">
-                <img
-                  src={template.image}
-                  alt={template.title}
-                  className="h-40 w-full object-contain"
-                  loading="lazy"
-                />
-              </div>
-              {template.stats && template.stats.length > 0 && (
-                <div className="grid gap-3 sm:grid-cols-3">
-                  {template.stats.map((stat) => (
-                    <div
-                      key={stat.label}
-                      className="rounded-2xl border border-white/40 bg-white/80 px-4 py-3"
-                    >
-                      <p className="text-xs uppercase tracking-[0.2em] text-brand-dark/50">
-                        {stat.label}
-                      </p>
-                      <p className="mt-2 text-lg font-semibold text-brand-dark">
-                        {stat.value}
-                      </p>
+
+              {layout ? (
+                <div className="rounded-3xl bg-white p-6 shadow-sm border border-brand-dark/5">
+                  <div className="grid grid-cols-[1fr_auto_1fr] gap-4 items-center mb-6">
+                    {/* Before View */}
+                    <div className="flex flex-col gap-3">
+                       <p className="text-[10px] font-bold uppercase tracking-widest text-brand-dark/40">BEFORE: EMPTY SHELL</p>
+                       <div className="relative overflow-hidden rounded-xl bg-[#F8F7F4] p-2 border border-brand-dark/5">
+                          <SpacePlannerSchematic
+                            venue={featuredVenue}
+                            layout={layout}
+                            guestCount={guestCount}
+                            inventory={layout.baselineInventory}
+                            mode={layoutMode}
+                            variant="before" 
+                          />
+                       </div>
                     </div>
-                  ))}
+
+                    {/* Arrow */}
+                    <div className="mt-6 text-brand-teal/50">
+                      <ArrowRight className="h-5 w-5" />
+                    </div>
+
+                    {/* After View */}
+                    <div className="flex flex-col gap-3">
+                       <p className="text-[10px] font-bold uppercase tracking-widest text-brand-teal">AFTER: STRUCTURED LAYOUT</p>
+                       <div className="relative overflow-hidden rounded-xl bg-brand-teal/5 p-2 border border-brand-teal/20 shadow-sm">
+                          <SpacePlannerSchematic
+                            venue={featuredVenue}
+                            layout={layout}
+                            guestCount={guestCount}
+                            inventory={layout.baselineInventory}
+                            mode={layoutMode}
+                            variant="after" 
+                          />
+                       </div>
+                    </div>
+                  </div>
+                  
+                  <div>
+                    <p className="text-sm text-brand-dark/60 leading-relaxed mb-6">
+                      This layout prioritizes clear sightlines for the {template.title} while separating 
+                      high-noise catering zones from the main presentation area. Allows for 15% 
+                      overflow capacity without compromising egress routes.
+                    </p>
+                    <button className="w-full rounded-xl bg-brand-teal py-3 text-sm font-bold text-white shadow-md transition-transform hover:scale-[1.01] active:scale-[0.99]">
+                      Approve Layout
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <div className="rounded-3xl bg-white p-12 text-center text-brand-dark/50">
+                  Visual layout not available for this venue.
                 </div>
               )}
             </div>
-            <div className="grid gap-4 sm:grid-cols-3 lg:grid-cols-1">
+          </FadeIn>
+
+          {/* Right Column: Service Stack */}
+          <FadeIn delay={0.2}>
+            <div className="flex flex-col gap-6">
+              <div className="flex items-center justify-between">
+                <h3 className="text-lg font-bold text-brand-dark">Service Stack</h3>
+                <div className="flex rounded-full bg-white p-1 shadow-sm border border-brand-dark/5">
+                  <button
+                    onClick={() => setServiceTier("standard")}
+                    className={cn(
+                      "rounded-full px-3 py-1 text-[10px] font-bold uppercase tracking-wider transition-all",
+                      serviceTier === "standard" ? "bg-brand-dark text-white" : "text-brand-dark/60 hover:text-brand-dark"
+                    )}
+                  >
+                    Standard
+                  </button>
+                  <button
+                    onClick={() => setServiceTier("premium")}
+                    className={cn(
+                      "rounded-full px-3 py-1 text-[10px] font-bold uppercase tracking-wider transition-all",
+                      serviceTier === "premium" ? "bg-brand-dark text-white" : "text-brand-dark/60 hover:text-brand-dark"
+                    )}
+                  >
+                    Premium
+                  </button>
+                </div>
+              </div>
+
+              <div className="rounded-3xl bg-white p-6 shadow-sm border border-brand-dark/5 space-y-6">
+                <p className="text-xs text-brand-dark/50">Required vendors for this blueprint</p>
+                
+                {serviceStack.map((vendor) => {
+                  const Icon = vendorIconMap[vendor.category] || Building;
+                  return (
+                    <div key={vendor.name} className="flex gap-4">
+                      <div className="mt-1 h-5 w-5 flex-shrink-0 rounded-full bg-brand-dark/5 flex items-center justify-center">
+                        <BadgeCheck className="h-3.5 w-3.5 text-brand-dark/40" />
+                      </div>
+                      <div className="flex-1">
+                        <div className="flex items-center justify-between">
+                          <p className="text-sm font-bold text-brand-dark">{vendor.category}</p>
+                          <span className="text-xs font-semibold text-brand-dark/40">$$</span>
+                        </div>
+                        <p className="text-sm text-brand-dark/80">{vendor.name}</p>
+                        <p className="text-xs text-brand-dark/50 mt-1">{vendor.note}</p>
+                      </div>
+                    </div>
+                  );
+                })}
+
+                <div className="flex gap-4 opacity-60">
+                   <div className="mt-1 h-5 w-5 flex-shrink-0 rounded-full border border-brand-dark/20 flex items-center justify-center">
+                   </div>
+                   <div>
+                     <p className="text-sm font-bold text-brand-dark">Security</p>
+                     <p className="text-xs text-brand-dark/50 mt-1">Optional but recommended for &gt;100 guests</p>
+                   </div>
+                </div>
+              </div>
+            </div>
+          </FadeIn>
+        </div>
+
+        {/* Risk & Compliance */}
+        <FadeIn delay={0.3} className="mt-12">
+          <div className="flex flex-col gap-6">
+            <h3 className="text-lg font-bold text-brand-dark">Risk & Compliance</h3>
+            <div className="grid gap-4 md:grid-cols-3">
               {[
-                {
-                  label: "Est. total cost",
-                  value: budgetTotalLabel,
-                  icon: DollarSign
-                },
-                {
-                  label: "Cost per attendee",
-                  value: costPerAttendee ? `$${costPerAttendee.toLocaleString()}` : "—",
-                  icon: Users
-                },
-                {
-                  label: "Execution confidence",
-                  value: `${executionConfidence.percent}% · ${executionConfidence.label}`,
-                  icon: ShieldCheck
-                }
-              ].map((kpi) => (
-                <div
-                  key={kpi.label}
-                  className="flex items-center gap-4 rounded-2xl border border-white/60 bg-white/90 px-4 py-4 shadow-soft"
-                >
-                  <div className="flex h-10 w-10 items-center justify-center rounded-full border border-brand-dark/10 bg-brand-cream/60">
-                    <kpi.icon className="h-5 w-5 text-brand-dark" />
-                  </div>
+                { title: "Insurance Required", desc: "Liability series pending upload.", icon: ShieldAlert, color: "bg-red-50 text-red-600 border-red-100" },
+                { title: "Noise Limit", desc: "Venue cap: 90dB after 10 PM.", icon: Volume2, color: "bg-amber-50 text-amber-600 border-amber-100" },
+                { title: "Capacity Cap", desc: "Max occupancy: 350 per SFM.", icon: Users, color: "bg-orange-50 text-orange-600 border-orange-100" }
+              ].map((item) => (
+                <div key={item.title} className={cn("flex items-start gap-3 rounded-2xl border p-4", item.color)}>
+                  <item.icon className="h-5 w-5 flex-shrink-0" />
                   <div>
-                    <p className="text-xs uppercase tracking-[0.2em] text-brand-dark/50">
-                      {kpi.label}
-                    </p>
-                    <p className="mt-1 text-lg font-semibold text-brand-dark">
-                      {kpi.value}
-                    </p>
+                    <p className="text-sm font-bold">{item.title}</p>
+                    <p className="text-xs opacity-80 mt-1">{item.desc}</p>
                   </div>
                 </div>
               ))}
@@ -347,699 +458,80 @@ const TemplateDetails: React.FC = () => {
           </div>
         </FadeIn>
 
-        <FadeIn className="mt-6">
-          <div className="flex flex-wrap items-center justify-between gap-4 rounded-3xl border border-white/40 bg-white/70 px-5 py-4 shadow-card">
-            <div className="flex flex-wrap items-center gap-3">
-              <span
-                className={cn(
-                  "rounded-full px-4 py-1 text-xs font-semibold uppercase tracking-[0.2em]",
-                  spaceStatusTone
-                )}
-              >
-                {spaceStatusLabel}
-              </span>
-              <span className="text-sm font-semibold text-brand-dark">
-                {budgetTotalLabel} est.
-              </span>
-            </div>
-            <div className="flex flex-wrap items-center gap-3">
-              <div className="flex items-center gap-2 rounded-full border border-brand-dark/10 bg-white px-3 py-2">
-                <button
-                  type="button"
-                  onClick={() => setGuestCount((prev) => Math.max(10, prev - 10))}
-                  className="h-8 w-8 rounded-full border border-brand-dark/10 text-sm font-semibold text-brand-dark/70 transition hover:border-brand-dark/30 hover:text-brand-dark"
-                >
-                  –
-                </button>
-                <span className="min-w-[120px] text-center text-sm font-semibold text-brand-dark">
-                  {guestCount} guests
-                </span>
-                <button
-                  type="button"
-                  onClick={() =>
-                    setGuestCount((prev) =>
-                      Math.min(template.maxGuestCount ?? prev + 10, prev + 10)
-                    )
-                  }
-                  className="h-8 w-8 rounded-full border border-brand-dark/10 text-sm font-semibold text-brand-dark/70 transition hover:border-brand-dark/30 hover:text-brand-dark"
-                >
-                  +
-                </button>
+        {/* Timeline & Budget Grid */}
+        <div className="mt-12 grid gap-12 lg:grid-cols-2">
+           {/* Timeline */}
+           <FadeIn delay={0.4}>
+            <div className="flex flex-col gap-6">
+              <div className="flex items-center justify-between">
+                <h3 className="text-lg font-bold text-brand-dark">Timeline & Dependencies</h3>
+                <span className="text-[10px] font-bold uppercase tracking-widest text-brand-dark/40">Execution Plan</span>
               </div>
-              <div className="flex flex-wrap items-center gap-2">
-                <button
-                  type="button"
-                  onClick={() => setLayoutMode("optimized")}
-                  className={cn(
-                    "rounded-full border px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] transition",
-                    layoutMode === "optimized"
-                      ? "border-brand-dark bg-brand-dark text-brand-light"
-                      : "border-brand-dark/20 bg-white text-brand-dark/70 hover:border-brand-dark/40"
-                  )}
-                >
-                  Optimized
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setLayoutMode("max")}
-                  className={cn(
-                    "rounded-full border px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] transition",
-                    layoutMode === "max"
-                      ? "border-brand-dark bg-brand-dark text-brand-light"
-                      : "border-brand-dark/20 bg-white text-brand-dark/70 hover:border-brand-dark/40"
-                  )}
-                >
-                  Max
-                </button>
-              </div>
-            </div>
-          </div>
-        </FadeIn>
 
-        {layout && (
-          <FadeIn className="mt-10 rounded-3xl border border-white/40 bg-white/70 p-8 shadow-card">
-            <div className="flex flex-wrap items-center justify-between gap-4">
-              <div>
-                <p className="text-xs font-semibold uppercase tracking-[0.3em] text-brand-teal">
-                  Space Transformation Plan
-                </p>
-                <h2 className="mt-2 text-2xl font-semibold text-brand-dark">
-                  Venue layout schematic
-                </h2>
-                <p className="mt-2 text-sm text-brand-dark/60">
-                  Preview optimized vs. max layouts for a {guestCount}-guest
-                  blueprint.
-                </p>
-              </div>
-              <div className="flex flex-wrap items-center gap-2">
-                <button
-                  type="button"
-                  onClick={() => setShowComparison((prev) => !prev)}
-                  className={cn(
-                    "rounded-full border px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] transition",
-                    showComparison
-                      ? "border-brand-teal/50 bg-brand-teal/10 text-brand-teal"
-                      : "border-brand-dark/20 bg-white text-brand-dark/70 hover:border-brand-dark/40"
-                  )}
-                >
-                  Before / After
-                </button>
-              </div>
-            </div>
-
-            <div className="mt-6">
-              {showComparison ? (
-                <div className="grid gap-6 lg:grid-cols-2">
-                  <SpacePlannerSchematic
-                    venue={featuredVenue}
-                    layout={layout}
-                    guestCount={guestCount}
-                    inventory={layout.baselineInventory}
-                    mode={layoutMode}
-                    variant="before"
-                  />
-                  <SpacePlannerSchematic
-                    venue={featuredVenue}
-                    layout={layout}
-                    guestCount={guestCount}
-                    inventory={layout.baselineInventory}
-                    mode={layoutMode}
-                    variant="after"
-                  />
-                </div>
-              ) : (
-                <SpacePlannerSchematic
-                  venue={featuredVenue}
-                  layout={layout}
-                  guestCount={guestCount}
-                  inventory={layout.baselineInventory}
-                  mode={layoutMode}
-                  variant="after"
-                />
-              )}
-            </div>
-          </FadeIn>
-        )}
-
-        {layout && (
-          <FadeIn className="mt-10 rounded-3xl border border-white/40 bg-white/70 p-8 shadow-card">
-            <div className="flex flex-wrap items-center justify-between gap-4">
-              <div>
-                <p className="text-xs font-semibold uppercase tracking-[0.3em] text-brand-teal">
-                  Inventory & Utilization
-                </p>
-                <h2 className="mt-2 text-2xl font-semibold text-brand-dark">
-                  Inventory optimizer
-                </h2>
-                <p className="mt-2 text-sm text-brand-dark/60">
-                  Counts update as you adjust guest load and layout mode.
-                </p>
-              </div>
-            </div>
-            {(() => {
-              const scalingFactor = Math.min(
-                1.3,
-                Math.max(
-                  0.7,
-                  guestCount / Math.max(layout.guestRangeRecommended.max, 1)
-                )
-              );
-              const recommendedInventory = {
-                chairs: Math.ceil(layout.baselineInventory.chairs * scalingFactor),
-                tables: Math.max(6, Math.ceil(layout.baselineInventory.tables * scalingFactor)),
-                stageModules: Math.max(2, Math.ceil(layout.baselineInventory.stageModules)),
-                buffetStations: Math.max(1, Math.ceil(layout.baselineInventory.buffetStations)),
-                cocktailTables: Math.max(
-                  2,
-                  Math.ceil(layout.baselineInventory.cocktailTables * scalingFactor)
-                )
-              };
-              const requiredSqft = estimateRequiredSqft(
-                guestCount,
-                layoutMode,
-                recommendedInventory
-              );
-              const fitStatus = computeFitStatus(featuredVenue.sqft, requiredSqft);
-              const alternativeVenues =
-                fitStatus === "OVER"
-                  ? suggestAlternativeVenues(venues, requiredSqft)
-                  : [];
-              const adjustments =
-                fitStatus === "OVER"
-                  ? suggestAdjustments({
-                      venueSqft: featuredVenue.sqft,
-                      guestCount,
-                      mode: layoutMode,
-                      inventoryMix: recommendedInventory
-                    })
-                  : [];
-
-              return (
-                <div className="mt-6 grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
-                  <div className="grid gap-4 sm:grid-cols-2">
-                    {[
-                      { label: "Chairs", value: recommendedInventory.chairs },
-                      { label: "Tables", value: recommendedInventory.tables },
-                      { label: "Stage Modules", value: recommendedInventory.stageModules },
-                      { label: "Buffet Stations", value: recommendedInventory.buffetStations },
-                      { label: "Cocktail Tables", value: recommendedInventory.cocktailTables }
-                    ].map((item) => (
-                      <div
-                        key={item.label}
-                        className="rounded-2xl border border-white/40 bg-white/80 px-4 py-3"
-                      >
-                        <p className="text-xs uppercase tracking-[0.2em] text-brand-dark/50">
-                          {item.label}
-                        </p>
-                        <p className="mt-2 text-2xl font-semibold text-brand-dark">
-                          {item.value}
-                        </p>
-                      </div>
-                    ))}
-                  </div>
-                  <div className="space-y-4">
-                    <div className="rounded-2xl border border-white/40 bg-white/80 px-4 py-4 text-sm text-brand-dark/70">
-                      <p className="text-xs font-semibold uppercase tracking-[0.2em] text-brand-dark/50">
-                        Space utilization
-                      </p>
-                      <p className="mt-3 text-lg font-semibold text-brand-dark">
-                        {requiredSqft.toLocaleString()} sq ft required
-                      </p>
-                      <p className="mt-2">
-                        {fitStatus === "OVER"
-                          ? "Current plan exceeds the venue footprint. Suggested pivots below."
-                          : fitStatus === "TIGHT"
-                          ? "This plan is tight. Expect closer seating and tighter circulation."
-                          : "This configuration fits with comfortable circulation."}
-                      </p>
-                    </div>
-                    {fitStatus === "OVER" && (
-                      <div className="rounded-2xl border border-white/40 bg-white/80 px-4 py-4">
-                        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-brand-dark/50">
-                          Adjustments
-                        </p>
-                        <ul className="mt-3 space-y-2 text-sm text-brand-dark/70">
-                          {adjustments.map((adjustment, index) => (
-                            <li key={`${adjustment.type}-${index}`}>
-                              {adjustment.type === "reduce-guest-count" &&
-                                `Reduce guest count to ${adjustment.suggestedGuestCount}.`}
-                              {adjustment.type === "reduce-stage-modules" &&
-                                `Reduce stage modules to ${adjustment.suggestedStageModules}.`}
-                              {adjustment.type === "reduce-tables" &&
-                                `Reduce tables to ${adjustment.suggestedTables}.`}
-                              {adjustment.type === "switch-mode" &&
-                                `Switch to ${adjustment.suggestedMode} mode.`}
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-                    )}
-                    {fitStatus === "OVER" && alternativeVenues.length > 0 && (
-                      <div className="rounded-2xl border border-white/40 bg-white/80 px-4 py-4">
-                        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-brand-dark/50">
-                          Alternative venues
-                        </p>
-                        <ul className="mt-3 space-y-2 text-sm text-brand-dark/70">
-                          {alternativeVenues.map((venue) => (
-                            <li key={venue.id}>
-                              {venue.name} · {venue.sqft.toLocaleString()} sq ft ·{" "}
-                              {venue.location}
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              );
-            })()}
-          </FadeIn>
-        )}
-
-        <div className="mt-10 grid gap-8 lg:grid-cols-[1.2fr_0.8fr]">
-          {layout && (
-            <FadeIn className="lg:col-start-1 lg:row-start-1">
-              <div className="rounded-3xl border border-white/40 bg-white/70 p-8 shadow-card">
-                <div className="flex flex-wrap items-center justify-between gap-4">
-                  <div>
-                    <p className="text-xs font-semibold uppercase tracking-[0.3em] text-brand-teal">
-                      Space Transformation
-                    </p>
-                    <h2 className="mt-2 text-2xl font-semibold text-brand-dark">
-                      Blueprint layout simulation
-                    </h2>
-                    <p className="mt-2 text-sm text-brand-dark/60">
-                      Visualize the raw shell and the structured layout built for this
-                      guest load.
-                    </p>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span
-                      className={cn(
-                        "rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em]",
-                        spaceStatusTone
-                      )}
-                    >
-                      {spaceStatusLabel}
-                    </span>
-                    <button
-                      type="button"
-                      onClick={() => setShowComparison((prev) => !prev)}
-                      className={cn(
-                        "rounded-full border px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] transition",
-                        showComparison
-                          ? "border-brand-teal/50 bg-brand-teal/10 text-brand-teal"
-                          : "border-brand-dark/20 bg-white text-brand-dark/70 hover:border-brand-dark/40"
-                      )}
-                    >
-                      Before / After
-                    </button>
-                  </div>
-                </div>
-
-                <div className="mt-6 grid gap-6 lg:grid-cols-2">
-                  {showComparison && (
-                    <div className="rounded-2xl border border-white/40 bg-white/80 p-4">
-                      <div className="flex items-center justify-between text-xs font-semibold uppercase tracking-[0.2em] text-brand-dark/50">
-                        <span>Before: empty shell</span>
-                        <span>Raw space · {featuredVenue.sqft.toLocaleString()} sq ft</span>
-                      </div>
-                      <div className="mt-4">
-                        <SpacePlannerSchematic
-                          venue={featuredVenue}
-                          layout={layout}
-                          guestCount={guestCount}
-                          inventory={layout.baselineInventory}
-                          mode={layoutMode}
-                          variant="before"
-                        />
-                      </div>
-                    </div>
-                  )}
-                  <div className="rounded-2xl border border-white/40 bg-white/80 p-4">
-                    <div className="flex items-center justify-between text-xs font-semibold uppercase tracking-[0.2em] text-brand-dark/50">
-                      <span>After: structured layout</span>
-                      <span>{layoutMode === "optimized" ? "Optimized" : "Max"} mode</span>
-                    </div>
-                    <div className="mt-4">
-                      <SpacePlannerSchematic
-                        venue={featuredVenue}
-                        layout={layout}
-                        guestCount={guestCount}
-                        inventory={layout.baselineInventory}
-                        mode={layoutMode}
-                        variant="after"
-                      />
-                    </div>
-                  </div>
-                </div>
-
-                {(() => {
-                  const scalingFactor = Math.min(
-                    1.3,
-                    Math.max(0.7, guestCount / Math.max(layout.guestRangeRecommended.max, 1))
-                  );
-                  const recommendedInventory = {
-                    chairs: Math.ceil(layout.baselineInventory.chairs * scalingFactor),
-                    tables: Math.max(6, Math.ceil(layout.baselineInventory.tables * scalingFactor)),
-                    stageModules: Math.max(2, Math.ceil(layout.baselineInventory.stageModules)),
-                    buffetStations: Math.max(1, Math.ceil(layout.baselineInventory.buffetStations)),
-                    cocktailTables: Math.max(
-                      2,
-                      Math.ceil(layout.baselineInventory.cocktailTables * scalingFactor)
-                    )
-                  };
-                  const alternativeVenues =
-                    fitStatus === "OVER"
-                      ? suggestAlternativeVenues(venues, requiredSqft)
-                      : [];
-                  const adjustments =
-                    fitStatus === "OVER"
-                      ? suggestAdjustments({
-                          venueSqft: featuredVenue.sqft,
-                          guestCount,
-                          mode: layoutMode,
-                          inventoryMix: recommendedInventory
-                        })
-                      : [];
-
-                  return (
-                    <div className="mt-6 grid gap-4 lg:grid-cols-[1.1fr_0.9fr]">
-                      <div className="grid gap-3 sm:grid-cols-2">
-                        {[
-                          { label: "Chairs", value: recommendedInventory.chairs },
-                          { label: "Tables", value: recommendedInventory.tables },
-                          { label: "Stage modules", value: recommendedInventory.stageModules },
-                          { label: "Cocktail tables", value: recommendedInventory.cocktailTables }
-                        ].map((item) => (
-                          <div
-                            key={item.label}
-                            className="rounded-2xl border border-white/40 bg-white/90 px-4 py-3"
-                          >
-                            <p className="text-xs uppercase tracking-[0.2em] text-brand-dark/50">
-                              {item.label}
-                            </p>
-                            <p className="mt-2 text-xl font-semibold text-brand-dark">
-                              {item.value}
-                            </p>
-                          </div>
-                        ))}
-                      </div>
-                      <div className="space-y-3">
-                        <div className="rounded-2xl border border-white/40 bg-white/90 px-4 py-4 text-sm text-brand-dark/70">
-                          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-brand-dark/50">
-                            Space utilization
-                          </p>
-                          <p className="mt-3 text-lg font-semibold text-brand-dark">
-                            {requiredSqft.toLocaleString()} sq ft required
-                          </p>
-                          <p className="mt-2">
-                            {fitStatus === "OVER"
-                              ? "Current plan exceeds the venue footprint. Suggested pivots below."
-                              : fitStatus === "TIGHT"
-                              ? "This plan is tight. Expect closer seating and tighter circulation."
-                              : "This configuration fits with comfortable circulation."}
-                          </p>
+              <div className="rounded-3xl bg-white p-8 shadow-sm border border-brand-dark/5 relative">
+                <div className="absolute left-8 top-8 bottom-8 w-px bg-brand-dark/10" />
+                <div className="space-y-8 relative z-10">
+                  {(template.timeline || []).map((event, i) => (
+                    <div key={i} className="flex gap-6 group">
+                      <div className="w-2 h-2 rounded-full bg-brand-teal ring-4 ring-white mt-1.5 flex-shrink-0" />
+                      <div>
+                        <div className="flex items-baseline gap-2">
+                          <span className="text-xs font-bold text-brand-teal uppercase tracking-wider">{event.time}</span>
+                          {i === 0 && <span className="rounded-full bg-brand-teal/10 px-1.5 py-0.5 text-[9px] font-bold uppercase text-brand-teal">Start</span>}
                         </div>
-                        {(adjustments.length > 0 || alternativeVenues.length > 0) && (
-                          <div className="rounded-2xl border border-white/40 bg-white/90 px-4 py-4">
-                            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-brand-dark/50">
-                              Suggested fixes
-                            </p>
-                            <ul className="mt-3 space-y-2 text-sm text-brand-dark/70">
-                              {adjustments.map((adjustment, index) => (
-                                <li key={`${adjustment.type}-${index}`}>
-                                  {adjustment.type === "reduce-guest-count" &&
-                                    `Reduce guest count to ${adjustment.suggestedGuestCount}.`}
-                                  {adjustment.type === "reduce-stage-modules" &&
-                                    `Reduce stage modules to ${adjustment.suggestedStageModules}.`}
-                                  {adjustment.type === "reduce-tables" &&
-                                    `Reduce tables to ${adjustment.suggestedTables}.`}
-                                  {adjustment.type === "switch-mode" &&
-                                    `Switch to ${adjustment.suggestedMode} mode.`}
-                                </li>
-                              ))}
-                              {alternativeVenues.slice(0, 2).map((venue) => (
-                                <li key={venue.id}>
-                                  Consider {venue.name} ({venue.sqft.toLocaleString()} sq ft)
-                                </li>
-                              ))}
-                            </ul>
-                          </div>
-                        )}
+                        <p className="font-bold text-brand-dark mt-1">{event.title}</p>
+                        <p className="text-sm text-brand-dark/60 mt-1">{event.description}</p>
                       </div>
-                    </div>
-                  );
-                })()}
-
-                <div className="mt-6 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-white/40 bg-white/80 px-4 py-3 text-sm text-brand-dark/70">
-                  <span>
-                    Layout logic keeps sightlines clear and optimizes circulation for the
-                    flow of this blueprint.
-                  </span>
-                  <button
-                    type="button"
-                    onClick={() => toast.success("Layout approved. We'll lock the schematic.")}
-                    className="rounded-full bg-brand-dark px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-brand-light transition hover:bg-brand-dark/90"
-                  >
-                    Approve layout
-                  </button>
-                </div>
-              </div>
-            </FadeIn>
-          )}
-
-          <FadeIn className="lg:col-start-2 lg:row-start-1">
-            <div className="rounded-3xl border border-white/40 bg-white/70 p-8 shadow-card">
-              <div className="flex items-start justify-between gap-4">
-                <div>
-                  <p className="text-xs font-semibold uppercase tracking-[0.3em] text-brand-teal">
-                    Service Stack
-                  </p>
-                  <h2 className="mt-2 text-2xl font-semibold text-brand-dark">
-                    Vendor coverage
-                  </h2>
-                  <p className="mt-2 text-sm text-brand-dark/60">
-                    Toggle between standard and premium vendor mixes.
-                  </p>
-                </div>
-                <div className="flex items-center gap-1 rounded-full border border-brand-dark/10 bg-white p-1 text-xs font-semibold uppercase tracking-[0.2em]">
-                  <button
-                    type="button"
-                    onClick={() => setServiceTier("standard")}
-                    className={cn(
-                      "rounded-full px-3 py-1",
-                      serviceTier === "standard"
-                        ? "bg-brand-dark text-brand-light"
-                        : "text-brand-dark/60"
-                    )}
-                  >
-                    Standard
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setServiceTier("premium")}
-                    className={cn(
-                      "rounded-full px-3 py-1",
-                      serviceTier === "premium"
-                        ? "bg-brand-dark text-brand-light"
-                        : "text-brand-dark/60"
-                    )}
-                  >
-                    Premium
-                  </button>
-                </div>
-              </div>
-              <div className="mt-6 space-y-4">
-                {serviceStack.map((vendor) => {
-                  const Icon = vendorIconMap[vendor.category] ?? Building;
-                  return (
-                    <div
-                      key={`${vendor.category}-${vendor.name}`}
-                      className="flex items-center justify-between gap-4 rounded-2xl border border-white/40 bg-white/90 px-4 py-4"
-                    >
-                      <div className="flex items-start gap-3">
-                        <div className="mt-1 flex h-10 w-10 items-center justify-center rounded-full border border-brand-dark/10 bg-brand-cream/60">
-                          <Icon className="h-5 w-5 text-brand-dark" />
-                        </div>
-                        <div>
-                          <p className="text-xs uppercase tracking-[0.2em] text-brand-dark/50">
-                            {vendor.category}
-                          </p>
-                          <p className="mt-1 text-base font-semibold text-brand-dark">
-                            {vendor.name}
-                          </p>
-                          <p className="text-sm text-brand-dark/60">{vendor.note}</p>
-                        </div>
-                      </div>
-                      <div className="text-right">
-                        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-brand-dark/40">
-                          {vendor.tier}
-                        </p>
-                        <p className="mt-2 text-lg font-semibold text-brand-dark">
-                          {vendor.price}
-                        </p>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          </FadeIn>
-
-          <FadeIn className="lg:col-start-2 lg:row-start-2">
-            <div className="rounded-3xl border border-white/40 bg-white/70 p-8 shadow-card">
-              <div className="flex flex-wrap items-center justify-between gap-4">
-                <div>
-                  <p className="text-xs font-semibold uppercase tracking-[0.3em] text-brand-teal">
-                    Budget Simulation
-                  </p>
-                  <h2 className="mt-2 text-2xl font-semibold text-brand-dark">
-                    Spend distribution
-                  </h2>
-                </div>
-                <span className="rounded-full border border-brand-dark/10 bg-white px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-brand-dark/50">
-                  Total estimated: {budgetTotalLabel}
-                </span>
-              </div>
-
-              <div className="mt-6 grid gap-6 lg:grid-cols-[0.9fr_1.1fr]">
-                <div className="flex flex-col items-center justify-center gap-4 rounded-2xl border border-white/40 bg-white/90 px-4 py-6">
-                  <div
-                    className="relative h-36 w-36 rounded-full"
-                    style={{ background: `conic-gradient(${donutGradient})` }}
-                  >
-                    <div className="absolute inset-4 rounded-full bg-white/90 shadow-soft" />
-                  </div>
-                  <div className="text-center">
-                    <p className="text-xs uppercase tracking-[0.2em] text-brand-dark/50">
-                      Total
-                    </p>
-                    <p className="mt-1 text-lg font-semibold text-brand-dark">
-                      {budgetTotalLabel}
-                    </p>
-                  </div>
-                </div>
-                <div className="space-y-3">
-                  {budgetSlices.map((slice) => (
-                    <div
-                      key={slice.label}
-                      className="flex items-center justify-between rounded-2xl border border-white/40 bg-white/90 px-4 py-3 text-sm"
-                    >
-                      <div className="flex items-center gap-3">
-                        <span
-                          className="h-3 w-3 rounded-full"
-                          style={{ backgroundColor: slice.color }}
-                        />
-                        <div>
-                          <p className="text-sm font-semibold text-brand-dark">
-                            {slice.label}
-                          </p>
-                          <p className="text-xs text-brand-dark/50">
-                            {slice.percent}% of budget
-                          </p>
-                        </div>
-                      </div>
-                      <span className="text-sm font-semibold text-brand-dark">
-                        {slice.amount}
-                      </span>
                     </div>
                   ))}
-                  <div className="rounded-2xl border border-brand-teal/30 bg-brand-teal/10 px-4 py-4 text-sm text-brand-dark/70">
-                    <p className="text-xs font-semibold uppercase tracking-[0.2em] text-brand-teal">
-                      Trade-off idea
-                    </p>
-                    <p className="mt-2">
-                      Swap to a condensed AV package and save approximately $4,000 while
-                      keeping stage moments intact.
-                    </p>
-                  </div>
                 </div>
               </div>
             </div>
           </FadeIn>
 
-          <FadeIn className="lg:col-start-1 lg:row-start-2">
-            <div className="rounded-3xl border border-white/40 bg-white/70 p-8 shadow-card">
-              <p className="text-xs font-semibold uppercase tracking-[0.3em] text-brand-teal">
-                Risk & Compliance
-              </p>
-              <h2 className="mt-2 text-2xl font-semibold text-brand-dark">
-                Safety signals
-              </h2>
-              <div className="mt-5 flex flex-wrap gap-3">
-                {[
-                  {
-                    label: "Insurance required",
-                    detail: "COI pending upload",
-                    icon: ShieldAlert
-                  },
-                  {
-                    label: "Noise limit",
-                    detail: "90dB after 10 PM",
-                    icon: Volume2
-                  },
-                  {
-                    label: "Capacity cap",
-                    detail: `${featuredVenue.capacity} max`,
-                    icon: Users
-                  },
-                  {
-                    label: "Permit check",
-                    detail: "Load-in clearance",
-                    icon: FileCheck
-                  }
-                ].map((chip) => (
-                  <div
-                    key={chip.label}
-                    className="flex items-center gap-3 rounded-full border border-white/40 bg-white/90 px-4 py-2 text-sm text-brand-dark/70"
-                  >
-                    <chip.icon className="h-4 w-4 text-brand-dark/50" />
-                    <div>
-                      <p className="text-xs font-semibold uppercase tracking-[0.2em] text-brand-dark/50">
-                        {chip.label}
-                      </p>
-                      <p className="text-sm font-medium text-brand-dark/70">
-                        {chip.detail}
-                      </p>
-                    </div>
-                  </div>
-                ))}
+          {/* Budget Simulation */}
+          <FadeIn delay={0.5}>
+            <div className="flex flex-col gap-6">
+               <div className="flex items-center justify-between">
+                <h3 className="text-lg font-bold text-brand-dark">Budget Simulation</h3>
+                <div className="text-right">
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-brand-dark/40">Total Estimated</p>
+                  <p className="text-lg font-bold text-brand-dark">{budgetTotalLabel}</p>
+                </div>
               </div>
-              <p className="mt-5 text-sm text-brand-dark/60">
-                Venue notes: {featuredVenue.notes || "Standard safety protocols apply."}
-              </p>
-            </div>
-          </FadeIn>
 
-          <FadeIn className="lg:col-start-1 lg:row-start-3">
-            <div className="rounded-3xl border border-white/40 bg-white/70 p-8 shadow-card">
-              <p className="text-xs font-semibold uppercase tracking-[0.3em] text-brand-teal">
-                Timeline & Dependencies
-              </p>
-              <h2 className="mt-2 text-2xl font-semibold text-brand-dark">
-                Critical moments
-              </h2>
-              <div className="mt-6 space-y-5">
-                {(template.timeline || []).map((item, index) => (
-                  <div key={item.time} className="flex gap-4">
-                    <div className="flex min-w-[110px] items-start gap-2 text-sm font-semibold text-brand-teal">
-                      <Clock className="mt-1 h-4 w-4" />
-                      {item.time}
-                    </div>
-                    <div className="space-y-2">
-                      <div className="flex flex-wrap items-center gap-2">
-                        <p className="text-base font-semibold text-brand-dark">
-                          {item.title}
-                        </p>
-                        <span className="rounded-full border border-brand-dark/10 bg-white px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.2em] text-brand-dark/50">
-                          {index % 2 === 0 ? "Delay risk" : "Vendor hold"}
-                        </span>
-                      </div>
-                      <p className="text-sm text-brand-dark/70">{item.description}</p>
-                    </div>
+              <div className="flex gap-6 rounded-3xl bg-white p-8 shadow-sm border border-brand-dark/5">
+                {/* Donut Chart Visual */}
+                <div className="relative h-40 w-40 flex-shrink-0 flex items-center justify-center">
+                  <div 
+                    className="absolute inset-0 rounded-full"
+                    style={{ background: `conic-gradient(${donutGradient})`, maskImage: "radial-gradient(transparent 55%, black 56%)", WebkitMaskImage: "radial-gradient(transparent 55%, black 56%)" }}
+                  />
+                  <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
+                    <span className="text-xs font-bold text-brand-teal">$</span>
+                    <span className="text-[9px] font-bold uppercase tracking-wider text-brand-dark/60">Optimal</span>
                   </div>
-                ))}
+                </div>
+
+                {/* Breakdown List */}
+                <div className="flex-1 space-y-3">
+                  {budgetSlices.map((slice) => (
+                    <div key={slice.label} className="flex items-center justify-between text-sm">
+                      <div className="flex items-center gap-2">
+                        <div className="h-2 w-2 rounded-full" style={{ backgroundColor: slice.color }} />
+                        <span className="font-medium text-brand-dark">{slice.label}</span>
+                      </div>
+                      <span className="font-bold text-brand-dark/60">{slice.percent}%</span>
+                    </div>
+                  ))}
+
+                  <div className="mt-4 rounded-xl bg-yellow-50 p-3 border border-yellow-100">
+                    <p className="text-[10px] font-bold uppercase tracking-wider text-yellow-700 mb-1">Trade-off Available</p>
+                    <p className="text-xs text-yellow-800 leading-snug">
+                      Downgrade AV Package to save $4,000 for upgraded catering options.
+                    </p>
+                  </div>
+                </div>
               </div>
             </div>
           </FadeIn>

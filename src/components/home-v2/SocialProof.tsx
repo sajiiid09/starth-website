@@ -4,14 +4,14 @@ import Container from "@/components/home-v2/primitives/Container";
 import TagPill from "@/components/home-v2/primitives/TagPill";
 import FadeIn from "@/components/animations/FadeIn";
 import NewsTicker from "@/components/home-v2/components/NewsTicker";
+import { cn } from "@/lib/utils";
 
 const SocialProof: React.FC = () => {
   const theme = "light" as const;
   const partners = [
-    { name: "Ashbury", src: "/partners/ashbury.svg" },
-    { name: "Crescent", src: "/partners/crescent.svg" },
-    { name: "Lakeview", src: "/partners/lakeview.svg" },
-    { name: "Northbridge", src: "/partners/northbridge.svg" }
+    { name: "Google for Startups", src: "/partners/google.png", className: "h-16 md:h-20" },
+    { name: "NVIDIA Inception", src: "/partners/nvidia.png", className: "h-16 md:h-20" },
+    { name: "Founder University", src: "/partners/founder.png", className: "h-12 md:h-14" }
   ];
   const builtFor = [
     "Event planners",
@@ -27,13 +27,16 @@ const SocialProof: React.FC = () => {
       <Container>
         <div className="flex flex-col items-center gap-12 text-center">
           <FadeIn duration={0.9} ease="power2.out" direction="up" distance={30}>
-            <div className="flex flex-wrap items-center justify-center gap-8">
+            <div className="flex flex-wrap items-center justify-center gap-12 grayscale-0">
               {partners.map((partner) => (
                 <img
                   key={partner.name}
                   src={partner.src}
                   alt={partner.name}
-                  className="h-7 opacity-70"
+                  className={cn(
+                    "w-auto object-contain transition-all hover:scale-105",
+                    partner.className
+                  )}
                   loading="lazy"
                 />
               ))}

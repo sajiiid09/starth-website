@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 const solutionsItems = [
+  { label: "Pricing", to: createPageUrl("Plans") },
   { label: "Marketplace", to: createPageUrl("Marketplace") },
   { label: "Event Templates", to: createPageUrl("Templates") },
   { label: "Popular Vendors", to: createPageUrl("Vendors") },

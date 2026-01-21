@@ -59,110 +59,132 @@ const DarkMotionPath: React.FC = () => {
 
       if (!path || cardElements.length === 0) return;
 
-      // 1. Master Timeline
-      const tl = gsap.timeline({
-        scrollTrigger: {
-          trigger: triggerRef.current,
-          start: "top top",
-          end: "+=500%", 
-          pin: true,     
-          scrub: 1.5,
-        },
-      });
-
-      // --- PHASE 1: Sequential Text Fill (0% to 20% of scroll) ---
-      // Line 1 fills first (0% -> 10%)
-      tl.to(line1Ref.current, {
-        backgroundPosition: "0% 50%", 
-        ease: "none",
-        duration: 0.1, 
-      }, 0);
-
-      // Line 2 fills second (10% -> 20%)
-      tl.to(line2Ref.current, {
-        backgroundPosition: "0% 50%", 
-        ease: "none",
-        duration: 0.1, 
-      }, ">"); // Starts immediately after Line 1
-
-      // --- PHASE 2: Card Motion (20% to 100% of scroll) ---
-      cardElements.forEach((card, index) => {
-        gsap.set(card, { 
-          xPercent: -50, 
-          yPercent: -50, 
-          transformOrigin: "center center",
-          opacity: 0,
-          scale: 0.5 
+      const buildTimeline = (scrollEnd: string, scrubValue: number) => {
+        const tl = gsap.timeline({
+          scrollTrigger: {
+            trigger: triggerRef.current,
+            start: "top top",
+            end: scrollEnd,
+            pin: true,
+            scrub: scrubValue,
+          },
         });
 
-        const spacing = 0.22; 
-        const startTime = 0.2 + (index * spacing); // Start after text fill (0.2)
-
-        tl.to(card, {
-          motionPath: {
-            path: path,
-            align: path,
-            alignOrigin: [0.5, 0.5],
-            start: 0, 
-            end: 1, 
+        // --- PHASE 1: Sequential Text Fill (0% to 20% of scroll) ---
+        // Line 1 fills first (0% -> 10%)
+        tl.to(
+          line1Ref.current,
+          {
+            backgroundPosition: "0% 50%",
+            ease: "none",
+            duration: 0.1,
           },
-          ease: "none",
-          duration: 0.8, // Fill remaining timeline
-        }, startTime); 
-      });
+          0
+        );
 
-      // --- PHASE 3: Smart Focus (Blur right side only) ---
-      ScrollTrigger.create({
-        trigger: triggerRef.current,
-        start: "top top",
-        end: "+=500%",
-        scrub: true,
-        onUpdate: () => {
-          cardElements.forEach((card) => {
-            const rect = card!.getBoundingClientRect();
-            const center = window.innerWidth / 2;
-            const cardCenter = rect.left + rect.width / 2;
-            
-            // Calculate distance relative to center
-            // Positive = Card is to the Right (coming in)
-            // Negative = Card is to the Left (leaving)
-            const dist = cardCenter - center; 
-            
-            const maxDist = window.innerWidth * 0.4;
-            
-            // Logic: 
-            // If dist > 0 (Right side): Apply blur based on distance
-            // If dist <= 0 (Left/Center): No blur (Clear)
-            let blurAmount = 0;
-            let scaleAmount = 1.1; // Default "Active" size
-            let opacityAmount = 1;
+        // Line 2 fills second (10% -> 20%)
+        tl.to(
+          line2Ref.current,
+          {
+            backgroundPosition: "0% 50%",
+            ease: "none",
+            duration: 0.1,
+          },
+          ">"
+        );
 
-            if (dist > 0) {
+        // --- PHASE 2: Card Motion (20% to 100% of scroll) ---
+        cardElements.forEach((card, index) => {
+          gsap.set(card, {
+            xPercent: -50,
+            yPercent: -50,
+            transformOrigin: "center center",
+            opacity: 0,
+            scale: 0.5,
+          });
+
+          const spacing = 0.22;
+          const startTime = 0.2 + index * spacing;
+
+          tl.to(
+            card,
+            {
+              motionPath: {
+                path: path,
+                align: path,
+                alignOrigin: [0.5, 0.5],
+                start: 0,
+                end: 1,
+              },
+              ease: "none",
+              duration: 0.8,
+            },
+            startTime
+          );
+        });
+
+        // --- PHASE 3: Smart Focus (Blur right side only) ---
+        ScrollTrigger.create({
+          trigger: triggerRef.current,
+          start: "top top",
+          end: scrollEnd,
+          scrub: true,
+          onUpdate: () => {
+            cardElements.forEach((card) => {
+              const rect = card!.getBoundingClientRect();
+              const center = window.innerWidth / 2;
+              const cardCenter = rect.left + rect.width / 2;
+
+              // Calculate distance relative to center
+              // Positive = Card is to the Right (coming in)
+              // Negative = Card is to the Left (leaving)
+              const dist = cardCenter - center;
+
+              const maxDist = window.innerWidth * 0.4;
+
+              // Logic:
+              // If dist > 0 (Right side): Apply blur based on distance
+              // If dist <= 0 (Left/Center): No blur (Clear)
+              let blurAmount = 0;
+              let scaleAmount = 1.1; // Default "Active" size
+              let opacityAmount = 1;
+
+              if (dist > 0) {
                 // Incoming from Right
                 const normalizedDist = Math.min(dist, maxDist);
                 const factor = normalizedDist / maxDist; // 0 = center, 1 = edge
-                
-                blurAmount = factor * 12;        // 0px -> 12px blur
-                scaleAmount = 1.1 - (factor * 0.5); // 1.1 -> 0.6 scale
-                opacityAmount = 1 - (factor * 0.8); // 1 -> 0.2 opacity
-            } else {
+
+                blurAmount = factor * 12; // 0px -> 12px blur
+                scaleAmount = 1.1 - factor * 0.5; // 1.1 -> 0.6 scale
+                opacityAmount = 1 - factor * 0.8; // 1 -> 0.2 opacity
+              } else {
                 // Exiting to Left (Keep clear, maybe slight shrink if desired)
                 // We keep it fully clear as requested
                 blurAmount = 0;
-                scaleAmount = 1.1; 
+                scaleAmount = 1.1;
                 opacityAmount = 1;
-            }
+              }
 
-            gsap.set(card, {
-              scale: scaleAmount,
-              opacity: opacityAmount,
-              filter: `blur(${blurAmount}px)`,
-              zIndex: dist < 100 ? 100 : 10, // Keep center/left cards on top
+              gsap.set(card, {
+                scale: scaleAmount,
+                opacity: opacityAmount,
+                filter: `blur(${blurAmount}px)`,
+                zIndex: dist < 100 ? 100 : 10, // Keep center/left cards on top
+              });
             });
-          });
-        }
+          },
+        });
+      };
+
+      const mm = gsap.matchMedia();
+      mm.add("(max-width: 640px)", () => {
+        buildTimeline("+=320%", 1.1);
+      });
+      mm.add("(min-width: 641px)", () => {
+        buildTimeline("+=500%", 1.5);
       });
 
+      return () => mm.revert();
     }, sectionRef);
 
     return () => ctx.revert();
@@ -180,22 +202,25 @@ const DarkMotionPath: React.FC = () => {
 
   return (
     <Section theme="dark" id="home-dark" className="relative z-10 overflow-hidden bg-brand-dark">
-      <div ref={triggerRef} className="relative flex h-screen w-full flex-col justify-center overflow-hidden">
+      <div
+        ref={triggerRef}
+        className="relative flex min-h-[90vh] w-full flex-col justify-center overflow-hidden sm:h-screen"
+      >
         
         {/* Background Text Layer */}
-        <div className="absolute inset-0 z-0 flex flex-col items-center justify-center px-6 pt-20 text-center pointer-events-none">
+        <div className="absolute inset-0 z-0 flex flex-col items-center justify-center px-4 pt-12 text-center pointer-events-none sm:px-6 sm:pt-16 md:pt-20">
           <Container>
             <div className="flex flex-col items-center gap-2">
               <span 
                 ref={line1Ref}
-                className="text-5xl font-bold leading-tight tracking-tight md:text-7xl lg:text-[5.5rem]"
+                className="text-3xl font-bold leading-tight tracking-tight sm:text-4xl md:text-7xl lg:text-[5.5rem]"
                 style={gradientTextStyle}
               >
                 From chaos to
               </span>
               <span 
                 ref={line2Ref}
-                className="text-5xl font-bold leading-tight tracking-tight md:text-7xl lg:text-[5.5rem]"
+                className="text-3xl font-bold leading-tight tracking-tight sm:text-4xl md:text-7xl lg:text-[5.5rem]"
                 style={gradientTextStyle}
               >
                 coordinated flow.
@@ -203,7 +228,7 @@ const DarkMotionPath: React.FC = () => {
             </div>
 
             <FadeIn delay={0.3} duration={1} ease="power2.out" direction="up" distance={40}>
-              <p className="mx-auto mt-8 max-w-xl text-lg text-white/60 md:text-xl">
+              <p className="mx-auto mt-6 max-w-xl text-base text-white/60 sm:mt-8 sm:text-lg md:text-xl">
                 Strathwell automates the invisible dependencies of event management, 
                 turning complex logistics into a predictable operating system.
               </p>
@@ -236,9 +261,9 @@ const DarkMotionPath: React.FC = () => {
                 color: card.text,
                 borderColor: card.border,
               }}
-              className="absolute top-0 left-0 flex aspect-[4/3] w-[28vw] min-w-[320px] max-w-[440px] flex-col justify-between rounded-3xl border p-10 shadow-2xl backdrop-blur-sm"
+              className="absolute top-0 left-0 flex aspect-[4/3] w-[72vw] min-w-[240px] max-w-[360px] flex-col justify-between rounded-3xl border p-6 shadow-2xl backdrop-blur-sm sm:w-[45vw] sm:min-w-[280px] sm:max-w-[400px] sm:p-8 md:w-[28vw] md:min-w-[320px] md:max-w-[440px] md:p-10"
             >
-              <h3 className="text-3xl font-bold leading-snug tracking-tight md:text-4xl">
+              <h3 className="text-xl font-bold leading-snug tracking-tight sm:text-2xl md:text-4xl">
                 {card.title}
               </h3>
               <div className="flex items-center justify-between opacity-50">

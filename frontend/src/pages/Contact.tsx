@@ -24,6 +24,7 @@ import {
 import gsap from "gsap";
 import Container from "@/components/home-v2/primitives/Container";
 import FadeIn from "@/components/animations/FadeIn";
+import FaqSection from "@/components/marketing/FaqSection";
 
 export default function ContactPage() {
   const [formData, setFormData] = useState({
@@ -363,6 +364,8 @@ ${formData.message}
           </div>
         </Container>
       </section>
+
+        <FaqSection subtitle="Find answers to common questions about Strathwell" />
     </div>
   );
 }

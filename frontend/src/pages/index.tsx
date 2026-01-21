@@ -10,7 +10,6 @@ import Marketplace from "./Marketplace";
 
 import CaseStudies from "./CaseStudies";
 
-import Dashboard from "./Dashboard";
 
 import CreateEvent from "./CreateEvent";
 
@@ -114,6 +113,8 @@ import TemplateDetails from "./TemplateDetails";
 
 import MarketplaceDetails from "./MarketplaceDetails";
 
+import PlansPage from "./PlansPage";
+
 import UserDashboardHome from "./dashboard/UserDashboardHome";
 
 import UserEvents from "./dashboard/UserEvents";
@@ -156,164 +157,17 @@ import AdminTemplates from "./admin/AdminTemplates";
 
 import AdminSettings from "./admin/AdminSettings";
 
-import { BrowserRouter as Router, Route, Routes, useLocation } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import { createPageUrl } from "@/utils";
 import RoleGate from "@/components/auth/RoleGate";
 import ScrollToTop from "@/components/shared/ScrollToTop";
 
-const PAGES = {
-    
-    Home: Home,
-    
-    AIPlanner: AIPlanner,
-    
-    DFY: DFY,
-    
-    Marketplace: Marketplace,
-    
-    CaseStudies: CaseStudies,
-    
-    Dashboard: Dashboard,
-    
-    CreateEvent: CreateEvent,
-    
-    Events: Events,
-    
-    ListSpace: ListSpace,
-    
-    VenueDetails: VenueDetails,
-    
-    ServiceDetails: ServiceDetails,
-    
-    EventDetails: EventDetails,
-    
-    EditEvent: EditEvent,
-    
-    PlanDetails: PlanDetails,
-    
-    VenuePortal: VenuePortal,
-    
-    ProviderPortal: ProviderPortal,
-    
-    VenueOrganization: VenueOrganization,
-    
-    VenueListings: VenueListings,
-    
-    VenueInsurance: VenueInsurance,
-    
-    VenueDocuments: VenueDocuments,
-    
-    VenueAvailability: VenueAvailability,
-    
-    VenueSettings: VenueSettings,
-    
-    Checklist: Checklist,
-    
-    EventMarketingDashboard: EventMarketingDashboard,
-    
-    Marketing: Marketing,
-    
-    ProviderServices: ProviderServices,
-    
-    ProviderDocuments: ProviderDocuments,
-    
-    ProviderInsurance: ProviderInsurance,
-    
-    VenueMessages: VenueMessages,
-    
-    ProviderSettings: ProviderSettings,
-    
-    ProviderMessages: ProviderMessages,
-    
-    ProviderOrganization: ProviderOrganization,
-    
-    Messages: Messages,
-    
-    PaymentMethods: PaymentMethods,
-    
-    AddVenue: AddVenue,
-    
-    ProfileSettings: ProfileSettings,
-    
-    EventCalendar: EventCalendar,
-    
-    About: About,
-    
-    Contact: Contact,
-    
-    Terms: Terms,
-    
-    Privacy: Privacy,
-    
-    DashboardPreview: DashboardPreview,
-    
-    EditVenue: EditVenue,
-    
-    VerifyEmail: VerifyEmail,
-    
-    ResetPassword: ResetPassword,
-    
-    AppStrathwell: AppStrathwell,
-    
-    AppEntry: AppEntry,
-    
-    WhyStrathwell: WhyStrathwell,
-    
-    VirtualRobotics: VirtualRobotics,
-    
-    EventBuilder: EventBuilder,
-
-    Templates: Templates,
-
-    Vendors: Vendors,
-    
-    Legals: Legals,
-    
-    Reviews: Reviews,
-
-    Legal: Legal,
-
-    TemplateDetails: TemplateDetails,
-    
-}
-
-function _getCurrentPage(url) {
-    if (url.endsWith('/')) {
-        url = url.slice(0, -1);
-    }
-    if (url.startsWith('/dashboard')) {
-        return 'Dashboard';
-    }
-    if (url.startsWith('/vendor')) {
-        return 'Vendor';
-    }
-    if (url.startsWith('/admin')) {
-        return 'Admin';
-    }
-    if (url.includes('/templates/') && !url.endsWith('/templates')) {
-        return 'Templates';
-    }
-    if (url.includes('/marketplace/') && !url.endsWith('/marketplace')) {
-        return 'Marketplace';
-    }
-    let urlLastPart = url.split('/').pop();
-    if (urlLastPart.includes('?')) {
-        urlLastPart = urlLastPart.split('?')[0];
-    }
-
-    const pageName = Object.keys(PAGES).find(page => page.toLowerCase() === urlLastPart.toLowerCase());
-    return pageName || Object.keys(PAGES)[0];
-}
-
 // Create a wrapper component that uses useLocation inside the Router context
 function PagesContent() {
-    const location = useLocation();
-    const currentPage = _getCurrentPage(location.pathname);
-    
     return (
         <>
             <ScrollToTop />
-            <Layout currentPageName={currentPage}>
+            <Layout>
             <Routes>            
                 
                     <Route path="/" element={<Home />} />
@@ -613,6 +467,8 @@ function PagesContent() {
                 <Route path="/templates/:id" element={<TemplateDetails />} />
 
                 <Route path={createPageUrl("Vendors")} element={<Vendors />} />
+
+                <Route path={createPageUrl("Plans")} element={<PlansPage />} />
 
                 <Route path={createPageUrl("Legals")} element={<Legals />} />
 

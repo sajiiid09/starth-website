@@ -114,20 +114,20 @@ export default function Footer() {
         {/* Big Branding Area */}
         <div className="flex flex-col gap-6">
           {/* Logo Graphic & Description */}
-          <div className="flex flex-col items-start gap-6 md:flex-row md:items-center">
+            <div className="flex flex-col items-start gap-6 md:flex-row md:items-center">
              {/* Abstract Logo Icon Box */}
              
              
-             <div className="max-w-xs text-sm font-light leading-snug tracking-wide opacity-90 sm:text-base">
-               TURNING UNTAPPED SPACES AND SERVICES INTO  <br />
-               UNFORGETTABLE EVENTS WITH PATENTED AI MATCHING
-             </div>
-          </div>
+             
+            </div>
 
           {/* Massive Text */}
           <h1 className="mt-4 font-sans text-[14vw] font-bold leading-[0.85] tracking-tighter text-[#FFFBF4] sm:text-[10vw] lg:text-[10rem]">
             Strathwell
           </h1>
+          <div className="max-w-xs text-xs font-light leading-snug tracking-wide opacity-90 sm:text-base">
+               Turning untapped spaces and services into unforgettable events with patented AI matching
+             </div>
         </div>
 
         {/* Bottom Right: Copyright & Back to Top */}

@@ -18,7 +18,6 @@ const solutionsItems = [
   { label: "Event Templates", to: createPageUrl("Templates") },
   { label: "Popular Vendors", to: createPageUrl("Vendors") },
   { label: "Plan with Us", to: createPageUrl("DFY") },
-  { label: "AI Planner", to: createPageUrl("AIPlanner") }
 ];
 
 const exploreItems = [
@@ -111,6 +110,14 @@ const HomeNav: React.FC = () => {
               </div>
             </DropdownMenuContent>
           </DropdownMenu>
+          <Link
+            to={createPageUrl("Plans")}
+            className={cn(
+              "text-sm font-medium text-brand-dark/80 transition-colors duration-150 ease-smooth hover:text-brand-dark"
+            )}
+          >
+            Pricing
+          </Link>
           <DropdownMenu modal={false}>
             <DropdownMenuTrigger asChild>
               <button
@@ -196,6 +203,13 @@ const HomeNav: React.FC = () => {
                   className="rounded-xl border border-brand-dark/10 bg-white/70 px-4 py-3 text-sm font-semibold text-brand-dark"
                 >
                   AI Planner
+                </Link>
+                <Link
+                  to={createPageUrl("Plans")}
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="rounded-xl border border-brand-dark/10 bg-white/70 px-4 py-3 text-sm font-semibold text-brand-dark"
+                >
+                  Pricing
                 </Link>
               </div>
 

@@ -262,14 +262,14 @@ export default function AboutPage() {
                         <div className="group relative grid grid-cols-1 gap-8 overflow-hidden rounded-3xl border border-brand-dark/5 bg-white p-6 shadow-xl transition-all duration-300 sm:p-8 md:grid-cols-12 md:gap-12 md:p-0">
                           
                           {/* Image Column */}
-                          <div className={`relative h-64 w-full overflow-hidden sm:h-72 md:col-span-5 md:h-auto ${
+                          <div className={`relative w-full overflow-hidden aspect-[3/4] sm:aspect-[4/5] md:col-span-5 md:aspect-auto md:h-auto ${
                             index % 2 === 0 ? "md:order-1" : "md:order-2"
                           }`}>
                             {member.image ? (
                               <img
                                 src={member.image}
                                 alt={member.name}
-                                className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+                                className="h-full w-full object-cover object-top transition-transform duration-700 group-hover:scale-105"
                               />
                             ) : (
                               <div className="flex h-full w-full flex-col items-center justify-center bg-brand-cream/30 text-brand-dark/20">

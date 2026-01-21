@@ -1,37 +1,43 @@
 import React from "react";
 import { useLocation } from "react-router-dom";
-import HomeNav from "@/components/home-v2/HomeNav";
-import Footer from "@/components/shared/Footer";
 import DashboardShell from "@/components/dashboard/DashboardShell";
+import PublicLayout from "@/components/layout/PublicLayout";
 
 type LayoutProps = {
   children: React.ReactNode;
-  currentPageName: string;
 };
 
-export default function Layout({ children, currentPageName }: LayoutProps) {
+const dashboardRoutePatterns = [/^\/dashboard(\/|$)/, /^\/vendor(\/|$)/, /^\/admin(\/|$)/];
+const authRoutePatterns = [/^\/app-entry(\/|$)/, /^\/appentry(\/|$)/, /^\/signin(\/|$)/];
+const footerDenyPatterns = [...dashboardRoutePatterns, ...authRoutePatterns];
+
+export default function Layout({ children }: LayoutProps) {
   const location = useLocation();
-  const isDashboardRoute = 
-    location.pathname.startsWith("/dashboard") ||
-    location.pathname === "/vendor" ||
-    location.pathname.startsWith("/vendor/") ||
-    location.pathname === "/admin" ||
-    location.pathname.startsWith("/admin/");
-  const isAppEntry = currentPageName === "AppEntry" || location.pathname.startsWith("/appentry");
+  const isDashboardRoute = dashboardRoutePatterns.some((pattern) =>
+    pattern.test(location.pathname)
+  );
+  const isAuthRoute = authRoutePatterns.some((pattern) =>
+    pattern.test(location.pathname)
+  );
+  const shouldUsePublicLayout = !footerDenyPatterns.some((pattern) =>
+    pattern.test(location.pathname)
+  );
 
   if (isDashboardRoute) {
     return <DashboardShell>{children}</DashboardShell>;
   }
 
-  return (
-    <div
-      className={`min-h-screen bg-brand-light text-brand-dark font-sans antialiased ${
-        isAppEntry ? "" : "flex flex-col"
-      }`}
-    >
-      {!isAppEntry && <HomeNav />}
-      <main className={isAppEntry ? "" : "flex-1"}>{children}</main>
-      {!isAppEntry && <Footer />}
-    </div>
-  );
+  if (shouldUsePublicLayout) {
+    return <PublicLayout>{children}</PublicLayout>;
+  }
+
+  if (isAuthRoute) {
+    return (
+      <div className="min-h-screen bg-brand-light text-brand-dark font-sans antialiased">
+        <main>{children}</main>
+      </div>
+    );
+  }
+
+  return <PublicLayout>{children}</PublicLayout>;
 }

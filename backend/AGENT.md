@@ -1,42 +1,41 @@
 # Backend AGENT.md
 
 ## Current Phase
-**Phase 6 — Vendor Onboarding + Admin Approval + Public Showcase (Complete)**
+**Phase 7 — Object Storage + Signed Uploads (Complete)**
 
 ## Decisions Made
-- Vendor onboarding requires `trial` or `active` subscription.
-- Vendor approval is required for public listing and payout enablement.
+- Uploads use S3-compatible presigned PUT URLs; backend stays stateless.
+- Upload access is restricted by role: vendor for vendor assets, admin for template media.
 - Template list remains public; template detail requires `trial` or `active` subscription.
 
 ## Implemented Modules
-- `app/schemas/vendors.py` — Vendor onboarding, public card, and admin review schemas.
-- `app/services/vendors_service.py` — Vendor onboarding, profile upsert, and public listing logic.
-- `app/api/routes/vendors.py` — Vendor self-service endpoints.
-- `app/api/routes/public_vendors.py` — Public vendor showcase endpoint.
-- `app/api/routes/admin_vendors.py` — Admin approval and review endpoints with audit logs.
-- `app/models/vendor.py` — Added `review_note` for admin feedback.
-- `scripts/seed_templates.py` — Seed script for MVP templates.
+- `app/services/storage/s3.py` — S3 presign logic and object key builder.
+- `app/services/storage/validation.py` — MIME type and size validation.
+- `app/api/routes/uploads.py` — Presigned upload endpoint.
+- `app/schemas/uploads.py` — Upload request/response schemas.
+- `app/api/routes/vendors.py` — Vendor self-service onboarding endpoints.
 
 ## Known Issues / Risks
-- Subscription billing is manual only; Stripe Billing integration is pending.
+- Storage credentials must be provided via env vars; presign fails without S3 config.
 - Vendor `display_name` uses user email until profile fields are added.
 
-## Next Phase Checklist (Phase 7 — Planned)
-- Add richer vendor profile fields (display name, logo, portfolio).
-- Add template search and additional filters.
-- Implement Stripe Billing integration and webhook syncing.
+## Next Phase Checklist (Phase 8 — Planned)
+- Add asset registration + linking to profiles.
+- Add webhook listener for provider events.
+- Expand vendor/profile metadata.
 - Build booking workflow endpoints.
 
-## Vendor Onboarding Rules
-- Vendor role required for onboarding endpoints.
-- Vendor must have `trial` or `active` subscription to submit onboarding.
-- Vendor type mismatches return `{ "error": "vendor_type_mismatch" }` with HTTP 400.
-- Only `approved` vendors appear in `/vendors/public`.
-
-## Public Vendor Filters
-- `/vendors/public` supports `vendor_type`, `category`, `location`, and `service_area`.
+## Upload Rules
+- Endpoint: `POST /uploads/presign`
+- Allowed kinds:
+  - `venue_blueprint`, `venue_photo`, `service_portfolio` (vendor only)
+  - `template_media` (admin only)
+- Validation:
+  - MIME type must be in `ALLOWED_UPLOAD_MIME`
+  - File size must be <= `MAX_UPLOAD_BYTES`
 
 ## Endpoints
+- `POST /uploads/presign`
 - `GET /vendors/me`
 - `POST /vendors/onboarding/venue-owner`
 - `POST /vendors/onboarding/service-provider`
@@ -84,6 +83,16 @@ JWT_ALGORITHM=HS256
 ACCESS_TOKEN_EXPIRE_MINUTES=15
 REFRESH_TOKEN_EXPIRE_DAYS=14
 ADMIN_BOOTSTRAP_TOKEN=change-me
+STORAGE_PROVIDER=s3
+S3_REGION=us-east-1
+S3_BUCKET=your-bucket
+S3_ACCESS_KEY_ID=change-me
+S3_SECRET_ACCESS_KEY=change-me
+S3_ENDPOINT_URL=
+S3_PUBLIC_BASE_URL=
+UPLOAD_URL_EXPIRE_SECONDS=300
+MAX_UPLOAD_BYTES=15000000
+ALLOWED_UPLOAD_MIME=image/jpeg,image/png,image/webp,video/mp4,application/pdf,image/svg+xml
 CORS_ORIGINS=http://localhost:3000
 STRIPE_SECRET_KEY=change-me
 STRIPE_WEBHOOK_SECRET=change-me

@@ -1,53 +1,50 @@
 # Backend AGENT.md
 
 ## Current Phase
-**Phase 5 — Templates Module (Complete)**
+**Phase 6 — Vendor Onboarding + Admin Approval + Public Showcase (Complete)**
 
 ## Decisions Made
-- Template list is public; template detail requires `trial` or `active` subscription.
-- Manual subscription provider remains MVP; Stripe Billing is stubbed for later.
-- `users.subscription_status` is treated as a denormalized cache synced from `subscriptions`.
+- Vendor onboarding requires `trial` or `active` subscription.
+- Vendor approval is required for public listing and payout enablement.
+- Template list remains public; template detail requires `trial` or `active` subscription.
 
 ## Implemented Modules
-- `app/models/subscription.py` — Subscription model for provider status tracking.
-- `app/services/subscription/` — Provider-agnostic interface with manual implementation and Stripe stub.
-- `app/services/templates_service.py` — Template CRUD service.
-- `app/api/routes/templates.py` — Public template list and gated detail endpoint.
-- `app/api/routes/admin_templates.py` — Admin CRUD endpoints with audit logging.
-- `app/api/routes/subscription.py` — User subscription endpoints.
-- `app/api/routes/admin_subscriptions.py` — Admin subscription toggle endpoints.
-- `app/api/routes/planner.py` — Placeholder gated endpoint for AI planner access.
-- `app/api/deps.py` — Subscription guard dependency enforcing active/trial status.
+- `app/schemas/vendors.py` — Vendor onboarding, public card, and admin review schemas.
+- `app/services/vendors_service.py` — Vendor onboarding, profile upsert, and public listing logic.
+- `app/api/routes/vendors.py` — Vendor self-service endpoints.
+- `app/api/routes/public_vendors.py` — Public vendor showcase endpoint.
+- `app/api/routes/admin_vendors.py` — Admin approval and review endpoints with audit logs.
+- `app/models/vendor.py` — Added `review_note` for admin feedback.
 - `scripts/seed_templates.py` — Seed script for MVP templates.
 
 ## Known Issues / Risks
 - Subscription billing is manual only; Stripe Billing integration is pending.
-- Template detail gating is enforced, but other premium endpoints will need to adopt it later.
+- Vendor `display_name` uses user email until profile fields are added.
 
-## Next Phase Checklist (Phase 6 — Planned)
-- Add template detail caching and filters.
+## Next Phase Checklist (Phase 7 — Planned)
+- Add richer vendor profile fields (display name, logo, portfolio).
+- Add template search and additional filters.
 - Implement Stripe Billing integration and webhook syncing.
-- Expand template metadata and search.
-- Build AI planner endpoints and apply RBAC + subscription checks.
+- Build booking workflow endpoints.
 
-## File/Folder Map (High Level)
-- `app/` — FastAPI application source
-  - `api/` — API routers + dependencies
-  - `core/` — Config + security utilities
-  - `db/` — SQLAlchemy session and base
-  - `models/` — SQLAlchemy models + enums
-  - `schemas/` — Pydantic schemas
-  - `services/` — Business logic
-  - `utils/` — Helpers/utilities
-- `alembic/` — Alembic migrations and versions
-- `scripts/` — Utility scripts
-- `requirements.txt` — Python dependencies
+## Vendor Onboarding Rules
+- Vendor role required for onboarding endpoints.
+- Vendor must have `trial` or `active` subscription to submit onboarding.
+- Vendor type mismatches return `{ "error": "vendor_type_mismatch" }` with HTTP 400.
+- Only `approved` vendors appear in `/vendors/public`.
 
-## Template Gating Rules
-- `GET /templates` is public.
-- `GET /templates/{template_id}` requires `trial` or `active` subscription.
+## Public Vendor Filters
+- `/vendors/public` supports `vendor_type`, `category`, `location`, and `service_area`.
 
 ## Endpoints
+- `GET /vendors/me`
+- `POST /vendors/onboarding/venue-owner`
+- `POST /vendors/onboarding/service-provider`
+- `GET /vendors/public`
+- `GET /admin/vendors/pending`
+- `POST /admin/vendors/{vendor_id}/approve`
+- `POST /admin/vendors/{vendor_id}/needs-changes`
+- `POST /admin/vendors/{vendor_id}/disable-payout`
 - `GET /templates`
 - `GET /templates/{template_id}` (subscription-gated)
 - `POST /admin/templates`

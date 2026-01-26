@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from uuid import uuid4
 
-from sqlalchemy import Boolean, Enum as SAEnum, ForeignKey
+from sqlalchemy import Boolean, Enum as SAEnum, ForeignKey, Text
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column
 
@@ -26,3 +26,4 @@ class Vendor(TimestampMixin, Base):
         default=VendorVerificationStatus.DRAFT,
     )
     payout_enabled: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
+    review_note: Mapped[str | None] = mapped_column(Text, nullable=True)

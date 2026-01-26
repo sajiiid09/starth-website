@@ -4,6 +4,7 @@ from app.models.booking_vendor import BookingVendor
 from app.models.ledger_entry import LedgerEntry
 from app.models.payment import Payment
 from app.models.payout import Payout
+from app.models.refresh_token import RefreshToken
 from app.models.service_profile import ServiceProfile
 from app.models.template import Template
 from app.models.user import User
@@ -17,6 +18,7 @@ __all__ = [
     "LedgerEntry",
     "Payment",
     "Payout",
+    "RefreshToken",
     "ServiceProfile",
     "Template",
     "User",

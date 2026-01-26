@@ -18,7 +18,7 @@ export const venues: VenueData[] = [
     sqft: 12000,
     shape: "wide",
     notes: "Waterfront views, load-in dock on the north side.",
-    heroImage: "/images/marketplace/venue-rooftop.webp"
+    heroImage: "https://images.unsplash.com/photo-1567521464027-f127ff144326?w=1200&h=800&fit=crop"
   },
   {
     id: "cityline-gallery",
@@ -63,7 +63,7 @@ export const venues: VenueData[] = [
     sqft: 9800,
     shape: "wide",
     notes: "Rooftop access with elevator, wind considerations.",
-    heroImage: "/images/marketplace/venue-rooftop.webp"
+    heroImage: "https://images.unsplash.com/photo-1567521464027-f127ff144326?w=1200&h=800&fit=crop"
   },
   {
     id: "foundry-warehouse",
@@ -99,6 +99,6 @@ export const venues: VenueData[] = [
     sqft: 13500,
     shape: "rect",
     notes: "Stone floors, excellent acoustics for talks.",
-    heroImage: "/images/marketplace/venue-rooftop.webp"
+    heroImage: "https://images.unsplash.com/photo-1567521464027-f127ff144326?w=1200&h=800&fit=crop"
   }
 ];

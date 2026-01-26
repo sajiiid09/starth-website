@@ -78,7 +78,7 @@ const DashboardShell: React.FC<DashboardShellProps> = ({ children }) => {
               <img
                 src="/images/strathwell_logo_clean.png"
                 alt="Strathwell"
-                className="h-7 w-auto sm:h-8"
+                className="h-16 w-auto sm:h-20 md:h-[88px]"
               />
             </Link>
           </SidebarHeader>

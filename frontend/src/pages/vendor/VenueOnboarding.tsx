@@ -28,7 +28,7 @@ const constraintOptions = [
 const addOns = ["cleaning", "security", "AV package"];
 const galleryImages = [
   "/images/marketplace/venue-hall.webp",
-  "/images/marketplace/venue-rooftop.webp",
+  "https://images.unsplash.com/photo-1519167758481-83f550bb49b3?w=1200&h=800&fit=crop",
   "/images/marketplace/venue-garden.webp"
 ];
 

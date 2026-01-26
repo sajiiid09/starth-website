@@ -25,7 +25,7 @@ const availabilityOptions = ["Weekdays", "Weekends"];
 const portfolioImages = [
   "/images/marketplace/vendor-av.webp",
   "/images/marketplace/vendor-catering.webp",
-  "/images/marketplace/vendor-photo.webp",
+  "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=400&h=300&fit=crop",
   "/images/marketplace/vendor-floral.webp"
 ];
 

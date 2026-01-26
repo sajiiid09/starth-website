@@ -57,14 +57,13 @@ export default function Footer() {
         {/* Left: Time/Location Indicators (Replicating reference top-left) */}
         <div className="flex w-full flex-col gap-6 border-b border-[#FFFBF4]/20 p-6 sm:p-8 lg:w-1/3 lg:border-r lg:border-b-0">
           <div className="flex items-start gap-6 text-xs font-medium uppercase tracking-widest opacity-80 sm:gap-12">
-            <div className="flex gap-3">
-              <div className="mt-1 h-3 w-3 animate-pulse rounded-full bg-[#FFFBF4]" />
-              <div className="flex flex-col gap-1">
-                <span>9:41 AM ET</span>
-                <span>2 Hawthorne Pl</span>
-                <span>Boston, MA 02114</span>
+              <div className="flex gap-3">
+                <div className="mt-1 h-3 w-3 animate-pulse rounded-full bg-[#FFFBF4]" />
+                <div className="flex flex-col gap-1">
+                  <span>2 Hawthorne Pl</span>
+                  <span>Boston, MA 02114</span>
+                </div>
               </div>
-            </div>
           </div>
           
           <div className="mt-auto hidden lg:block">
@@ -115,31 +114,33 @@ export default function Footer() {
         <div className="flex flex-col gap-6">
           {/* Logo Graphic & Description */}
             <div className="flex flex-col items-start gap-6 md:flex-row md:items-center">
-             {/* Abstract Logo Icon Box */}
-             
-             
-             
+              {/* Abstract Logo Icon Box */}
+
+
+
             </div>
 
-          {/* Massive Text */}
-          <h1 className="mt-4 font-sans text-[14vw] font-bold leading-[0.85] tracking-tighter text-[#FFFBF4] sm:text-[10vw] lg:text-[10rem]">
-            Strathwell
-          </h1>
+          {/* Tagline - MOVED BEFORE TEXT */}
           <div className="max-w-xs text-xs font-light leading-snug tracking-wide opacity-90 sm:text-base">
                Turning untapped spaces and services into unforgettable events with patented AI matching
              </div>
+
+          {/* Massive Text - MOVED AFTER TAGLINE */}
+          <h1 className="mt-4 font-sans text-[14vw] font-bold leading-[0.85] tracking-tighter text-[#FFFBF4] sm:text-[10vw] lg:text-[10rem]">
+            Strathwell
+          </h1>
         </div>
 
         {/* Bottom Right: Copyright & Back to Top */}
         <div className="mt-10 flex flex-col items-start gap-4 text-xs font-medium uppercase tracking-widest lg:items-end lg:text-right">
-          <Link 
+          <Link
             to={createPageUrl("Home")}
             className="flex items-center gap-2 border-b border-transparent pb-1 transition-colors hover:border-[#FFFBF4]"
           >
             Back to top <ArrowUpRight className="h-4 w-4" />
           </Link>
           <div className="opacity-60">
-            © {currentYear} strathwell Inc. All rights reserved.
+            © {currentYear} Strathwell Inc. All rights reserved.
           </div>
         </div>
       </div>

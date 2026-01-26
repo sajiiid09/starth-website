@@ -18,17 +18,17 @@ import {
 import { cn } from "@/lib/utils";
 
 import FaqSection from "@/components/marketing/FaqSection";
-type BillingCycle = "monthly" | "quarterly";
+type BillingCycle = "monthly" | "quarterly" | "yearly";
 
 const plans = [
   {
     id: "free",
     name: "Starter",
     description: "Perfect for trying out AI orchestration.",
-    price: { monthly: 0, quarterly: 0 },
+    price: { monthly: 0, quarterly: 0, yearly: 0 },
     features: [
       { text: "1 Active Event", included: true },
-      { text: "3 AI Iterations / month", included: true },
+      { text: "3 AI Iterations / event", included: true },
       { text: "Access to Vendor Marketplace", included: true },
       { text: "Basic Event Itineraries", included: true },
       { text: "Real-time Collaboration", included: false },
@@ -42,10 +42,10 @@ const plans = [
     id: "plus",
     name: "Plus",
     description: "For professional organizers who need power.",
-    price: { monthly: 20, quarterly: 18 },
+    price: { monthly: 20, quarterly: 54, yearly: 192 },
     features: [
       { text: "5 Active Events", included: true },
-      { text: "5 AI Iterations / month", included: true },
+      { text: "5 AI Iterations / event", included: true },
       { text: "Advanced AI Planning Models", included: true },
       { text: "Full Vendor Marketplace Access", included: true },
       { text: "Real-time Collaboration", included: true },
@@ -59,7 +59,7 @@ const plans = [
     id: "enterprise",
     name: "Enterprise",
     description: "Unlimited scale for large agencies & corps.",
-    price: { monthly: "Custom", quarterly: "Custom" },
+    price: { monthly: "Custom", quarterly: "Custom", yearly: "Custom" },
     features: [
       { text: "Unlimited Events", included: true },
       { text: "Unlimited AI Iterations", included: true },
@@ -96,59 +96,39 @@ export default function PlansPage() {
             </p>
 
             <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
-              <span
+              <button
+                onClick={() => setBillingCycle("monthly")}
                 className={cn(
-                  "text-sm font-medium transition-colors",
-                  billingCycle === "monthly" ? "text-brand-dark" : "text-brand-dark/40"
+                  "rounded-full border border-brand-dark/20 px-4 py-2 text-sm font-semibold transition-colors",
+                  billingCycle === "monthly" ? "bg-brand-dark text-brand-cream" : "bg-transparent text-brand-dark/60 hover:bg-brand-dark/10 hover:text-brand-dark"
                 )}
               >
                 Monthly
-              </span>
-              <button
-                onClick={() =>
-                  setBillingCycle(billingCycle === "monthly" ? "quarterly" : "monthly")
-                }
-                className="relative h-10 w-[200px] rounded-full bg-white p-1 shadow-inner ring-1 ring-brand-dark/5"
-              >
-                <motion.div
-                  className="absolute top-1 bottom-1 rounded-full bg-brand-teal shadow-md"
-                  initial={false}
-                  animate={{
-                    left: billingCycle === "monthly" ? 4 : "50%",
-                    width: "calc(50% - 4px)",
-                  }}
-                  transition={{ type: "spring", stiffness: 300, damping: 30 }}
-                />
-                <div className="relative z-10 flex h-full w-full items-center justify-between px-4 text-xs font-bold uppercase tracking-wider">
-                  <span
-                    className={cn(
-                      "flex-1 text-center transition-colors",
-                      billingCycle === "monthly" ? "text-white" : "text-brand-dark/60"
-                    )}
-                  >
-                    Monthly
-                  </span>
-                  <span
-                    className={cn(
-                      "flex-1 text-center transition-colors",
-                      billingCycle === "quarterly" ? "text-white" : "text-brand-dark/60"
-                    )}
-                  >
-                    Quarterly
-                  </span>
-                </div>
               </button>
-              <span
+              <button
+                onClick={() => setBillingCycle("quarterly")}
                 className={cn(
-                  "text-sm font-medium transition-colors",
-                  billingCycle === "quarterly" ? "text-brand-dark" : "text-brand-dark/40"
+                  "rounded-full border border-brand-dark/20 px-4 py-2 text-sm font-semibold transition-colors",
+                  billingCycle === "quarterly" ? "bg-brand-dark text-brand-cream" : "bg-transparent text-brand-dark/60 hover:bg-brand-dark/10 hover:text-brand-dark"
                 )}
               >
                 Quarterly{" "}
-                <span className="ml-1 text-[10px] font-bold uppercase tracking-wide text-brand-teal">
+                <span className="ml-1 text-xs text-brand-teal">
                   (Save 10%)
                 </span>
-              </span>
+              </button>
+              <button
+                onClick={() => setBillingCycle("yearly")}
+                className={cn(
+                  "rounded-full border border-brand-dark/20 px-4 py-2 text-sm font-semibold transition-colors",
+                  billingCycle === "yearly" ? "bg-brand-dark text-brand-cream" : "bg-transparent text-brand-dark/60 hover:bg-brand-dark/10 hover:text-brand-dark"
+                )}
+              >
+                Yearly{" "}
+                <span className="ml-1 text-xs text-brand-teal">
+                  (Save 20%)
+                </span>
+              </button>
             </div>
           </FadeIn>
         </Container>
@@ -196,7 +176,7 @@ export default function PlansPage() {
                                 isDark ? "text-white/60" : "text-brand-dark/40"
                               )}
                             >
-                              /month
+                              /{billingCycle}
                             </span>
                           </>
                         ) : (

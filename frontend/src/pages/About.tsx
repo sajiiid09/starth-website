@@ -45,7 +45,7 @@ const teamGroups = [
       {
         name: "REEN",
         title: "COO & Head of Global Innovation",
-        role: "STRATHWELL",
+        role: "STRATHWELL INC.",
         image: " /public/team/reen.png",
         description: " Reen is an AI executive and innovator who forged her own path beyond family privilege in the transportation and mobility sector. Educated by prestigious universities across Asia, the UK, and the US, she brings a global perspective to leadership, strategy, and innovation. She received scholarships from the French, UK, and Spanish governments and institutions, but ultimately chose to go to the United States. There, she used her savings and secured the largest share of support — around $100,000 in funding from the USA, including a Women in Business scholarship valued at $20,000.",
         additionalInfo: "She invented the world's first AI-powered event orchestration system and launched a pioneering monochrome fashion brand. Her career spans big tech, global consulting, hospitality, real estate, and law."
@@ -53,7 +53,7 @@ const teamGroups = [
       {
         name: "MOOSA",
         title: "CEO",
-        role: "STRATHWELL",
+        role: "STRATHWELL INC.",
         image: "https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/68d4e38c341adad3b24950ed/e47401580_Screenshot2025-07-10at000114.png",
         description: " MZ is a rare blend of engineer, strategist, and innovator whose journey reflects the DNA of Stanford. The only member of his class to enter with a perfect SAT score, he went on to earn three Stanford degrees—B.S. in Electrical Engineering with distinction (recognized as a Terman Scholar, awarded to the top 5% of engineering seniors), M.S. in Computer Science (AI track), and M.D.—building systems that bridged human and machine intelligence, from predictive AI models to breakthroughs in optimization, signal processing, and telemedicine.",
         additionalInfo: "A gifted educator, Moosa taught across Stanford’s Medicine, Computer Science, and Engineering departments, covering everything from physiology to convex optimization and probabilistic models—simplifying complexity while inspiring future innovators. He also led multi-stakeholder projects, published in top journals, and advanced global tech-for-good initiatives that combined technical mastery with social purpose."
@@ -68,7 +68,7 @@ const teamGroups = [
       {
         name: "HAL",
         title: "Founding Advisor",
-        role: "STRATHWELL",
+        role: "STRATHWELL INC.",
         image: "https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/68d4e38c341adad3b24950ed/8106bc5a5_IMG_6114.jpg",
         description: "Hal Bennett has over 40 years of technology leadership experience with senior executive roles at IBM, Symantec/Norton, Amazon Web Services, Adobe, Novell, and various start-ups. These roles include field and operational experiences, consistently delivering business growth in sales, marketing, alliances, business development, and channels. Hal has been successful building teams, developing high-performance cultures, expanding into new markets, and providing hardware/software/services solutions through various routes-to-market. He is customer-driven, closing and managing new and existing clients/partnerships in consumer, SMB, and large enterprises with hardware, software, services and SaaS solutions. ",
         additionalInfo: "Hal is presently Senior Vice President at BuildZoom, Inc., a leading-edge construction marketplace and data company. He received his BA in Economics/Mathematics from Dartmouth College and originally from the Boston area, Hal and his wife, Patti now live in Napa, California."
@@ -76,7 +76,7 @@ const teamGroups = [
       {
         name: "JAY",
         title: "Founding Advisor",
-        role: "STRATHWELL",
+        role: "STRATHWELL INC.",
         image: "https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/68d4e38c341adad3b24950ed/f2d8a35aa_Screenshot2025-08-14at101341.png",
         description: "JJay Ruffin is a global technology executive and operating partner recognized for delivering over $60M in transformation value, preventing $80M in revenue loss, and generating $15–$20M in annual uplifts for Fortune 500 and private equity clients. Specializing in AI, SaaS/cloud enablement, and digital transformation, Jay builds and scales global teams that unlock 40%+ productivity gains and accelerate EBITDA growth.",    
         additionalInfo: "A trusted C‑suite advisor, he guides enterprises through complex modernization, M&A, and AI adoption programs—aligning business and technology strategies for measurable results. "
@@ -84,7 +84,7 @@ const teamGroups = [
       {
         name: "GEORG",
         title: "Strategic Advisor",
-        role: "STRATHWELL",
+        role: "STRATHWELL INC.",
         image: "https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/68d4e38c341adad3b24950ed/4822df1cf_Screenshot2025-07-02at205916.png",
         description: "Dr. Georg is a faculty member at Harvard Medical School, Brigham and Women’s Hospital, and the Harvard T.H. Chan School of Public Health. An expert in AI-driven modeling and large-scale data integration, he holds a Ph.D. from Imperial College London with prior studies at University of Cambridge and Columbia University.",
         additionalInfo: "With 50+ peer-reviewed publications and research experience at Los Alamos and Lawrence Livermore National Labs, he is internationally recognized for contributions to statistical genetics, computational methods, and quantum optimization. At Strathwell, he develops adaptive AI frameworks to integrate multimodal data and orchestrate complex real-world systems."
@@ -99,7 +99,7 @@ const teamGroups = [
       {
         name: "Krupa",
         title: "Analytics Specialist", 
-        role: "STRATHWELL",
+        role: "STRATHWELL INC.",
         // Using Parnia's image/data for Pheni as requested via context
         image: "/public/team/krupa.png",
         description: "Krupa Pheni has focuses on analytics automation, Google Analytics implementation, and data-driven reporting. His work spans building automated insight pipelines, optimizing data collection systems, and translating complex datasets into clear, actionable business recommendations.",
@@ -108,7 +108,7 @@ const teamGroups = [
       {
         name: "ATHUL",
         title: "Analytics Specialist",
-        role: "STRATHWELL",
+        role: "STRATHWELL INC.",
         image: " /public/team/athul.png", // Placeholder
         description: " Athul focuses on marketing analytics, growth strategy, and business consulting.",
         additionalInfo: " With dual master’s degrees in Business Analytics and International Marketing and prior experience in business analysis and product strategy at Amazon, Athul brings a unique blend of analytical rigor and creative problem-solving to our team."
@@ -123,7 +123,7 @@ const teamGroups = [
       {
         name: "OLIVIA",
         title: "Marketing Lead", 
-        role: "STRATHWELL",
+        role: "STRATHWELL INC.",
         image: " /public/team/olivia.png", // Placeholder
         description: "Olivia Worrell is a Boston-based Marketing Specialist, where she blends psychology, design thinking, and storytelling to help community-driven brands grow with intention. ",
         additionalInfo: " She focuses on audience engagement, brand awareness, and bringing digital ideas to life, approaching every project with empathy, creativity, and a people-first mindset."
@@ -137,11 +137,19 @@ const teamGroups = [
     members: [
       {
         name: "MEHMET",
-        title: "Strategic Systems & Innovation Engineering Intern", 
-        role: "STRATHWELL",
+        title: "Strategic Systems & Innovation Engineering Intern",
+        role: "STRATHWELL INC.",
         image: " /public/team/mehmet.png", // Placeholder
         description: "Mehmet Topal is a senior at Brown University pursuing a double major in Computer Engineering and Economics. Mehmet brings a unique perspective shaped by his multilingual background and hands-on engineering experience across research, product development, and competitive design.",
         additionalInfo: " ead for Brown Formula Racing (helping the team climb from 81st to 18th nationally), and worked on 3D vision systems at the Interactive 3D Vision & Learning Lab. "
+      },
+      {
+        name: "ABER",
+        title: "AI Engineer",
+        role: "STRATHWELL INC.",
+        image: "/public/team/aber.jpeg",
+        description: "Aber is an AI Engineer with a strong academic foundation and hands-on industry experience in applied artificial intelligence. He graduated from BRAC University, where he developed a solid grounding in machine learning, data science, and intelligent systems. Since then, he has contributed to multiple AI-driven organizations including a2i (Aspire to Innovate), Join Venture AI, RACO AI, and other technology-focused companies, working on real-world AI solutions that bridge research and production.",
+        additionalInfo: "His professional experience spans building and deploying machine learning models, developing AI-powered applications. With a strong interest in scalable AI systems and innovation, Aber combines technical rigor with practical impact, continuously exploring new advancements in artificial intelligence to drive meaningful outcomes."
       }
     ]
   }

@@ -46,6 +46,10 @@ export default function AIPlannerPage() {
   const navigate = useNavigate();
   const initialMode = searchParams.get("mode") === "marketplace" ? "marketplace" : "planner";
   const [activeMode, setActiveMode] = useState(initialMode);
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
   const [messages, setMessages] = useState([
     {
       role: "assistant",

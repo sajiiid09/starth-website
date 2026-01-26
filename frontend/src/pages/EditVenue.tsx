@@ -378,10 +378,10 @@ export default function EditVenuePage() {
             <CardContent className="space-y-6">
                 <div>
                   <Label>Hero Photo URL</Label>
-                  <Input 
-                    value={formData.hero_photo_url} 
+                  <Input
+                    value={formData.hero_photo_url}
                     onChange={(e) => handleInputChange("hero_photo_url", e.target.value)}
-                    placeholder="/images/marketplace/venue-rooftop.webp"
+                    placeholder="https://images.unsplash.com/photo-1524230659092-07f99a75c013?w=1200&h=800&fit=crop"
                   />
                   {formData.hero_photo_url && <img src={formData.hero_photo_url} alt="Hero preview" className="w-full h-48 object-cover rounded-lg mt-2" />}
                 </div>

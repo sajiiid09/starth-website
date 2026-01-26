@@ -226,8 +226,8 @@ ${formData.message}
                       <MapPin className="h-5 w-5" />
                     </div>
                     <div>
-                      <p className="text-xs font-bold uppercase tracking-widest text-brand-dark/40">Locations</p>
-                      <p className="font-medium text-brand-dark">Boston • London</p>
+                      <p className="text-xs font-bold uppercase tracking-widest text-brand-dark/40">Address</p>
+                      <p className="font-medium text-brand-dark">2 Hawthorne Pl, Boston, MA 02114</p>
                     </div>
                   </div>
 

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import TagPill from "@/components/home-v2/primitives/TagPill";
 import PillButton from "@/components/home-v2/primitives/PillButton";
 import { cn } from "@/lib/utils";
@@ -15,6 +15,7 @@ const VendorCard: React.FC<VendorCardProps> = ({ vendor, onViewProfile, onInvite
   const vendorTypeLabel = isVenueOwner ? "Venue Owner" : "Service Provider";
   const categories = vendor.categories?.slice(0, 3) ?? [];
   const areas = vendor.areas?.slice(0, 2) ?? [];
+  const [imageLoaded, setImageLoaded] = useState(false);
 
   return (
     <div
@@ -27,8 +28,12 @@ const VendorCard: React.FC<VendorCardProps> = ({ vendor, onViewProfile, onInvite
         <img
           src={vendor.heroImage}
           alt={vendor.name}
-          className="h-full w-full object-cover transition duration-300 ease-smooth group-hover:scale-105"
+          className={cn(
+            "h-full w-full object-cover transition duration-300 ease-smooth group-hover:scale-105",
+            !imageLoaded && "blur-sm"
+          )}
           loading="lazy"
+          onLoad={() => setImageLoaded(true)}
         />
         <div className="absolute left-5 top-5">
           <TagPill variant="dark" size="sm">

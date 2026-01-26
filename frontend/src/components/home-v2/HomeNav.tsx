@@ -103,21 +103,13 @@ const HomeNav: React.FC = () => {
                   <DropdownMenuItem key={item.label} asChild>
                     <Link to={item.to} className={dropdownItemClasses}>
                       <span>{item.label}</span>
-                      
+
                     </Link>
                   </DropdownMenuItem>
                 ))}
               </div>
             </DropdownMenuContent>
           </DropdownMenu>
-          <Link
-            to={createPageUrl("Plans")}
-            className={cn(
-              "text-sm font-medium text-brand-dark/80 transition-colors duration-150 ease-smooth hover:text-brand-dark"
-            )}
-          >
-            Pricing
-          </Link>
           <DropdownMenu modal={false}>
             <DropdownMenuTrigger asChild>
               <button
@@ -136,13 +128,21 @@ const HomeNav: React.FC = () => {
                   <DropdownMenuItem key={item.label} asChild>
                     <Link to={item.to} className={dropdownItemClasses}>
                       <span>{item.label}</span>
-                      
+
                     </Link>
                   </DropdownMenuItem>
                 ))}
               </div>
             </DropdownMenuContent>
           </DropdownMenu>
+          <Link
+            to={createPageUrl("Plans")}
+            className={cn(
+              "text-sm font-medium text-brand-dark/80 transition-colors duration-150 ease-smooth hover:text-brand-dark"
+            )}
+          >
+            Pricing
+          </Link>
         </div>
 
         <div className="hidden items-center gap-4 md:flex">
@@ -204,13 +204,6 @@ const HomeNav: React.FC = () => {
                 >
                   AI Planner
                 </Link>
-                <Link
-                  to={createPageUrl("Plans")}
-                  onClick={() => setIsMobileMenuOpen(false)}
-                  className="rounded-xl border border-brand-dark/10 bg-white/70 px-4 py-3 text-sm font-semibold text-brand-dark"
-                >
-                  Pricing
-                </Link>
               </div>
 
               <div className="grid gap-6 sm:grid-cols-2">
@@ -248,6 +241,16 @@ const HomeNav: React.FC = () => {
                     ))}
                   </div>
                 </div>
+              </div>
+
+              <div className="flex flex-col gap-3">
+                <Link
+                  to={createPageUrl("Plans")}
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="rounded-xl border border-brand-dark/10 bg-white/70 px-4 py-3 text-sm font-semibold text-brand-dark"
+                >
+                  Pricing
+                </Link>
               </div>
 
               <div className="flex flex-col gap-3">

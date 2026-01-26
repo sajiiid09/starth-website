@@ -19,7 +19,7 @@ export const dummyVendors: PublicVendor[] = [
     name: "Aurora Loft Studios",
     vendorType: "venue_owner",
     location: "Brooklyn, NY",
-    heroImage: "/images/templates/template-creative-retreat.webp",
+    heroImage: "https://images.unsplash.com/photo-1519167758481-83f550bb49b3?w=800&h=600&fit=crop",
     description: "Sun-drenched industrial lofts for immersive brand moments.",
     sqft: 8200,
     guestRange: "80-240 guests"
@@ -29,7 +29,7 @@ export const dummyVendors: PublicVendor[] = [
     name: "Harborline Hall",
     vendorType: "venue_owner",
     location: "Boston, MA",
-    heroImage: "/images/templates/template-launch.webp",
+    heroImage: "https://images.unsplash.com/photo-1519167758481-83f550bb49b3?w=800&h=600&fit=crop",
     description: "Historic waterfront venue with modern production-ready suites.",
     sqft: 12000,
     guestRange: "120-400 guests"
@@ -39,7 +39,7 @@ export const dummyVendors: PublicVendor[] = [
     name: "Vista Pavilion",
     vendorType: "venue_owner",
     location: "Los Angeles, CA",
-    heroImage: "/images/templates/template-gala.webp",
+    heroImage: "https://images.unsplash.com/photo-1519167758481-83f550bb49b3?w=800&h=600&fit=crop",
     description: "Flexible open-plan venue designed for experiential showcases.",
     sqft: 15000,
     guestRange: "150-500 guests"
@@ -59,7 +59,7 @@ export const dummyVendors: PublicVendor[] = [
     name: "Summit Gallery",
     vendorType: "venue_owner",
     location: "Denver, CO",
-    heroImage: "/images/templates/template-retreat.webp",
+    heroImage: "https://images.unsplash.com/photo-1567521464027-f127ff144326?w=800&h=600&fit=crop",
     description: "Modern gallery space with curated lighting and staging support.",
     sqft: 6800,
     guestRange: "60-180 guests"
@@ -109,7 +109,7 @@ export const dummyVendors: PublicVendor[] = [
     name: "Velvet Frame Studio",
     vendorType: "service_provider",
     location: "Denver, CO",
-    heroImage: "/images/marketplace/vendor-photo.webp",
+    heroImage: "https://images.unsplash.com/photo-1560250097-0b93528c311a?w=800&h=600&fit=crop",
     description: "Editorial storytelling with highlight reels and fast turnaround.",
     categories: ["Photography", "Video Recaps", "Content Capture"],
     areas: ["Colorado", "Utah", "New Mexico"]
@@ -159,7 +159,7 @@ export const dummyVendors: PublicVendor[] = [
     name: "Saffron Studio",
     vendorType: "service_provider",
     location: "Atlanta, GA",
-    heroImage: "/images/marketplace/vendor-photo.webp",
+    heroImage: "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=800&h=600&fit=crop",
     description: "Creative direction, set builds, and on-site content teams.",
     categories: ["Content", "Creative Direction", "Set Design"],
     areas: ["Georgia", "South Carolina", "Alabama"]

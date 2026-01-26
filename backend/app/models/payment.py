@@ -1,8 +1,9 @@
 from __future__ import annotations
 
+from datetime import datetime
 from uuid import uuid4
 
-from sqlalchemy import Enum as SAEnum, ForeignKey, Integer, String, UniqueConstraint
+from sqlalchemy import DateTime, Enum as SAEnum, ForeignKey, Integer, String, UniqueConstraint
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column
 
@@ -35,3 +36,6 @@ class Payment(TimestampMixin, Base):
     amount_cents: Mapped[int] = mapped_column(Integer, nullable=False)
     currency: Mapped[str] = mapped_column(String(10), nullable=False, default="usd")
     idempotency_key: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    payouts_created_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), nullable=True
+    )

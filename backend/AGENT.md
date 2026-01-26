@@ -1,43 +1,52 @@
 # Backend AGENT.md
 
 ## Current Phase
-**Phase 1 — Backend Foundation + AGENT.md Bootstrap (Complete)**
+**Phase 2 — Database + Alembic + Core Schema V1 (Complete)**
 
 ## Decisions Made
-- Chose `requirements.txt` + pip for dependency management since no backend tooling existed.
-- Implemented sync SQLAlchemy engine with `psycopg2-binary` for MVP simplicity.
-- Added a minimal settings module using `pydantic-settings` with environment-based configuration.
+- Kept `requirements.txt` + pip for dependency management.
+- Implemented sync SQLAlchemy models with UUID primary keys and shared timestamp mixins.
+- Centralized enums in `app/models/enums.py` for consistent reuse across tables.
+- Used JSONB for flexible fields (assets, categories, blueprint data) to keep the MVP schema lean.
 
 ## Implemented Modules
-- `app/main.py`: FastAPI app, CORS middleware, `/health` endpoint, and API router mount.
-- `app/core/config.py`: Settings model with env loading and CORS parsing.
-- `app/api/router.py`: Placeholder router for future endpoints.
-- `app/db/session.py` + `app/db/base.py`: SQLAlchemy engine/session + base.
-- `requirements.txt`: Core backend dependencies for Phase 1.
+- `app/models/` — Core SQLAlchemy models (users, vendors, bookings, payments, payouts, audit logs, etc.).
+- `app/models/enums.py` — Enum definitions for roles, statuses, and provider types.
+- `app/db/base.py` — Base class with `TimestampMixin` and `CreatedAtMixin`.
+- `alembic/` — Migration environment with `alembic.ini`, `env.py`, and initial schema migration.
 
 ## Known Issues / Risks
-- Database connection details are placeholders; ensure `DATABASE_URL` matches your local setup.
-- JWT/Stripe secrets are not set by default; they must be provided via environment variables in later phases.
+- Defaults for UUID primary keys rely on application-side generation (no DB default).
+- JSONB fields are flexible but lack strict typing until schemas are introduced in Phase 3.
 
-## Next Phase Checklist (Phase 2 — Planned)
-- Initialize Alembic configuration and migration environment.
-- Add initial SQLAlchemy models and Pydantic schemas.
-- Implement auth scaffolding (password hashing, JWT utilities, user model).
-- Add initial API routes and service layer structure.
-- Introduce basic automated tests and CI hooks if needed.
+## Next Phase Checklist (Phase 3 — Planned)
+- Add Pydantic schemas for request/response validation.
+- Implement service layer scaffolding and initial CRUD endpoints.
+- Add authentication utilities (JWT, password hashing) and user onboarding flows.
+- Introduce pgvector template embeddings if needed for RAG MVP.
 
 ## File/Folder Map (High Level)
 - `app/` — FastAPI application source
   - `api/` — API routers
   - `core/` — Config and security placeholders
   - `db/` — SQLAlchemy session and base
-  - `models/` — SQLAlchemy models (Phase 2)
-  - `schemas/` — Pydantic schemas (Phase 2)
-  - `services/` — Business logic (Phase 2)
+  - `models/` — SQLAlchemy models + enums
+  - `schemas/` — Pydantic schemas (Phase 3)
+  - `services/` — Business logic (Phase 3)
   - `utils/` — Helpers/utilities
-- `alembic/` — Placeholder (Phase 2 setup)
+- `alembic/` — Alembic migrations and versions
 - `scripts/` — Placeholder for scripts
 - `requirements.txt` — Python dependencies
+
+## Migration Commands
+- Create migration:
+  ```bash
+  alembic revision --autogenerate -m "init schema v1"
+  ```
+- Apply migration:
+  ```bash
+  alembic upgrade head
+  ```
 
 ## Run Instructions (Local)
 1. Create a virtual environment and install dependencies:

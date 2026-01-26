@@ -11,6 +11,7 @@ from app.models.template import Template
 from app.models.user import User
 from app.models.vendor import Vendor
 from app.models.venue_profile import VenueProfile
+from app.models.webhook_event import WebhookEvent
 
 __all__ = [
     "AuditLog",
@@ -26,4 +27,5 @@ __all__ = [
     "User",
     "Vendor",
     "VenueProfile",
+    "WebhookEvent",
 ]

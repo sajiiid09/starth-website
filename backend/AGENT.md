@@ -1,7 +1,7 @@
 # Backend AGENT.md
 
 ## Current Phase
-**Phase 8 — Booking Orchestration V1 (Complete)**
+**Phase 9 — Payments V1 (Complete)**
 
 ## Decisions Made
 - Uploads use S3-compatible presigned PUT URLs; backend stays stateless.
@@ -10,6 +10,9 @@
 - Booking requests always create vendor linkage rows with `pending` approvals.
 - Booking readiness requires all included vendors to be `approved` before moving to `ready_for_payment`.
 - Organizer rejection of a vendor counter marks that vendor as `declined` and keeps the booking in `awaiting_vendor_approval`.
+- Payments are collected via Stripe PaymentIntents; booking must be `ready_for_payment`.
+- Booking totals are derived from `booking_vendor.agreed_amount_cents`; payment blocks if any approved vendor has missing pricing.
+- Webhook idempotency is handled via a `webhook_events` table keyed by Stripe event id.
 
 ## Implemented Modules
 - `app/services/storage/s3.py` — S3 presign logic and object key builder.
@@ -20,16 +23,21 @@
 - `app/services/bookings_service.py` — Booking workflow orchestration and status recomputation.
 - `app/api/routes/bookings.py` — Booking request, vendor actions, organizer accept, admin views.
 - `app/schemas/bookings.py` — Booking request and action payloads.
+- `app/services/payments/base.py` — Payment service interface.
+- `app/services/payments/stripe.py` — Stripe implementation for PaymentIntents and webhook parsing.
+- `app/services/bookings_pricing.py` — Booking total calculation rules.
+- `app/api/routes/payments.py` — Booking payment intent creation.
+- `app/api/routes/webhooks.py` — Stripe webhook handler for payment state sync.
+- `app/schemas/payments.py` — Payment request/response payloads.
 
 ## Known Issues / Risks
 - Storage credentials must be provided via env vars; presign fails without S3 config.
 - Vendor `display_name` uses user email until profile fields are added.
 
-## Next Phase Checklist (Phase 9 — Planned)
-- Add asset registration + linking to profiles.
-- Add webhook listener for provider events.
-- Expand vendor/profile metadata.
-- Implement payment capture and payouts for bookings.
+## Next Phase Checklist (Phase 10 — Planned)
+- Implement payout scheduling and vendor disbursements.
+- Add escrow release rules and payout milestones.
+- Expand vendor/profile metadata and reporting.
 
 ## Upload Rules
 - Endpoint: `POST /uploads/presign`
@@ -69,6 +77,8 @@
 - `POST /bookings/{booking_id}/vendors/{booking_vendor_id}/accept-counter`
 - `GET /admin/bookings`
 - `GET /admin/bookings/{booking_id}`
+- `POST /bookings/{booking_id}/pay`
+- `POST /webhooks/stripe`
 
 ## Booking Workflow (Phase 8)
 - Organizer creates booking requests with a required venue vendor and optional service vendors.
@@ -81,6 +91,14 @@
   - `POST /vendor/bookings/{booking_id}/decline`: `{ note? }`
   - `POST /vendor/bookings/{booking_id}/counter`: `{ proposed_amount_cents, note? }`
   - `POST /bookings/{booking_id}/vendors/{booking_vendor_id}/accept-counter`: `{ booking_vendor_id, accept }`
+
+## Payments Workflow (Phase 9)
+- Booking must be `ready_for_payment` with all vendors approved and priced (> 0) before payment creation.
+- `POST /bookings/{booking_id}/pay` creates a Stripe PaymentIntent and returns `client_secret`.
+- Supported payment modes: `deposit` (30%) or `full` (100%).
+- Stripe webhook events handled: `payment_intent.succeeded`, `payment_intent.payment_failed`, `payment_intent.canceled`.
+- On success: booking status becomes `paid` and a `held_funds` ledger entry is created.
+- Webhook idempotency: Stripe event ids are stored in `webhook_events` and ignored on repeat.
 
 ## Seed Script
 - Run template seed script:
@@ -123,4 +141,5 @@ ALLOWED_UPLOAD_MIME=image/jpeg,image/png,image/webp,video/mp4,application/pdf,im
 CORS_ORIGINS=http://localhost:3000
 STRIPE_SECRET_KEY=change-me
 STRIPE_WEBHOOK_SECRET=change-me
+BOOKING_DEPOSIT_PERCENT=0.30
 ```

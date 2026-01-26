@@ -1,29 +1,33 @@
 # Backend AGENT.md
 
 ## Current Phase
-**Phase 4 — Subscription Gating + Provider-Agnostic Interface (Complete)**
+**Phase 5 — Templates Module (Complete)**
 
 ## Decisions Made
-- Subscription gating allows access for users with `trial` or `active` status.
-- Manual subscription provider is the MVP implementation; Stripe Billing is stubbed for later.
+- Template list is public; template detail requires `trial` or `active` subscription.
+- Manual subscription provider remains MVP; Stripe Billing is stubbed for later.
 - `users.subscription_status` is treated as a denormalized cache synced from `subscriptions`.
 
 ## Implemented Modules
 - `app/models/subscription.py` — Subscription model for provider status tracking.
 - `app/services/subscription/` — Provider-agnostic interface with manual implementation and Stripe stub.
-- `app/api/routes/subscription.py` — User subscription endpoints (`/me/subscription`, `/subscription/start`, `/subscription/cancel`).
-- `app/api/routes/admin_subscriptions.py` — Admin endpoint to set user subscription status with audit logs.
+- `app/services/templates_service.py` — Template CRUD service.
+- `app/api/routes/templates.py` — Public template list and gated detail endpoint.
+- `app/api/routes/admin_templates.py` — Admin CRUD endpoints with audit logging.
+- `app/api/routes/subscription.py` — User subscription endpoints.
+- `app/api/routes/admin_subscriptions.py` — Admin subscription toggle endpoints.
 - `app/api/routes/planner.py` — Placeholder gated endpoint for AI planner access.
 - `app/api/deps.py` — Subscription guard dependency enforcing active/trial status.
+- `scripts/seed_templates.py` — Seed script for MVP templates.
 
 ## Known Issues / Risks
 - Subscription billing is manual only; Stripe Billing integration is pending.
-- Subscription gating currently only enforced on `/planner/access-check`.
+- Template detail gating is enforced, but other premium endpoints will need to adopt it later.
 
-## Next Phase Checklist (Phase 5 — Planned)
-- Add template detail endpoints and apply subscription gating.
+## Next Phase Checklist (Phase 6 — Planned)
+- Add template detail caching and filters.
 - Implement Stripe Billing integration and webhook syncing.
-- Add subscription history/audit enhancements.
+- Expand template metadata and search.
 - Build AI planner endpoints and apply RBAC + subscription checks.
 
 ## File/Folder Map (High Level)
@@ -36,32 +40,30 @@
   - `services/` — Business logic
   - `utils/` — Helpers/utilities
 - `alembic/` — Alembic migrations and versions
-- `scripts/` — Placeholder for scripts
+- `scripts/` — Utility scripts
 - `requirements.txt` — Python dependencies
 
-## Migration Commands
-- Create migration:
-  ```bash
-  alembic revision --autogenerate -m "add subscriptions"
-  ```
-- Apply migration:
-  ```bash
-  alembic upgrade head
-  ```
-
-## Subscription Gating Rules
-- Access allowed if `subscription_status` is `trial` or `active`.
-- Forbidden response uses HTTP 403 with:
-  ```json
-  {"error": "subscription_required", "message": "Active subscription required."}
-  ```
+## Template Gating Rules
+- `GET /templates` is public.
+- `GET /templates/{template_id}` requires `trial` or `active` subscription.
 
 ## Endpoints
+- `GET /templates`
+- `GET /templates/{template_id}` (subscription-gated)
+- `POST /admin/templates`
+- `PATCH /admin/templates/{template_id}`
+- `DELETE /admin/templates/{template_id}`
 - `GET /me/subscription`
 - `POST /subscription/start`
 - `POST /subscription/cancel`
 - `POST /admin/users/{user_id}/subscription/set`
 - `GET /planner/access-check` (gated by subscription)
+
+## Seed Script
+- Run template seed script:
+  ```bash
+  python scripts/seed_templates.py
+  ```
 
 ## Run Instructions (Local)
 1. Create a virtual environment and install dependencies:

@@ -1,30 +1,30 @@
 # Backend AGENT.md
 
 ## Current Phase
-**Phase 3 — Auth + JWT + RBAC (Complete)**
+**Phase 4 — Subscription Gating + Provider-Agnostic Interface (Complete)**
 
 ## Decisions Made
-- Kept `requirements.txt` + pip for dependency management.
-- Implemented JWT access + refresh tokens with rotation and server-side storage of hashed refresh tokens.
-- Added admin bootstrap endpoint guarded by an `ADMIN_BOOTSTRAP_TOKEN` header.
-- Used JSONB for flexible schema fields to keep the MVP schema lean.
+- Subscription gating allows access for users with `trial` or `active` status.
+- Manual subscription provider is the MVP implementation; Stripe Billing is stubbed for later.
+- `users.subscription_status` is treated as a denormalized cache synced from `subscriptions`.
 
 ## Implemented Modules
-- `app/models/` — Core SQLAlchemy models including `RefreshToken` for token rotation.
-- `app/core/security.py` — Password hashing and JWT utilities.
-- `app/api/routes/auth.py` — Signup/login/refresh/logout/bootstrap endpoints.
-- `app/api/deps.py` — Auth dependencies and RBAC guards.
-- `alembic/` — Migration environment and refresh token migration.
+- `app/models/subscription.py` — Subscription model for provider status tracking.
+- `app/services/subscription/` — Provider-agnostic interface with manual implementation and Stripe stub.
+- `app/api/routes/subscription.py` — User subscription endpoints (`/me/subscription`, `/subscription/start`, `/subscription/cancel`).
+- `app/api/routes/admin_subscriptions.py` — Admin endpoint to set user subscription status with audit logs.
+- `app/api/routes/planner.py` — Placeholder gated endpoint for AI planner access.
+- `app/api/deps.py` — Subscription guard dependency enforcing active/trial status.
 
 ## Known Issues / Risks
-- Defaults for UUID primary keys rely on application-side generation (no DB default).
-- JSONB fields are flexible but lack strict typing until schemas are introduced in Phase 4.
+- Subscription billing is manual only; Stripe Billing integration is pending.
+- Subscription gating currently only enforced on `/planner/access-check`.
 
-## Next Phase Checklist (Phase 4 — Planned)
-- Add Pydantic schemas for core entities and validation.
-- Implement service layer scaffolding and CRUD endpoints.
-- Add subscription enforcement and Stripe integration stubs.
-- Introduce pgvector template embeddings for RAG MVP.
+## Next Phase Checklist (Phase 5 — Planned)
+- Add template detail endpoints and apply subscription gating.
+- Implement Stripe Billing integration and webhook syncing.
+- Add subscription history/audit enhancements.
+- Build AI planner endpoints and apply RBAC + subscription checks.
 
 ## File/Folder Map (High Level)
 - `app/` — FastAPI application source
@@ -32,8 +32,8 @@
   - `core/` — Config + security utilities
   - `db/` — SQLAlchemy session and base
   - `models/` — SQLAlchemy models + enums
-  - `schemas/` — Pydantic schemas (Phase 4)
-  - `services/` — Business logic (Phase 4)
+  - `schemas/` — Pydantic schemas
+  - `services/` — Business logic
   - `utils/` — Helpers/utilities
 - `alembic/` — Alembic migrations and versions
 - `scripts/` — Placeholder for scripts
@@ -42,25 +42,26 @@
 ## Migration Commands
 - Create migration:
   ```bash
-  alembic revision --autogenerate -m "add refresh tokens"
+  alembic revision --autogenerate -m "add subscriptions"
   ```
 - Apply migration:
   ```bash
   alembic upgrade head
   ```
 
-## Auth Notes
-- Access tokens: 15 minutes (configurable via `ACCESS_TOKEN_EXPIRE_MINUTES`).
-- Refresh tokens: 14 days (configurable via `REFRESH_TOKEN_EXPIRE_DAYS`).
-- Refresh token rotation: old token is revoked on refresh; only hashed tokens are stored.
-- Admin bootstrap: `POST /auth/bootstrap-admin` with `ADMIN_BOOTSTRAP_TOKEN` header.
+## Subscription Gating Rules
+- Access allowed if `subscription_status` is `trial` or `active`.
+- Forbidden response uses HTTP 403 with:
+  ```json
+  {"error": "subscription_required", "message": "Active subscription required."}
+  ```
 
 ## Endpoints
-- `POST /auth/signup`
-- `POST /auth/login`
-- `POST /auth/refresh`
-- `POST /auth/logout`
-- `POST /auth/bootstrap-admin`
+- `GET /me/subscription`
+- `POST /subscription/start`
+- `POST /subscription/cancel`
+- `POST /admin/users/{user_id}/subscription/set`
+- `GET /planner/access-check` (gated by subscription)
 
 ## Run Instructions (Local)
 1. Create a virtual environment and install dependencies:

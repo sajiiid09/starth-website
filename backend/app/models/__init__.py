@@ -6,6 +6,7 @@ from app.models.payment import Payment
 from app.models.payout import Payout
 from app.models.refresh_token import RefreshToken
 from app.models.service_profile import ServiceProfile
+from app.models.subscription import Subscription
 from app.models.template import Template
 from app.models.user import User
 from app.models.vendor import Vendor
@@ -20,6 +21,7 @@ __all__ = [
     "Payout",
     "RefreshToken",
     "ServiceProfile",
+    "Subscription",
     "Template",
     "User",
     "Vendor",

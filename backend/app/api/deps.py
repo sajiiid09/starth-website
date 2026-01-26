@@ -12,7 +12,7 @@ from sqlalchemy.orm import Session
 from app.core.security import decode_access_token
 from app.db.session import SessionLocal
 from app.models.user import User
-from app.models.enums import UserRole
+from app.models.enums import SubscriptionStatus, UserRole
 
 bearer_scheme = HTTPBearer()
 
@@ -81,4 +81,13 @@ def require_role(role: UserRole):
 def require_subscription_active(
     user: User = Depends(get_current_user),
 ) -> User:
+    allowed_statuses = {SubscriptionStatus.ACTIVE, SubscriptionStatus.TRIAL}
+    if user.subscription_status not in allowed_statuses:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail={
+                "error": "subscription_required",
+                "message": "Active subscription required.",
+            },
+        )
     return user

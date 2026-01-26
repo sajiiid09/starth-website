@@ -82,3 +82,8 @@ class PayoutStatus(str, Enum):
     PAID = "paid"
     REVERSED = "reversed"
     HELD = "held"
+
+
+class SubscriptionProvider(str, Enum):
+    STRIPE = "stripe"
+    MANUAL = "manual"

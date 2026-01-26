@@ -1,7 +1,7 @@
 # Backend AGENT.md
 
 ## Current Phase
-**Phase 9 — Payments V1 (Complete)**
+**Phase 10 — Ledger + Commission + Controlled Payouts (Complete)**
 
 ## Decisions Made
 - Uploads use S3-compatible presigned PUT URLs; backend stays stateless.
@@ -13,6 +13,8 @@
 - Payments are collected via Stripe PaymentIntents; booking must be `ready_for_payment`.
 - Booking totals are derived from `booking_vendor.agreed_amount_cents`; payment blocks if any approved vendor has missing pricing.
 - Webhook idempotency is handled via a `webhook_events` table keyed by Stripe event id.
+- Platform commission is 10% of paid amounts and recorded per vendor allocation.
+- Reservation and completion payouts are created on payment success and start `locked` until requested and approved.
 
 ## Implemented Modules
 - `app/services/storage/s3.py` — S3 presign logic and object key builder.
@@ -29,15 +31,19 @@
 - `app/api/routes/payments.py` — Booking payment intent creation.
 - `app/api/routes/webhooks.py` — Stripe webhook handler for payment state sync.
 - `app/schemas/payments.py` — Payment request/response payloads.
+- `app/services/commission.py` — Commission calculation helper.
+- `app/services/payouts/allocation.py` — Proportional payout allocation across vendors.
+- `app/api/routes/vendor_payouts.py` — Vendor payout request/listing endpoints.
+- `app/api/routes/admin_payouts.py` — Admin payout review endpoints.
 
 ## Known Issues / Risks
 - Storage credentials must be provided via env vars; presign fails without S3 config.
 - Vendor `display_name` uses user email until profile fields are added.
 
-## Next Phase Checklist (Phase 10 — Planned)
-- Implement payout scheduling and vendor disbursements.
-- Add escrow release rules and payout milestones.
-- Expand vendor/profile metadata and reporting.
+## Next Phase Checklist (Phase 11 — Planned)
+- Implement actual payout transfers (Stripe Connect).
+- Add second-payment handling for deposit + remaining balance.
+- Expand reporting and reconciliation views.
 
 ## Upload Rules
 - Endpoint: `POST /uploads/presign`
@@ -79,6 +85,14 @@
 - `GET /admin/bookings/{booking_id}`
 - `POST /bookings/{booking_id}/pay`
 - `POST /webhooks/stripe`
+- `GET /vendor/payouts`
+- `POST /vendor/payouts/{payout_id}/request`
+- `GET /admin/payouts/pending`
+- `POST /admin/payouts/{payout_id}/approve`
+- `POST /admin/payouts/{payout_id}/hold`
+- `POST /admin/payouts/{payout_id}/reverse`
+- `POST /bookings/{booking_id}/complete`
+- `POST /admin/bookings/{booking_id}/force-complete`
 
 ## Booking Workflow (Phase 8)
 - Organizer creates booking requests with a required venue vendor and optional service vendors.
@@ -99,6 +113,14 @@
 - Stripe webhook events handled: `payment_intent.succeeded`, `payment_intent.payment_failed`, `payment_intent.canceled`.
 - On success: booking status becomes `paid` and a `held_funds` ledger entry is created.
 - Webhook idempotency: Stripe event ids are stored in `webhook_events` and ignored on repeat.
+
+## Payout Workflow (Phase 10)
+- Payment success allocates paid amount proportionally across vendors by agreed pricing.
+- Platform commission defaults to 10% of each vendor's allocated share.
+- Two payouts are created per vendor allocation: `reservation` (50%) and `completion` (remainder), both `locked`.
+- Vendors request reservation payouts by moving them to `eligible`; admins approve to mark `paid`.
+- Booking completion sets `completion` payouts to `eligible` for admin approval.
+- Deposit payments only release funds from the deposit; remaining balances require future payments.
 
 ## Seed Script
 - Run template seed script:
@@ -142,4 +164,6 @@ CORS_ORIGINS=http://localhost:3000
 STRIPE_SECRET_KEY=change-me
 STRIPE_WEBHOOK_SECRET=change-me
 BOOKING_DEPOSIT_PERCENT=0.30
+PLATFORM_COMMISSION_PERCENT=0.10
+RESERVATION_RELEASE_PERCENT=0.50
 ```

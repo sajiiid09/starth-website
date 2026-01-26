@@ -8,6 +8,7 @@ from sqlalchemy.orm import Session
 from app.api.deps import get_db, require_role, require_subscription_active
 from app.models.booking import Booking
 from app.models.booking_vendor import BookingVendor
+from app.models.audit_log import AuditLog
 from app.models.enums import BookingVendorApprovalStatus, UserRole
 from app.models.user import User
 from app.schemas.bookings import (
@@ -170,6 +171,35 @@ def accept_counter(
     return _serialize_booking(booking, vendors)
 
 
+@router.post("/bookings/{booking_id}/complete", response_model=BookingOut)
+def complete_booking(
+    booking_id: UUID,
+    db: Session = Depends(get_db),
+    user: User = Depends(require_role(UserRole.ORGANIZER)),
+) -> BookingOut:
+    try:
+        booking = bookings_service.complete_booking_for_organizer(db, user, booking_id)
+    except ValueError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail={"error": str(exc)}
+        ) from exc
+    audit_log = AuditLog(
+        actor_user_id=user.id,
+        action="booking_complete",
+        entity_type="booking",
+        entity_id=str(booking.id),
+        before_json=None,
+        after_json={"status": booking.status.value},
+    )
+    db.add(audit_log)
+    db.commit()
+    booking_with_vendors = bookings_service.get_booking_with_vendors(db, booking_id)
+    if not booking_with_vendors:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Booking not found")
+    booking, vendors = booking_with_vendors
+    return _serialize_booking(booking, vendors)
+
+
 @router.get("/admin/bookings", response_model=list[BookingOut])
 def list_admin_bookings(
     db: Session = Depends(get_db),
@@ -185,6 +215,30 @@ def get_admin_booking(
     db: Session = Depends(get_db),
     _: User = Depends(require_role(UserRole.ADMIN)),
 ) -> BookingOut:
+    booking_with_vendors = bookings_service.get_booking_with_vendors(db, booking_id)
+    if not booking_with_vendors:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Booking not found")
+    booking, vendors = booking_with_vendors
+    return _serialize_booking(booking, vendors)
+
+
+@router.post("/admin/bookings/{booking_id}/force-complete", response_model=BookingOut)
+def force_complete_booking(
+    booking_id: UUID,
+    db: Session = Depends(get_db),
+    admin_user: User = Depends(require_role(UserRole.ADMIN)),
+) -> BookingOut:
+    booking = bookings_service.force_complete_booking(db, booking_id)
+    audit_log = AuditLog(
+        actor_user_id=admin_user.id,
+        action="admin_booking_force_complete",
+        entity_type="booking",
+        entity_id=str(booking.id),
+        before_json=None,
+        after_json={"status": booking.status.value},
+    )
+    db.add(audit_log)
+    db.commit()
     booking_with_vendors = bookings_service.get_booking_with_vendors(db, booking_id)
     if not booking_with_vendors:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Booking not found")

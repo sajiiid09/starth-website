@@ -12,11 +12,14 @@ from app.models.enums import (
     BookingStatus,
     BookingVendorApprovalStatus,
     BookingVendorRole,
+    PayoutMilestone,
+    PayoutStatus,
     VendorType,
     VendorVerificationStatus,
 )
 from app.models.user import User
 from app.models.vendor import Vendor
+from app.models.payout import Payout
 from app.schemas.bookings import BookingCreateIn, OrganizerAcceptCounterIn, VendorApproveIn
 
 
@@ -238,6 +241,30 @@ def get_vendor_for_user(db: Session, user: User) -> Vendor:
     return _get_vendor_for_user(db, user)
 
 
+def complete_booking_for_organizer(
+    db: Session, organizer_user: User, booking_id: UUID
+) -> Booking:
+    with db.begin():
+        booking = _lock_booking(db, booking_id)
+        if booking.organizer_user_id != organizer_user.id:
+            raise ValueError("booking_forbidden")
+        if booking.status not in {BookingStatus.PAID, BookingStatus.IN_PROGRESS}:
+            raise ValueError("booking_not_completable")
+        booking.status = BookingStatus.COMPLETED
+        _unlock_completion_payouts(db, booking.id)
+        db.add(booking)
+    return booking
+
+
+def force_complete_booking(db: Session, booking_id: UUID) -> Booking:
+    with db.begin():
+        booking = _lock_booking(db, booking_id)
+        booking.status = BookingStatus.COMPLETED
+        _unlock_completion_payouts(db, booking.id)
+        db.add(booking)
+    return booking
+
+
 def _load_service_vendors(db: Session, vendor_ids: list[UUID]) -> list[Vendor]:
     if not vendor_ids:
         return []
@@ -291,3 +318,18 @@ def _group_vendors_by_booking(
     for booking_vendor in booking_vendors:
         grouped.setdefault(booking_vendor.booking_id, []).append(booking_vendor)
     return grouped
+
+
+def _unlock_completion_payouts(db: Session, booking_id: UUID) -> None:
+    booking_vendor_ids = select(BookingVendor.id).where(
+        BookingVendor.booking_id == booking_id
+    )
+    payouts = db.execute(
+        select(Payout)
+        .where(Payout.booking_vendor_id.in_(booking_vendor_ids))
+        .where(Payout.milestone == PayoutMilestone.COMPLETION)
+        .where(Payout.status == PayoutStatus.LOCKED)
+    ).scalars().all()
+    for payout in payouts:
+        payout.status = PayoutStatus.ELIGIBLE
+        db.add(payout)

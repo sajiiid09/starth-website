@@ -9,12 +9,15 @@ from sqlalchemy.orm import Session
 from app.api.deps import get_db
 from app.models.booking import Booking
 from app.models.booking_vendor import BookingVendor
-from app.models.enums import BookingStatus, LedgerEntryType, PaymentStatus
+from app.core.config import get_settings
+from app.models.enums import BookingStatus, LedgerEntryType, PaymentStatus, PayoutMilestone, PayoutStatus
 from app.models.ledger_entry import LedgerEntry
 from app.models.payment import Payment
+from app.models.payout import Payout
 from app.models.webhook_event import WebhookEvent
 from app.services.bookings_pricing import compute_booking_total
 from app.services.payments.stripe import StripePaymentService
+from app.services.payouts.allocation import allocate_paid_amount_across_vendors
 
 router = APIRouter(tags=["webhooks"])
 
@@ -69,10 +72,10 @@ async def handle_stripe_webhook(
             ).scalar_one_or_none()
             if booking:
                 booking.status = BookingStatus.PAID
+                booking_vendors = db.execute(
+                    select(BookingVendor).where(BookingVendor.booking_id == booking.id)
+                ).scalars().all()
                 if booking.total_gross_amount_cents == 0:
-                    booking_vendors = db.execute(
-                        select(BookingVendor).where(BookingVendor.booking_id == booking.id)
-                    ).scalars().all()
                     try:
                         booking.total_gross_amount_cents = compute_booking_total(
                             booking, booking_vendors
@@ -90,6 +93,55 @@ async def handle_stripe_webhook(
                 note="Stripe payment received",
             )
             db.add(ledger_entry)
+
+            if payment.payouts_created_at is None and booking:
+                settings = get_settings()
+                try:
+                    booking_total = booking.total_gross_amount_cents or compute_booking_total(
+                        booking, booking_vendors
+                    )
+                    allocations = allocate_paid_amount_across_vendors(
+                        booking_total_cents=booking_total,
+                        paid_amount_cents=payment.amount_cents,
+                        booking_vendors=booking_vendors,
+                        platform_commission_percent=settings.platform_commission_percent,
+                    )
+                except ValueError:
+                    allocations = []
+
+                for allocation in allocations:
+                    if allocation.platform_fee_from_paid > 0:
+                        db.add(
+                            LedgerEntry(
+                                booking_id=payment.booking_id,
+                                booking_vendor_id=allocation.booking_vendor_id,
+                                type=LedgerEntryType.PLATFORM_FEE,
+                                amount_cents=allocation.platform_fee_from_paid,
+                                currency=payment.currency,
+                                note="Platform commission",
+                            )
+                        )
+                    reservation_amount = int(
+                        allocation.vendor_net_from_paid * settings.reservation_release_percent
+                    )
+                    completion_amount = allocation.vendor_net_from_paid - reservation_amount
+                    db.add(
+                        Payout(
+                            booking_vendor_id=allocation.booking_vendor_id,
+                            milestone=PayoutMilestone.RESERVATION,
+                            amount_cents=reservation_amount,
+                            status=PayoutStatus.LOCKED,
+                        )
+                    )
+                    db.add(
+                        Payout(
+                            booking_vendor_id=allocation.booking_vendor_id,
+                            milestone=PayoutMilestone.COMPLETION,
+                            amount_cents=completion_amount,
+                            status=PayoutStatus.LOCKED,
+                        )
+                    )
+                payment.payouts_created_at = datetime.utcnow()
         elif event_type in {"payment_intent.payment_failed", "payment_intent.canceled"}:
             payment.status = PaymentStatus.FAILED
 

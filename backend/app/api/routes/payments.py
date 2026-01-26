@@ -70,6 +70,15 @@ def create_payment_intent(
             currency=existing_payment.currency,
         )
 
+    booking_payment = db.execute(
+        select(Payment).where(Payment.booking_id == booking.id)
+    ).scalar_one_or_none()
+    if booking_payment:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail={"error": "payment_already_exists"},
+        )
+
     booking_vendors = db.execute(
         select(BookingVendor).where(BookingVendor.booking_id == booking.id)
     ).scalars().all()

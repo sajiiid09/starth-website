@@ -1,12 +1,15 @@
 # Backend AGENT.md
 
 ## Current Phase
-**Phase 7 — Object Storage + Signed Uploads (Complete)**
+**Phase 8 — Booking Orchestration V1 (Complete)**
 
 ## Decisions Made
 - Uploads use S3-compatible presigned PUT URLs; backend stays stateless.
 - Upload access is restricted by role: vendor for vendor assets, admin for template media.
 - Template list remains public; template detail requires `trial` or `active` subscription.
+- Booking requests always create vendor linkage rows with `pending` approvals.
+- Booking readiness requires all included vendors to be `approved` before moving to `ready_for_payment`.
+- Organizer rejection of a vendor counter marks that vendor as `declined` and keeps the booking in `awaiting_vendor_approval`.
 
 ## Implemented Modules
 - `app/services/storage/s3.py` — S3 presign logic and object key builder.
@@ -14,16 +17,19 @@
 - `app/api/routes/uploads.py` — Presigned upload endpoint.
 - `app/schemas/uploads.py` — Upload request/response schemas.
 - `app/api/routes/vendors.py` — Vendor self-service onboarding endpoints.
+- `app/services/bookings_service.py` — Booking workflow orchestration and status recomputation.
+- `app/api/routes/bookings.py` — Booking request, vendor actions, organizer accept, admin views.
+- `app/schemas/bookings.py` — Booking request and action payloads.
 
 ## Known Issues / Risks
 - Storage credentials must be provided via env vars; presign fails without S3 config.
 - Vendor `display_name` uses user email until profile fields are added.
 
-## Next Phase Checklist (Phase 8 — Planned)
+## Next Phase Checklist (Phase 9 — Planned)
 - Add asset registration + linking to profiles.
 - Add webhook listener for provider events.
 - Expand vendor/profile metadata.
-- Build booking workflow endpoints.
+- Implement payment capture and payouts for bookings.
 
 ## Upload Rules
 - Endpoint: `POST /uploads/presign`
@@ -54,6 +60,27 @@
 - `POST /subscription/cancel`
 - `POST /admin/users/{user_id}/subscription/set`
 - `GET /planner/access-check` (gated by subscription)
+- `POST /bookings`
+- `GET /bookings/{booking_id}`
+- `GET /vendor/bookings`
+- `POST /vendor/bookings/{booking_id}/approve`
+- `POST /vendor/bookings/{booking_id}/decline`
+- `POST /vendor/bookings/{booking_id}/counter`
+- `POST /bookings/{booking_id}/vendors/{booking_vendor_id}/accept-counter`
+- `GET /admin/bookings`
+- `GET /admin/bookings/{booking_id}`
+
+## Booking Workflow (Phase 8)
+- Organizer creates booking requests with a required venue vendor and optional service vendors.
+- Booking status transitions: `draft` → `awaiting_vendor_approval` → `ready_for_payment`.
+- Vendors respond with `approved`, `declined`, or `countered`.
+- Organizer accepts or declines counters; acceptance preserves the proposed amount.
+- Payloads:
+  - `POST /bookings`: `{ template_id?, event_date?, guest_count?, location_text?, venue_vendor_id, service_vendor_ids?, notes?, requested_budget_cents?, currency }`
+  - `POST /vendor/bookings/{booking_id}/approve`: `{ agreed_amount_cents?, note? }`
+  - `POST /vendor/bookings/{booking_id}/decline`: `{ note? }`
+  - `POST /vendor/bookings/{booking_id}/counter`: `{ proposed_amount_cents, note? }`
+  - `POST /bookings/{booking_id}/vendors/{booking_vendor_id}/accept-counter`: `{ booking_vendor_id, accept }`
 
 ## Seed Script
 - Run template seed script:

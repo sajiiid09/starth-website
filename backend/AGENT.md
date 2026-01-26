@@ -1,7 +1,7 @@
 # Backend AGENT.md
 
 ## Current Phase
-**Phase 10 — Ledger + Commission + Controlled Payouts (Complete)**
+**Phase 11 — Admin Console APIs + Audit Log Hardening + Ops Endpoints (Complete)**
 
 ## Decisions Made
 - Uploads use S3-compatible presigned PUT URLs; backend stays stateless.
@@ -15,6 +15,7 @@
 - Webhook idempotency is handled via a `webhook_events` table keyed by Stripe event id.
 - Platform commission is 10% of paid amounts and recorded per vendor allocation.
 - Reservation and completion payouts are created on payment success and start `locked` until requested and approved.
+- All admin mutations are logged via a centralized audit helper with before/after snapshots.
 
 ## Implemented Modules
 - `app/services/storage/s3.py` — S3 presign logic and object key builder.
@@ -35,12 +36,16 @@
 - `app/services/payouts/allocation.py` — Proportional payout allocation across vendors.
 - `app/api/routes/vendor_payouts.py` — Vendor payout request/listing endpoints.
 - `app/api/routes/admin_payouts.py` — Admin payout review endpoints.
+- `app/services/audit.py` — Central admin audit logging helper.
+- `app/utils/serialization.py` — Safe model serialization for audit snapshots.
+- `app/api/routes/admin_overview.py` — Admin overview listings for vendors/bookings/payments/payouts.
+- `app/api/routes/admin_ops.py` — Admin ops endpoints for health and demo seed.
 
 ## Known Issues / Risks
 - Storage credentials must be provided via env vars; presign fails without S3 config.
 - Vendor `display_name` uses user email until profile fields are added.
 
-## Next Phase Checklist (Phase 11 — Planned)
+## Next Phase Checklist (Phase 12 — Planned)
 - Implement actual payout transfers (Stripe Connect).
 - Add second-payment handling for deposit + remaining balance.
 - Expand reporting and reconciliation views.
@@ -93,6 +98,13 @@
 - `POST /admin/payouts/{payout_id}/reverse`
 - `POST /bookings/{booking_id}/complete`
 - `POST /admin/bookings/{booking_id}/force-complete`
+- `POST /admin/bookings/{booking_id}/cancel`
+- `GET /admin/vendors` (filters: status, vendor_type)
+- `GET /admin/bookings` (filter: status)
+- `GET /admin/payments` (filter: status)
+- `GET /admin/payouts` (filters: status, milestone)
+- `GET /admin/health/details`
+- `POST /admin/demo/seed` (ENABLE_DEMO_OPS=true)
 
 ## Booking Workflow (Phase 8)
 - Organizer creates booking requests with a required venue vendor and optional service vendors.
@@ -121,6 +133,11 @@
 - Vendors request reservation payouts by moving them to `eligible`; admins approve to mark `paid`.
 - Booking completion sets `completion` payouts to `eligible` for admin approval.
 - Deposit payments only release funds from the deposit; remaining balances require future payments.
+
+## Admin Ops + Audit (Phase 11)
+- Admin overview endpoints provide vendor/booking/payment/payout snapshots for operations.
+- All admin mutations are logged with before/after snapshots using `log_admin_action`.
+- Demo seeding is gated by `ENABLE_DEMO_OPS`.
 
 ## Seed Script
 - Run template seed script:
@@ -166,4 +183,5 @@ STRIPE_WEBHOOK_SECRET=change-me
 BOOKING_DEPOSIT_PERCENT=0.30
 PLATFORM_COMMISSION_PERCENT=0.10
 RESERVATION_RELEASE_PERCENT=0.50
+ENABLE_DEMO_OPS=false
 ```

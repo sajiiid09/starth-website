@@ -186,6 +186,10 @@ def get_booking_with_vendors(
     return booking, vendors
 
 
+def get_booking(db: Session, booking_id: UUID) -> Booking | None:
+    return db.execute(select(Booking).where(Booking.id == booking_id)).scalar_one_or_none()
+
+
 def list_bookings_for_vendor(
     db: Session,
     vendor_id: UUID,
@@ -265,6 +269,15 @@ def force_complete_booking(db: Session, booking_id: UUID) -> Booking:
     return booking
 
 
+def cancel_booking_admin(db: Session, booking_id: UUID) -> Booking:
+    with db.begin():
+        booking = _lock_booking(db, booking_id)
+        booking.status = BookingStatus.CANCELED
+        _hold_booking_payouts(db, booking.id)
+        db.add(booking)
+    return booking
+
+
 def _load_service_vendors(db: Session, vendor_ids: list[UUID]) -> list[Vendor]:
     if not vendor_ids:
         return []
@@ -332,4 +345,16 @@ def _unlock_completion_payouts(db: Session, booking_id: UUID) -> None:
     ).scalars().all()
     for payout in payouts:
         payout.status = PayoutStatus.ELIGIBLE
+        db.add(payout)
+
+
+def _hold_booking_payouts(db: Session, booking_id: UUID) -> None:
+    booking_vendor_ids = select(BookingVendor.id).where(
+        BookingVendor.booking_id == booking_id
+    )
+    payouts = db.execute(
+        select(Payout).where(Payout.booking_vendor_id.in_(booking_vendor_ids))
+    ).scalars().all()
+    for payout in payouts:
+        payout.status = PayoutStatus.HELD
         db.add(payout)

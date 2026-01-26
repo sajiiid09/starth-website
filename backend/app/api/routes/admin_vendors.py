@@ -7,11 +7,12 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.api.deps import get_db, require_role
-from app.models.audit_log import AuditLog
 from app.models.enums import UserRole, VendorVerificationStatus
 from app.models.vendor import Vendor
 from app.models.user import User
 from app.schemas.vendors import VendorNeedsChangesIn
+from app.services.audit import log_admin_action
+from app.utils.serialization import model_to_dict
 
 router = APIRouter(prefix="/admin", tags=["admin-vendors"])
 
@@ -53,31 +54,22 @@ def approve_vendor(
     if not vendor:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Vendor not found")
 
-    before = {
-        "verification_status": vendor.verification_status.value,
-        "payout_enabled": vendor.payout_enabled,
-        "review_note": vendor.review_note,
-    }
+    before = model_to_dict(vendor)
 
     vendor.verification_status = VendorVerificationStatus.APPROVED
     vendor.payout_enabled = True
     vendor.review_note = None
 
-    audit_log = AuditLog(
+    db.add(vendor)
+    log_admin_action(
+        db,
         actor_user_id=admin_user.id,
         action="admin_vendor_approve",
         entity_type="vendor",
         entity_id=str(vendor.id),
-        before_json=before,
-        after_json={
-            "verification_status": vendor.verification_status.value,
-            "payout_enabled": vendor.payout_enabled,
-            "review_note": vendor.review_note,
-        },
+        before_obj=before,
+        after_obj=model_to_dict(vendor),
     )
-
-    db.add(vendor)
-    db.add(audit_log)
     db.commit()
 
     return {"status": "approved"}
@@ -94,31 +86,22 @@ def needs_changes_vendor(
     if not vendor:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Vendor not found")
 
-    before = {
-        "verification_status": vendor.verification_status.value,
-        "payout_enabled": vendor.payout_enabled,
-        "review_note": vendor.review_note,
-    }
+    before = model_to_dict(vendor)
 
     vendor.verification_status = VendorVerificationStatus.NEEDS_CHANGES
     vendor.review_note = payload.note
     vendor.payout_enabled = False
 
-    audit_log = AuditLog(
+    db.add(vendor)
+    log_admin_action(
+        db,
         actor_user_id=admin_user.id,
         action="admin_vendor_needs_changes",
         entity_type="vendor",
         entity_id=str(vendor.id),
-        before_json=before,
-        after_json={
-            "verification_status": vendor.verification_status.value,
-            "payout_enabled": vendor.payout_enabled,
-            "review_note": vendor.review_note,
-        },
+        before_obj=before,
+        after_obj=model_to_dict(vendor),
     )
-
-    db.add(vendor)
-    db.add(audit_log)
     db.commit()
 
     return {"status": "needs_changes"}
@@ -134,23 +117,20 @@ def disable_vendor_payout(
     if not vendor:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Vendor not found")
 
-    before = {
-        "payout_enabled": vendor.payout_enabled,
-    }
+    before = model_to_dict(vendor)
 
     vendor.payout_enabled = False
 
-    audit_log = AuditLog(
+    db.add(vendor)
+    log_admin_action(
+        db,
         actor_user_id=admin_user.id,
         action="admin_vendor_disable_payout",
         entity_type="vendor",
         entity_id=str(vendor.id),
-        before_json=before,
-        after_json={"payout_enabled": vendor.payout_enabled},
+        before_obj=before,
+        after_obj=model_to_dict(vendor),
     )
-
-    db.add(vendor)
-    db.add(audit_log)
     db.commit()
 
     return {"status": "payout_disabled"}

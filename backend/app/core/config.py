@@ -26,6 +26,7 @@ class Settings(BaseSettings):
     reservation_release_percent: float = Field(
         default=0.50, alias="RESERVATION_RELEASE_PERCENT"
     )
+    enable_demo_ops: bool = Field(default=False, alias="ENABLE_DEMO_OPS")
     jwt_algorithm: str = Field(default="HS256", alias="JWT_ALGORITHM")
     access_token_expire_minutes: int = Field(default=15, alias="ACCESS_TOKEN_EXPIRE_MINUTES")
     refresh_token_expire_days: int = Field(default=14, alias="REFRESH_TOKEN_EXPIRE_DAYS")

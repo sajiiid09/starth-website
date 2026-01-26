@@ -2,6 +2,8 @@ from fastapi import APIRouter
 
 from app.api.routes.admin_subscriptions import router as admin_subscriptions_router
 from app.api.routes.admin_templates import router as admin_templates_router
+from app.api.routes.admin_ops import router as admin_ops_router
+from app.api.routes.admin_overview import router as admin_overview_router
 from app.api.routes.admin_vendors import router as admin_vendors_router
 from app.api.routes.admin_payouts import router as admin_payouts_router
 from app.api.routes.auth import router as auth_router
@@ -22,6 +24,8 @@ router.include_router(auth_router)
 router.include_router(subscription_router)
 router.include_router(admin_subscriptions_router)
 router.include_router(admin_templates_router)
+router.include_router(admin_ops_router)
+router.include_router(admin_overview_router)
 router.include_router(admin_payouts_router)
 router.include_router(admin_vendors_router)
 router.include_router(bookings_router)

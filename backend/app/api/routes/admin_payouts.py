@@ -7,7 +7,6 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.api.deps import get_db, require_role
-from app.models.audit_log import AuditLog
 from app.models.booking_vendor import BookingVendor
 from app.models.enums import LedgerEntryType, PayoutStatus, UserRole
 from app.models.ledger_entry import LedgerEntry
@@ -15,6 +14,8 @@ from app.models.booking import Booking
 from app.models.payout import Payout
 from app.models.user import User
 from app.schemas.payouts import PayoutOut
+from app.services.audit import log_admin_action
+from app.utils.serialization import model_to_dict
 
 router = APIRouter(prefix="/admin", tags=["admin-payouts"])
 
@@ -73,6 +74,7 @@ def approve_payout(
     if not booking:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Booking not found")
 
+    before = model_to_dict(payout)
     payout.status = PayoutStatus.PAID
     payout.admin_approved_by = admin_user.id
 
@@ -87,6 +89,15 @@ def approve_payout(
 
     db.add(payout)
     db.add(ledger_entry)
+    log_admin_action(
+        db,
+        actor_user_id=admin_user.id,
+        action="admin_payout_approve",
+        entity_type="payout",
+        entity_id=str(payout.id),
+        before_obj=before,
+        after_obj=model_to_dict(payout),
+    )
     db.commit()
     db.refresh(payout)
 
@@ -112,21 +123,20 @@ def hold_payout(
     if not payout:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Payout not found")
 
-    before = {"status": payout.status.value}
+    before = model_to_dict(payout)
     payout.status = PayoutStatus.HELD
     payout.admin_approved_by = admin_user.id
 
-    audit_log = AuditLog(
+    db.add(payout)
+    log_admin_action(
+        db,
         actor_user_id=admin_user.id,
         action="admin_payout_hold",
         entity_type="payout",
         entity_id=str(payout.id),
-        before_json=before,
-        after_json={"status": payout.status.value},
+        before_obj=before,
+        after_obj=model_to_dict(payout),
     )
-
-    db.add(payout)
-    db.add(audit_log)
     db.commit()
     db.refresh(payout)
 
@@ -157,21 +167,20 @@ def reverse_payout(
     if not payout:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Payout not found")
 
-    before = {"status": payout.status.value}
+    before = model_to_dict(payout)
     payout.status = PayoutStatus.REVERSED
     payout.admin_approved_by = admin_user.id
 
-    audit_log = AuditLog(
+    db.add(payout)
+    log_admin_action(
+        db,
         actor_user_id=admin_user.id,
         action="admin_payout_reverse",
         entity_type="payout",
         entity_id=str(payout.id),
-        before_json=before,
-        after_json={"status": payout.status.value},
+        before_obj=before,
+        after_obj=model_to_dict(payout),
     )
-
-    db.add(payout)
-    db.add(audit_log)
     db.commit()
     db.refresh(payout)
 

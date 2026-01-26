@@ -7,11 +7,12 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.api.deps import get_db, require_role
-from app.models.audit_log import AuditLog
 from app.models.enums import SubscriptionProvider, UserRole
 from app.models.subscription import Subscription
 from app.models.user import User
 from app.schemas.subscription import AdminSubscriptionUpdate, SubscriptionResponse
+from app.services.audit import log_admin_action
+from app.utils.serialization import model_to_dict
 
 router = APIRouter(prefix="/admin", tags=["admin-subscriptions"])
 
@@ -32,8 +33,8 @@ def set_subscription_status(
     ).scalar_one_or_none()
 
     before = {
-        "subscription_status": user.subscription_status.value,
-        "provider": subscription.provider.value if subscription else None,
+        "user": model_to_dict(user),
+        "subscription": model_to_dict(subscription),
     }
 
     if subscription is None:
@@ -49,20 +50,21 @@ def set_subscription_status(
 
     user.subscription_status = payload.status
 
-    audit_log = AuditLog(
+    after = {
+        "user": model_to_dict(user),
+        "subscription": model_to_dict(subscription),
+    }
+
+    db.add(user)
+    log_admin_action(
+        db,
         actor_user_id=admin_user.id,
         action="admin_subscription_set",
         entity_type="user",
         entity_id=str(user_id),
-        before_json=before,
-        after_json={
-            "subscription_status": payload.status.value,
-            "provider": subscription.provider.value,
-        },
+        before_obj=before,
+        after_obj=after,
     )
-
-    db.add(user)
-    db.add(audit_log)
     db.commit()
     db.refresh(subscription)
 

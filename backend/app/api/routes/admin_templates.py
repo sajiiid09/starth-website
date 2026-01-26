@@ -6,27 +6,14 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
 from app.api.deps import get_db, require_role
-from app.models.audit_log import AuditLog
 from app.models.enums import UserRole
 from app.models.user import User
 from app.schemas.templates import TemplateCreateIn, TemplateDetailOut, TemplateUpdateIn
 from app.services import templates_service
+from app.services.audit import log_admin_action
+from app.utils.serialization import model_to_dict
 
 router = APIRouter(prefix="/admin", tags=["admin-templates"])
-
-
-def _template_snapshot(template: object | None) -> dict[str, object | None]:
-    if template is None:
-        return {}
-    return {
-        "id": str(template.id),
-        "title": template.title,
-        "category": template.category,
-        "summary": template.summary,
-        "blueprint_json": template.blueprint_json,
-        "est_cost_min": template.est_cost_min,
-        "est_cost_max": template.est_cost_max,
-    }
 
 
 @router.post("/templates", response_model=TemplateDetailOut)
@@ -37,15 +24,15 @@ def create_template(
 ) -> TemplateDetailOut:
     template = templates_service.create_template(db, payload)
 
-    audit_log = AuditLog(
+    log_admin_action(
+        db,
         actor_user_id=admin_user.id,
         action="admin_template_create",
         entity_type="template",
         entity_id=str(template.id),
-        before_json=None,
-        after_json=_template_snapshot(template),
+        before_obj=None,
+        after_obj=model_to_dict(template),
     )
-    db.add(audit_log)
     db.commit()
 
     return TemplateDetailOut(
@@ -70,18 +57,18 @@ def update_template(
     if not template:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Template not found")
 
-    before = _template_snapshot(template)
+    before = model_to_dict(template)
     template = templates_service.update_template(db, template, payload)
 
-    audit_log = AuditLog(
+    log_admin_action(
+        db,
         actor_user_id=admin_user.id,
         action="admin_template_update",
         entity_type="template",
         entity_id=str(template.id),
-        before_json=before,
-        after_json=_template_snapshot(template),
+        before_obj=before,
+        after_obj=model_to_dict(template),
     )
-    db.add(audit_log)
     db.commit()
 
     return TemplateDetailOut(
@@ -105,18 +92,18 @@ def delete_template(
     if not template:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Template not found")
 
-    before = _template_snapshot(template)
+    before = model_to_dict(template)
     templates_service.delete_template(db, template)
 
-    audit_log = AuditLog(
+    log_admin_action(
+        db,
         actor_user_id=admin_user.id,
         action="admin_template_delete",
         entity_type="template",
         entity_id=str(template_id),
-        before_json=before,
-        after_json=None,
+        before_obj=before,
+        after_obj=None,
     )
-    db.add(audit_log)
     db.commit()
 
     return {"status": "deleted"}

@@ -3,7 +3,7 @@ from __future__ import annotations
 from datetime import date
 from uuid import uuid4
 
-from sqlalchemy import Date, Enum as SAEnum, ForeignKey, Index, Integer, String
+from sqlalchemy import Date, Enum as SAEnum, ForeignKey, Index, Integer, String, Text
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column
 
@@ -28,6 +28,8 @@ class Booking(TimestampMixin, Base):
     event_date: Mapped[date | None] = mapped_column(Date, nullable=True)
     guest_count: Mapped[int | None] = mapped_column(Integer, nullable=True)
     location_text: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    notes: Mapped[str | None] = mapped_column(Text, nullable=True)
+    requested_budget_cents: Mapped[int | None] = mapped_column(Integer, nullable=True)
     status: Mapped[BookingStatus] = mapped_column(
         SAEnum(BookingStatus, name="booking_status"),
         nullable=False,

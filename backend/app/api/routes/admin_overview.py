@@ -5,6 +5,8 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.api.deps import get_db, require_role
+from app.core.config import get_settings
+from app.core.errors import forbidden
 from app.models.booking import Booking
 from app.models.booking_vendor import BookingVendor
 from app.models.enums import (
@@ -22,6 +24,8 @@ from app.models.service_profile import ServiceProfile
 from app.models.user import User
 from app.models.vendor import Vendor
 from app.models.venue_profile import VenueProfile
+from app.schemas.payments import PaymentReconcileRequest, PaymentReconcileResponse
+from app.services.payments.stripe_sync import reconcile_stripe_payments
 
 router = APIRouter(prefix="/admin", tags=["admin-overview"])
 
@@ -142,6 +146,19 @@ def list_admin_payments(
             }
         )
     return results
+
+
+@router.post("/payments/reconcile", response_model=PaymentReconcileResponse)
+def reconcile_payments(
+    payload: PaymentReconcileRequest,
+    db: Session = Depends(get_db),
+    _: User = Depends(require_role(UserRole.ADMIN)),
+) -> PaymentReconcileResponse:
+    settings = get_settings()
+    if not settings.enable_demo_ops:
+        raise forbidden("Demo ops disabled")
+    summary = reconcile_stripe_payments(db, hours=payload.hours, limit=payload.limit)
+    return PaymentReconcileResponse(**summary)
 
 
 @router.get("/payouts")

@@ -1,11 +1,12 @@
 from __future__ import annotations
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends
 from sqlalchemy import func, select, text
 from sqlalchemy.orm import Session
 
 from app.api.deps import get_db, require_role
 from app.core.config import get_settings
+from app.core.errors import forbidden
 from app.models.booking import Booking
 from app.models.template import Template
 from app.models.user import User
@@ -43,7 +44,7 @@ def admin_demo_seed(
 ) -> dict[str, int]:
     settings = get_settings()
     if not settings.enable_demo_ops:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Demo ops disabled")
+        raise forbidden("Demo ops disabled")
     seed_templates()
     templates_count = len(list_templates(db))
     log_admin_action(

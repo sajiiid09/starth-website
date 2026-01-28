@@ -2,12 +2,13 @@ from __future__ import annotations
 
 from datetime import datetime, timedelta, timezone
 
-from fastapi import APIRouter, Depends, Header, HTTPException, status
+from fastapi import APIRouter, Depends, Header, status
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.api.deps import get_db
 from app.core.config import get_settings
+from app.core.errors import APIError, forbidden
 from app.core.security import (
     create_access_token,
     create_refresh_token,
@@ -58,16 +59,20 @@ def signup(payload: SignupRequest, db: Session = Depends(get_db)) -> TokenRespon
     settings = get_settings()
     role = payload.role or UserRole.ORGANIZER
     if role == UserRole.ADMIN:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Admin users must be created via bootstrap",
+        raise forbidden("Admin users must be created via bootstrap")
+    if not payload.password.strip():
+        raise APIError(
+            error_code="invalid_password",
+            message="Password cannot be blank.",
+            status_code=status.HTTP_400_BAD_REQUEST,
         )
 
     existing_user = db.execute(select(User).where(User.email == payload.email)).scalar_one_or_none()
     if existing_user:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Email already registered",
+        raise APIError(
+            error_code="email_already_registered",
+            message="Email already registered",
+            status_code=status.HTTP_409_CONFLICT,
         )
 
     user = User(
@@ -80,9 +85,10 @@ def signup(payload: SignupRequest, db: Session = Depends(get_db)) -> TokenRespon
     db.refresh(user)
 
     if not settings.jwt_secret:
-        raise HTTPException(
+        raise APIError(
+            error_code="config_error",
+            message="JWT secret not configured",
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="JWT secret not configured",
         )
 
     return _issue_tokens(db, user)
@@ -93,21 +99,24 @@ def login(payload: LoginRequest, db: Session = Depends(get_db)) -> TokenResponse
     settings = get_settings()
     user = db.execute(select(User).where(User.email == payload.email)).scalar_one_or_none()
     if not user or not user.is_active:
-        raise HTTPException(
+        raise APIError(
+            error_code="invalid_credentials",
+            message="Invalid credentials",
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid credentials",
         )
 
     if not verify_password(payload.password, user.password_hash):
-        raise HTTPException(
+        raise APIError(
+            error_code="invalid_credentials",
+            message="Invalid credentials",
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid credentials",
         )
 
     if not settings.jwt_secret:
-        raise HTTPException(
+        raise APIError(
+            error_code="config_error",
+            message="JWT secret not configured",
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="JWT secret not configured",
         )
 
     return _issue_tokens(db, user)
@@ -118,24 +127,45 @@ def refresh(payload: RefreshRequest, db: Session = Depends(get_db)) -> TokenResp
     settings = get_settings()
     token_hash = hash_token(payload.refresh_token)
     refresh_record = db.execute(
-        select(RefreshToken).where(
-            RefreshToken.token_hash == token_hash,
-            RefreshToken.revoked_at.is_(None),
-            RefreshToken.expires_at > datetime.now(timezone.utc),
-        )
+        select(RefreshToken).where(RefreshToken.token_hash == token_hash)
     ).scalar_one_or_none()
 
     if not refresh_record:
-        raise HTTPException(
+        raise APIError(
+            error_code="invalid_credentials",
+            message="Invalid credentials",
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid credentials",
+        )
+    if refresh_record.revoked_at is not None:
+        active_tokens = db.execute(
+            select(RefreshToken).where(
+                RefreshToken.user_id == refresh_record.user_id,
+                RefreshToken.revoked_at.is_(None),
+            )
+        ).scalars().all()
+        now = datetime.now(timezone.utc)
+        for token in active_tokens:
+            token.revoked_at = now
+            db.add(token)
+        db.commit()
+        raise APIError(
+            error_code="refresh_token_reuse_detected",
+            message="Session expired. Please login again.",
+            status_code=status.HTTP_401_UNAUTHORIZED,
+        )
+    if refresh_record.expires_at <= datetime.now(timezone.utc):
+        raise APIError(
+            error_code="invalid_credentials",
+            message="Invalid credentials",
+            status_code=status.HTTP_401_UNAUTHORIZED,
         )
 
     user = db.execute(select(User).where(User.id == refresh_record.user_id)).scalar_one_or_none()
     if not user or not user.is_active:
-        raise HTTPException(
+        raise APIError(
+            error_code="invalid_credentials",
+            message="Invalid credentials",
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid credentials",
         )
 
     refresh_record.revoked_at = datetime.now(timezone.utc)
@@ -143,9 +173,10 @@ def refresh(payload: RefreshRequest, db: Session = Depends(get_db)) -> TokenResp
     db.commit()
 
     if not settings.jwt_secret:
-        raise HTTPException(
+        raise APIError(
+            error_code="config_error",
+            message="JWT secret not configured",
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="JWT secret not configured",
         )
 
     return _issue_tokens(db, user)
@@ -177,10 +208,7 @@ def bootstrap_admin(
 ) -> dict[str, str]:
     settings = get_settings()
     if not settings.admin_bootstrap_token or admin_bootstrap_token != settings.admin_bootstrap_token:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Not authorized",
-        )
+        raise forbidden("Not authorized")
 
     existing_admin = db.execute(select(User).where(User.role == UserRole.ADMIN)).scalar_one_or_none()
     if existing_admin:

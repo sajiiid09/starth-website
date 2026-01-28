@@ -2,11 +2,12 @@ from __future__ import annotations
 
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.api.deps import get_db, require_role
+from app.core.errors import not_found
 from app.models.enums import UserRole, VendorVerificationStatus
 from app.models.vendor import Vendor
 from app.models.user import User
@@ -52,7 +53,7 @@ def approve_vendor(
 ) -> dict[str, str]:
     vendor = db.execute(select(Vendor).where(Vendor.id == vendor_id)).scalar_one_or_none()
     if not vendor:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Vendor not found")
+        raise not_found("Vendor not found")
 
     before = model_to_dict(vendor)
 
@@ -84,7 +85,7 @@ def needs_changes_vendor(
 ) -> dict[str, str]:
     vendor = db.execute(select(Vendor).where(Vendor.id == vendor_id)).scalar_one_or_none()
     if not vendor:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Vendor not found")
+        raise not_found("Vendor not found")
 
     before = model_to_dict(vendor)
 
@@ -115,7 +116,7 @@ def disable_vendor_payout(
 ) -> dict[str, str]:
     vendor = db.execute(select(Vendor).where(Vendor.id == vendor_id)).scalar_one_or_none()
     if not vendor:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Vendor not found")
+        raise not_found("Vendor not found")
 
     before = model_to_dict(vendor)
 

@@ -80,8 +80,12 @@
   - Finance endpoints: `GET /admin/finance/bookings/{booking_id}/summary` and `GET /admin/finance/overview`.
   - Payout approvals are blocked when held funds are insufficient or booking status is not eligible (paid/completed by milestone).
   - Ledger entries link to payments and payouts for traceability and idempotency.
+- **Phase 6 — CORS + Security Headers + Config Tightening (Complete)**
+  - Startup validation enforces required config in prod and blocks wildcard CORS.
+  - Security headers middleware adds nosniff, frame denial, referrer policy, permissions policy, and no-store on auth/admin routes.
+  - CORS defaults allow localhost in non-prod; prod enforces explicit allowlist.
 
-## Phase 6 Checklist (Planned)
+## Phase 7 Checklist (Planned)
 - Move rate limiting and webhook retries to Redis-backed infrastructure.
 - Add alerting dashboards for failed webhook events and payment anomalies.
 

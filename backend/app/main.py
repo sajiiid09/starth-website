@@ -12,21 +12,28 @@ from app.core.errors import APIError
 from app.core.logging import configure_logging
 from app.core.middleware.request_context import RequestContextMiddleware
 from app.core.middleware.rate_limit import RateLimitMiddleware, default_rate_limit_rules
+from app.core.middleware.security_headers import SecurityHeadersMiddleware
 from app.core.monitoring import init_sentry
 
 settings = get_settings()
 configure_logging(settings.log_level)
 init_sentry(settings)
+settings.validate()
 
-app = FastAPI(title="Strathwell API")
+cors_origins = settings.cors_origins_list
+if settings.app_env != "prod" and not cors_origins:
+    cors_origins = ["http://localhost:3000", "http://localhost:5173"]
+
+app = FastAPI(title="Strathwell API", debug=settings.app_env != "prod")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=settings.cors_origins_list,
+    allow_origins=cors_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
+app.add_middleware(SecurityHeadersMiddleware)
 app.add_middleware(RateLimitMiddleware, rules=default_rate_limit_rules())
 app.add_middleware(RequestContextMiddleware)
 

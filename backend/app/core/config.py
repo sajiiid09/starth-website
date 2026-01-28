@@ -54,6 +54,36 @@ class Settings(BaseSettings):
             return []
         return [origin.strip() for origin in self.cors_origins.split(",") if origin.strip()]
 
+    def validate(self) -> None:
+        if self.app_env != "prod":
+            return
+
+        required_vars = {
+            "DATABASE_URL": self.database_url,
+            "JWT_SECRET": self.jwt_secret,
+            "STRIPE_SECRET_KEY": self.stripe_secret_key,
+            "STRIPE_WEBHOOK_SECRET": self.stripe_webhook_secret,
+        }
+        for name, value in required_vars.items():
+            if not value:
+                raise RuntimeError(f"Missing required configuration: {name}")
+
+        if self.storage_provider == "s3":
+            s3_required = {
+                "S3_BUCKET": self.s3_bucket,
+                "S3_ACCESS_KEY_ID": self.s3_access_key_id,
+                "S3_SECRET_ACCESS_KEY": self.s3_secret_access_key,
+            }
+            for name, value in s3_required.items():
+                if not value:
+                    raise RuntimeError(f"Missing required configuration: {name}")
+
+        if self.cors_origins.strip() == "*" or "*" in self.cors_origins_list:
+            raise RuntimeError("CORS_ORIGINS must be an explicit allowlist in production.")
+
+        if self.access_token_expire_minutes <= 0 or self.refresh_token_expire_days <= 0:
+            raise RuntimeError("Token expiration settings must be greater than zero.")
+
 
 @lru_cache(maxsize=1)
 def get_settings() -> Settings:

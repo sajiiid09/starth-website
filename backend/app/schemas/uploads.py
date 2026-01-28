@@ -21,3 +21,16 @@ class PresignUploadResponse(BaseModel):
     headers: dict[str, str]
     key: str
     public_url: str | None = None
+
+
+class RegisterUploadRequest(BaseModel):
+    key: str = Field(min_length=1)
+    public_url: str | None = None
+    kind: UploadKind
+    content_type: str = Field(min_length=1)
+    file_size_bytes: int = Field(ge=1)
+
+
+class RegisterUploadResponse(BaseModel):
+    asset_id: str
+    ok: bool = True

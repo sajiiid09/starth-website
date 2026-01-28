@@ -84,6 +84,9 @@ class Settings(BaseSettings):
         if self.access_token_expire_minutes <= 0 or self.refresh_token_expire_days <= 0:
             raise RuntimeError("Token expiration settings must be greater than zero.")
 
+        if self.upload_url_expire_seconds <= 0 or self.upload_url_expire_seconds > 600:
+            raise RuntimeError("UPLOAD_URL_EXPIRE_SECONDS must be between 1 and 600.")
+
 
 @lru_cache(maxsize=1)
 def get_settings() -> Settings:

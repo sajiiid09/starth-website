@@ -84,22 +84,30 @@
   - Startup validation enforces required config in prod and blocks wildcard CORS.
   - Security headers middleware adds nosniff, frame denial, referrer policy, permissions policy, and no-store on auth/admin routes.
   - CORS defaults allow localhost in non-prod; prod enforces explicit allowlist.
+- **Phase 7 — Upload Security Hardening (Complete)**
+  - Upload keys are server-generated with scope `uploads/{kind}/{user_id}/{yyyy}/{mm}/{uuid}_{filename}`.
+  - MIME type is validated against filename extension; presign TTL is capped at 10 minutes.
+  - Optional asset registry: `POST /uploads/register` records uploaded assets and enforces key ownership.
 
-## Phase 7 Checklist (Planned)
+## Phase 8 Checklist (Planned)
 - Move rate limiting and webhook retries to Redis-backed infrastructure.
 - Add alerting dashboards for failed webhook events and payment anomalies.
 
 ## Upload Rules
 - Endpoint: `POST /uploads/presign`
+- Optional registry: `POST /uploads/register`
 - Allowed kinds:
   - `venue_blueprint`, `venue_photo`, `service_portfolio` (vendor only)
   - `template_media` (admin only)
 - Validation:
   - MIME type must be in `ALLOWED_UPLOAD_MIME`
   - File size must be <= `MAX_UPLOAD_BYTES`
+  - Filename extension must match content type.
+  - Keys are server-generated with scope `uploads/{kind}/{user_id}/{yyyy}/{mm}/`.
 
 ## Endpoints
 - `POST /uploads/presign`
+- `POST /uploads/register`
 - `GET /vendors/me`
 - `POST /vendors/onboarding/venue-owner`
 - `POST /vendors/onboarding/service-provider`

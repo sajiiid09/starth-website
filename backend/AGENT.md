@@ -65,6 +65,16 @@
   - Limiter returns 429 with `Retry-After` and the standard error schema. Multi-instance production needs a shared store (Redis) for consistency.
   - Refresh token reuse detection: if a revoked refresh token is reused, revoke all active refresh tokens for that user and return `refresh_token_reuse_detected`.
   - Signup password policy: minimum length 10 and non-blank passwords enforced.
+- **Phase 3 — Webhook Reliability Upgrades (Complete)**
+  - Stripe webhook events are persisted with lifecycle status `received`, `processed`, or `failed`, including event type, payload, and error details.
+  - Webhook processing is event-first and idempotent; processed events short-circuit on repeat deliveries.
+  - Held-funds ledger entries are idempotent via `payment_id` + type uniqueness.
+  - Failure policy: missing payment rows are marked failed and return 200; other processing errors return 500 to trigger Stripe retries.
+  - Admin retry endpoint: `POST /admin/webhooks/stripe/retry/{event_id}` (guarded by `ENABLE_ADMIN_RETRY=true` or `ENABLE_DEMO_OPS=true`).
+
+## Phase 4 Checklist (Planned)
+- Move rate limiting and webhook retries to Redis-backed infrastructure.
+- Add alerting dashboards for failed webhook events and payment anomalies.
 
 ## Upload Rules
 - Endpoint: `POST /uploads/presign`

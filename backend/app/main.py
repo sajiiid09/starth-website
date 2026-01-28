@@ -12,6 +12,7 @@ from app.core.errors import APIError
 from app.core.logging import configure_logging
 from app.core.middleware.request_context import RequestContextMiddleware
 from app.core.middleware.rate_limit import RateLimitMiddleware, default_rate_limit_rules
+from app.core.middleware.read_only import ReadOnlyModeMiddleware
 from app.core.middleware.security_headers import SecurityHeadersMiddleware
 from app.core.monitoring import init_sentry
 
@@ -33,6 +34,7 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+app.add_middleware(ReadOnlyModeMiddleware, enabled=settings.read_only_mode)
 app.add_middleware(SecurityHeadersMiddleware)
 app.add_middleware(RateLimitMiddleware, rules=default_rate_limit_rules())
 app.add_middleware(RequestContextMiddleware)

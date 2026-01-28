@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends, Request, status
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
@@ -54,8 +54,15 @@ def list_pending_payouts(
 def approve_payout(
     payout_id: UUID,
     db: Session = Depends(get_db),
+    request: Request,
     admin_user: User = Depends(require_role(UserRole.ADMIN)),
 ) -> PayoutOut:
+    if request.headers.get("X-Confirm-Action") != "true":
+        raise APIError(
+            error_code="confirmation_required",
+            message="Add X-Confirm-Action: true to proceed.",
+            status_code=status.HTTP_400_BAD_REQUEST,
+        )
     payout = db.execute(select(Payout).where(Payout.id == payout_id)).scalar_one_or_none()
     if not payout:
         raise not_found("Payout not found")
@@ -131,6 +138,8 @@ def approve_payout(
         entity_id=str(payout.id),
         before_obj=before,
         after_obj=model_to_dict(payout),
+        actor_ip=request.client.host if request.client else None,
+        actor_user_agent=request.headers.get("user-agent"),
     )
     db.commit()
     db.refresh(payout)
@@ -151,6 +160,7 @@ def approve_payout(
 def hold_payout(
     payout_id: UUID,
     db: Session = Depends(get_db),
+    request: Request,
     admin_user: User = Depends(require_role(UserRole.ADMIN)),
 ) -> PayoutOut:
     payout = db.execute(select(Payout).where(Payout.id == payout_id)).scalar_one_or_none()
@@ -170,6 +180,8 @@ def hold_payout(
         entity_id=str(payout.id),
         before_obj=before,
         after_obj=model_to_dict(payout),
+        actor_ip=request.client.host if request.client else None,
+        actor_user_agent=request.headers.get("user-agent"),
     )
     db.commit()
     db.refresh(payout)
@@ -195,6 +207,7 @@ def hold_payout(
 def reverse_payout(
     payout_id: UUID,
     db: Session = Depends(get_db),
+    request: Request,
     admin_user: User = Depends(require_role(UserRole.ADMIN)),
 ) -> PayoutOut:
     payout = db.execute(select(Payout).where(Payout.id == payout_id)).scalar_one_or_none()
@@ -214,6 +227,8 @@ def reverse_payout(
         entity_id=str(payout.id),
         before_obj=before,
         after_obj=model_to_dict(payout),
+        actor_ip=request.client.host if request.client else None,
+        actor_user_agent=request.headers.get("user-agent"),
     )
     db.commit()
     db.refresh(payout)

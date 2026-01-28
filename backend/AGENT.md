@@ -88,8 +88,12 @@
   - Upload keys are server-generated with scope `uploads/{kind}/{user_id}/{yyyy}/{mm}/{uuid}_{filename}`.
   - MIME type is validated against filename extension; presign TTL is capped at 10 minutes.
   - Optional asset registry: `POST /uploads/register` records uploaded assets and enforces key ownership.
+- **Phase 8 — Admin Safety + Audit Completeness Pass (Complete)**
+  - Admin mutations capture actor IP and user-agent in audit logs.
+  - Dangerous actions require `X-Confirm-Action: true` (payout approval, booking cancel, booking force-complete).
+  - Read-only mode (`READ_ONLY_MODE=true`) blocks mutations except health and Stripe webhooks.
 
-## Phase 8 Checklist (Planned)
+## Phase 9 Checklist (Planned)
 - Move rate limiting and webhook retries to Redis-backed infrastructure.
 - Add alerting dashboards for failed webhook events and payment anomalies.
 

@@ -127,6 +127,7 @@ The Strathwell backend is a FastAPI service that powers organizer subscriptions,
 - `PLATFORM_COMMISSION_PERCENT`: platform commission percent.
 - `RESERVATION_RELEASE_PERCENT`: percent released for reservation payouts.
 - `ENABLE_DEMO_OPS`: gate for admin demo seeding.
+- `READ_ONLY_MODE`: block mutations for emergency read-only operation.
 
 ## 7) Operational Notes
 - **Idempotency**:
@@ -137,6 +138,9 @@ The Strathwell backend is a FastAPI service that powers organizer subscriptions,
   - All admin mutations are logged with before/after snapshots via `log_admin_action`.
 - **Payout Semantics**:
   - "Paid" payouts are recorded in the database; actual provider transfers are deferred to Phase 13+.
+- **Admin Safety**:
+  - Some admin mutations require `X-Confirm-Action: true` to proceed (payout approvals, booking cancel/force-complete).
+  - `READ_ONLY_MODE=true` blocks write endpoints except health and Stripe webhooks.
 
 ## 8) Development Phases Summary (1–12)
 1. Core auth + user models.

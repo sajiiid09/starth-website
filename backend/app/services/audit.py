@@ -12,6 +12,8 @@ def log_admin_action(
     entity_id: str,
     before_obj: object | dict | None,
     after_obj: object | dict | None,
+    actor_ip: str | None = None,
+    actor_user_agent: str | None = None,
 ) -> None:
     before_json = _normalize_snapshot(before_obj)
     after_json = _normalize_snapshot(after_obj)
@@ -20,6 +22,8 @@ def log_admin_action(
         action=action,
         entity_type=entity_type,
         entity_id=entity_id,
+        actor_ip=actor_ip,
+        actor_user_agent=actor_user_agent,
         before_json=before_json,
         after_json=after_json,
     )

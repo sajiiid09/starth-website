@@ -30,6 +30,7 @@ class Settings(BaseSettings):
     )
     enable_demo_ops: bool = Field(default=False, alias="ENABLE_DEMO_OPS")
     enable_admin_retry: bool = Field(default=False, alias="ENABLE_ADMIN_RETRY")
+    read_only_mode: bool = Field(default=False, alias="READ_ONLY_MODE")
     jwt_algorithm: str = Field(default="HS256", alias="JWT_ALGORITHM")
     access_token_expire_minutes: int = Field(default=15, alias="ACCESS_TOKEN_EXPIRE_MINUTES")
     refresh_token_expire_days: int = Field(default=14, alias="REFRESH_TOKEN_EXPIRE_DAYS")

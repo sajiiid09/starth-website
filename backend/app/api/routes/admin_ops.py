@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Request
 from sqlalchemy import func, select, text
 from sqlalchemy.orm import Session
 
@@ -40,6 +40,7 @@ def admin_health_details(
 @router.post("/demo/seed")
 def admin_demo_seed(
     db: Session = Depends(get_db),
+    request: Request,
     admin_user: User = Depends(require_role(UserRole.ADMIN)),
 ) -> dict[str, int]:
     settings = get_settings()
@@ -55,6 +56,8 @@ def admin_demo_seed(
         entity_id="demo_seed",
         before_obj=None,
         after_obj={"templates_count": templates_count},
+        actor_ip=request.client.host if request.client else None,
+        actor_user_agent=request.headers.get("user-agent"),
     )
     db.commit()
     return {"templates_seeded": templates_count}

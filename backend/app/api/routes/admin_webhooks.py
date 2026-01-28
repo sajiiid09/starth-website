@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from datetime import datetime
 
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends, Request, status
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
@@ -13,6 +13,7 @@ from app.models.enums import UserRole, WebhookEventStatus
 from app.models.user import User
 from app.models.webhook_event import WebhookEvent
 from app.api.routes.webhooks import _process_stripe_event
+from app.services.audit import log_admin_action
 from app.services.payments.stripe_sync import PaymentSyncNotReadyError
 
 router = APIRouter(prefix="/admin", tags=["admin-webhooks"])
@@ -22,7 +23,8 @@ router = APIRouter(prefix="/admin", tags=["admin-webhooks"])
 def retry_stripe_webhook(
     event_id: str,
     db: Session = Depends(get_db),
-    _: User = Depends(require_role(UserRole.ADMIN)),
+    request: Request,
+    admin_user: User = Depends(require_role(UserRole.ADMIN)),
 ) -> dict[str, str]:
     settings = get_settings()
     if not settings.enable_demo_ops and not settings.enable_admin_retry:
@@ -63,5 +65,18 @@ def retry_stripe_webhook(
             message="Webhook retry failed.",
             status_code=status.HTTP_400_BAD_REQUEST,
         ) from exc
+
+    log_admin_action(
+        db,
+        actor_user_id=admin_user.id,
+        action="admin_webhook_retry",
+        entity_type="webhook_event",
+        entity_id=webhook_event.id,
+        before_obj={"status": "failed"},
+        after_obj={"status": "processed"},
+        actor_ip=request.client.host if request.client else None,
+        actor_user_agent=request.headers.get("user-agent"),
+    )
+    db.commit()
 
     return {"status": "processed"}

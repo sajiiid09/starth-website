@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Request
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
@@ -25,6 +25,7 @@ from app.models.user import User
 from app.models.vendor import Vendor
 from app.models.venue_profile import VenueProfile
 from app.schemas.payments import PaymentReconcileRequest, PaymentReconcileResponse
+from app.services.audit import log_admin_action
 from app.services.payments.stripe_sync import reconcile_stripe_payments
 
 router = APIRouter(prefix="/admin", tags=["admin-overview"])
@@ -152,12 +153,25 @@ def list_admin_payments(
 def reconcile_payments(
     payload: PaymentReconcileRequest,
     db: Session = Depends(get_db),
-    _: User = Depends(require_role(UserRole.ADMIN)),
+    request: Request,
+    admin_user: User = Depends(require_role(UserRole.ADMIN)),
 ) -> PaymentReconcileResponse:
     settings = get_settings()
     if not settings.enable_demo_ops:
         raise forbidden("Demo ops disabled")
     summary = reconcile_stripe_payments(db, hours=payload.hours, limit=payload.limit)
+    log_admin_action(
+        db,
+        actor_user_id=admin_user.id,
+        action="admin_payments_reconcile",
+        entity_type="payments",
+        entity_id="reconcile",
+        before_obj={"hours": payload.hours, "limit": payload.limit},
+        after_obj=summary,
+        actor_ip=request.client.host if request.client else None,
+        actor_user_agent=request.headers.get("user-agent"),
+    )
+    db.commit()
     return PaymentReconcileResponse(**summary)
 
 

@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from uuid import UUID
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Request
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
@@ -49,6 +49,7 @@ def list_pending_vendors(
 def approve_vendor(
     vendor_id: UUID,
     db: Session = Depends(get_db),
+    request: Request,
     admin_user: User = Depends(require_role(UserRole.ADMIN)),
 ) -> dict[str, str]:
     vendor = db.execute(select(Vendor).where(Vendor.id == vendor_id)).scalar_one_or_none()
@@ -70,6 +71,8 @@ def approve_vendor(
         entity_id=str(vendor.id),
         before_obj=before,
         after_obj=model_to_dict(vendor),
+        actor_ip=request.client.host if request.client else None,
+        actor_user_agent=request.headers.get("user-agent"),
     )
     db.commit()
 
@@ -81,6 +84,7 @@ def needs_changes_vendor(
     vendor_id: UUID,
     payload: VendorNeedsChangesIn,
     db: Session = Depends(get_db),
+    request: Request,
     admin_user: User = Depends(require_role(UserRole.ADMIN)),
 ) -> dict[str, str]:
     vendor = db.execute(select(Vendor).where(Vendor.id == vendor_id)).scalar_one_or_none()
@@ -102,6 +106,8 @@ def needs_changes_vendor(
         entity_id=str(vendor.id),
         before_obj=before,
         after_obj=model_to_dict(vendor),
+        actor_ip=request.client.host if request.client else None,
+        actor_user_agent=request.headers.get("user-agent"),
     )
     db.commit()
 
@@ -112,6 +118,7 @@ def needs_changes_vendor(
 def disable_vendor_payout(
     vendor_id: UUID,
     db: Session = Depends(get_db),
+    request: Request,
     admin_user: User = Depends(require_role(UserRole.ADMIN)),
 ) -> dict[str, str]:
     vendor = db.execute(select(Vendor).where(Vendor.id == vendor_id)).scalar_one_or_none()
@@ -131,6 +138,8 @@ def disable_vendor_payout(
         entity_id=str(vendor.id),
         before_obj=before,
         after_obj=model_to_dict(vendor),
+        actor_ip=request.client.host if request.client else None,
+        actor_user_agent=request.headers.get("user-agent"),
     )
     db.commit()
 

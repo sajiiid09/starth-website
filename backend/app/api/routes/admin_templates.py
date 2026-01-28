@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from uuid import UUID
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Request
 from sqlalchemy.orm import Session
 
 from app.api.deps import get_db, require_role
@@ -21,6 +21,7 @@ router = APIRouter(prefix="/admin", tags=["admin-templates"])
 def create_template(
     payload: TemplateCreateIn,
     db: Session = Depends(get_db),
+    request: Request,
     admin_user: User = Depends(require_role(UserRole.ADMIN)),
 ) -> TemplateDetailOut:
     template = templates_service.create_template(db, payload)
@@ -33,6 +34,8 @@ def create_template(
         entity_id=str(template.id),
         before_obj=None,
         after_obj=model_to_dict(template),
+        actor_ip=request.client.host if request.client else None,
+        actor_user_agent=request.headers.get("user-agent"),
     )
     db.commit()
 
@@ -52,6 +55,7 @@ def update_template(
     template_id: UUID,
     payload: TemplateUpdateIn,
     db: Session = Depends(get_db),
+    request: Request,
     admin_user: User = Depends(require_role(UserRole.ADMIN)),
 ) -> TemplateDetailOut:
     template = templates_service.get_template(db, template_id)
@@ -69,6 +73,8 @@ def update_template(
         entity_id=str(template.id),
         before_obj=before,
         after_obj=model_to_dict(template),
+        actor_ip=request.client.host if request.client else None,
+        actor_user_agent=request.headers.get("user-agent"),
     )
     db.commit()
 
@@ -87,6 +93,7 @@ def update_template(
 def delete_template(
     template_id: UUID,
     db: Session = Depends(get_db),
+    request: Request,
     admin_user: User = Depends(require_role(UserRole.ADMIN)),
 ) -> dict[str, str]:
     template = templates_service.get_template(db, template_id)
@@ -104,6 +111,8 @@ def delete_template(
         entity_id=str(template_id),
         before_obj=before,
         after_obj=None,
+        actor_ip=request.client.host if request.client else None,
+        actor_user_agent=request.headers.get("user-agent"),
     )
     db.commit()
 

@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Request, status
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
@@ -123,6 +123,7 @@ def set_dispute_status(
     dispute_id: UUID,
     payload: DisputeAdminSetStatusIn,
     db: Session = Depends(get_db),
+    request: Request,
     admin_user: User = Depends(require_role(UserRole.ADMIN)),
 ) -> DisputeOut:
     dispute = db.execute(select(Dispute).where(Dispute.id == dispute_id)).scalar_one_or_none()
@@ -146,6 +147,8 @@ def set_dispute_status(
             "status": dispute.status.value,
             "resolution_note": dispute.resolution_note,
         },
+        actor_ip=request.client.host if request.client else None,
+        actor_user_agent=request.headers.get("user-agent"),
     )
     db.commit()
     db.refresh(dispute)

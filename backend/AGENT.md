@@ -54,6 +54,13 @@
 - Add second-payment handling for deposit + remaining balance.
 - Expand reporting and reconciliation views.
 
+## Production Hardening Roadmap
+- **Phase 1 — Observability Baseline + Consistent Errors (Complete)**
+  - Request correlation ID: every response includes `X-Request-ID`; incoming header is honored or a UUIDv4 is generated.
+  - Structured JSON logging: one line per request with `timestamp`, `level`, `request_id`, `method`, `path`, `status`, `duration_ms`, and optional `user_id`/`role`.
+  - Error schema: `{ "error": "code", "message": "...", "details": { ... } }` for API errors and validation failures.
+  - Optional Sentry: enabled only when `SENTRY_DSN` is set (environment set to `APP_ENV`).
+
 ## Upload Rules
 - Endpoint: `POST /uploads/presign`
 - Allowed kinds:

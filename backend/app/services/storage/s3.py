@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import re
 from datetime import datetime, timezone
 from uuid import uuid4
 
@@ -8,11 +9,28 @@ import boto3
 from app.core.config import get_settings
 
 
+FILENAME_SAFE_PATTERN = re.compile(r"[^A-Za-z0-9._-]")
+
+
+def sanitize_filename(filename: str, max_length: int = 80) -> str:
+    trimmed = filename.replace("\\", "/").split("/")[-1].strip()
+    sanitized = FILENAME_SAFE_PATTERN.sub("_", trimmed)
+    sanitized = sanitized.strip("._") or "file"
+    return sanitized[:max_length]
+
+
 def build_object_key(user_id: str, kind: str, filename: str) -> str:
-    timestamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%S")
+    timestamp = datetime.now(timezone.utc)
     unique_id = uuid4().hex
-    safe_name = filename.replace(" ", "_")
-    return f"uploads/{user_id}/{kind}/{timestamp}-{unique_id}-{safe_name}"
+    safe_name = sanitize_filename(filename)
+    return (
+        "uploads/"
+        f"{kind}/"
+        f"{user_id}/"
+        f"{timestamp.strftime('%Y')}/"
+        f"{timestamp.strftime('%m')}/"
+        f"{unique_id}_{safe_name}"
+    )
 
 
 def generate_presigned_put_url(

@@ -11,6 +11,7 @@
    ```bash
    cp .env.example .env
    ```
+   - `CORS_ORIGINS` must be a comma-separated allowlist; `APP_ENV=prod` enforces strict validation.
 
 ## Database
 1. Run migrations:

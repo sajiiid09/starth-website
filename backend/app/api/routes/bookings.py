@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Request, status
 from sqlalchemy.orm import Session
 
 from app.api.deps import get_db, require_role, require_subscription_active
@@ -209,8 +209,17 @@ def get_admin_booking(
 def force_complete_booking(
     booking_id: UUID,
     db: Session = Depends(get_db),
+    request: Request,
     admin_user: User = Depends(require_role(UserRole.ADMIN)),
 ) -> BookingOut:
+    if request.headers.get("X-Confirm-Action") != "true":
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail={
+                "error": "confirmation_required",
+                "message": "Add X-Confirm-Action: true to proceed.",
+            },
+        )
     before_booking = bookings_service.get_booking(db, booking_id)
     if not before_booking:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Booking not found")
@@ -224,6 +233,8 @@ def force_complete_booking(
         entity_id=str(booking.id),
         before_obj=before,
         after_obj=model_to_dict(booking),
+        actor_ip=request.client.host if request.client else None,
+        actor_user_agent=request.headers.get("user-agent"),
     )
     db.commit()
     booking_with_vendors = bookings_service.get_booking_with_vendors(db, booking_id)
@@ -237,8 +248,17 @@ def force_complete_booking(
 def cancel_booking(
     booking_id: UUID,
     db: Session = Depends(get_db),
+    request: Request,
     admin_user: User = Depends(require_role(UserRole.ADMIN)),
 ) -> BookingOut:
+    if request.headers.get("X-Confirm-Action") != "true":
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail={
+                "error": "confirmation_required",
+                "message": "Add X-Confirm-Action: true to proceed.",
+            },
+        )
     before_booking = bookings_service.get_booking(db, booking_id)
     if not before_booking:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Booking not found")
@@ -257,6 +277,8 @@ def cancel_booking(
         entity_id=str(booking.id),
         before_obj=before,
         after_obj=model_to_dict(booking),
+        actor_ip=request.client.host if request.client else None,
+        actor_user_agent=request.headers.get("user-agent"),
     )
     db.commit()
     booking_with_vendors = bookings_service.get_booking_with_vendors(db, booking_id)

@@ -16,3 +16,14 @@ class BookingPaymentOut(BaseModel):
     payment_id: str
     amount_cents: int
     currency: str
+
+
+class PaymentReconcileRequest(BaseModel):
+    hours: int = Field(default=24, ge=1)
+    limit: int = Field(default=100, ge=1)
+
+
+class PaymentReconcileResponse(BaseModel):
+    scanned: int
+    updated: int
+    errors: int

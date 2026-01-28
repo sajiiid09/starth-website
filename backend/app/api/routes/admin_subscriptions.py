@@ -2,11 +2,12 @@ from __future__ import annotations
 
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, Request
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.api.deps import get_db, require_role
+from app.core.errors import not_found
 from app.models.enums import SubscriptionProvider, UserRole
 from app.models.subscription import Subscription
 from app.models.user import User
@@ -22,11 +23,12 @@ def set_subscription_status(
     user_id: UUID,
     payload: AdminSubscriptionUpdate,
     db: Session = Depends(get_db),
+    request: Request,
     admin_user: User = Depends(require_role(UserRole.ADMIN)),
 ) -> SubscriptionResponse:
     user = db.execute(select(User).where(User.id == user_id)).scalar_one_or_none()
     if not user:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+        raise not_found("User not found")
 
     subscription = db.execute(
         select(Subscription).where(Subscription.user_id == user_id)
@@ -64,6 +66,8 @@ def set_subscription_status(
         entity_id=str(user_id),
         before_obj=before,
         after_obj=after,
+        actor_ip=request.client.host if request.client else None,
+        actor_user_agent=request.headers.get("user-agent"),
     )
     db.commit()
     db.refresh(subscription)

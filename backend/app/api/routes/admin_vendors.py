@@ -2,11 +2,12 @@ from __future__ import annotations
 
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, Request
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.api.deps import get_db, require_role
+from app.core.errors import not_found
 from app.models.enums import UserRole, VendorVerificationStatus
 from app.models.vendor import Vendor
 from app.models.user import User
@@ -48,11 +49,12 @@ def list_pending_vendors(
 def approve_vendor(
     vendor_id: UUID,
     db: Session = Depends(get_db),
+    request: Request,
     admin_user: User = Depends(require_role(UserRole.ADMIN)),
 ) -> dict[str, str]:
     vendor = db.execute(select(Vendor).where(Vendor.id == vendor_id)).scalar_one_or_none()
     if not vendor:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Vendor not found")
+        raise not_found("Vendor not found")
 
     before = model_to_dict(vendor)
 
@@ -69,6 +71,8 @@ def approve_vendor(
         entity_id=str(vendor.id),
         before_obj=before,
         after_obj=model_to_dict(vendor),
+        actor_ip=request.client.host if request.client else None,
+        actor_user_agent=request.headers.get("user-agent"),
     )
     db.commit()
 
@@ -80,11 +84,12 @@ def needs_changes_vendor(
     vendor_id: UUID,
     payload: VendorNeedsChangesIn,
     db: Session = Depends(get_db),
+    request: Request,
     admin_user: User = Depends(require_role(UserRole.ADMIN)),
 ) -> dict[str, str]:
     vendor = db.execute(select(Vendor).where(Vendor.id == vendor_id)).scalar_one_or_none()
     if not vendor:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Vendor not found")
+        raise not_found("Vendor not found")
 
     before = model_to_dict(vendor)
 
@@ -101,6 +106,8 @@ def needs_changes_vendor(
         entity_id=str(vendor.id),
         before_obj=before,
         after_obj=model_to_dict(vendor),
+        actor_ip=request.client.host if request.client else None,
+        actor_user_agent=request.headers.get("user-agent"),
     )
     db.commit()
 
@@ -111,11 +118,12 @@ def needs_changes_vendor(
 def disable_vendor_payout(
     vendor_id: UUID,
     db: Session = Depends(get_db),
+    request: Request,
     admin_user: User = Depends(require_role(UserRole.ADMIN)),
 ) -> dict[str, str]:
     vendor = db.execute(select(Vendor).where(Vendor.id == vendor_id)).scalar_one_or_none()
     if not vendor:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Vendor not found")
+        raise not_found("Vendor not found")
 
     before = model_to_dict(vendor)
 
@@ -130,6 +138,8 @@ def disable_vendor_payout(
         entity_id=str(vendor.id),
         before_obj=before,
         after_obj=model_to_dict(vendor),
+        actor_ip=request.client.host if request.client else None,
+        actor_user_agent=request.headers.get("user-agent"),
     )
     db.commit()
 

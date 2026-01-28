@@ -2,10 +2,11 @@ from __future__ import annotations
 
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, Request
 from sqlalchemy.orm import Session
 
 from app.api.deps import get_db, require_role
+from app.core.errors import not_found
 from app.models.enums import UserRole
 from app.models.user import User
 from app.schemas.templates import TemplateCreateIn, TemplateDetailOut, TemplateUpdateIn
@@ -20,6 +21,7 @@ router = APIRouter(prefix="/admin", tags=["admin-templates"])
 def create_template(
     payload: TemplateCreateIn,
     db: Session = Depends(get_db),
+    request: Request,
     admin_user: User = Depends(require_role(UserRole.ADMIN)),
 ) -> TemplateDetailOut:
     template = templates_service.create_template(db, payload)
@@ -32,6 +34,8 @@ def create_template(
         entity_id=str(template.id),
         before_obj=None,
         after_obj=model_to_dict(template),
+        actor_ip=request.client.host if request.client else None,
+        actor_user_agent=request.headers.get("user-agent"),
     )
     db.commit()
 
@@ -51,11 +55,12 @@ def update_template(
     template_id: UUID,
     payload: TemplateUpdateIn,
     db: Session = Depends(get_db),
+    request: Request,
     admin_user: User = Depends(require_role(UserRole.ADMIN)),
 ) -> TemplateDetailOut:
     template = templates_service.get_template(db, template_id)
     if not template:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Template not found")
+        raise not_found("Template not found")
 
     before = model_to_dict(template)
     template = templates_service.update_template(db, template, payload)
@@ -68,6 +73,8 @@ def update_template(
         entity_id=str(template.id),
         before_obj=before,
         after_obj=model_to_dict(template),
+        actor_ip=request.client.host if request.client else None,
+        actor_user_agent=request.headers.get("user-agent"),
     )
     db.commit()
 
@@ -86,11 +93,12 @@ def update_template(
 def delete_template(
     template_id: UUID,
     db: Session = Depends(get_db),
+    request: Request,
     admin_user: User = Depends(require_role(UserRole.ADMIN)),
 ) -> dict[str, str]:
     template = templates_service.get_template(db, template_id)
     if not template:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Template not found")
+        raise not_found("Template not found")
 
     before = model_to_dict(template)
     templates_service.delete_template(db, template)
@@ -103,6 +111,8 @@ def delete_template(
         entity_id=str(template_id),
         before_obj=before,
         after_obj=None,
+        actor_ip=request.client.host if request.client else None,
+        actor_user_agent=request.headers.get("user-agent"),
     )
     db.commit()
 

@@ -63,6 +63,16 @@ class PaymentStatus(str, Enum):
     REFUNDED = "refunded"
 
 
+class WebhookProvider(str, Enum):
+    STRIPE = "stripe"
+
+
+class WebhookEventStatus(str, Enum):
+    RECEIVED = "received"
+    PROCESSED = "processed"
+    FAILED = "failed"
+
+
 class LedgerEntryType(str, Enum):
     HELD_FUNDS = "held_funds"
     PLATFORM_FEE = "platform_fee"
@@ -87,3 +97,17 @@ class PayoutStatus(str, Enum):
 class SubscriptionProvider(str, Enum):
     STRIPE = "stripe"
     MANUAL = "manual"
+
+
+class ModerationEventKind(str, Enum):
+    WARNING = "warning"
+    SOFT_BLOCK = "soft_block"
+    HARD_BLOCK = "hard_block"
+
+
+class DisputeStatus(str, Enum):
+    OPEN = "open"
+    UNDER_REVIEW = "under_review"
+    RESOLVED = "resolved"
+    REFUNDED = "refunded"
+    ADJUSTED = "adjusted"

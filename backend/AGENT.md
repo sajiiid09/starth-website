@@ -71,8 +71,12 @@
   - Held-funds ledger entries are idempotent via `payment_id` + type uniqueness.
   - Failure policy: missing payment rows are marked failed and return 200; other processing errors return 500 to trigger Stripe retries.
   - Admin retry endpoint: `POST /admin/webhooks/stripe/retry/{event_id}` (guarded by `ENABLE_ADMIN_RETRY=true` or `ENABLE_DEMO_OPS=true`).
+- **Phase 4 — Stripe Reconciliation Job (Complete)**
+  - Reconciliation script: `python -m scripts.reconcile_stripe --hours 24 --limit 100`.
+  - Admin trigger: `POST /admin/payments/reconcile` (guarded by `ENABLE_DEMO_OPS=true`).
+  - Reconciliation ensures Stripe is source-of-truth for recent payments and replays success side effects as needed.
 
-## Phase 4 Checklist (Planned)
+## Phase 5 Checklist (Planned)
 - Move rate limiting and webhook retries to Redis-backed infrastructure.
 - Add alerting dashboards for failed webhook events and payment anomalies.
 

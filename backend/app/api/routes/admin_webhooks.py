@@ -12,7 +12,8 @@ from app.core.errors import APIError, forbidden, not_found
 from app.models.enums import UserRole, WebhookEventStatus
 from app.models.user import User
 from app.models.webhook_event import WebhookEvent
-from app.api.routes.webhooks import WebhookNotReadyError, _process_stripe_event
+from app.api.routes.webhooks import _process_stripe_event
+from app.services.payments.stripe_sync import PaymentSyncNotReadyError
 
 router = APIRouter(prefix="/admin", tags=["admin-webhooks"])
 
@@ -52,7 +53,7 @@ def retry_stripe_webhook(
             webhook_event.processed_at = datetime.utcnow()
             webhook_event.error = None
             db.add(webhook_event)
-    except WebhookNotReadyError as exc:
+    except PaymentSyncNotReadyError as exc:
         with db.begin():
             webhook_event.status = WebhookEventStatus.FAILED
             webhook_event.error = str(exc)

@@ -87,3 +87,17 @@ class PayoutStatus(str, Enum):
 class SubscriptionProvider(str, Enum):
     STRIPE = "stripe"
     MANUAL = "manual"
+
+
+class ModerationEventKind(str, Enum):
+    WARNING = "warning"
+    SOFT_BLOCK = "soft_block"
+    HARD_BLOCK = "hard_block"
+
+
+class DisputeStatus(str, Enum):
+    OPEN = "open"
+    UNDER_REVIEW = "under_review"
+    RESOLVED = "resolved"
+    REFUNDED = "refunded"
+    ADJUSTED = "adjusted"

@@ -1,7 +1,7 @@
 # Backend AGENT.md
 
 ## Current Phase
-**Phase 11 — Admin Console APIs + Audit Log Hardening + Ops Endpoints (Complete)**
+**Phase 12 — Trust Layer Basics + Disputes + Deploy Readiness + Documentation (Complete)**
 
 ## Decisions Made
 - Uploads use S3-compatible presigned PUT URLs; backend stays stateless.
@@ -16,6 +16,7 @@
 - Platform commission is 10% of paid amounts and recorded per vendor allocation.
 - Reservation and completion payouts are created on payment success and start `locked` until requested and approved.
 - All admin mutations are logged via a centralized audit helper with before/after snapshots.
+- Trust and dispute events are recorded for auditability and payout safety.
 
 ## Implemented Modules
 - `app/services/storage/s3.py` — S3 presign logic and object key builder.
@@ -40,12 +41,15 @@
 - `app/utils/serialization.py` — Safe model serialization for audit snapshots.
 - `app/api/routes/admin_overview.py` — Admin overview listings for vendors/bookings/payments/payouts.
 - `app/api/routes/admin_ops.py` — Admin ops endpoints for health and demo seed.
+- `app/api/routes/trust.py` — Trust moderation event logging + admin listing.
+- `app/api/routes/disputes.py` — Dispute creation and admin resolution endpoints.
+- `BACKEND_DEVELOPMENT_DOCUMENTATION.md` — Full backend phase documentation.
 
 ## Known Issues / Risks
 - Storage credentials must be provided via env vars; presign fails without S3 config.
 - Vendor `display_name` uses user email until profile fields are added.
 
-## Next Phase Checklist (Phase 12 — Planned)
+## Next Phase Checklist (Phase 13 — Planned)
 - Implement actual payout transfers (Stripe Connect).
 - Add second-payment handling for deposit + remaining balance.
 - Expand reporting and reconciliation views.
@@ -105,6 +109,11 @@
 - `GET /admin/payouts` (filters: status, milestone)
 - `GET /admin/health/details`
 - `POST /admin/demo/seed` (ENABLE_DEMO_OPS=true)
+- `POST /trust/moderation-events`
+- `GET /admin/moderation-events` (filters: kind, user_id, booking_id)
+- `POST /bookings/{booking_id}/disputes`
+- `GET /admin/disputes` (filters: status, user_id, booking_id)
+- `POST /admin/disputes/{dispute_id}/set-status`
 
 ## Booking Workflow (Phase 8)
 - Organizer creates booking requests with a required venue vendor and optional service vendors.
@@ -138,6 +147,10 @@
 - Admin overview endpoints provide vendor/booking/payment/payout snapshots for operations.
 - All admin mutations are logged with before/after snapshots using `log_admin_action`.
 - Demo seeding is gated by `ENABLE_DEMO_OPS`.
+
+## Trust + Disputes (Phase 12)
+- Moderation events are sanitized (email/phone redaction) before storage.
+- Dispute creation holds eligible payouts; admins can resolve disputes via status updates.
 
 ## Seed Script
 - Run template seed script:

@@ -7,9 +7,10 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.api.deps import get_db, require_role
-from app.core.errors import APIError, not_found
+from app.core.errors import APIError, conflict, not_found
+from app.services.finance.ledger import get_booking_ledger_summary
 from app.models.booking_vendor import BookingVendor
-from app.models.enums import LedgerEntryType, PayoutStatus, UserRole
+from app.models.enums import BookingStatus, LedgerEntryType, PayoutMilestone, PayoutStatus, UserRole
 from app.models.ledger_entry import LedgerEntry
 from app.models.booking import Booking
 from app.models.payout import Payout
@@ -75,6 +76,29 @@ def approve_payout(
     ).scalar_one_or_none()
     if not booking:
         raise not_found("Booking not found")
+    if payout.milestone == PayoutMilestone.RESERVATION and booking.status != BookingStatus.PAID:
+        raise APIError(
+            error_code="booking_not_paid",
+            message="Booking must be paid before reservation payout.",
+            status_code=status.HTTP_409_CONFLICT,
+        )
+    if payout.milestone == PayoutMilestone.COMPLETION and booking.status != BookingStatus.COMPLETED:
+        raise APIError(
+            error_code="booking_not_completed",
+            message="Booking must be completed before completion payout.",
+            status_code=status.HTTP_409_CONFLICT,
+        )
+
+    summary = get_booking_ledger_summary(db, booking.id)
+    available_to_payout_cents = summary["available_to_payout_cents"]
+    if payout.amount_cents > available_to_payout_cents:
+        raise conflict(
+            "Insufficient held funds for payout.",
+            details={
+                "available_to_payout_cents": available_to_payout_cents,
+                "requested_payout_cents": payout.amount_cents,
+            },
+        )
 
     before = model_to_dict(payout)
     payout.status = PayoutStatus.PAID
@@ -83,14 +107,22 @@ def approve_payout(
     ledger_entry = LedgerEntry(
         booking_id=booking_vendor.booking_id,
         booking_vendor_id=booking_vendor.id,
+        payout_id=payout.id,
         type=LedgerEntryType.PAYOUT,
         amount_cents=payout.amount_cents,
         currency=booking.currency,
         note="Payout approved (manual)",
     )
 
+    existing_payout_entry = db.execute(
+        select(LedgerEntry).where(
+            LedgerEntry.payout_id == payout.id,
+            LedgerEntry.type == LedgerEntryType.PAYOUT,
+        )
+    ).scalar_one_or_none()
+    if not existing_payout_entry:
+        db.add(ledger_entry)
     db.add(payout)
-    db.add(ledger_entry)
     log_admin_action(
         db,
         actor_user_id=admin_user.id,

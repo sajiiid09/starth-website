@@ -75,8 +75,13 @@
   - Reconciliation script: `python -m scripts.reconcile_stripe --hours 24 --limit 100`.
   - Admin trigger: `POST /admin/payments/reconcile` (guarded by `ENABLE_DEMO_OPS=true`).
   - Reconciliation ensures Stripe is source-of-truth for recent payments and replays success side effects as needed.
+- **Phase 5 — Ledger Source-of-Truth + Finance Health + Payout Guardrails (Complete)**
+  - Ledger summary utilities compute held funds, fees, payouts, refunds, and available-to-payout totals per booking.
+  - Finance endpoints: `GET /admin/finance/bookings/{booking_id}/summary` and `GET /admin/finance/overview`.
+  - Payout approvals are blocked when held funds are insufficient or booking status is not eligible (paid/completed by milestone).
+  - Ledger entries link to payments and payouts for traceability and idempotency.
 
-## Phase 5 Checklist (Planned)
+## Phase 6 Checklist (Planned)
 - Move rate limiting and webhook retries to Redis-backed infrastructure.
 - Add alerting dashboards for failed webhook events and payment anomalies.
 

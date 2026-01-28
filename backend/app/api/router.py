@@ -7,6 +7,7 @@ from app.api.routes.admin_overview import router as admin_overview_router
 from app.api.routes.admin_vendors import router as admin_vendors_router
 from app.api.routes.admin_payouts import router as admin_payouts_router
 from app.api.routes.admin_webhooks import router as admin_webhooks_router
+from app.api.routes.admin_finance import router as admin_finance_router
 from app.api.routes.auth import router as auth_router
 from app.api.routes.bookings import router as bookings_router
 from app.api.routes.disputes import router as disputes_router
@@ -32,6 +33,7 @@ router.include_router(admin_overview_router)
 router.include_router(admin_payouts_router)
 router.include_router(admin_vendors_router)
 router.include_router(admin_webhooks_router)
+router.include_router(admin_finance_router)
 router.include_router(bookings_router)
 router.include_router(disputes_router)
 router.include_router(payments_router)

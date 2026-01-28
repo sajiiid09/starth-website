@@ -7,7 +7,7 @@ from app.models.enums import UserRole
 
 class SignupRequest(BaseModel):
     email: EmailStr
-    password: str = Field(min_length=8)
+    password: str = Field(min_length=10)
     role: UserRole | None = None
 
 

@@ -11,6 +11,8 @@ class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file=".env", case_sensitive=True)
 
     app_env: str = Field(default="local", alias="APP_ENV")
+    log_level: str = Field(default="INFO", alias="LOG_LEVEL")
+    sentry_dsn: str | None = Field(default=None, alias="SENTRY_DSN")
     database_url: str = Field(
         default="postgresql://postgres:postgres@localhost:5432/strathwell",
         alias="DATABASE_URL",

@@ -2,10 +2,11 @@ from __future__ import annotations
 
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
 from app.api.deps import get_db, require_role
+from app.core.errors import not_found
 from app.models.enums import UserRole
 from app.models.user import User
 from app.schemas.templates import TemplateCreateIn, TemplateDetailOut, TemplateUpdateIn
@@ -55,7 +56,7 @@ def update_template(
 ) -> TemplateDetailOut:
     template = templates_service.get_template(db, template_id)
     if not template:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Template not found")
+        raise not_found("Template not found")
 
     before = model_to_dict(template)
     template = templates_service.update_template(db, template, payload)
@@ -90,7 +91,7 @@ def delete_template(
 ) -> dict[str, str]:
     template = templates_service.get_template(db, template_id)
     if not template:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Template not found")
+        raise not_found("Template not found")
 
     before = model_to_dict(template)
     templates_service.delete_template(db, template)

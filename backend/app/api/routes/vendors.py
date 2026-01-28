@@ -1,9 +1,10 @@
 from __future__ import annotations
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, status
 from sqlalchemy.orm import Session
 
 from app.api.deps import get_db, require_role, require_subscription_active
+from app.core.errors import APIError, not_found
 from app.models.enums import UserRole
 from app.models.user import User
 from app.schemas.vendors import (
@@ -23,7 +24,7 @@ def get_vendor_me(
 ) -> VendorMeOut:
     result = vendors_service.get_vendor_me(db, user)
     if not result:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Vendor not found")
+        raise not_found("Vendor not found")
 
     vendor = result["vendor"]
     return VendorMeOut(
@@ -46,9 +47,10 @@ def submit_venue_owner_onboarding(
         vendor = vendors_service.submit_venue_owner_onboarding(db, user, payload)
     except ValueError as exc:
         if str(exc) == "vendor_type_mismatch":
-            raise HTTPException(
+            raise APIError(
+                error_code="vendor_type_mismatch",
+                message="Vendor type mismatch.",
                 status_code=status.HTTP_400_BAD_REQUEST,
-                detail={"error": "vendor_type_mismatch"},
             ) from exc
         raise
 
@@ -75,9 +77,10 @@ def submit_service_provider_onboarding(
         vendor = vendors_service.submit_service_provider_onboarding(db, user, payload)
     except ValueError as exc:
         if str(exc) == "vendor_type_mismatch":
-            raise HTTPException(
+            raise APIError(
+                error_code="vendor_type_mismatch",
+                message="Vendor type mismatch.",
                 status_code=status.HTTP_400_BAD_REQUEST,
-                detail={"error": "vendor_type_mismatch"},
             ) from exc
         raise
 

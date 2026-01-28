@@ -2,11 +2,12 @@ from __future__ import annotations
 
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, status
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.api.deps import get_db, require_role
+from app.core.errors import APIError, not_found
 from app.models.booking_vendor import BookingVendor
 from app.models.enums import LedgerEntryType, PayoutStatus, UserRole
 from app.models.ledger_entry import LedgerEntry
@@ -56,23 +57,24 @@ def approve_payout(
 ) -> PayoutOut:
     payout = db.execute(select(Payout).where(Payout.id == payout_id)).scalar_one_or_none()
     if not payout:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Payout not found")
+        raise not_found("Payout not found")
     if payout.status != PayoutStatus.ELIGIBLE:
-        raise HTTPException(
+        raise APIError(
+            error_code="payout_not_eligible",
+            message="Payout not eligible.",
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail={"error": "payout_not_eligible"},
         )
 
     booking_vendor = db.execute(
         select(BookingVendor).where(BookingVendor.id == payout.booking_vendor_id)
     ).scalar_one_or_none()
     if not booking_vendor:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Booking vendor not found")
+        raise not_found("Booking vendor not found")
     booking = db.execute(
         select(Booking).where(Booking.id == booking_vendor.booking_id)
     ).scalar_one_or_none()
     if not booking:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Booking not found")
+        raise not_found("Booking not found")
 
     before = model_to_dict(payout)
     payout.status = PayoutStatus.PAID
@@ -121,7 +123,7 @@ def hold_payout(
 ) -> PayoutOut:
     payout = db.execute(select(Payout).where(Payout.id == payout_id)).scalar_one_or_none()
     if not payout:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Payout not found")
+        raise not_found("Payout not found")
 
     before = model_to_dict(payout)
     payout.status = PayoutStatus.HELD
@@ -144,7 +146,7 @@ def hold_payout(
         select(BookingVendor).where(BookingVendor.id == payout.booking_vendor_id)
     ).scalar_one_or_none()
     if not booking_vendor:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Booking vendor not found")
+        raise not_found("Booking vendor not found")
     return PayoutOut(
         id=str(payout.id),
         booking_id=str(booking_vendor.booking_id),
@@ -165,7 +167,7 @@ def reverse_payout(
 ) -> PayoutOut:
     payout = db.execute(select(Payout).where(Payout.id == payout_id)).scalar_one_or_none()
     if not payout:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Payout not found")
+        raise not_found("Payout not found")
 
     before = model_to_dict(payout)
     payout.status = PayoutStatus.REVERSED
@@ -188,7 +190,7 @@ def reverse_payout(
         select(BookingVendor).where(BookingVendor.id == payout.booking_vendor_id)
     ).scalar_one_or_none()
     if not booking_vendor:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Booking vendor not found")
+        raise not_found("Booking vendor not found")
     return PayoutOut(
         id=str(payout.id),
         booking_id=str(booking_vendor.booking_id),

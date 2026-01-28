@@ -119,7 +119,7 @@ The Strathwell backend is a FastAPI service that powers organizer subscriptions,
 - `JWT_SECRET`, `JWT_ALGORITHM`: auth token settings.
 - `ACCESS_TOKEN_EXPIRE_MINUTES`, `REFRESH_TOKEN_EXPIRE_DAYS`: token lifetimes.
 - `ADMIN_BOOTSTRAP_TOKEN`: admin provisioning token.
-- `CORS_ORIGINS`: allowed CORS origins.
+- `CORS_ORIGINS`: comma-separated allowlist of allowed origins; prod forbids wildcard.
 - `STORAGE_PROVIDER`, `S3_*`: object storage config.
 - `UPLOAD_URL_EXPIRE_SECONDS`, `MAX_UPLOAD_BYTES`, `ALLOWED_UPLOAD_MIME`: upload rules.
 - `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`: Stripe credentials.

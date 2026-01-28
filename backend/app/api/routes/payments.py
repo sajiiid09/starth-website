@@ -3,12 +3,13 @@ from __future__ import annotations
 import math
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, status
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.api.deps import get_db, require_role, require_subscription_active
 from app.core.config import get_settings
+from app.core.errors import APIError, forbidden, not_found
 from app.models.booking import Booking
 from app.models.booking_vendor import BookingVendor
 from app.models.enums import BookingStatus, PaymentProvider, PaymentStatus, UserRole
@@ -31,13 +32,14 @@ def create_payment_intent(
 ) -> BookingPaymentOut:
     booking = db.execute(select(Booking).where(Booking.id == booking_id)).scalar_one_or_none()
     if not booking:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Booking not found")
+        raise not_found("Booking not found")
     if booking.organizer_user_id != user.id:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Forbidden")
+        raise forbidden("Forbidden")
     if booking.status != BookingStatus.READY_FOR_PAYMENT:
-        raise HTTPException(
+        raise APIError(
+            error_code="booking_not_ready_for_payment",
+            message="Booking not ready for payment.",
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail={"error": "booking_not_ready_for_payment"},
         )
 
     existing_payment = db.execute(
@@ -46,21 +48,24 @@ def create_payment_intent(
     stripe_service = StripePaymentService()
     if existing_payment:
         if existing_payment.booking_id != booking.id:
-            raise HTTPException(
+            raise APIError(
+                error_code="idempotency_key_conflict",
+                message="Idempotency key conflict.",
                 status_code=status.HTTP_400_BAD_REQUEST,
-                detail={"error": "idempotency_key_conflict"},
             )
         if not existing_payment.provider_intent_id:
-            raise HTTPException(
+            raise APIError(
+                error_code="payment_missing_provider_intent",
+                message="Payment missing provider intent.",
                 status_code=status.HTTP_409_CONFLICT,
-                detail={"error": "payment_missing_provider_intent"},
             )
         intent = stripe_service.retrieve_payment_intent(existing_payment.provider_intent_id)
         client_secret = intent.get("client_secret")
         if not client_secret:
-            raise HTTPException(
+            raise APIError(
+                error_code="payment_missing_client_secret",
+                message="Payment missing client secret.",
                 status_code=status.HTTP_409_CONFLICT,
-                detail={"error": "payment_missing_client_secret"},
             )
         return BookingPaymentOut(
             provider=existing_payment.provider.value,
@@ -74,9 +79,10 @@ def create_payment_intent(
         select(Payment).where(Payment.booking_id == booking.id)
     ).scalar_one_or_none()
     if booking_payment:
-        raise HTTPException(
+        raise APIError(
+            error_code="payment_already_exists",
+            message="Payment already exists.",
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail={"error": "payment_already_exists"},
         )
 
     booking_vendors = db.execute(
@@ -85,8 +91,10 @@ def create_payment_intent(
     try:
         total_cents = compute_booking_total(booking, booking_vendors)
     except ValueError as exc:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, detail={"error": str(exc)}
+        raise APIError(
+            error_code=str(exc),
+            message="Invalid booking total.",
+            status_code=status.HTTP_400_BAD_REQUEST,
         ) from exc
 
     settings = get_settings()
@@ -96,8 +104,10 @@ def create_payment_intent(
         amount_cents = total_cents
 
     if amount_cents <= 0:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, detail={"error": "invalid_payment_amount"}
+        raise APIError(
+            error_code="invalid_payment_amount",
+            message="Invalid payment amount.",
+            status_code=status.HTTP_400_BAD_REQUEST,
         )
 
     metadata = {"organizer_user_id": str(user.id)}
@@ -126,9 +136,10 @@ def create_payment_intent(
 
     client_secret = intent.get("client_secret")
     if not client_secret:
-        raise HTTPException(
+        raise APIError(
+            error_code="stripe_client_secret_missing",
+            message="Stripe client secret missing.",
             status_code=status.HTTP_502_BAD_GATEWAY,
-            detail={"error": "stripe_client_secret_missing"},
         )
 
     return BookingPaymentOut(

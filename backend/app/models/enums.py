@@ -63,6 +63,16 @@ class PaymentStatus(str, Enum):
     REFUNDED = "refunded"
 
 
+class WebhookProvider(str, Enum):
+    STRIPE = "stripe"
+
+
+class WebhookEventStatus(str, Enum):
+    RECEIVED = "received"
+    PROCESSED = "processed"
+    FAILED = "failed"
+
+
 class LedgerEntryType(str, Enum):
     HELD_FUNDS = "held_funds"
     PLATFORM_FEE = "platform_fee"

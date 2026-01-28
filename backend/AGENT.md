@@ -60,6 +60,11 @@
   - Structured JSON logging: one line per request with `timestamp`, `level`, `request_id`, `method`, `path`, `status`, `duration_ms`, and optional `user_id`/`role`.
   - Error schema: `{ "error": "code", "message": "...", "details": { ... } }` for API errors and validation failures.
   - Optional Sentry: enabled only when `SENTRY_DSN` is set (environment set to `APP_ENV`).
+- **Phase 2 — Rate Limiting + Auth Hardening (Complete)**
+  - In-memory rate limiting (MVP): `/auth/login` 5/min per IP, `/auth/signup` 3/min per IP, `/auth/refresh` 10/min per IP, `/bookings/{id}/pay` 5/min per user or IP, `/planner/*` 20/min per user.
+  - Limiter returns 429 with `Retry-After` and the standard error schema. Multi-instance production needs a shared store (Redis) for consistency.
+  - Refresh token reuse detection: if a revoked refresh token is reused, revoke all active refresh tokens for that user and return `refresh_token_reuse_detected`.
+  - Signup password policy: minimum length 10 and non-blank passwords enforced.
 
 ## Upload Rules
 - Endpoint: `POST /uploads/presign`

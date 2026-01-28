@@ -60,6 +60,12 @@ def signup(payload: SignupRequest, db: Session = Depends(get_db)) -> TokenRespon
     role = payload.role or UserRole.ORGANIZER
     if role == UserRole.ADMIN:
         raise forbidden("Admin users must be created via bootstrap")
+    if not payload.password.strip():
+        raise APIError(
+            error_code="invalid_password",
+            message="Password cannot be blank.",
+            status_code=status.HTTP_400_BAD_REQUEST,
+        )
 
     existing_user = db.execute(select(User).where(User.email == payload.email)).scalar_one_or_none()
     if existing_user:
@@ -121,14 +127,33 @@ def refresh(payload: RefreshRequest, db: Session = Depends(get_db)) -> TokenResp
     settings = get_settings()
     token_hash = hash_token(payload.refresh_token)
     refresh_record = db.execute(
-        select(RefreshToken).where(
-            RefreshToken.token_hash == token_hash,
-            RefreshToken.revoked_at.is_(None),
-            RefreshToken.expires_at > datetime.now(timezone.utc),
-        )
+        select(RefreshToken).where(RefreshToken.token_hash == token_hash)
     ).scalar_one_or_none()
 
     if not refresh_record:
+        raise APIError(
+            error_code="invalid_credentials",
+            message="Invalid credentials",
+            status_code=status.HTTP_401_UNAUTHORIZED,
+        )
+    if refresh_record.revoked_at is not None:
+        active_tokens = db.execute(
+            select(RefreshToken).where(
+                RefreshToken.user_id == refresh_record.user_id,
+                RefreshToken.revoked_at.is_(None),
+            )
+        ).scalars().all()
+        now = datetime.now(timezone.utc)
+        for token in active_tokens:
+            token.revoked_at = now
+            db.add(token)
+        db.commit()
+        raise APIError(
+            error_code="refresh_token_reuse_detected",
+            message="Session expired. Please login again.",
+            status_code=status.HTTP_401_UNAUTHORIZED,
+        )
+    if refresh_record.expires_at <= datetime.now(timezone.utc):
         raise APIError(
             error_code="invalid_credentials",
             message="Invalid credentials",

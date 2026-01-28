@@ -11,6 +11,7 @@ from app.core.config import get_settings
 from app.core.errors import APIError
 from app.core.logging import configure_logging
 from app.core.middleware.request_context import RequestContextMiddleware
+from app.core.middleware.rate_limit import RateLimitMiddleware, default_rate_limit_rules
 from app.core.monitoring import init_sentry
 
 settings = get_settings()
@@ -26,6 +27,7 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+app.add_middleware(RateLimitMiddleware, rules=default_rate_limit_rules())
 app.add_middleware(RequestContextMiddleware)
 
 

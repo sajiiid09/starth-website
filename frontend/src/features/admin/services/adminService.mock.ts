@@ -6,27 +6,49 @@ import { dummyPayouts } from "@/features/admin/data/dummyPayouts";
 import { dummyVendors } from "@/features/admin/data/dummyVendors";
 import type {
   AdminAuditLog,
+  AdminBooking,
   AdminDispute,
   AdminPayout,
+  AdminPayment,
   AdminService,
   AdminVendor,
+  ApprovePayoutInput,
+  BookingFinanceSummary,
+  BookingListFilters,
+  FinanceLedgerEntry,
+  FinanceOverview,
+  PaymentListFilters,
+  PayoutListFilters,
   ResolveDisputeInput,
-  UpdatePayoutStatusInput,
   VendorListFilters
 } from "@/features/admin/types";
 
 const NETWORK_DELAY_MS = 120;
+const HOLD_STATUSES: AdminPayout["status"][] = ["REQUESTED", "PENDING_ADMIN_APPROVAL", "HELD"];
+const RELEASED_STATUSES: AdminPayout["status"][] = ["APPROVED", "PAID"];
 
 const clone = <T>(value: T): T => JSON.parse(JSON.stringify(value)) as T;
 
 let vendors: AdminVendor[] = clone(dummyVendors);
+let bookings: AdminBooking[] = clone(dummyBookings);
+let payments: AdminPayment[] = clone(dummyPayments);
 let payouts: AdminPayout[] = clone(dummyPayouts);
 let disputes: AdminDispute[] = clone(dummyDisputes);
 let auditLogs: AdminAuditLog[] = clone(dummyAuditLogs);
 
 const wait = () => new Promise((resolve) => window.setTimeout(resolve, NETWORK_DELAY_MS));
-
 const nowIso = () => new Date().toISOString();
+
+const appendAuditLog = (entry: Omit<AdminAuditLog, "id" | "timestamp">) => {
+  auditLogs = [
+    {
+      id: `aud_runtime_${Date.now()}`,
+      timestamp: nowIso(),
+      ...entry
+    },
+    ...auditLogs
+  ];
+};
 
 const getVendorOrThrow = (vendorId: string) => {
   const vendor = vendors.find((item) => item.id === vendorId);
@@ -34,6 +56,14 @@ const getVendorOrThrow = (vendorId: string) => {
     throw new Error(`Vendor ${vendorId} not found`);
   }
   return vendor;
+};
+
+const getBookingOrThrow = (bookingId: string) => {
+  const booking = bookings.find((item) => item.id === bookingId);
+  if (!booking) {
+    throw new Error(`Booking ${bookingId} not found`);
+  }
+  return booking;
 };
 
 const getPayoutOrThrow = (payoutId: string) => {
@@ -50,17 +80,6 @@ const getDisputeOrThrow = (disputeId: string) => {
     throw new Error(`Dispute ${disputeId} not found`);
   }
   return dispute;
-};
-
-const appendAuditLog = (entry: Omit<AdminAuditLog, "id" | "timestamp">) => {
-  auditLogs = [
-    {
-      id: `aud_runtime_${Date.now()}`,
-      timestamp: nowIso(),
-      ...entry
-    },
-    ...auditLogs
-  ];
 };
 
 const updateVendorState = (
@@ -93,12 +112,95 @@ const updateVendorState = (
   return clone(vendor);
 };
 
-const applyPayoutState = (
-  input: UpdatePayoutStatusInput,
-  status: AdminPayout["status"],
-  action: string
-) => {
-  const payout = getPayoutOrThrow(input.payoutId);
+const filterByQuery = <T>(items: T[], q: string | undefined, serializer: (item: T) => string) => {
+  const query = q?.trim().toLowerCase();
+  if (!query) {
+    return items;
+  }
+  return items.filter((item) => serializer(item).toLowerCase().includes(query));
+};
+
+const buildBookingSummary = (bookingId: string): BookingFinanceSummary => {
+  const booking = getBookingOrThrow(bookingId);
+  const payment = payments.find((item) => item.bookingId === bookingId) ?? null;
+  const bookingPayouts = payouts
+    .filter((item) => item.bookingId === bookingId)
+    .sort((a, b) => new Date(a.requestedAt).getTime() - new Date(b.requestedAt).getTime());
+
+  const heldFundsCents = bookingPayouts
+    .filter((item) => HOLD_STATUSES.includes(item.status))
+    .reduce((sum, item) => sum + item.amountCents, 0);
+
+  const releasedFundsCents = bookingPayouts
+    .filter((item) => RELEASED_STATUSES.includes(item.status))
+    .reduce((sum, item) => sum + item.amountCents, 0);
+
+  const reversedFundsCents = bookingPayouts
+    .filter((item) => item.status === "REVERSED")
+    .reduce((sum, item) => sum + item.amountCents, 0);
+
+  const ledger: FinanceLedgerEntry[] = [];
+
+  if (payment) {
+    ledger.push({
+      id: `led_pay_${payment.id}`,
+      label: `Payment ${payment.status.toLowerCase().replace(/_/g, " ")}`,
+      category: "PAYMENT",
+      amountCents: payment.amountCents,
+      occurredAt: payment.updatedAt
+    });
+  }
+
+  bookingPayouts.forEach((payout) => {
+    if (HOLD_STATUSES.includes(payout.status)) {
+      ledger.push({
+        id: `led_hold_${payout.id}`,
+        label: `${payout.type.toLowerCase()} payout held`,
+        category: "HELD",
+        amountCents: payout.amountCents,
+        occurredAt: payout.updatedAt
+      });
+      return;
+    }
+
+    if (RELEASED_STATUSES.includes(payout.status)) {
+      ledger.push({
+        id: `led_release_${payout.id}`,
+        label: `${payout.type.toLowerCase()} payout released`,
+        category: "RELEASED",
+        amountCents: payout.amountCents,
+        occurredAt: payout.updatedAt
+      });
+      return;
+    }
+
+    if (payout.status === "REVERSED") {
+      ledger.push({
+        id: `led_reverse_${payout.id}`,
+        label: `${payout.type.toLowerCase()} payout reversed`,
+        category: "REVERSAL",
+        amountCents: payout.amountCents,
+        occurredAt: payout.updatedAt
+      });
+    }
+  });
+
+  ledger.sort((a, b) => new Date(a.occurredAt).getTime() - new Date(b.occurredAt).getTime());
+
+  return {
+    bookingId,
+    bookingTotalCents: booking.totalAmountCents,
+    payment,
+    payouts: clone(bookingPayouts),
+    heldFundsCents,
+    releasedFundsCents,
+    reversedFundsCents,
+    ledger
+  };
+};
+
+const applyPayoutState = (payoutId: string, status: AdminPayout["status"], action: string, note?: string) => {
+  const payout = getPayoutOrThrow(payoutId);
   payout.status = status;
   payout.updatedAt = nowIso();
 
@@ -109,7 +211,7 @@ const applyPayoutState = (
     resourceId: payout.id,
     ip: "127.0.0.1",
     userAgent: "mock-admin-ui/1.0",
-    metadata: input.note ? { note: input.note } : undefined
+    metadata: note ? { note } : undefined
   });
 
   return clone(payout);
@@ -119,21 +221,15 @@ export const adminServiceMock: AdminService = {
   async listVendors(filters?: VendorListFilters) {
     await wait();
 
-    const query = filters?.q?.trim().toLowerCase();
-    const filtered = vendors.filter((vendor) => {
-      if (filters?.status && vendor.verificationState !== filters.status) {
-        return false;
-      }
-      if (!query) {
-        return true;
-      }
-      return [vendor.displayName, vendor.contactEmail, vendor.contactName, vendor.city, vendor.state]
-        .join(" ")
-        .toLowerCase()
-        .includes(query);
-    });
+    const statusFiltered = filters?.status
+      ? vendors.filter((vendor) => vendor.verificationState === filters.status)
+      : vendors;
 
-    return clone(filtered);
+    return clone(
+      filterByQuery(statusFiltered, filters?.q, (vendor) =>
+        [vendor.displayName, vendor.contactEmail, vendor.contactName, vendor.city, vendor.state].join(" ")
+      )
+    );
   },
 
   async getVendor(vendorId: string) {
@@ -156,29 +252,111 @@ export const adminServiceMock: AdminService = {
     return updateVendorState(vendorId, "DISABLED_PAYOUT", "VENDOR_PAYOUT_DISABLED", false, reason);
   },
 
-  async listBookings() {
+  async listBookings(filters?: BookingListFilters) {
     await wait();
-    return clone(dummyBookings);
+
+    const statusFiltered = filters?.status
+      ? bookings.filter((booking) => booking.state === filters.status)
+      : bookings;
+
+    return clone(
+      filterByQuery(statusFiltered, filters?.q, (booking) =>
+        [booking.id, booking.organizerName, booking.vendorName, booking.eventName, booking.venueCity].join(" ")
+      )
+    );
   },
 
-  async listPayments() {
+  async getBooking(bookingId: string) {
     await wait();
-    return clone(dummyPayments);
+    return clone(getBookingOrThrow(bookingId));
   },
 
-  async listPayouts() {
+  async listPayments(filters?: PaymentListFilters) {
     await wait();
-    return clone(payouts);
+
+    const statusFiltered = filters?.status
+      ? payments.filter((payment) => payment.status === filters.status)
+      : payments;
+
+    return clone(
+      filterByQuery(statusFiltered, filters?.q, (payment) =>
+        [payment.id, payment.bookingId, payment.providerRef, payment.status].join(" ")
+      )
+    );
   },
 
-  async approvePayout(input) {
+  async listPayouts(filters?: PayoutListFilters) {
     await wait();
-    return applyPayoutState(input, "APPROVED", "PAYOUT_APPROVED");
+
+    const statusFiltered = filters?.status
+      ? payouts.filter((payout) => payout.status === filters.status)
+      : payouts;
+
+    return clone(
+      filterByQuery(statusFiltered, filters?.q, (payout) =>
+        [payout.id, payout.bookingId, payout.vendorId, payout.vendorName, payout.type, payout.status].join(" ")
+      )
+    );
   },
 
-  async holdPayout(input) {
+  async approvePayout(payoutId: string, input: ApprovePayoutInput) {
     await wait();
-    return applyPayoutState(input, "HELD", "PAYOUT_HELD");
+
+    if (!input.confirm) {
+      throw new Error("Payout approval requires explicit confirmation.");
+    }
+
+    return applyPayoutState(payoutId, "APPROVED", "PAYOUT_APPROVED", "Approved by admin review");
+  },
+
+  async holdPayout(payoutId: string, reason?: string) {
+    await wait();
+    return applyPayoutState(payoutId, "HELD", "PAYOUT_HELD", reason);
+  },
+
+  async reversePayout(payoutId: string, reason?: string) {
+    await wait();
+    return applyPayoutState(payoutId, "REVERSED", "PAYOUT_REVERSED", reason);
+  },
+
+  async getFinanceOverview(): Promise<FinanceOverview> {
+    await wait();
+
+    const totalHeldFundsCents = payouts
+      .filter((item) => HOLD_STATUSES.includes(item.status))
+      .reduce((sum, item) => sum + item.amountCents, 0);
+
+    const totalPaidOutCents = payouts
+      .filter((item) => item.status === "PAID")
+      .reduce((sum, item) => sum + item.amountCents, 0);
+
+    const pendingPayoutsCount = payouts.filter((item) => ["REQUESTED", "PENDING_ADMIN_APPROVAL"].includes(item.status)).length;
+
+    const now = new Date();
+    const currentYear = now.getUTCFullYear();
+    const currentMonth = now.getUTCMonth();
+
+    const activeBookingsThisMonth = bookings.filter((booking) => {
+      const eventDate = new Date(booking.startsAt);
+      return (
+        booking.state === "ACTIVE" &&
+        eventDate.getUTCFullYear() === currentYear &&
+        eventDate.getUTCMonth() === currentMonth
+      );
+    }).length;
+
+    return {
+      totalHeldFundsCents,
+      totalPaidOutCents,
+      pendingPayoutsCount,
+      activeBookingsThisMonth,
+      recentActivity: clone(auditLogs.slice(0, 8))
+    };
+  },
+
+  async getBookingFinanceSummary(bookingId: string) {
+    await wait();
+    return buildBookingSummary(bookingId);
   },
 
   async listAuditLogs() {

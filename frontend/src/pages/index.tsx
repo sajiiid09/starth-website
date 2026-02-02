@@ -148,6 +148,11 @@ import VendorProfile from "./vendor/VendorProfile";
 import VendorSubmission from "./vendor/VendorSubmission";
 
 import AdminDashboardHome from "./admin/AdminDashboardHome";
+import AdminFinanceOverview from "./admin/AdminFinanceOverview";
+import AdminBookings from "./admin/AdminBookings";
+import AdminBookingDetail from "./admin/AdminBookingDetail";
+import AdminPayments from "./admin/AdminPayments";
+import AdminPayouts from "./admin/AdminPayouts";
 
 import AdminUsers from "./admin/AdminUsers";
 
@@ -362,6 +367,51 @@ function PagesContent() {
                   element={
                     <RoleGate allowedRoles={["admin"]}>
                       <AdminVendorReview />
+                    </RoleGate>
+                  }
+                />
+
+                <Route
+                  path="/admin/finance"
+                  element={
+                    <RoleGate allowedRoles={["admin"]}>
+                      <AdminFinanceOverview />
+                    </RoleGate>
+                  }
+                />
+
+                <Route
+                  path="/admin/bookings"
+                  element={
+                    <RoleGate allowedRoles={["admin"]}>
+                      <AdminBookings />
+                    </RoleGate>
+                  }
+                />
+
+                <Route
+                  path="/admin/bookings/:bookingId"
+                  element={
+                    <RoleGate allowedRoles={["admin"]}>
+                      <AdminBookingDetail />
+                    </RoleGate>
+                  }
+                />
+
+                <Route
+                  path="/admin/payments"
+                  element={
+                    <RoleGate allowedRoles={["admin"]}>
+                      <AdminPayments />
+                    </RoleGate>
+                  }
+                />
+
+                <Route
+                  path="/admin/payouts"
+                  element={
+                    <RoleGate allowedRoles={["admin"]}>
+                      <AdminPayouts />
                     </RoleGate>
                   }
                 />

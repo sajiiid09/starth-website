@@ -7,8 +7,13 @@ import type {
   AdminPayment,
   AdminService,
   AdminVendor,
+  ApprovePayoutInput,
+  BookingFinanceSummary,
+  BookingListFilters,
+  FinanceOverview,
+  PaymentListFilters,
+  PayoutListFilters,
   ResolveDisputeInput,
-  UpdatePayoutStatusInput,
   VendorListFilters
 } from "@/features/admin/types";
 
@@ -64,30 +69,66 @@ export const adminServiceApi: AdminService = {
     return throwNotImplemented("disableVendorPayout");
   },
 
-  listBookings() {
-    return request<AdminBooking[]>("GET", "/admin/bookings", { auth: true });
+  listBookings(filters?: BookingListFilters) {
+    const path = withQuery("/admin/bookings", {
+      status: filters?.status,
+      q: filters?.q
+    });
+    return request<AdminBooking[]>("GET", path, { auth: true });
   },
 
-  listPayments() {
-    return request<AdminPayment[]>("GET", "/admin/payments", { auth: true });
+  getBooking(bookingId: string) {
+    return request<AdminBooking>("GET", `/admin/bookings/${bookingId}`, { auth: true });
   },
 
-  listPayouts() {
-    return request<AdminPayout[]>("GET", "/admin/payouts", { auth: true });
+  listPayments(filters?: PaymentListFilters) {
+    const path = withQuery("/admin/payments", {
+      status: filters?.status,
+      q: filters?.q
+    });
+    return request<AdminPayment[]>("GET", path, { auth: true });
   },
 
-  approvePayout(input: UpdatePayoutStatusInput) {
-    if (!input.payoutId) {
+  listPayouts(filters?: PayoutListFilters) {
+    const path = withQuery("/admin/payouts", {
+      status: filters?.status,
+      q: filters?.q
+    });
+    return request<AdminPayout[]>("GET", path, { auth: true });
+  },
+
+  approvePayout(payoutId: string, input: ApprovePayoutInput) {
+    if (!payoutId) {
       return Promise.reject(new Error("payoutId is required"));
+    }
+    if (!input.confirm) {
+      return Promise.reject(new Error("confirm=true is required"));
     }
     return throwNotImplemented("approvePayout");
   },
 
-  holdPayout(input: UpdatePayoutStatusInput) {
-    if (!input.payoutId) {
+  holdPayout(payoutId: string, _reason?: string) {
+    if (!payoutId) {
       return Promise.reject(new Error("payoutId is required"));
     }
     return throwNotImplemented("holdPayout");
+  },
+
+  reversePayout(payoutId: string, _reason?: string) {
+    if (!payoutId) {
+      return Promise.reject(new Error("payoutId is required"));
+    }
+    return throwNotImplemented("reversePayout");
+  },
+
+  getFinanceOverview() {
+    return request<FinanceOverview>("GET", "/admin/finance/overview", { auth: true });
+  },
+
+  getBookingFinanceSummary(bookingId: string) {
+    return request<BookingFinanceSummary>("GET", `/admin/bookings/${bookingId}/finance-summary`, {
+      auth: true
+    });
   },
 
   listAuditLogs() {

@@ -4,6 +4,7 @@ export const dummyPayouts: AdminPayout[] = [
   {
     id: "pot_4001",
     vendorId: "vnd_1001",
+    vendorName: "Harborlight Loft",
     bookingId: "bkg_2001",
     paymentId: "pay_3004",
     type: "RESERVATION",
@@ -16,6 +17,7 @@ export const dummyPayouts: AdminPayout[] = [
   {
     id: "pot_4002",
     vendorId: "vnd_1004",
+    vendorName: "Juniper Hall",
     bookingId: "bkg_2004",
     paymentId: "pay_3003",
     type: "RESERVATION",
@@ -28,11 +30,12 @@ export const dummyPayouts: AdminPayout[] = [
   {
     id: "pot_4003",
     vendorId: "vnd_1002",
+    vendorName: "Copper Fern Catering",
     bookingId: "bkg_2002",
     paymentId: "pay_3001",
-    type: "FINAL",
+    type: "RESERVATION",
     status: "REQUESTED",
-    amountCents: 563200,
+    amountCents: 224400,
     currency: "USD",
     requestedAt: "2026-01-31T10:02:00.000Z",
     updatedAt: "2026-01-31T10:02:00.000Z"
@@ -40,8 +43,9 @@ export const dummyPayouts: AdminPayout[] = [
   {
     id: "pot_4004",
     vendorId: "vnd_1005",
+    vendorName: "Bluebird AV Collective",
     bookingId: "bkg_2005",
-    paymentId: "pay_3002",
+    paymentId: "pay_3006",
     type: "RESERVATION",
     status: "APPROVED",
     amountCents: 105300,
@@ -52,6 +56,7 @@ export const dummyPayouts: AdminPayout[] = [
   {
     id: "pot_4005",
     vendorId: "vnd_1004",
+    vendorName: "Juniper Hall",
     bookingId: "bkg_2007",
     paymentId: "pay_3005",
     type: "FINAL",
@@ -64,6 +69,7 @@ export const dummyPayouts: AdminPayout[] = [
   {
     id: "pot_4006",
     vendorId: "vnd_1003",
+    vendorName: "Atlas Stageworks",
     bookingId: "bkg_2003",
     paymentId: "pay_3002",
     type: "RESERVATION",
@@ -72,5 +78,18 @@ export const dummyPayouts: AdminPayout[] = [
     currency: "USD",
     requestedAt: "2026-01-25T19:30:00.000Z",
     updatedAt: "2026-01-28T06:45:00.000Z"
+  },
+  {
+    id: "pot_4007",
+    vendorId: "vnd_1001",
+    vendorName: "Harborlight Loft",
+    bookingId: "bkg_2001",
+    paymentId: "pay_3004",
+    type: "FINAL",
+    status: "PAID",
+    amountCents: 259200,
+    currency: "USD",
+    requestedAt: "2025-12-11T02:00:00.000Z",
+    updatedAt: "2025-12-12T09:10:00.000Z"
   }
 ];

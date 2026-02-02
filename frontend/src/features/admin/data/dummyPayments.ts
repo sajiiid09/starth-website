@@ -9,7 +9,7 @@ export const dummyPayments: AdminPayment[] = [
     currency: "USD",
     status: "REQUIRES_PAYMENT_METHOD",
     paymentMethodType: "card",
-    externalRef: "pi_mock_3001",
+    providerRef: "pi_mock_3001",
     createdAt: "2026-01-30T08:40:00.000Z",
     updatedAt: "2026-01-30T08:40:00.000Z"
   },
@@ -21,7 +21,7 @@ export const dummyPayments: AdminPayment[] = [
     currency: "USD",
     status: "REQUIRES_CONFIRMATION",
     paymentMethodType: "card",
-    externalRef: "pi_mock_3002",
+    providerRef: "pi_mock_3002",
     createdAt: "2026-01-24T16:10:00.000Z",
     updatedAt: "2026-01-24T16:40:00.000Z"
   },
@@ -33,7 +33,7 @@ export const dummyPayments: AdminPayment[] = [
     currency: "USD",
     status: "PROCESSING",
     paymentMethodType: "bank_transfer",
-    externalRef: "pi_mock_3003",
+    providerRef: "pi_mock_3003",
     createdAt: "2026-02-01T22:00:00.000Z",
     updatedAt: "2026-02-01T22:05:00.000Z"
   },
@@ -45,7 +45,7 @@ export const dummyPayments: AdminPayment[] = [
     currency: "USD",
     status: "SUCCEEDED",
     paymentMethodType: "card",
-    externalRef: "pi_mock_3004",
+    providerRef: "pi_mock_3004",
     createdAt: "2025-11-03T11:00:00.000Z",
     updatedAt: "2025-11-03T11:01:00.000Z"
   },
@@ -57,8 +57,20 @@ export const dummyPayments: AdminPayment[] = [
     currency: "USD",
     status: "CANCELED",
     paymentMethodType: "card",
-    externalRef: "pi_mock_3005",
+    providerRef: "pi_mock_3005",
     createdAt: "2025-12-29T14:00:00.000Z",
     updatedAt: "2026-01-10T12:02:00.000Z"
+  },
+  {
+    id: "pay_3006",
+    bookingId: "bkg_2005",
+    customerId: "cus_9005",
+    amountCents: 117000,
+    currency: "USD",
+    status: "SUCCEEDED",
+    paymentMethodType: "card",
+    providerRef: "pi_mock_3006",
+    createdAt: "2026-01-31T20:20:00.000Z",
+    updatedAt: "2026-01-31T20:21:00.000Z"
   }
 ];

@@ -74,16 +74,28 @@ export type AdminVendor = {
   submission: VendorVerificationSubmissionMetadata;
 };
 
+export type BookingMilestone = {
+  id: string;
+  label: string;
+  description: string;
+  timestamp: string;
+};
+
 export type AdminBooking = {
   id: string;
   vendorId: string;
+  vendorName: string;
   customerId: string;
+  organizerName: string;
   eventName: string;
   state: AdminBookingLifecycleState;
   venueCity: string;
   startsAt: string;
   endsAt: string;
   totalAmountCents: number;
+  cancellationReason?: string;
+  canceledAt?: string;
+  milestones: BookingMilestone[];
   createdAt: string;
   updatedAt: string;
 };
@@ -96,7 +108,7 @@ export type AdminPayment = {
   currency: string;
   status: AdminPaymentStatus;
   paymentMethodType: "card" | "bank_transfer";
-  externalRef: string;
+  providerRef: string;
   createdAt: string;
   updatedAt: string;
 };
@@ -104,6 +116,7 @@ export type AdminPayment = {
 export type AdminPayout = {
   id: string;
   vendorId: string;
+  vendorName: string;
   bookingId: string;
   paymentId: string;
   type: AdminPayoutType;
@@ -141,6 +154,52 @@ export type VendorListFilters = {
   q?: string;
 };
 
+export type BookingListFilters = {
+  status?: AdminBookingLifecycleState;
+  q?: string;
+};
+
+export type PaymentListFilters = {
+  status?: AdminPaymentStatus;
+  q?: string;
+};
+
+export type PayoutListFilters = {
+  status?: AdminPayoutStatus;
+  q?: string;
+};
+
+export type ApprovePayoutInput = {
+  confirm: true;
+};
+
+export type FinanceOverview = {
+  totalHeldFundsCents: number;
+  totalPaidOutCents: number;
+  pendingPayoutsCount: number;
+  activeBookingsThisMonth: number;
+  recentActivity: AdminAuditLog[];
+};
+
+export type FinanceLedgerEntry = {
+  id: string;
+  label: string;
+  category: "HELD" | "RELEASED" | "PAYMENT" | "REVERSAL";
+  amountCents: number;
+  occurredAt: string;
+};
+
+export type BookingFinanceSummary = {
+  bookingId: string;
+  bookingTotalCents: number;
+  payment: AdminPayment | null;
+  payouts: AdminPayout[];
+  heldFundsCents: number;
+  releasedFundsCents: number;
+  reversedFundsCents: number;
+  ledger: FinanceLedgerEntry[];
+};
+
 export type UpdatePayoutStatusInput = {
   payoutId: string;
   note?: string;
@@ -158,11 +217,17 @@ export type AdminService = {
   approveVendor: (vendorId: string) => Promise<AdminVendor>;
   needsChangesVendor: (vendorId: string, note: string) => Promise<AdminVendor>;
   disableVendorPayout: (vendorId: string, reason?: string) => Promise<AdminVendor>;
-  listBookings: () => Promise<AdminBooking[]>;
-  listPayments: () => Promise<AdminPayment[]>;
-  listPayouts: () => Promise<AdminPayout[]>;
-  approvePayout: (input: UpdatePayoutStatusInput) => Promise<AdminPayout>;
-  holdPayout: (input: UpdatePayoutStatusInput) => Promise<AdminPayout>;
+
+  listBookings: (filters?: BookingListFilters) => Promise<AdminBooking[]>;
+  getBooking: (bookingId: string) => Promise<AdminBooking>;
+  listPayments: (filters?: PaymentListFilters) => Promise<AdminPayment[]>;
+  listPayouts: (filters?: PayoutListFilters) => Promise<AdminPayout[]>;
+  approvePayout: (payoutId: string, input: ApprovePayoutInput) => Promise<AdminPayout>;
+  holdPayout: (payoutId: string, reason?: string) => Promise<AdminPayout>;
+  reversePayout: (payoutId: string, reason?: string) => Promise<AdminPayout>;
+  getFinanceOverview: () => Promise<FinanceOverview>;
+  getBookingFinanceSummary: (bookingId: string) => Promise<BookingFinanceSummary>;
+
   listAuditLogs: () => Promise<AdminAuditLog[]>;
   listDisputes: () => Promise<AdminDispute[]>;
   resolveDispute: (input: ResolveDisputeInput) => Promise<AdminDispute>;

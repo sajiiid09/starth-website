@@ -20,7 +20,8 @@ export type AdminPaymentStatus =
   | "REQUIRES_CONFIRMATION"
   | "PROCESSING"
   | "SUCCEEDED"
-  | "CANCELED";
+  | "CANCELED"
+  | "CORRECTED";
 
 export type AdminPayoutType = "RESERVATION" | "FINAL";
 
@@ -33,6 +34,7 @@ export type AdminPayoutStatus =
   | "REVERSED";
 
 export type AdminDisputeStatus = "OPEN" | "UNDER_REVIEW" | "RESOLVED" | "REJECTED";
+export type AdminResourceType = "VENDOR" | "BOOKING" | "PAYMENT" | "PAYOUT" | "DISPUTE";
 
 export type VendorVenueOwnerDetails = {
   squareFeet: number;
@@ -131,7 +133,7 @@ export type AdminAuditLog = {
   id: string;
   actor: string;
   action: string;
-  resourceType: "VENDOR" | "BOOKING" | "PAYMENT" | "PAYOUT" | "DISPUTE";
+  resourceType: AdminResourceType;
   resourceId: string;
   timestamp: string;
   ip: string;
@@ -169,6 +171,16 @@ export type PayoutListFilters = {
   q?: string;
 };
 
+export type AuditLogFilters = {
+  q?: string;
+  action?: string;
+  resourceType?: AdminResourceType;
+};
+
+export type DisputeListFilters = {
+  status?: AdminDisputeStatus;
+};
+
 export type ApprovePayoutInput = {
   confirm: true;
 };
@@ -200,11 +212,6 @@ export type BookingFinanceSummary = {
   ledger: FinanceLedgerEntry[];
 };
 
-export type UpdatePayoutStatusInput = {
-  payoutId: string;
-  note?: string;
-};
-
 export type ResolveDisputeInput = {
   disputeId: string;
   resolution: "RESOLVED" | "REJECTED";
@@ -228,7 +235,13 @@ export type AdminService = {
   getFinanceOverview: () => Promise<FinanceOverview>;
   getBookingFinanceSummary: (bookingId: string) => Promise<BookingFinanceSummary>;
 
-  listAuditLogs: () => Promise<AdminAuditLog[]>;
-  listDisputes: () => Promise<AdminDispute[]>;
+  listAuditLogs: (filters?: AuditLogFilters) => Promise<AdminAuditLog[]>;
+  listDisputes: (filters?: DisputeListFilters) => Promise<AdminDispute[]>;
+  getDispute: (disputeId: string) => Promise<AdminDispute>;
+  updateDisputeStatus: (disputeId: string, status: AdminDisputeStatus) => Promise<AdminDispute>;
+  holdPayoutsForBooking: (bookingId: string, reason?: string) => Promise<AdminPayout[]>;
+  opsResetDummyData: () => Promise<{ resetAt: string }>;
+  opsReconcileDummyPayments: () => Promise<{ paymentId: string; status: AdminPaymentStatus }>;
+
   resolveDispute: (input: ResolveDisputeInput) => Promise<AdminDispute>;
 };

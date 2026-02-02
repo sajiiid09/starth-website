@@ -31,6 +31,7 @@ import {
   setVendorType,
   updateVendorProfileDraft
 } from "@/utils/session";
+import { isAdminReadOnly } from "@/features/admin/config";
 
 const isDev = import.meta.env.MODE !== "production";
 
@@ -136,6 +137,11 @@ const DashboardShell: React.FC<DashboardShellProps> = ({ children }) => {
               </Select>
             )}
           </header>
+          {role === "admin" && isAdminReadOnly && (
+            <div className="mx-6 mt-4 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+              Admin read-only mode is enabled. Mutating actions are currently disabled.
+            </div>
+          )}
           <div className="px-6 py-8">{children}</div>
         </main>
       </div>

@@ -36,6 +36,7 @@ import {
 } from "@/components/ui/table";
 import { useAdminQuery } from "@/features/admin/hooks/useAdminQuery";
 import { useAdminMutation } from "@/features/admin/hooks/useAdminMutation";
+import { isAdminReadOnly } from "@/features/admin/config";
 import { adminService } from "@/features/admin/services/adminService";
 import type { AdminPayout, AdminPayoutStatus } from "@/features/admin/types";
 
@@ -132,6 +133,7 @@ const AdminPayouts: React.FC = () => {
 
   const handleApprove = async () => {
     if (!selected) return;
+    if (isAdminReadOnly) return;
     try {
       await approveMutation.mutate(selected.id);
       toast.success("Payout approved");
@@ -145,6 +147,7 @@ const AdminPayouts: React.FC = () => {
 
   const handleHold = async () => {
     if (!selected) return;
+    if (isAdminReadOnly) return;
     try {
       await holdMutation.mutate({
         payoutId: selected.id,
@@ -162,6 +165,7 @@ const AdminPayouts: React.FC = () => {
 
   const handleReverse = async () => {
     if (!selected) return;
+    if (isAdminReadOnly) return;
     try {
       await reverseMutation.mutate({
         payoutId: selected.id,
@@ -265,7 +269,7 @@ const AdminPayouts: React.FC = () => {
                               setSelected(payout);
                               setApproveOpen(true);
                             }}
-                            disabled={isBusy}
+                            disabled={isBusy || isAdminReadOnly}
                           >
                             Approve
                           </Button>
@@ -276,7 +280,7 @@ const AdminPayouts: React.FC = () => {
                               setSelected(payout);
                               setHoldOpen(true);
                             }}
-                            disabled={isBusy}
+                            disabled={isBusy || isAdminReadOnly}
                           >
                             Hold
                           </Button>
@@ -287,7 +291,7 @@ const AdminPayouts: React.FC = () => {
                               setSelected(payout);
                               setReverseOpen(true);
                             }}
-                            disabled={isBusy}
+                            disabled={isBusy || isAdminReadOnly}
                           >
                             Reverse
                           </Button>
@@ -314,7 +318,9 @@ const AdminPayouts: React.FC = () => {
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={() => void handleApprove()}>Approve payout</AlertDialogAction>
+            <AlertDialogAction onClick={() => void handleApprove()} disabled={isAdminReadOnly}>
+              Approve payout
+            </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
@@ -335,7 +341,7 @@ const AdminPayouts: React.FC = () => {
             <Button variant="outline" onClick={() => setHoldOpen(false)}>
               Cancel
             </Button>
-            <Button onClick={() => void handleHold()} disabled={holdMutation.isLoading}>
+            <Button onClick={() => void handleHold()} disabled={holdMutation.isLoading || isAdminReadOnly}>
               Hold payout
             </Button>
           </DialogFooter>
@@ -361,7 +367,9 @@ const AdminPayouts: React.FC = () => {
           />
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={() => void handleReverse()}>Reverse payout</AlertDialogAction>
+            <AlertDialogAction onClick={() => void handleReverse()} disabled={isAdminReadOnly}>
+              Reverse payout
+            </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>

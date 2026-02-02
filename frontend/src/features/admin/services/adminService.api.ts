@@ -3,13 +3,16 @@ import type {
   AdminAuditLog,
   AdminBooking,
   AdminDispute,
+  AdminDisputeStatus,
   AdminPayout,
   AdminPayment,
   AdminService,
   AdminVendor,
   ApprovePayoutInput,
+  AuditLogFilters,
   BookingFinanceSummary,
   BookingListFilters,
+  DisputeListFilters,
   FinanceOverview,
   PaymentListFilters,
   PayoutListFilters,
@@ -131,12 +134,46 @@ export const adminServiceApi: AdminService = {
     });
   },
 
-  listAuditLogs() {
-    return request<AdminAuditLog[]>("GET", "/admin/audit-logs", { auth: true });
+  listAuditLogs(filters?: AuditLogFilters) {
+    const path = withQuery("/admin/audit-logs", {
+      q: filters?.q,
+      action: filters?.action,
+      resourceType: filters?.resourceType
+    });
+    return request<AdminAuditLog[]>("GET", path, { auth: true });
   },
 
-  listDisputes() {
-    return request<AdminDispute[]>("GET", "/admin/disputes", { auth: true });
+  listDisputes(filters?: DisputeListFilters) {
+    const path = withQuery("/admin/disputes", {
+      status: filters?.status
+    });
+    return request<AdminDispute[]>("GET", path, { auth: true });
+  },
+
+  getDispute(disputeId: string) {
+    return request<AdminDispute>("GET", `/admin/disputes/${disputeId}`, { auth: true });
+  },
+
+  updateDisputeStatus(disputeId: string, _status: AdminDisputeStatus) {
+    if (!disputeId) {
+      return Promise.reject(new Error("disputeId is required"));
+    }
+    return throwNotImplemented("updateDisputeStatus");
+  },
+
+  holdPayoutsForBooking(bookingId: string, _reason?: string) {
+    if (!bookingId) {
+      return Promise.reject(new Error("bookingId is required"));
+    }
+    return throwNotImplemented("holdPayoutsForBooking");
+  },
+
+  opsResetDummyData() {
+    return throwNotImplemented("opsResetDummyData");
+  },
+
+  opsReconcileDummyPayments() {
+    return throwNotImplemented("opsReconcileDummyPayments");
   },
 
   resolveDispute(input: ResolveDisputeInput) {

@@ -8,13 +8,16 @@ import type {
   AdminAuditLog,
   AdminBooking,
   AdminDispute,
+  AdminDisputeStatus,
   AdminPayout,
   AdminPayment,
   AdminService,
   AdminVendor,
   ApprovePayoutInput,
+  AuditLogFilters,
   BookingFinanceSummary,
   BookingListFilters,
+  DisputeListFilters,
   FinanceLedgerEntry,
   FinanceOverview,
   PaymentListFilters,
@@ -29,12 +32,23 @@ const RELEASED_STATUSES: AdminPayout["status"][] = ["APPROVED", "PAID"];
 
 const clone = <T>(value: T): T => JSON.parse(JSON.stringify(value)) as T;
 
-let vendors: AdminVendor[] = clone(dummyVendors);
-let bookings: AdminBooking[] = clone(dummyBookings);
-let payments: AdminPayment[] = clone(dummyPayments);
-let payouts: AdminPayout[] = clone(dummyPayouts);
-let disputes: AdminDispute[] = clone(dummyDisputes);
-let auditLogs: AdminAuditLog[] = clone(dummyAuditLogs);
+let vendors: AdminVendor[] = [];
+let bookings: AdminBooking[] = [];
+let payments: AdminPayment[] = [];
+let payouts: AdminPayout[] = [];
+let disputes: AdminDispute[] = [];
+let auditLogs: AdminAuditLog[] = [];
+
+const resetInMemoryData = () => {
+  vendors = clone(dummyVendors);
+  bookings = clone(dummyBookings);
+  payments = clone(dummyPayments);
+  payouts = clone(dummyPayouts);
+  disputes = clone(dummyDisputes);
+  auditLogs = clone(dummyAuditLogs);
+};
+
+resetInMemoryData();
 
 const wait = () => new Promise((resolve) => window.setTimeout(resolve, NETWORK_DELAY_MS));
 const nowIso = () => new Date().toISOString();
@@ -42,7 +56,7 @@ const nowIso = () => new Date().toISOString();
 const appendAuditLog = (entry: Omit<AdminAuditLog, "id" | "timestamp">) => {
   auditLogs = [
     {
-      id: `aud_runtime_${Date.now()}`,
+      id: `aud_runtime_${Date.now()}_${Math.floor(Math.random() * 1000)}`,
       timestamp: nowIso(),
       ...entry
     },
@@ -217,6 +231,23 @@ const applyPayoutState = (payoutId: string, status: AdminPayout["status"], actio
   return clone(payout);
 };
 
+const setDisputeStatus = (disputeId: string, status: AdminDisputeStatus) => {
+  const dispute = getDisputeOrThrow(disputeId);
+  dispute.status = status;
+  dispute.updatedAt = nowIso();
+
+  appendAuditLog({
+    actor: "admin:mock-user",
+    action: `DISPUTE_${status}`,
+    resourceType: "DISPUTE",
+    resourceId: dispute.id,
+    ip: "127.0.0.1",
+    userAgent: "mock-admin-ui/1.0"
+  });
+
+  return clone(dispute);
+};
+
 export const adminServiceMock: AdminService = {
   async listVendors(filters?: VendorListFilters) {
     await wait();
@@ -359,33 +390,125 @@ export const adminServiceMock: AdminService = {
     return buildBookingSummary(bookingId);
   },
 
-  async listAuditLogs() {
+  async listAuditLogs(filters?: AuditLogFilters) {
     await wait();
-    return clone(auditLogs);
+
+    let items = auditLogs;
+
+    if (filters?.action) {
+      items = items.filter((item) => item.action === filters.action);
+    }
+
+    if (filters?.resourceType) {
+      items = items.filter((item) => item.resourceType === filters.resourceType);
+    }
+
+    items = filterByQuery(items, filters?.q, (item) =>
+      [item.actor, item.action, item.resourceType, item.resourceId, JSON.stringify(item.metadata ?? {})].join(" ")
+    );
+
+    return clone(items);
   },
 
-  async listDisputes() {
+  async listDisputes(filters?: DisputeListFilters) {
     await wait();
-    return clone(disputes);
+
+    const statusFiltered = filters?.status
+      ? disputes.filter((dispute) => dispute.status === filters.status)
+      : disputes;
+
+    return clone(statusFiltered);
+  },
+
+  async getDispute(disputeId: string) {
+    await wait();
+    return clone(getDisputeOrThrow(disputeId));
+  },
+
+  async updateDisputeStatus(disputeId: string, status: AdminDisputeStatus) {
+    await wait();
+    return setDisputeStatus(disputeId, status);
+  },
+
+  async holdPayoutsForBooking(bookingId: string, reason?: string) {
+    await wait();
+
+    const related = payouts.filter((payout) => payout.bookingId === bookingId && payout.status !== "PAID" && payout.status !== "REVERSED");
+
+    related.forEach((payout) => {
+      payout.status = "HELD";
+      payout.updatedAt = nowIso();
+    });
+
+    appendAuditLog({
+      actor: "admin:mock-user",
+      action: "BOOKING_PAYOUTS_HELD",
+      resourceType: "BOOKING",
+      resourceId: bookingId,
+      ip: "127.0.0.1",
+      userAgent: "mock-admin-ui/1.0",
+      metadata: {
+        reason,
+        heldPayoutIds: related.map((item) => item.id)
+      }
+    });
+
+    return clone(related);
+  },
+
+  async opsResetDummyData() {
+    await wait();
+    resetInMemoryData();
+
+    appendAuditLog({
+      actor: "admin:mock-user",
+      action: "OPS_DEMO_SEED_RESET",
+      resourceType: "BOOKING",
+      resourceId: "demo-datasets",
+      ip: "127.0.0.1",
+      userAgent: "mock-admin-ui/1.0"
+    });
+
+    return { resetAt: nowIso() };
+  },
+
+  async opsReconcileDummyPayments() {
+    await wait();
+
+    if (payments.length === 0) {
+      throw new Error("No payments available for reconciliation.");
+    }
+
+    const randomIndex = Math.floor(Math.random() * payments.length);
+    const target = payments[randomIndex];
+    const previousStatus = target.status;
+
+    target.status = "CORRECTED";
+    target.updatedAt = nowIso();
+
+    appendAuditLog({
+      actor: "admin:mock-user",
+      action: "OPS_RECONCILIATION_RUN",
+      resourceType: "PAYMENT",
+      resourceId: target.id,
+      ip: "127.0.0.1",
+      userAgent: "mock-admin-ui/1.0",
+      metadata: {
+        previousStatus,
+        newStatus: target.status
+      }
+    });
+
+    return {
+      paymentId: target.id,
+      status: target.status
+    };
   },
 
   async resolveDispute(input: ResolveDisputeInput) {
     await wait();
 
-    const dispute = getDisputeOrThrow(input.disputeId);
-    dispute.status = input.resolution;
-    dispute.updatedAt = nowIso();
-
-    appendAuditLog({
-      actor: "admin:mock-user",
-      action: input.resolution === "RESOLVED" ? "DISPUTE_RESOLVED" : "DISPUTE_REJECTED",
-      resourceType: "DISPUTE",
-      resourceId: dispute.id,
-      ip: "127.0.0.1",
-      userAgent: "mock-admin-ui/1.0",
-      metadata: input.note ? { note: input.note } : undefined
-    });
-
-    return clone(dispute);
+    const nextStatus: AdminDisputeStatus = input.resolution === "RESOLVED" ? "RESOLVED" : "REJECTED";
+    return setDisputeStatus(input.disputeId, nextStatus);
   }
 };

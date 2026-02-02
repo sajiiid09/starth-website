@@ -161,3 +161,33 @@ The Strathwell backend is a FastAPI service that powers organizer subscriptions,
 - Stripe Connect transfers for payouts.
 - Second-payment handling for deposits and remaining balances.
 - Planner/RAG endpoints with pgvector and background jobs.
+
+## Frontend Admin Control Plane (Dummy-Mode, Phases 1–4)
+
+### Phase 1: Admin Data Layer Foundation
+- Added frontend admin service abstraction (`adminService`) with environment-based switching between dummy and API implementations.
+- Introduced typed HTTP client wrapper (`request<T>`) with normalized errors and optional bearer auth.
+- Added realistic dummy datasets for vendors, bookings, payments, payouts, disputes, and audit logs.
+- Added lightweight query/mutation hooks for loading/error handling and optimistic UI updates.
+
+### Phase 2: Vendor Verification Control Plane
+- Built vendor verification queue and detail review flow under admin routes.
+- Added actions for approve, request changes, and disable payout eligibility.
+- Ensured actions mutate in-memory dummy state and append audit log entries.
+- Added safety dialogs for destructive actions and status-driven filtering/search UX.
+
+### Phase 3: Finance Oversight Surfaces
+- Added finance overview, bookings list/detail, payments list, and payouts queue.
+- Implemented booking finance summaries with held/released/reversed ledger-style breakdowns.
+- Implemented controlled payout actions (approve/hold/reverse) with confirmations.
+- Kept architecture API-ready by preserving stable service signatures for backend swap-in.
+
+### Phase 4: Finalized Admin Control Plane
+- Added audit log viewer with action/resource/date filtering and metadata expansion.
+- Added disputes list/detail workflows with status updates and related payout holds.
+- Added ops tools page (demo seed + reconciliation) gated by feature flags.
+- Added admin read-only mode UX and service-level mutation guards to disable writes consistently.
+- Added new frontend flags:
+  - `VITE_ENABLE_DEMO_OPS`
+  - `VITE_ENABLE_RECONCILIATION_OPS`
+  - `VITE_ADMIN_READONLY`

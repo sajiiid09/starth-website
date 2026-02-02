@@ -153,6 +153,10 @@ import AdminBookings from "./admin/AdminBookings";
 import AdminBookingDetail from "./admin/AdminBookingDetail";
 import AdminPayments from "./admin/AdminPayments";
 import AdminPayouts from "./admin/AdminPayouts";
+import AdminAuditLogs from "./admin/AdminAuditLogs";
+import AdminDisputes from "./admin/AdminDisputes";
+import AdminDisputeDetail from "./admin/AdminDisputeDetail";
+import AdminOps from "./admin/AdminOps";
 
 import AdminUsers from "./admin/AdminUsers";
 
@@ -167,6 +171,7 @@ import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import { createPageUrl } from "@/utils";
 import RoleGate from "@/components/auth/RoleGate";
 import ScrollToTop from "@/components/shared/ScrollToTop";
+import { hasAdminOpsTools } from "@/features/admin/config";
 
 // Create a wrapper component that uses useLocation inside the Router context
 function PagesContent() {
@@ -415,6 +420,44 @@ function PagesContent() {
                     </RoleGate>
                   }
                 />
+
+                <Route
+                  path="/admin/audit"
+                  element={
+                    <RoleGate allowedRoles={["admin"]}>
+                      <AdminAuditLogs />
+                    </RoleGate>
+                  }
+                />
+
+                <Route
+                  path="/admin/disputes"
+                  element={
+                    <RoleGate allowedRoles={["admin"]}>
+                      <AdminDisputes />
+                    </RoleGate>
+                  }
+                />
+
+                <Route
+                  path="/admin/disputes/:disputeId"
+                  element={
+                    <RoleGate allowedRoles={["admin"]}>
+                      <AdminDisputeDetail />
+                    </RoleGate>
+                  }
+                />
+
+                {hasAdminOpsTools && (
+                  <Route
+                    path="/admin/ops"
+                    element={
+                      <RoleGate allowedRoles={["admin"]}>
+                        <AdminOps />
+                      </RoleGate>
+                    }
+                  />
+                )}
 
                 <Route
                   path="/admin/templates"

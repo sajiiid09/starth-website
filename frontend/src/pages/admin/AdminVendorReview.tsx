@@ -27,6 +27,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { useAdminQuery } from "@/features/admin/hooks/useAdminQuery";
 import { useAdminMutation } from "@/features/admin/hooks/useAdminMutation";
+import { isAdminReadOnly } from "@/features/admin/config";
 import { adminService } from "@/features/admin/services/adminService";
 import type { AdminVendor, AdminVendorVerificationState } from "@/features/admin/types";
 
@@ -170,6 +171,7 @@ const AdminVendorReview: React.FC = () => {
 
   const handleApprove = async () => {
     if (!vendorId) return;
+    if (isAdminReadOnly) return;
     try {
       await approveMutation.mutate(vendorId);
     } catch {
@@ -179,6 +181,7 @@ const AdminVendorReview: React.FC = () => {
 
   const handleNeedsChanges = async () => {
     if (!vendorId) return;
+    if (isAdminReadOnly) return;
 
     const note = needsChangesNote.trim();
     if (!note) {
@@ -195,6 +198,7 @@ const AdminVendorReview: React.FC = () => {
 
   const handleDisablePayout = async () => {
     if (!vendorId) return;
+    if (isAdminReadOnly) return;
 
     try {
       await disableMutation.mutate({
@@ -351,13 +355,21 @@ const AdminVendorReview: React.FC = () => {
           <CardTitle className="text-lg">Review actions</CardTitle>
         </CardHeader>
         <CardContent className="flex flex-wrap gap-3">
-          <Button onClick={() => void handleApprove()} disabled={isActionLoading}>
+          <Button onClick={() => void handleApprove()} disabled={isActionLoading || isAdminReadOnly}>
             Approve
           </Button>
-          <Button variant="outline" onClick={() => setNeedsChangesOpen(true)} disabled={isActionLoading}>
+          <Button
+            variant="outline"
+            onClick={() => setNeedsChangesOpen(true)}
+            disabled={isActionLoading || isAdminReadOnly}
+          >
             Needs changes
           </Button>
-          <Button variant="destructive" onClick={() => setDisableOpen(true)} disabled={isActionLoading}>
+          <Button
+            variant="destructive"
+            onClick={() => setDisableOpen(true)}
+            disabled={isActionLoading || isAdminReadOnly}
+          >
             Disable payout
           </Button>
         </CardContent>
@@ -381,7 +393,10 @@ const AdminVendorReview: React.FC = () => {
             <Button variant="outline" onClick={() => setNeedsChangesOpen(false)}>
               Cancel
             </Button>
-            <Button onClick={() => void handleNeedsChanges()} disabled={needsChangesMutation.isLoading}>
+            <Button
+              onClick={() => void handleNeedsChanges()}
+              disabled={needsChangesMutation.isLoading || isAdminReadOnly}
+            >
               Submit note
             </Button>
           </DialogFooter>
@@ -407,7 +422,7 @@ const AdminVendorReview: React.FC = () => {
           />
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={() => void handleDisablePayout()}>
+            <AlertDialogAction onClick={() => void handleDisablePayout()} disabled={isAdminReadOnly}>
               Disable payout
             </AlertDialogAction>
           </AlertDialogFooter>

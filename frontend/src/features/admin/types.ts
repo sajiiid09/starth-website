@@ -34,6 +34,26 @@ export type AdminPayoutStatus =
 
 export type AdminDisputeStatus = "OPEN" | "UNDER_REVIEW" | "RESOLVED" | "REJECTED";
 
+export type VendorVenueOwnerDetails = {
+  squareFeet: number;
+  venueType: string;
+  address: string;
+  capacityNotes: string;
+};
+
+export type VendorServiceProviderDetails = {
+  categories: string[];
+  serviceAreas: string[];
+};
+
+export type VendorVerificationSubmissionMetadata = {
+  submittedAt: string;
+  submittedBy: string;
+  documents: string[];
+  lastUpdatedAt: string;
+  note?: string;
+};
+
 export type AdminVendor = {
   id: string;
   displayName: string;
@@ -49,6 +69,9 @@ export type AdminVendor = {
   payoutEnabled: boolean;
   rating: number;
   completedBookings: number;
+  venueDetails?: VendorVenueOwnerDetails;
+  serviceDetails?: VendorServiceProviderDetails;
+  submission: VendorVerificationSubmissionMetadata;
 };
 
 export type AdminBooking = {
@@ -114,14 +137,8 @@ export type AdminDispute = {
 };
 
 export type VendorListFilters = {
-  verificationState?: AdminVendorVerificationState;
-  subtype?: VendorSubtype;
-  query?: string;
-};
-
-export type UpdateVendorVerificationInput = {
-  vendorId: string;
-  note?: string;
+  status?: AdminVendorVerificationState;
+  q?: string;
 };
 
 export type UpdatePayoutStatusInput = {
@@ -137,9 +154,10 @@ export type ResolveDisputeInput = {
 
 export type AdminService = {
   listVendors: (filters?: VendorListFilters) => Promise<AdminVendor[]>;
-  approveVendor: (input: UpdateVendorVerificationInput) => Promise<AdminVendor>;
-  requestVendorChanges: (input: UpdateVendorVerificationInput) => Promise<AdminVendor>;
-  disableVendorPayout: (input: UpdateVendorVerificationInput) => Promise<AdminVendor>;
+  getVendor: (vendorId: string) => Promise<AdminVendor>;
+  approveVendor: (vendorId: string) => Promise<AdminVendor>;
+  needsChangesVendor: (vendorId: string, note: string) => Promise<AdminVendor>;
+  disableVendorPayout: (vendorId: string, reason?: string) => Promise<AdminVendor>;
   listBookings: () => Promise<AdminBooking[]>;
   listPayments: () => Promise<AdminPayment[]>;
   listPayouts: () => Promise<AdminPayout[]>;

@@ -12,7 +12,6 @@ import type {
   AdminVendor,
   ResolveDisputeInput,
   UpdatePayoutStatusInput,
-  UpdateVendorVerificationInput,
   VendorListFilters
 } from "@/features/admin/types";
 
@@ -64,16 +63,22 @@ const appendAuditLog = (entry: Omit<AdminAuditLog, "id" | "timestamp">) => {
   ];
 };
 
-const applyVendorState = (
-  input: UpdateVendorVerificationInput,
+const updateVendorState = (
+  vendorId: string,
   verificationState: AdminVendor["verificationState"],
   action: string,
-  payoutEnabled: boolean
+  payoutEnabled: boolean,
+  note?: string
 ) => {
-  const vendor = getVendorOrThrow(input.vendorId);
+  const vendor = getVendorOrThrow(vendorId);
   vendor.verificationState = verificationState;
   vendor.payoutEnabled = payoutEnabled;
   vendor.updatedAt = nowIso();
+  vendor.submission.lastUpdatedAt = vendor.updatedAt;
+
+  if (note) {
+    vendor.submission.note = note;
+  }
 
   appendAuditLog({
     actor: "admin:mock-user",
@@ -82,7 +87,7 @@ const applyVendorState = (
     resourceId: vendor.id,
     ip: "127.0.0.1",
     userAgent: "mock-admin-ui/1.0",
-    metadata: input.note ? { note: input.note } : undefined
+    metadata: note ? { note } : undefined
   });
 
   return clone(vendor);
@@ -114,18 +119,15 @@ export const adminServiceMock: AdminService = {
   async listVendors(filters?: VendorListFilters) {
     await wait();
 
-    const query = filters?.query?.trim().toLowerCase();
+    const query = filters?.q?.trim().toLowerCase();
     const filtered = vendors.filter((vendor) => {
-      if (filters?.verificationState && vendor.verificationState !== filters.verificationState) {
-        return false;
-      }
-      if (filters?.subtype && vendor.subtype !== filters.subtype) {
+      if (filters?.status && vendor.verificationState !== filters.status) {
         return false;
       }
       if (!query) {
         return true;
       }
-      return [vendor.displayName, vendor.contactEmail, vendor.contactName]
+      return [vendor.displayName, vendor.contactEmail, vendor.contactName, vendor.city, vendor.state]
         .join(" ")
         .toLowerCase()
         .includes(query);
@@ -134,19 +136,24 @@ export const adminServiceMock: AdminService = {
     return clone(filtered);
   },
 
-  async approveVendor(input) {
+  async getVendor(vendorId: string) {
     await wait();
-    return applyVendorState(input, "APPROVED", "VENDOR_APPROVED", true);
+    return clone(getVendorOrThrow(vendorId));
   },
 
-  async requestVendorChanges(input) {
+  async approveVendor(vendorId: string) {
     await wait();
-    return applyVendorState(input, "NEEDS_CHANGES", "VENDOR_CHANGES_REQUESTED", false);
+    return updateVendorState(vendorId, "APPROVED", "VENDOR_APPROVED", true);
   },
 
-  async disableVendorPayout(input) {
+  async needsChangesVendor(vendorId: string, note: string) {
     await wait();
-    return applyVendorState(input, "DISABLED_PAYOUT", "VENDOR_PAYOUT_DISABLED", false);
+    return updateVendorState(vendorId, "NEEDS_CHANGES", "VENDOR_CHANGES_REQUESTED", false, note);
+  },
+
+  async disableVendorPayout(vendorId: string, reason?: string) {
+    await wait();
+    return updateVendorState(vendorId, "DISABLED_PAYOUT", "VENDOR_PAYOUT_DISABLED", false, reason);
   },
 
   async listBookings() {

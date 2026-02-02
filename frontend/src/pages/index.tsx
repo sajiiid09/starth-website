@@ -152,6 +152,7 @@ import AdminDashboardHome from "./admin/AdminDashboardHome";
 import AdminUsers from "./admin/AdminUsers";
 
 import AdminVendors from "./admin/AdminVendors";
+import AdminVendorReview from "./admin/AdminVendorReview";
 
 import AdminTemplates from "./admin/AdminTemplates";
 
@@ -352,6 +353,15 @@ function PagesContent() {
                   element={
                     <RoleGate allowedRoles={["admin"]}>
                       <AdminVendors />
+                    </RoleGate>
+                  }
+                />
+
+                <Route
+                  path="/admin/vendors/:vendorId"
+                  element={
+                    <RoleGate allowedRoles={["admin"]}>
+                      <AdminVendorReview />
                     </RoleGate>
                   }
                 />

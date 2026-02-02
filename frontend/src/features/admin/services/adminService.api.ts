@@ -9,11 +9,10 @@ import type {
   AdminVendor,
   ResolveDisputeInput,
   UpdatePayoutStatusInput,
-  UpdateVendorVerificationInput,
   VendorListFilters
 } from "@/features/admin/types";
 
-const throwNotImplemented = (methodName: string) => {
+const throwNotImplemented = (methodName: string): never => {
   throw new Error(`${methodName} is not implemented yet for the live admin API.`);
 };
 
@@ -31,29 +30,35 @@ const withQuery = (path: string, params: Record<string, string | undefined>) => 
 export const adminServiceApi: AdminService = {
   listVendors(filters?: VendorListFilters) {
     const path = withQuery("/admin/vendors", {
-      verificationState: filters?.verificationState,
-      subtype: filters?.subtype,
-      query: filters?.query
+      status: filters?.status,
+      q: filters?.q
     });
     return request<AdminVendor[]>("GET", path, { auth: true });
   },
 
-  approveVendor(input: UpdateVendorVerificationInput) {
-    if (!input.vendorId) {
+  getVendor(vendorId: string) {
+    return request<AdminVendor>("GET", `/admin/vendors/${vendorId}`, { auth: true });
+  },
+
+  approveVendor(vendorId: string) {
+    if (!vendorId) {
       return Promise.reject(new Error("vendorId is required"));
     }
     return throwNotImplemented("approveVendor");
   },
 
-  requestVendorChanges(input: UpdateVendorVerificationInput) {
-    if (!input.vendorId) {
+  needsChangesVendor(vendorId: string, note: string) {
+    if (!vendorId) {
       return Promise.reject(new Error("vendorId is required"));
     }
-    return throwNotImplemented("requestVendorChanges");
+    if (!note.trim()) {
+      return Promise.reject(new Error("note is required"));
+    }
+    return throwNotImplemented("needsChangesVendor");
   },
 
-  disableVendorPayout(input: UpdateVendorVerificationInput) {
-    if (!input.vendorId) {
+  disableVendorPayout(vendorId: string, _reason?: string) {
+    if (!vendorId) {
       return Promise.reject(new Error("vendorId is required"));
     }
     return throwNotImplemented("disableVendorPayout");

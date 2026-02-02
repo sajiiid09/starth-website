@@ -15,7 +15,19 @@ export const dummyVendors: AdminVendor[] = [
     updatedAt: "2026-01-12T20:14:00.000Z",
     payoutEnabled: true,
     rating: 4.8,
-    completedBookings: 61
+    completedBookings: 61,
+    venueDetails: {
+      squareFeet: 8500,
+      venueType: "Industrial Loft",
+      address: "200 Embarcadero St, San Francisco, CA 94111",
+      capacityNotes: "Ideal for 220 seated guests, up to 300 standing with mixed lounge layout."
+    },
+    submission: {
+      submittedAt: "2025-09-11T17:18:00.000Z",
+      submittedBy: "Ari Bennett",
+      documents: ["Business license", "COI", "W-9"],
+      lastUpdatedAt: "2026-01-12T20:14:00.000Z"
+    }
   },
   {
     id: "vnd_1002",
@@ -31,7 +43,17 @@ export const dummyVendors: AdminVendor[] = [
     updatedAt: "2026-01-30T14:22:00.000Z",
     payoutEnabled: false,
     rating: 0,
-    completedBookings: 0
+    completedBookings: 0,
+    serviceDetails: {
+      categories: ["Catering", "Beverage Service", "Dessert Stations"],
+      serviceAreas: ["Chicago", "Evanston", "Oak Park", "Naperville"]
+    },
+    submission: {
+      submittedAt: "2025-12-03T09:40:00.000Z",
+      submittedBy: "Mina Doyle",
+      documents: ["Business license", "ServSafe certificate", "W-9"],
+      lastUpdatedAt: "2026-01-30T14:22:00.000Z"
+    }
   },
   {
     id: "vnd_1003",
@@ -47,7 +69,18 @@ export const dummyVendors: AdminVendor[] = [
     updatedAt: "2026-01-26T16:45:00.000Z",
     payoutEnabled: false,
     rating: 4.3,
-    completedBookings: 12
+    completedBookings: 12,
+    serviceDetails: {
+      categories: ["AV Production", "Stage Design", "Lighting"],
+      serviceAreas: ["Manhattan", "Brooklyn", "Jersey City"]
+    },
+    submission: {
+      submittedAt: "2025-10-21T13:55:00.000Z",
+      submittedBy: "Jon Park",
+      documents: ["Business license", "Insurance certificate"],
+      lastUpdatedAt: "2026-01-26T16:45:00.000Z",
+      note: "Please upload a renewed insurance certificate with valid expiration date."
+    }
   },
   {
     id: "vnd_1004",
@@ -63,7 +96,20 @@ export const dummyVendors: AdminVendor[] = [
     updatedAt: "2026-01-29T18:08:00.000Z",
     payoutEnabled: false,
     rating: 4.6,
-    completedBookings: 44
+    completedBookings: 44,
+    venueDetails: {
+      squareFeet: 10200,
+      venueType: "Modern Ballroom",
+      address: "98 Cedar Ave, Seattle, WA 98101",
+      capacityNotes: "300 banquet style, 420 standing; strict sound limit after 10:00 PM."
+    },
+    submission: {
+      submittedAt: "2025-07-08T11:20:00.000Z",
+      submittedBy: "Priya Shah",
+      documents: ["Business license", "COI", "W-9", "Void check"],
+      lastUpdatedAt: "2026-01-29T18:08:00.000Z",
+      note: "Payouts disabled due to banking mismatch under review."
+    }
   },
   {
     id: "vnd_1005",
@@ -79,7 +125,17 @@ export const dummyVendors: AdminVendor[] = [
     updatedAt: "2026-01-17T07:50:00.000Z",
     payoutEnabled: true,
     rating: 4.9,
-    completedBookings: 83
+    completedBookings: 83,
+    serviceDetails: {
+      categories: ["Live Audio", "LED Walls", "Hybrid Streaming"],
+      serviceAreas: ["Austin", "Round Rock", "San Marcos"]
+    },
+    submission: {
+      submittedAt: "2025-08-14T10:02:00.000Z",
+      submittedBy: "Evan Cole",
+      documents: ["Business license", "COI", "W-9"],
+      lastUpdatedAt: "2026-01-17T07:50:00.000Z"
+    }
   },
   {
     id: "vnd_1006",
@@ -95,6 +151,18 @@ export const dummyVendors: AdminVendor[] = [
     updatedAt: "2026-01-31T09:31:00.000Z",
     payoutEnabled: false,
     rating: 0,
-    completedBookings: 0
+    completedBookings: 0,
+    venueDetails: {
+      squareFeet: 6200,
+      venueType: "Mountain Pavilion",
+      address: "14 Aspen Ridge Rd, Denver, CO 80203",
+      capacityNotes: "180 seated or 260 standing; weather contingency tent available."
+    },
+    submission: {
+      submittedAt: "2026-01-18T12:28:00.000Z",
+      submittedBy: "Lena Morris",
+      documents: ["Business license", "Temporary event permit"],
+      lastUpdatedAt: "2026-01-31T09:31:00.000Z"
+    }
   }
 ];

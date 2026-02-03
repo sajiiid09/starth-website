@@ -18,12 +18,14 @@ import {
 } from "@/components/ui/sheet";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
+import BlueprintDetailPanel from "@/features/planner/components/BlueprintDetailPanel";
 import RelevantMatchesPanel from "@/features/planner/components/RelevantMatchesPanel";
 import { plannerService } from "@/features/planner/services/plannerService";
 import { usePlannerSessions } from "@/features/planner/PlannerSessionsContext";
 import { ChatMessage, MatchItem, MatchesState } from "@/features/planner/types";
 
 type WorkspaceView = "chat" | "matches";
+type RightPanelView = "matches" | "blueprint";
 
 const quickPrompts = [
   "Plan a 120-guest product launch in SF for March, budget $25k.",
@@ -242,13 +244,17 @@ const ChatPanel: React.FC<ChatPanelProps> = ({
 
 const OrganizerAIWorkspace: React.FC = () => {
   const [tabletView, setTabletView] = React.useState<WorkspaceView>("chat");
+  const [rightPanelView, setRightPanelView] = React.useState<RightPanelView>("matches");
   const [draftMessage, setDraftMessage] = React.useState("");
   const { isReady, activeSessionId, activeSession, createNewSession, updateSession } =
     usePlannerSessions();
   const timeoutRefs = React.useRef<number[]>([]);
+  const rightPanelSessionRef = React.useRef<string | null>(null);
+  const rightPanelHadPlannerRef = React.useRef(false);
 
   const messages = activeSession?.messages ?? [];
   const matches = activeSession?.matches ?? fallbackMatches;
+  const hasPlannerState = Boolean(activeSession?.plannerState);
 
   React.useEffect(() => {
     return () => {
@@ -256,6 +262,24 @@ const OrganizerAIWorkspace: React.FC = () => {
       timeoutRefs.current = [];
     };
   }, []);
+
+  React.useEffect(() => {
+    const sessionChanged = rightPanelSessionRef.current !== (activeSessionId ?? null);
+
+    if (!hasPlannerState) {
+      setRightPanelView("matches");
+      rightPanelHadPlannerRef.current = false;
+      rightPanelSessionRef.current = activeSessionId ?? null;
+      return;
+    }
+
+    if (sessionChanged || !rightPanelHadPlannerRef.current) {
+      setRightPanelView("blueprint");
+    }
+
+    rightPanelHadPlannerRef.current = true;
+    rightPanelSessionRef.current = activeSessionId ?? null;
+  }, [activeSessionId, hasPlannerState]);
 
   const handleMatchTabChange = React.useCallback(
     (tab: MatchesState["activeTab"]) => {
@@ -274,6 +298,60 @@ const OrganizerAIWorkspace: React.FC = () => {
   const handleOpenMatchItem = React.useCallback((item: MatchItem) => {
     console.log("Open match item:", item);
   }, []);
+
+  const handleApproveLayout = React.useCallback(() => {
+    console.log("Approve layout clicked for session:", activeSessionId);
+  }, [activeSessionId]);
+
+  const renderRightPanel = (heightClass?: string) => {
+    return (
+      <div className="space-y-3">
+        {hasPlannerState && (
+          <div className="rounded-xl border border-slate-200 bg-white p-1 shadow-sm">
+            <div className="grid grid-cols-2 rounded-lg bg-slate-100 p-1 text-sm">
+              <button
+                type="button"
+                onClick={() => setRightPanelView("matches")}
+                className={`rounded-md px-3 py-1.5 font-medium transition-colors ${
+                  rightPanelView === "matches"
+                    ? "bg-white text-slate-900 shadow-sm"
+                    : "text-slate-600 hover:text-slate-900"
+                }`}
+              >
+                Matches
+              </button>
+              <button
+                type="button"
+                onClick={() => setRightPanelView("blueprint")}
+                className={`rounded-md px-3 py-1.5 font-medium transition-colors ${
+                  rightPanelView === "blueprint"
+                    ? "bg-white text-slate-900 shadow-sm"
+                    : "text-slate-600 hover:text-slate-900"
+                }`}
+              >
+                Blueprint
+              </button>
+            </div>
+          </div>
+        )}
+
+        {hasPlannerState && rightPanelView === "blueprint" && activeSession?.plannerState ? (
+          <BlueprintDetailPanel
+            plannerState={activeSession.plannerState}
+            onApproveLayout={handleApproveLayout}
+            heightClass={heightClass}
+          />
+        ) : (
+          <RelevantMatchesPanel
+            matches={matches}
+            onTabChange={handleMatchTabChange}
+            onOpenItem={handleOpenMatchItem}
+            heightClass={heightClass}
+          />
+        )}
+      </div>
+    );
+  };
 
   const sendMessage = React.useCallback(
     async (incomingText?: string) => {
@@ -404,11 +482,7 @@ const OrganizerAIWorkspace: React.FC = () => {
           onQuickPrompt={(prompt) => void sendMessage(prompt)}
           disableSend={!draftMessage.trim()}
         />
-        <RelevantMatchesPanel
-          matches={matches}
-          onTabChange={handleMatchTabChange}
-          onOpenItem={handleOpenMatchItem}
-        />
+        {renderRightPanel()}
       </div>
 
       <div className="hidden md:block xl:hidden">
@@ -438,11 +512,7 @@ const OrganizerAIWorkspace: React.FC = () => {
             />
           </TabsContent>
           <TabsContent value="matches" className="mt-0">
-            <RelevantMatchesPanel
-              matches={matches}
-              onTabChange={handleMatchTabChange}
-              onOpenItem={handleOpenMatchItem}
-            />
+            {renderRightPanel()}
           </TabsContent>
         </Tabs>
       </div>
@@ -473,15 +543,10 @@ const OrganizerAIWorkspace: React.FC = () => {
           />
           <SheetContent side="right" className="w-full p-0 sm:max-w-md">
             <SheetHeader className="border-b border-slate-200 px-5 py-4">
-              <SheetTitle>Matches</SheetTitle>
+              <SheetTitle>Planner Panel</SheetTitle>
             </SheetHeader>
             <div className="p-4">
-              <RelevantMatchesPanel
-                matches={matches}
-                onTabChange={handleMatchTabChange}
-                onOpenItem={handleOpenMatchItem}
-                heightClass="h-[calc(100vh-7.5rem)] min-h-0 rounded-xl"
-              />
+              {renderRightPanel("h-[calc(100vh-7.5rem)] min-h-0 rounded-xl")}
             </div>
           </SheetContent>
         </Sheet>

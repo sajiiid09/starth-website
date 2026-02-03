@@ -10,9 +10,10 @@ The Organizer/User dashboard is being redesigned so the post-login landing exper
 - [x] Phase 4 - Multi-session chat history in sidebar + local persistence
 - [x] Phase 5 - Planner model + Zod validation + service boundary
 - [x] Phase 6 - Right panel `Relevant Matches` component wired to session state
-- [ ] Phase 7 - Blueprint/detail panel and deeper action flows
+- [x] Phase 7 - Blueprint detail panel rendered from `PlannerState`
+- [ ] Phase 8 - Blueprint actions wiring (`Approve layout`) and deeper flow hooks
 
-## Current Route Behavior (After Phase 6)
+## Current Route Behavior (After Phase 7)
 - `/dashboard` (user role): renders `OrganizerAIWorkspace` as the default landing page.
 - `/dashboard/plan-with-ai` (user role): remains available and now renders `OrganizerAIWorkspace` as the dashboard AI workspace shell.
 - `/ai-planner` (public website): unchanged and still uses the existing public AI planner implementation.
@@ -121,3 +122,22 @@ The Organizer/User dashboard is being redesigned so the post-login landing exper
 - Dummy data:
   - seed sessions include realistic match thumbnails
   - location-aware mock updates inject contextual template/marketplace items with images
+
+## Phase 7 Blueprint Detail Panel
+- New component: `src/features/planner/components/BlueprintDetailPanel.tsx`
+  - renders strictly from structured `PlannerState` JSON
+  - no text parsing heuristics for panel fields
+- Blueprint panel sections implemented:
+  - header (title, summary, status badge, `Approve layout` UI button)
+  - KPI cards (`Total Cost`, `Cost / Attendee`, `Execution Confidence`)
+  - space transformation (`Before` / `After` + inventory grid)
+  - timeline/dependencies vertical list
+  - budget simulation (lightweight SVG donut + breakdown + tradeoff note)
+- Right panel mode behavior in `OrganizerAIWorkspace`:
+  - local state: `rightPanelView: 'matches' | 'blueprint'`
+  - if active session has `plannerState`, default panel mode becomes `blueprint`
+  - users can switch via a top segmented toggle (`Matches | Blueprint`)
+  - if no `plannerState`, panel falls back to `RelevantMatchesPanel`
+- Responsive behavior:
+  - desktop right column uses the same mode toggle + conditional panel rendering
+  - tablet `matches` tab and mobile sheet reuse identical right-panel mode logic

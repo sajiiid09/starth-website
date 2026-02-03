@@ -101,8 +101,8 @@ const DashboardShellContent: React.FC<DashboardShellContentProps> = ({ children,
   };
 
   const handleCreatePlannerSession = () => {
-    const createdId = createNewSession();
-    setActiveSession(createdId);
+    const created = createNewSession();
+    setActiveSession(created.id);
     setIsChatHistoryOpen(true);
     navigate(AI_PLANNER_ROUTE);
   };

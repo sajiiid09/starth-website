@@ -8,9 +8,10 @@ The Organizer/User dashboard is being redesigned so the post-login landing exper
 - [x] Phase 2 - 3-panel responsive workspace layout (chat + matches placeholders)
 - [x] Phase 3 - Premium chat UI (dummy message loop, chips, sticky composer)
 - [x] Phase 4 - Multi-session chat history in sidebar + local persistence
-- [ ] Phase 5 - Conversation quality pass, richer right-panel intelligence, and service extraction
+- [x] Phase 5 - Planner model + Zod validation + service boundary
+- [ ] Phase 6 - RAG API implementation and right-panel intelligence orchestration
 
-## Current Route Behavior (After Phase 4)
+## Current Route Behavior (After Phase 5)
 - `/dashboard` (user role): renders `OrganizerAIWorkspace` as the default landing page.
 - `/dashboard/plan-with-ai` (user role): remains available and now renders `OrganizerAIWorkspace` as the dashboard AI workspace shell.
 - `/ai-planner` (public website): unchanged and still uses the existing public AI planner implementation.
@@ -54,8 +55,8 @@ The Organizer/User dashboard is being redesigned so the post-login landing exper
   - `PlannerSession = { id, title, createdAt, updatedAt, messages }`
   - `messages` use the existing Phase 3 `ChatMessage` shape.
 - Local persistence:
-  - sessions key: `strathwell_planner_sessions_v1`
-  - active session key: `strathwell_planner_active_session_v1`
+  - sessions key: `strathwell_planner_sessions_v2` (updated in Phase 5 payload format)
+  - active session id is now stored inside the v2 payload
 - First-load demo seeding now creates multiple realistic sessions for organizer users.
 - Sidebar integration under organizer-only `AI Planner` item:
   - collapsible `Chat History` subsection
@@ -71,3 +72,34 @@ The Organizer/User dashboard is being redesigned so the post-login landing exper
 ## Role Gating Notes (Phase 4)
 - Session provider and chat history sidebar UI are enabled only for organizer/user role.
 - Vendor/admin dashboards keep their existing sidebar and behavior unchanged.
+
+## Phase 5 Architecture (Service Boundary + Validation)
+- Feature module structure added:
+  - `src/features/planner/types.ts`
+  - `src/features/planner/schemas.ts`
+  - `src/features/planner/services/plannerService.ts`
+  - `src/features/planner/services/plannerService.mock.ts`
+  - `src/features/planner/services/plannerService.api.ts`
+  - `src/features/planner/utils/storage.ts`
+- UI/service flow (drop-in ready for RAG later):
+  - `OrganizerAIWorkspace` sends user input through `plannerService.sendMessage(...)`
+  - UI owns temporary thinking/orchestrating bubbles
+  - service returns `{ assistantMessage, updatedPlannerState?, updatedMatches? }`
+  - session state is updated + persisted via planner session context/storage helpers
+- Runtime safety:
+  - Zod schemas validate `ChatMessage`, `MatchItem`, `MatchesState`, `PlannerState`, and `PlannerSession`
+  - planner storage payload validation guards localStorage hydration
+  - `assertValidPlannerState` is used in mock generation/update paths
+- Storage versioning:
+  - active storage key: `strathwell_planner_sessions_v2`
+  - payload contains version + active session id + full session list (messages, matches, plannerState)
+
+## Phase 5 Data Model Notes
+- `PlannerSession` now persists:
+  - chat thread (`messages`)
+  - right-panel tab/content (`matches`)
+  - structured blueprint payload (`plannerState`, optional)
+- Mock planner service behavior:
+  - early turns ask clarifying questions
+  - turn 3+ drafts blueprint and targeted matches
+  - inventory-sensitive inputs (e.g. chairs/tables counts) adjust blueprint inventory and cost KPIs

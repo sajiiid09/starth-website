@@ -3,13 +3,13 @@
 ## User Dashboard Redesign
 
 ### Current Status
-- Phase 4 is complete.
+- Phase 5 is complete.
 - Organizer/User dashboard default landing now uses `OrganizerAIWorkspace`.
-- Organizer AI workspace now includes multi-session chat history wired through the sidebar.
+- Organizer AI workspace now uses structured planner sessions (messages + matches + plannerState) behind a service layer.
 - Required documentation is updated in `docs/USERDASHBOARD_DEVELOPMENT_DOCUMENTATION.md`.
 
 ### Next Phase To Do
-- Implement Phase 5: improve conversation quality, extract chat/session logic into services, and connect right-panel intelligence.
+- Implement Phase 6: wire plannerService API path to RAG/backend and progressively replace mock responses.
 
 ### Key Decisions
 - Public website AI planner remains unchanged.
@@ -21,4 +21,6 @@
 - Auto-scroll currently follows new messages to the bottom by default.
 - Empty-state chips use click-to-send behavior for faster first prompt entry.
 - Chat history renders only for organizer/user role under the `AI Planner` sidebar item as an independent collapsible section.
-- Planner sessions persist in localStorage (`strathwell_planner_sessions_v1`) with active session tracking.
+- Planner sessions persist in localStorage (`strathwell_planner_sessions_v2`) with active session tracking.
+- UI now consumes `plannerService`; dummy mode is default (`VITE_DUMMY_PLANNER_MODE` defaults true), and API stub is ready for drop-in replacement.
+- Runtime validation uses Zod schemas for planner model + storage payload hydration safety.

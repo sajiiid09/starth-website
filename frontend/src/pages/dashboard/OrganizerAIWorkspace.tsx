@@ -3,6 +3,7 @@ import {
   ChevronDown,
   CircleDot,
   LayoutTemplate,
+  Loader2,
   Mic,
   Paperclip,
   Sparkles,
@@ -19,20 +20,11 @@ import {
 } from "@/components/ui/sheet";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
-import {
-  ChatMessage,
-  toSessionTitleFromMessage,
-  usePlannerSessions
-} from "@/features/planner/PlannerSessionsContext";
+import { plannerService } from "@/features/planner/services/plannerService";
+import { usePlannerSessions } from "@/features/planner/PlannerSessionsContext";
+import { ChatMessage, MatchesState, PlannerState } from "@/features/planner/types";
 
 type WorkspaceView = "chat" | "matches";
-type MatchSource = "templates" | "marketplace";
-
-let messageCounter = 0;
-const createMessageId = () => {
-  messageCounter += 1;
-  return `chat-${Date.now()}-${messageCounter}`;
-};
 
 const quickPrompts = [
   "Plan a 120-guest product launch in SF for March, budget $25k.",
@@ -41,53 +33,31 @@ const quickPrompts = [
   "Create a staffing and vendor checklist for a spring brand activation."
 ];
 
-const createAssistantReply = (input: string) => {
-  const normalized = input.toLowerCase();
-
-  if (normalized.includes("product launch")) {
-    return "Great brief. I would start with a venue shortlist, guest flow plan, and a launch-night run-of-show. Next, I can draft your budget split and production timeline.";
-  }
-  if (normalized.includes("budget") || normalized.includes("$")) {
-    return "I can structure this into venue, food + beverage, production, staffing, and contingency buckets, then optimize each line for impact.";
-  }
-  if (normalized.includes("timeline") || normalized.includes("checklist")) {
-    return "Perfect. I will orchestrate a phase-by-phase timeline with owner assignments so your team has clear dependencies and deadlines.";
-  }
-  if (normalized.includes("vendor") || normalized.includes("venue")) {
-    return "Got it. I can map ideal venue and vendor profiles first, then rank options by fit, availability window, and service quality.";
-  }
-  return "Excellent direction. I can turn this into a practical event blueprint with milestones, vendor priorities, and a realistic budget path.";
+const fallbackMatches: MatchesState = {
+  activeTab: "templates",
+  templates: [
+    {
+      id: "fallback-template-1",
+      type: "template",
+      title: "Launch Blueprint Starter",
+      description: "Structured outline for premium launch sequencing."
+    }
+  ],
+  marketplace: [
+    {
+      id: "fallback-market-1",
+      type: "marketplace",
+      title: "Venue + Vendor Match",
+      description: "Shortlist appears here as planning context develops."
+    }
+  ]
 };
 
-const templateMatches = [
-  {
-    title: "Elegant Rooftop Reception",
-    detail: "Template blueprint with timeline and staffing model."
-  },
-  {
-    title: "Executive Offsite Framework",
-    detail: "Agenda, room flow, and vendor shortlist recommendations."
-  },
-  {
-    title: "Brand Launch Evening",
-    detail: "Premium multi-zone layout with production checkpoints."
-  }
-];
-
-const marketplaceMatches = [
-  {
-    title: "Harbor View Event Loft",
-    detail: "Venue match for 120 guests with full-service support."
-  },
-  {
-    title: "Northline Catering Studio",
-    detail: "Curated service partner aligned to your event profile."
-  },
-  {
-    title: "Summit AV Collective",
-    detail: "Production partner with staging and live-stream packages."
-  }
-];
+let localMessageCounter = 0;
+const createMessageId = (prefix: string) => {
+  localMessageCounter += 1;
+  return `${prefix}-${Date.now()}-${localMessageCounter}`;
+};
 
 type ChatPanelProps = {
   messages: ChatMessage[];
@@ -268,17 +238,20 @@ const ChatPanel: React.FC<ChatPanelProps> = ({
 };
 
 type MatchesPanelProps = {
-  activeSource: MatchSource;
-  onSourceChange: (source: MatchSource) => void;
+  matches: MatchesState;
+  plannerState?: PlannerState;
+  onSourceChange: (tab: MatchesState["activeTab"]) => void;
   heightClass?: string;
 };
 
 const MatchesPanel: React.FC<MatchesPanelProps> = ({
-  activeSource,
+  matches,
+  plannerState,
   onSourceChange,
   heightClass = "h-[72vh] min-h-[520px]"
 }) => {
-  const items = activeSource === "templates" ? templateMatches : marketplaceMatches;
+  const items =
+    matches.activeTab === "templates" ? matches.templates : matches.marketplace;
 
   return (
     <aside
@@ -288,7 +261,10 @@ const MatchesPanel: React.FC<MatchesPanelProps> = ({
         <p className="text-xs font-semibold uppercase tracking-[0.28em] text-slate-500">
           RELEVANT MATCHES
         </p>
-        <Tabs value={activeSource} onValueChange={(value) => onSourceChange(value as MatchSource)}>
+        <Tabs
+          value={matches.activeTab}
+          onValueChange={(value) => onSourceChange(value as MatchesState["activeTab"])}
+        >
           <TabsList className="mt-3 grid h-auto w-full grid-cols-2 rounded-xl border border-slate-200 bg-slate-50 p-1">
             <TabsTrigger value="templates" className="rounded-lg">
               <LayoutTemplate className="mr-2 h-4 w-4" />
@@ -303,13 +279,37 @@ const MatchesPanel: React.FC<MatchesPanelProps> = ({
       </header>
 
       <div className="flex-1 space-y-3 overflow-y-auto p-5">
+        {plannerState && (
+          <article className="rounded-xl border border-brand-teal/15 bg-brand-teal/5 p-4">
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-brand-teal">
+              Blueprint
+            </p>
+            <h3 className="mt-1 text-sm font-semibold text-slate-900">{plannerState.title}</h3>
+            <p className="mt-1 text-xs text-slate-600">{plannerState.summary}</p>
+            <div className="mt-3 grid grid-cols-3 gap-2 text-xs text-slate-600">
+              <div className="rounded-lg bg-white px-2 py-1">
+                <p className="text-[10px] uppercase text-slate-400">Cost</p>
+                <p className="font-semibold text-slate-900">${plannerState.kpis.totalCost}</p>
+              </div>
+              <div className="rounded-lg bg-white px-2 py-1">
+                <p className="text-[10px] uppercase text-slate-400">Per Head</p>
+                <p className="font-semibold text-slate-900">${plannerState.kpis.costPerAttendee}</p>
+              </div>
+              <div className="rounded-lg bg-white px-2 py-1">
+                <p className="text-[10px] uppercase text-slate-400">Confidence</p>
+                <p className="font-semibold text-slate-900">{plannerState.kpis.confidencePct}%</p>
+              </div>
+            </div>
+          </article>
+        )}
+
         {items.map((item) => (
           <article
-            key={item.title}
+            key={item.id}
             className="rounded-xl border border-slate-200 bg-slate-50/60 p-4 shadow-[0_1px_0_rgba(15,23,42,0.03)]"
           >
             <p className="text-sm font-semibold text-slate-900">{item.title}</p>
-            <p className="mt-1 text-sm text-slate-600">{item.detail}</p>
+            <p className="mt-1 text-sm text-slate-600">{item.description}</p>
           </article>
         ))}
       </div>
@@ -319,11 +319,13 @@ const MatchesPanel: React.FC<MatchesPanelProps> = ({
 
 const OrganizerAIWorkspace: React.FC = () => {
   const [tabletView, setTabletView] = React.useState<WorkspaceView>("chat");
-  const [activeMatchSource, setActiveMatchSource] = React.useState<MatchSource>("templates");
   const [draftMessage, setDraftMessage] = React.useState("");
-  const { activeSessionId, activeSession, createNewSession, updateSession } = usePlannerSessions();
+  const { isReady, activeSessionId, activeSession, createNewSession, updateSession } =
+    usePlannerSessions();
   const timeoutRefs = React.useRef<number[]>([]);
+
   const messages = activeSession?.messages ?? [];
+  const matches = activeSession?.matches ?? fallbackMatches;
 
   React.useEffect(() => {
     return () => {
@@ -332,35 +334,54 @@ const OrganizerAIWorkspace: React.FC = () => {
     };
   }, []);
 
+  const handleMatchTabChange = React.useCallback(
+    (tab: MatchesState["activeTab"]) => {
+      if (!activeSessionId) return;
+      updateSession(activeSessionId, (session) => ({
+        ...session,
+        matches: {
+          ...session.matches,
+          activeTab: tab
+        }
+      }));
+    },
+    [activeSessionId, updateSession]
+  );
+
   const sendMessage = React.useCallback(
-    (incomingText?: string) => {
+    async (incomingText?: string) => {
       const messageText = (incomingText ?? draftMessage).trim();
       if (!messageText) return;
 
       setDraftMessage("");
-      const targetSessionId = activeSessionId ?? createNewSession();
-      const shouldRetitle = !activeSession || activeSession.messages.length === 0;
-
+      const sessionSnapshot = activeSession ?? createNewSession();
+      const targetSessionId = sessionSnapshot.id;
       const now = Date.now();
+
       const userMessage: ChatMessage = {
-        id: createMessageId(),
+        id: createMessageId("user"),
         role: "user",
         text: messageText,
         status: "final",
         createdAt: now
       };
-      const assistantMessageId = createMessageId();
+      const thinkingMessageId = createMessageId("assistant-thinking");
       const thinkingMessage: ChatMessage = {
-        id: assistantMessageId,
+        id: thinkingMessageId,
         role: "assistant",
         text: "Strath AI is thinking ...",
         status: "thinking",
         createdAt: now + 1
       };
 
+      const shouldRetitle = sessionSnapshot.messages.filter((msg) => msg.role === "user").length === 0;
+      const retitled = shouldRetitle
+        ? plannerService.retitleSessionFromFirstMessage(sessionSnapshot, messageText)
+        : sessionSnapshot;
+
       updateSession(targetSessionId, (session) => ({
         ...session,
-        title: shouldRetitle ? toSessionTitleFromMessage(messageText) : session.title,
+        title: retitled.title,
         messages: [...session.messages, userMessage, thinkingMessage]
       }));
 
@@ -368,7 +389,7 @@ const OrganizerAIWorkspace: React.FC = () => {
         updateSession(targetSessionId, (session) => ({
           ...session,
           messages: session.messages.map((message) =>
-            message.id === assistantMessageId
+            message.id === thinkingMessageId
               ? {
                   ...message,
                   text: "Strath AI is orchestrating ...",
@@ -377,27 +398,57 @@ const OrganizerAIWorkspace: React.FC = () => {
               : message
           )
         }));
-      }, 450);
+      }, 300);
+      timeoutRefs.current.push(orchestratingTimer);
 
-      const resolvedTimer = window.setTimeout(() => {
+      try {
+        const response = await plannerService.sendMessage(
+          {
+            ...retitled,
+            messages: [...retitled.messages, userMessage]
+          },
+          messageText
+        );
+
+        updateSession(targetSessionId, (session) => {
+          const replaced = session.messages.map((message) =>
+            message.id === thinkingMessageId ? response.assistantMessage : message
+          );
+          const hasReplaced = replaced.some((message) => message.id === response.assistantMessage.id);
+
+          return {
+            ...session,
+            messages: hasReplaced ? replaced : [...replaced, response.assistantMessage],
+            plannerState: response.updatedPlannerState ?? session.plannerState,
+            matches: response.updatedMatches ?? session.matches
+          };
+        });
+      } catch (error) {
+        console.error("plannerService.sendMessage failed:", error);
         updateSession(targetSessionId, (session) => ({
           ...session,
           messages: session.messages.map((message) =>
-            message.id === assistantMessageId
+            message.id === thinkingMessageId
               ? {
                   ...message,
-                  text: createAssistantReply(messageText),
+                  text: "I hit a temporary issue. Please try again in a moment.",
                   status: "final"
                 }
               : message
           )
         }));
-      }, 900);
-
-      timeoutRefs.current.push(orchestratingTimer, resolvedTimer);
+      }
     },
-    [activeSession, activeSessionId, createNewSession, draftMessage, updateSession]
+    [activeSession, createNewSession, draftMessage, updateSession]
   );
+
+  if (!isReady) {
+    return (
+      <div className="flex min-h-[60vh] items-center justify-center">
+        <Loader2 className="h-6 w-6 animate-spin text-brand-dark/50" />
+      </div>
+    );
+  }
 
   return (
     <div className="mx-auto w-full max-w-[1400px] space-y-4">
@@ -413,8 +464,7 @@ const OrganizerAIWorkspace: React.FC = () => {
           </Badge>
         </div>
         <p className="mt-2 max-w-3xl text-sm text-slate-600">
-          3-panel planning layout is now in place: chat in the center, insights on the right, and
-          responsive behavior for tablet and mobile.
+          Session-backed planner architecture is active with typed blueprint and matches state.
         </p>
       </section>
 
@@ -423,13 +473,14 @@ const OrganizerAIWorkspace: React.FC = () => {
           messages={messages}
           draftMessage={draftMessage}
           onDraftChange={setDraftMessage}
-          onSend={() => sendMessage()}
-          onQuickPrompt={(prompt) => sendMessage(prompt)}
+          onSend={() => void sendMessage()}
+          onQuickPrompt={(prompt) => void sendMessage(prompt)}
           disableSend={!draftMessage.trim()}
         />
         <MatchesPanel
-          activeSource={activeMatchSource}
-          onSourceChange={setActiveMatchSource}
+          matches={matches}
+          plannerState={activeSession?.plannerState}
+          onSourceChange={handleMatchTabChange}
         />
       </div>
 
@@ -454,15 +505,16 @@ const OrganizerAIWorkspace: React.FC = () => {
               messages={messages}
               draftMessage={draftMessage}
               onDraftChange={setDraftMessage}
-              onSend={() => sendMessage()}
-              onQuickPrompt={(prompt) => sendMessage(prompt)}
+              onSend={() => void sendMessage()}
+              onQuickPrompt={(prompt) => void sendMessage(prompt)}
               disableSend={!draftMessage.trim()}
             />
           </TabsContent>
           <TabsContent value="matches" className="mt-0">
             <MatchesPanel
-              activeSource={activeMatchSource}
-              onSourceChange={setActiveMatchSource}
+              matches={matches}
+              plannerState={activeSession?.plannerState}
+              onSourceChange={handleMatchTabChange}
             />
           </TabsContent>
         </Tabs>
@@ -487,8 +539,8 @@ const OrganizerAIWorkspace: React.FC = () => {
             messages={messages}
             draftMessage={draftMessage}
             onDraftChange={setDraftMessage}
-            onSend={() => sendMessage()}
-            onQuickPrompt={(prompt) => sendMessage(prompt)}
+            onSend={() => void sendMessage()}
+            onQuickPrompt={(prompt) => void sendMessage(prompt)}
             disableSend={!draftMessage.trim()}
             heightClass="h-[70vh] min-h-[460px]"
           />
@@ -498,8 +550,9 @@ const OrganizerAIWorkspace: React.FC = () => {
             </SheetHeader>
             <div className="p-4">
               <MatchesPanel
-                activeSource={activeMatchSource}
-                onSourceChange={setActiveMatchSource}
+                matches={matches}
+                plannerState={activeSession?.plannerState}
+                onSourceChange={handleMatchTabChange}
                 heightClass="h-[calc(100vh-7.5rem)] min-h-0 rounded-xl"
               />
             </div>

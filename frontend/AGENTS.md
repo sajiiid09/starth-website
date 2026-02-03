@@ -54,3 +54,18 @@
 - Implemented route-based lazy loading in `src/pages/index.tsx` using `React.lazy` for most route components, including organizer dashboard, vendor dashboard, and admin dashboard pages.
 - Added a reusable suspense fallback component at `src/components/RouteLoader.tsx` and wrapped route rendering with `Suspense` to show a lightweight loading state during chunk fetch.
 - Kept route paths and page behavior unchanged; this is import/loading mechanics only to reduce upfront bundle loading on public pages.
+
+## Frontend Polish Phase 2 (Router Architecture Cleanup)
+
+### Status
+- Done.
+
+### What Changed
+- Modularized the router into grouped route files under `src/pages/routes/`:
+  - `PublicRoutes.tsx`
+  - `AuthRoutes.tsx`
+  - `DashboardRoutes.tsx`
+  - `VendorRoutes.tsx`
+  - `AdminRoutes.tsx`
+- Added centralized lazy imports in `src/pages/routes/lazyPages.ts` and reused them across route groups.
+- Simplified `src/pages/index.tsx` to compose route groups with existing wrappers (`Layout`, `ScrollToTop`, `Suspense`, `RouteLoader`) and keep catch-all NotFound routing at the end.

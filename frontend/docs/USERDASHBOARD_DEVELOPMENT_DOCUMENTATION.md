@@ -31,6 +31,10 @@ The Organizer/User dashboard is being redesigned so the post-login landing exper
 - Organizer AI workspace routes (`/dashboard` and `/dashboard/plan-with-ai`) are now lazy-loaded to reduce initial public-page bundle pressure.
 - No dashboard UI or behavior changes were introduced in this phase.
 
+### Frontend Polish (Phase 2 - Router Architecture Cleanup)
+- Routing has been refactored from a single mega route file into grouped route modules with a shared lazy import map.
+- This was an architecture cleanup only; route paths, role gating, layout behavior, and UI behavior remain unchanged.
+
 ## Phase 2 Layout Behavior
 - Desktop (`xl` and above): two-column main workspace inside dashboard content area with chat panel at ~62% width and matches panel at ~38% width.
 - Tablet (`md` to `lg`): segmented toggle (`Chat | Matches`) shows one panel at a time for focus and lower visual density.

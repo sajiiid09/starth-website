@@ -3,13 +3,13 @@
 ## User Dashboard Redesign
 
 ### Current Status
-- Phase 5 is complete.
+- Phase 6 is complete.
 - Organizer/User dashboard default landing now uses `OrganizerAIWorkspace`.
-- Organizer AI workspace now uses structured planner sessions (messages + matches + plannerState) behind a service layer.
+- Organizer AI workspace now includes a production-style `RelevantMatchesPanel` powered by session `matches` state.
 - Required documentation is updated in `docs/USERDASHBOARD_DEVELOPMENT_DOCUMENTATION.md`.
 
 ### Next Phase To Do
-- Implement Phase 6: wire plannerService API path to RAG/backend and progressively replace mock responses.
+- Implement Phase 7: introduce blueprint/detail interactions and richer action flows tied to planner state.
 
 ### Key Decisions
 - Public website AI planner remains unchanged.
@@ -24,3 +24,4 @@
 - Planner sessions persist in localStorage (`strathwell_planner_sessions_v2`) with active session tracking.
 - UI now consumes `plannerService`; dummy mode is default (`VITE_DUMMY_PLANNER_MODE` defaults true), and API stub is ready for drop-in replacement.
 - Runtime validation uses Zod schemas for planner model + storage payload hydration safety.
+- Right panel rendering is now componentized in `RelevantMatchesPanel`, including tab persistence and card-level open actions.

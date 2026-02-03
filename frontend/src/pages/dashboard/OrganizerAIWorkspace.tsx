@@ -2,12 +2,10 @@ import React from "react";
 import {
   ChevronDown,
   CircleDot,
-  LayoutTemplate,
   Loader2,
   Mic,
   Paperclip,
-  Sparkles,
-  Store
+  Sparkles
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -20,9 +18,10 @@ import {
 } from "@/components/ui/sheet";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
+import RelevantMatchesPanel from "@/features/planner/components/RelevantMatchesPanel";
 import { plannerService } from "@/features/planner/services/plannerService";
 import { usePlannerSessions } from "@/features/planner/PlannerSessionsContext";
-import { ChatMessage, MatchesState, PlannerState } from "@/features/planner/types";
+import { ChatMessage, MatchItem, MatchesState } from "@/features/planner/types";
 
 type WorkspaceView = "chat" | "matches";
 
@@ -40,7 +39,9 @@ const fallbackMatches: MatchesState = {
       id: "fallback-template-1",
       type: "template",
       title: "Launch Blueprint Starter",
-      description: "Structured outline for premium launch sequencing."
+      description: "Structured outline for premium launch sequencing.",
+      imageUrl:
+        "https://images.unsplash.com/photo-1505373877841-8d25f7d46678?auto=format&fit=crop&q=80&w=600"
     }
   ],
   marketplace: [
@@ -48,7 +49,9 @@ const fallbackMatches: MatchesState = {
       id: "fallback-market-1",
       type: "marketplace",
       title: "Venue + Vendor Match",
-      description: "Shortlist appears here as planning context develops."
+      description: "Shortlist appears here as planning context develops.",
+      imageUrl:
+        "https://images.unsplash.com/photo-1519671482502-9759101d4561?auto=format&fit=crop&q=80&w=600"
     }
   ]
 };
@@ -237,86 +240,6 @@ const ChatPanel: React.FC<ChatPanelProps> = ({
   );
 };
 
-type MatchesPanelProps = {
-  matches: MatchesState;
-  plannerState?: PlannerState;
-  onSourceChange: (tab: MatchesState["activeTab"]) => void;
-  heightClass?: string;
-};
-
-const MatchesPanel: React.FC<MatchesPanelProps> = ({
-  matches,
-  plannerState,
-  onSourceChange,
-  heightClass = "h-[72vh] min-h-[520px]"
-}) => {
-  const items =
-    matches.activeTab === "templates" ? matches.templates : matches.marketplace;
-
-  return (
-    <aside
-      className={`flex min-h-0 flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm ${heightClass}`}
-    >
-      <header className="sticky top-0 z-10 border-b border-slate-200 bg-white/95 px-5 py-4 backdrop-blur">
-        <p className="text-xs font-semibold uppercase tracking-[0.28em] text-slate-500">
-          RELEVANT MATCHES
-        </p>
-        <Tabs
-          value={matches.activeTab}
-          onValueChange={(value) => onSourceChange(value as MatchesState["activeTab"])}
-        >
-          <TabsList className="mt-3 grid h-auto w-full grid-cols-2 rounded-xl border border-slate-200 bg-slate-50 p-1">
-            <TabsTrigger value="templates" className="rounded-lg">
-              <LayoutTemplate className="mr-2 h-4 w-4" />
-              Templates
-            </TabsTrigger>
-            <TabsTrigger value="marketplace" className="rounded-lg">
-              <Store className="mr-2 h-4 w-4" />
-              Marketplace
-            </TabsTrigger>
-          </TabsList>
-        </Tabs>
-      </header>
-
-      <div className="flex-1 space-y-3 overflow-y-auto p-5">
-        {plannerState && (
-          <article className="rounded-xl border border-brand-teal/15 bg-brand-teal/5 p-4">
-            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-brand-teal">
-              Blueprint
-            </p>
-            <h3 className="mt-1 text-sm font-semibold text-slate-900">{plannerState.title}</h3>
-            <p className="mt-1 text-xs text-slate-600">{plannerState.summary}</p>
-            <div className="mt-3 grid grid-cols-3 gap-2 text-xs text-slate-600">
-              <div className="rounded-lg bg-white px-2 py-1">
-                <p className="text-[10px] uppercase text-slate-400">Cost</p>
-                <p className="font-semibold text-slate-900">${plannerState.kpis.totalCost}</p>
-              </div>
-              <div className="rounded-lg bg-white px-2 py-1">
-                <p className="text-[10px] uppercase text-slate-400">Per Head</p>
-                <p className="font-semibold text-slate-900">${plannerState.kpis.costPerAttendee}</p>
-              </div>
-              <div className="rounded-lg bg-white px-2 py-1">
-                <p className="text-[10px] uppercase text-slate-400">Confidence</p>
-                <p className="font-semibold text-slate-900">{plannerState.kpis.confidencePct}%</p>
-              </div>
-            </div>
-          </article>
-        )}
-
-        {items.map((item) => (
-          <article
-            key={item.id}
-            className="rounded-xl border border-slate-200 bg-slate-50/60 p-4 shadow-[0_1px_0_rgba(15,23,42,0.03)]"
-          >
-            <p className="text-sm font-semibold text-slate-900">{item.title}</p>
-            <p className="mt-1 text-sm text-slate-600">{item.description}</p>
-          </article>
-        ))}
-      </div>
-    </aside>
-  );
-};
-
 const OrganizerAIWorkspace: React.FC = () => {
   const [tabletView, setTabletView] = React.useState<WorkspaceView>("chat");
   const [draftMessage, setDraftMessage] = React.useState("");
@@ -347,6 +270,10 @@ const OrganizerAIWorkspace: React.FC = () => {
     },
     [activeSessionId, updateSession]
   );
+
+  const handleOpenMatchItem = React.useCallback((item: MatchItem) => {
+    console.log("Open match item:", item);
+  }, []);
 
   const sendMessage = React.useCallback(
     async (incomingText?: string) => {
@@ -477,10 +404,10 @@ const OrganizerAIWorkspace: React.FC = () => {
           onQuickPrompt={(prompt) => void sendMessage(prompt)}
           disableSend={!draftMessage.trim()}
         />
-        <MatchesPanel
+        <RelevantMatchesPanel
           matches={matches}
-          plannerState={activeSession?.plannerState}
-          onSourceChange={handleMatchTabChange}
+          onTabChange={handleMatchTabChange}
+          onOpenItem={handleOpenMatchItem}
         />
       </div>
 
@@ -511,10 +438,10 @@ const OrganizerAIWorkspace: React.FC = () => {
             />
           </TabsContent>
           <TabsContent value="matches" className="mt-0">
-            <MatchesPanel
+            <RelevantMatchesPanel
               matches={matches}
-              plannerState={activeSession?.plannerState}
-              onSourceChange={handleMatchTabChange}
+              onTabChange={handleMatchTabChange}
+              onOpenItem={handleOpenMatchItem}
             />
           </TabsContent>
         </Tabs>
@@ -549,10 +476,10 @@ const OrganizerAIWorkspace: React.FC = () => {
               <SheetTitle>Matches</SheetTitle>
             </SheetHeader>
             <div className="p-4">
-              <MatchesPanel
+              <RelevantMatchesPanel
                 matches={matches}
-                plannerState={activeSession?.plannerState}
-                onSourceChange={handleMatchTabChange}
+                onTabChange={handleMatchTabChange}
+                onOpenItem={handleOpenMatchItem}
                 heightClass="h-[calc(100vh-7.5rem)] min-h-0 rounded-xl"
               />
             </div>

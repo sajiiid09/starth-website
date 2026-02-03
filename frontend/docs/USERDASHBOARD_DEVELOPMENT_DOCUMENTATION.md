@@ -9,9 +9,10 @@ The Organizer/User dashboard is being redesigned so the post-login landing exper
 - [x] Phase 3 - Premium chat UI (dummy message loop, chips, sticky composer)
 - [x] Phase 4 - Multi-session chat history in sidebar + local persistence
 - [x] Phase 5 - Planner model + Zod validation + service boundary
-- [ ] Phase 6 - RAG API implementation and right-panel intelligence orchestration
+- [x] Phase 6 - Right panel `Relevant Matches` component wired to session state
+- [ ] Phase 7 - Blueprint/detail panel and deeper action flows
 
-## Current Route Behavior (After Phase 5)
+## Current Route Behavior (After Phase 6)
 - `/dashboard` (user role): renders `OrganizerAIWorkspace` as the default landing page.
 - `/dashboard/plan-with-ai` (user role): remains available and now renders `OrganizerAIWorkspace` as the dashboard AI workspace shell.
 - `/ai-planner` (public website): unchanged and still uses the existing public AI planner implementation.
@@ -103,3 +104,20 @@ The Organizer/User dashboard is being redesigned so the post-login landing exper
   - early turns ask clarifying questions
   - turn 3+ drafts blueprint and targeted matches
   - inventory-sensitive inputs (e.g. chairs/tables counts) adjust blueprint inventory and cost KPIs
+
+## Phase 6 Right Panel Implementation
+- New component: `src/features/planner/components/RelevantMatchesPanel.tsx`
+  - Header: `RELEVANT MATCHES`
+  - Title: `Curated templates and marketplace options.`
+  - Subtitle line and segmented tabs (`Templates | Marketplace`)
+  - Card list with square thumbnail, title, description, and arrow action button
+- State wiring:
+  - panel reads from active session `matches`
+  - tab changes call session updater to persist `matches.activeTab`
+  - chat responses applying `updatedMatches` from `plannerService.mock` reflect in real time
+- Workspace integration:
+  - `OrganizerAIWorkspace` now renders `RelevantMatchesPanel` across desktop/tablet/mobile modes
+  - panel remains visible regardless of `plannerState` presence to keep layout stable
+- Dummy data:
+  - seed sessions include realistic match thumbnails
+  - location-aware mock updates inject contextual template/marketplace items with images

@@ -62,6 +62,7 @@ export type PlannerSession = {
   title: string;
   createdAt: number;
   updatedAt: number;
+  plannerStateUpdatedAt?: number;
   messages: ChatMessage[];
   matches: MatchesState;
   plannerState?: PlannerState;

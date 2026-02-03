@@ -104,6 +104,9 @@ const extractBudget = (text: string) => {
   return null;
 };
 
+const extractGuestCount = (text: string) =>
+  extractValue(text, /(\d+)\s*(?:guests?|attendees?|people|pax)\b/i);
+
 const extractValue = (text: string, pattern: RegExp) => {
   const match = text.match(pattern);
   if (!match) return null;
@@ -133,22 +136,26 @@ const guessLocation = (text: string) => {
     .join(" ");
 };
 
+const clamp = (value: number, min: number, max: number) =>
+  Math.min(Math.max(value, min), max);
+
 const recalculateKpisFromInventory = (
   inventory: PlannerState["spacePlan"]["inventory"],
-  existingBudgetTotal?: number | null
+  existingBudgetTotal?: number | null,
+  attendeeHint?: number | null
 ) => {
   const inventoryCost =
     inventory.chairs * 28 +
     inventory.tables * 130 +
     inventory.stage * 3800 +
     inventory.buffet * 950;
-
-  const totalCost = Math.max(existingBudgetTotal ?? 0, Math.round(inventoryCost * 2.6));
-  const attendees = Math.max(60, Math.round(inventory.chairs * 0.8));
+  const attendees = Math.max(60, attendeeHint ?? Math.round(inventory.chairs * 0.8));
+  const baselineCost = Math.round(inventoryCost * 2.2 + attendees * 110);
+  const totalCost = Math.max(existingBudgetTotal ?? 0, baselineCost);
   return {
     totalCost,
     costPerAttendee: Math.round(totalCost / attendees),
-    confidencePct: 74
+    confidencePct: 72
   };
 };
 
@@ -158,17 +165,22 @@ const buildPlannerStateDraft = (session: PlannerSession, userText: string): Plan
     .map((message) => message.text)
     .join(" ")} ${userText}`;
   const budgetMention = extractBudget(mergedText);
+  const guestCountMention = extractGuestCount(mergedText);
   const inventoryUpdates = extractInventoryUpdates(mergedText);
   const location = guessLocation(mergedText) ?? "your target city";
 
+  const inferredChairs =
+    guestCountMention && guestCountMention > 0
+      ? Math.max(guestCountMention, Math.round(guestCountMention * 1.05))
+      : 160;
   const inventory = {
-    chairs: inventoryUpdates.chairs ?? 160,
-    tables: inventoryUpdates.tables ?? 24,
+    chairs: inventoryUpdates.chairs ?? inferredChairs,
+    tables: inventoryUpdates.tables ?? Math.max(12, Math.round((inventoryUpdates.chairs ?? inferredChairs) / 8)),
     stage: inventoryUpdates.stage ?? 1,
     buffet: inventoryUpdates.buffet ?? 4
   };
 
-  const kpis = recalculateKpisFromInventory(inventory, budgetMention);
+  const kpis = recalculateKpisFromInventory(inventory, budgetMention, guestCountMention);
 
   return assertValidPlannerState({
     blueprintId: nextId("bp"),
@@ -213,13 +225,90 @@ const buildPlannerStateDraft = (session: PlannerSession, userText: string): Plan
   });
 };
 
-const updatePlannerStateInventory = (
+type PlannerIntentMeta = {
+  inventoryChanged: boolean;
+  guestCountChanged: boolean;
+  budgetAdjusted: boolean;
+  conflictDetected: boolean;
+};
+
+const normalizeBreakdown = (breakdown: PlannerState["budget"]["breakdown"]) => {
+  const total = breakdown.reduce((sum, item) => sum + item.pct, 0);
+  if (!total) return breakdown;
+
+  const scaled = breakdown.map((item) => ({
+    ...item,
+    pct: Number(((item.pct / total) * 100).toFixed(1))
+  }));
+  const scaledTotal = scaled.reduce((sum, item) => sum + item.pct, 0);
+  const drift = Number((100 - scaledTotal).toFixed(1));
+  if (scaled.length > 0 && drift !== 0) {
+    scaled[scaled.length - 1] = {
+      ...scaled[scaled.length - 1],
+      pct: Number((scaled[scaled.length - 1].pct + drift).toFixed(1))
+    };
+  }
+
+  return scaled;
+};
+
+const rebalanceBreakdownForBudget = (
+  breakdown: PlannerState["budget"]["breakdown"],
+  budgetConstrained: boolean
+) => {
+  if (!budgetConstrained) return breakdown;
+
+  const labels = breakdown.map((item) => item.label.toLowerCase());
+  if (
+    labels.includes("venue") &&
+    labels.includes("food + beverage") &&
+    labels.includes("production") &&
+    labels.includes("staffing") &&
+    labels.includes("contingency")
+  ) {
+    return [
+      { label: "Venue", pct: 35 },
+      { label: "Food + Beverage", pct: 23 },
+      { label: "Production", pct: 16 },
+      { label: "Staffing", pct: 18 },
+      { label: "Contingency", pct: 8 }
+    ];
+  }
+
+  return normalizeBreakdown(
+    breakdown.map((item) => {
+      const lowered = item.label.toLowerCase();
+      if (lowered.includes("production")) return { ...item, pct: item.pct - 3 };
+      if (lowered.includes("venue")) return { ...item, pct: item.pct - 2 };
+      if (lowered.includes("staff")) return { ...item, pct: item.pct + 3 };
+      if (lowered.includes("conting")) return { ...item, pct: item.pct + 2 };
+      return item;
+    })
+  );
+};
+
+const applyPlannerIntentUpdates = (
   state: PlannerState,
   userText: string
-): PlannerState | null => {
+): { updatedState: PlannerState; meta: PlannerIntentMeta } => {
   const inventoryUpdates = extractInventoryUpdates(userText);
-  const hasUpdate = Object.values(inventoryUpdates).some((value) => value !== null);
-  if (!hasUpdate) return null;
+  const guestCountMention = extractGuestCount(userText);
+  const budgetMention = extractBudget(userText);
+  const budgetConstraintRequested = /(budget|cap|under|within|limit|ceiling)/i.test(userText);
+  const inventoryChanged = Object.values(inventoryUpdates).some((value) => value !== null);
+  const guestCountChanged = Boolean(guestCountMention && guestCountMention > 0);
+  const budgetAdjusted = Boolean(budgetConstraintRequested && budgetMention);
+  if (!inventoryChanged && !guestCountChanged && !budgetAdjusted) {
+    return {
+      updatedState: state,
+      meta: {
+        inventoryChanged: false,
+        guestCountChanged: false,
+        budgetAdjusted: false,
+        conflictDetected: false
+      }
+    };
+  }
 
   const nextInventory = {
     chairs: inventoryUpdates.chairs ?? state.spacePlan.inventory.chairs,
@@ -228,25 +317,72 @@ const updatePlannerStateInventory = (
     buffet: inventoryUpdates.buffet ?? state.spacePlan.inventory.buffet
   };
 
-  const budgetHint = extractBudget(userText) ?? state.budget.total;
-  const nextKpis = recalculateKpisFromInventory(nextInventory, budgetHint);
+  const requiredCostFromPlan = Math.round(
+    nextInventory.chairs * 26 +
+      nextInventory.tables * 120 +
+      nextInventory.stage * 3700 +
+      nextInventory.buffet * 900 +
+      (guestCountMention ?? state.spacePlan.inventory.chairs * 0.8) * 95
+  );
+  const targetBudget = budgetAdjusted && budgetMention ? budgetMention : state.budget.total;
+  const conflictDetected =
+    (budgetAdjusted && requiredCostFromPlan > targetBudget * 1.08) ||
+    (guestCountMention ? nextInventory.chairs < Math.round(guestCountMention * 0.75) : false);
+  const totalCost = budgetAdjusted
+    ? Math.round(
+        requiredCostFromPlan > targetBudget
+          ? Math.max(targetBudget, requiredCostFromPlan * 0.9)
+          : Math.max(requiredCostFromPlan, targetBudget * 0.96)
+      )
+    : Math.max(state.budget.total, requiredCostFromPlan);
 
-  return assertValidPlannerState({
+  const recomputed = recalculateKpisFromInventory(
+    nextInventory,
+    totalCost,
+    guestCountMention ?? null
+  );
+  const confidenceShift =
+    (inventoryChanged ? 2 : 0) +
+    (guestCountChanged ? 2 : 0) +
+    (budgetAdjusted && !conflictDetected ? 1 : 0) -
+    (conflictDetected ? 7 : 0);
+  const nextConfidence = clamp(state.kpis.confidencePct + confidenceShift, 45, 95);
+  const nextBreakdown = rebalanceBreakdownForBudget(state.budget.breakdown, budgetAdjusted);
+  const nextTradeoffNote = budgetAdjusted
+    ? conflictDetected
+      ? "Budget cap is tighter than the current operating plan. Consider reducing scenic production or lowering premium food service depth."
+      : "Budget target is achievable with moderate production trimming and tighter staffing windows."
+    : state.budget.tradeoffNote;
+
+  const updatedState = assertValidPlannerState({
     ...state,
     summary:
-      "Blueprint updated with revised inventory assumptions from your latest instruction.",
-    kpis: nextKpis,
+      "Blueprint updated from your latest constraints. Costs and execution confidence have been recalibrated.",
+    kpis: {
+      ...recomputed,
+      confidencePct: nextConfidence
+    },
     spacePlan: {
       ...state.spacePlan,
       inventory: nextInventory
     },
     budget: {
       ...state.budget,
-      total: nextKpis.totalCost,
-      tradeoffNote:
-        "Inventory increases raise staging and service effort; balance with simplified decor if needed."
+      total: totalCost,
+      breakdown: nextBreakdown,
+      tradeoffNote: nextTradeoffNote
     }
   });
+
+  return {
+    updatedState,
+    meta: {
+      inventoryChanged,
+      guestCountChanged,
+      budgetAdjusted,
+      conflictDetected
+    }
+  };
 };
 
 const updateMatchesForContext = (base: MatchesState, userText: string): MatchesState => {
@@ -332,7 +468,8 @@ const createSeedSessions = (): PlannerSession[] => {
           matches: sharedMatches
         },
         "Plan a 140 guest product launch in SF with $30k budget."
-      )
+      ),
+      plannerStateUpdatedAt: now - 1000 * 60 * 5
     },
     {
       id: "seed-offsite-q2",
@@ -401,11 +538,17 @@ export const plannerServiceMock: PlannerService = {
         "I drafted a blueprint with cost KPIs, layout inventory, and a working timeline. Review the right panel and tell me what to tighten.";
     } else {
       const existing = session.plannerState ?? buildPlannerStateDraft(session, trimmedText);
-      const revised = updatePlannerStateInventory(existing, trimmedText);
-      updatedPlannerState = revised ?? existing;
-      assistantText = revised
-        ? "Applied your inventory update and rebalanced projected cost. I also adjusted the blueprint confidence."
-        : "Updated the draft to reflect your latest guidance. Want me to prepare this for review status?";
+      const revision = applyPlannerIntentUpdates(existing, trimmedText);
+      updatedPlannerState = revision.updatedState;
+      assistantText = revision.meta.conflictDetected
+        ? "I applied your changes, but the new constraints create execution pressure. I adjusted the tradeoff note and confidence so you can review the implications."
+        : revision.meta.inventoryChanged
+          ? "Inventory updates applied. I recalibrated cost, per-attendee spend, and execution confidence."
+          : revision.meta.budgetAdjusted
+            ? "Budget constraints are now reflected in the simulation, including a refreshed tradeoff note and spend mix."
+            : revision.meta.guestCountChanged
+              ? "Guest count update applied. Capacity assumptions and KPI efficiency are now aligned."
+              : "Updated the draft to reflect your latest guidance. Want me to prepare this for review status?";
     }
 
     return {

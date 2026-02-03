@@ -11,9 +11,10 @@ The Organizer/User dashboard is being redesigned so the post-login landing exper
 - [x] Phase 5 - Planner model + Zod validation + service boundary
 - [x] Phase 6 - Right panel `Relevant Matches` component wired to session state
 - [x] Phase 7 - Blueprint detail panel rendered from `PlannerState`
-- [ ] Phase 8 - Blueprint actions wiring (`Approve layout`) and deeper flow hooks
+- [x] Phase 8 - Interactive mock orchestration updates + approve flow
+- [ ] Phase 9 - RAG wiring and server-backed orchestration boundary
 
-## Current Route Behavior (After Phase 7)
+## Current Route Behavior (After Phase 8)
 - `/dashboard` (user role): renders `OrganizerAIWorkspace` as the default landing page.
 - `/dashboard/plan-with-ai` (user role): remains available and now renders `OrganizerAIWorkspace` as the dashboard AI workspace shell.
 - `/ai-planner` (public website): unchanged and still uses the existing public AI planner implementation.
@@ -141,3 +142,20 @@ The Organizer/User dashboard is being redesigned so the post-login landing exper
 - Responsive behavior:
   - desktop right column uses the same mode toggle + conditional panel rendering
   - tablet `matches` tab and mobile sheet reuse identical right-panel mode logic
+
+## Phase 8 Interactive Mock Orchestration
+- `plannerService.mock.sendMessage(...)` now applies deterministic intent rules:
+  - inventory intents (`chairs`, `tables`, `stage`, `buffet`) update `spacePlan.inventory`
+  - guest count intents adjust attendee assumptions and KPI efficiency
+  - budget-constraint intents rebalance budget breakdown and tradeoff note
+  - confidence shifts up/down based on consistency vs conflicts (e.g., tight budget vs requested inventory)
+- Session model extension:
+  - `PlannerSession.plannerStateUpdatedAt` is now persisted for recency indicators
+- Blueprint panel UX:
+  - header shows live recency label (`Updated just now`, `Updated Xm ago`)
+  - lightweight section highlight on planner updates (KPI row, inventory, timeline, budget, header)
+  - highlights use simple Tailwind transition classes (no heavy animation runtime)
+- Approve flow (UI-only, session-backed):
+  - `Approve layout` sets `plannerState.status = 'approved'`
+  - adds an assistant acknowledgment message to the thread
+  - writes `plannerStateUpdatedAt` + session `updatedAt`, then persists to storage

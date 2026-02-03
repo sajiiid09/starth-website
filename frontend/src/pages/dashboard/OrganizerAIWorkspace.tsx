@@ -22,10 +22,25 @@ import BlueprintDetailPanel from "@/features/planner/components/BlueprintDetailP
 import RelevantMatchesPanel from "@/features/planner/components/RelevantMatchesPanel";
 import { plannerService } from "@/features/planner/services/plannerService";
 import { usePlannerSessions } from "@/features/planner/PlannerSessionsContext";
-import { ChatMessage, MatchItem, MatchesState } from "@/features/planner/types";
+import { ChatMessage, MatchItem, MatchesState, PlannerState } from "@/features/planner/types";
 
 type WorkspaceView = "chat" | "matches";
 type RightPanelView = "matches" | "blueprint";
+type BlueprintHighlights = {
+  header: boolean;
+  kpis: boolean;
+  inventory: boolean;
+  timeline: boolean;
+  budget: boolean;
+};
+
+const defaultBlueprintHighlights: BlueprintHighlights = {
+  header: false,
+  kpis: false,
+  inventory: false,
+  timeline: false,
+  budget: false
+};
 
 const quickPrompts = [
   "Plan a 120-guest product launch in SF for March, budget $25k.",
@@ -246,11 +261,21 @@ const OrganizerAIWorkspace: React.FC = () => {
   const [tabletView, setTabletView] = React.useState<WorkspaceView>("chat");
   const [rightPanelView, setRightPanelView] = React.useState<RightPanelView>("matches");
   const [draftMessage, setDraftMessage] = React.useState("");
+  const [blueprintHighlights, setBlueprintHighlights] =
+    React.useState<BlueprintHighlights>(defaultBlueprintHighlights);
   const { isReady, activeSessionId, activeSession, createNewSession, updateSession } =
     usePlannerSessions();
   const timeoutRefs = React.useRef<number[]>([]);
   const rightPanelSessionRef = React.useRef<string | null>(null);
   const rightPanelHadPlannerRef = React.useRef(false);
+  const blueprintTimeoutRef = React.useRef<number | null>(null);
+  const previousPlannerSnapshotRef = React.useRef<{
+    sessionId: string | null;
+    plannerState?: PlannerState;
+    plannerStateUpdatedAt?: number;
+  }>({
+    sessionId: null
+  });
 
   const messages = activeSession?.messages ?? [];
   const matches = activeSession?.matches ?? fallbackMatches;
@@ -260,6 +285,10 @@ const OrganizerAIWorkspace: React.FC = () => {
     return () => {
       timeoutRefs.current.forEach((timer) => window.clearTimeout(timer));
       timeoutRefs.current = [];
+      if (blueprintTimeoutRef.current) {
+        window.clearTimeout(blueprintTimeoutRef.current);
+        blueprintTimeoutRef.current = null;
+      }
     };
   }, []);
 
@@ -281,6 +310,69 @@ const OrganizerAIWorkspace: React.FC = () => {
     rightPanelSessionRef.current = activeSessionId ?? null;
   }, [activeSessionId, hasPlannerState]);
 
+  React.useEffect(() => {
+    const currentState = activeSession?.plannerState;
+    const currentUpdatedAt = activeSession?.plannerStateUpdatedAt;
+    const previous = previousPlannerSnapshotRef.current;
+    const sessionChanged = previous.sessionId !== (activeSessionId ?? null);
+
+    if (!currentState) {
+      previousPlannerSnapshotRef.current = {
+        sessionId: activeSessionId ?? null,
+        plannerState: undefined,
+        plannerStateUpdatedAt: undefined
+      };
+      setBlueprintHighlights(defaultBlueprintHighlights);
+      return;
+    }
+
+    if (sessionChanged || !previous.plannerState) {
+      previousPlannerSnapshotRef.current = {
+        sessionId: activeSessionId ?? null,
+        plannerState: currentState,
+        plannerStateUpdatedAt: currentUpdatedAt
+      };
+      setBlueprintHighlights(defaultBlueprintHighlights);
+      return;
+    }
+
+    const nextHighlights: BlueprintHighlights = {
+      header:
+        previous.plannerState.status !== currentState.status ||
+        previous.plannerState.summary !== currentState.summary ||
+        previous.plannerState.title !== currentState.title ||
+        previous.plannerStateUpdatedAt !== currentUpdatedAt,
+      kpis:
+        previous.plannerState.kpis.totalCost !== currentState.kpis.totalCost ||
+        previous.plannerState.kpis.costPerAttendee !== currentState.kpis.costPerAttendee ||
+        previous.plannerState.kpis.confidencePct !== currentState.kpis.confidencePct,
+      inventory:
+        JSON.stringify(previous.plannerState.spacePlan.inventory) !==
+        JSON.stringify(currentState.spacePlan.inventory),
+      timeline:
+        JSON.stringify(previous.plannerState.timeline) !== JSON.stringify(currentState.timeline),
+      budget: JSON.stringify(previous.plannerState.budget) !== JSON.stringify(currentState.budget)
+    };
+
+    const hasChanges = Object.values(nextHighlights).some(Boolean);
+    if (hasChanges) {
+      setBlueprintHighlights(nextHighlights);
+      if (blueprintTimeoutRef.current) {
+        window.clearTimeout(blueprintTimeoutRef.current);
+      }
+      blueprintTimeoutRef.current = window.setTimeout(() => {
+        setBlueprintHighlights(defaultBlueprintHighlights);
+        blueprintTimeoutRef.current = null;
+      }, 1100);
+    }
+
+    previousPlannerSnapshotRef.current = {
+      sessionId: activeSessionId ?? null,
+      plannerState: currentState,
+      plannerStateUpdatedAt: currentUpdatedAt
+    };
+  }, [activeSession?.plannerState, activeSession?.plannerStateUpdatedAt, activeSessionId]);
+
   const handleMatchTabChange = React.useCallback(
     (tab: MatchesState["activeTab"]) => {
       if (!activeSessionId) return;
@@ -300,8 +392,34 @@ const OrganizerAIWorkspace: React.FC = () => {
   }, []);
 
   const handleApproveLayout = React.useCallback(() => {
-    console.log("Approve layout clicked for session:", activeSessionId);
-  }, [activeSessionId]);
+    if (!activeSessionId) return;
+    const approvalTime = Date.now();
+
+    updateSession(activeSessionId, (session) => {
+      if (!session.plannerState || session.plannerState.status === "approved") {
+        return session;
+      }
+
+      const approvalMessage: ChatMessage = {
+        id: createMessageId("assistant-approval"),
+        role: "assistant",
+        text: "Layout approved. I locked the blueprint status and captured this as the active orchestration baseline.",
+        status: "final",
+        createdAt: approvalTime
+      };
+
+      return {
+        ...session,
+        plannerState: {
+          ...session.plannerState,
+          status: "approved"
+        },
+        plannerStateUpdatedAt: approvalTime,
+        messages: [...session.messages, approvalMessage]
+      };
+    });
+    setRightPanelView("blueprint");
+  }, [activeSessionId, updateSession]);
 
   const renderRightPanel = (heightClass?: string) => {
     return (
@@ -338,6 +456,8 @@ const OrganizerAIWorkspace: React.FC = () => {
         {hasPlannerState && rightPanelView === "blueprint" && activeSession?.plannerState ? (
           <BlueprintDetailPanel
             plannerState={activeSession.plannerState}
+            plannerStateUpdatedAt={activeSession.plannerStateUpdatedAt}
+            changedSections={blueprintHighlights}
             onApproveLayout={handleApproveLayout}
             heightClass={heightClass}
           />
@@ -425,6 +545,9 @@ const OrganizerAIWorkspace: React.FC = () => {
             ...session,
             messages: hasReplaced ? replaced : [...replaced, response.assistantMessage],
             plannerState: response.updatedPlannerState ?? session.plannerState,
+            plannerStateUpdatedAt: response.updatedPlannerState
+              ? Date.now()
+              : session.plannerStateUpdatedAt,
             matches: response.updatedMatches ?? session.matches
           };
         });

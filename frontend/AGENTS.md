@@ -3,13 +3,13 @@
 ## User Dashboard Redesign
 
 ### Current Status
-- Phase 7 is complete.
+- Phase 8 is complete.
 - Organizer/User dashboard default landing now uses `OrganizerAIWorkspace`.
-- Organizer AI workspace now conditionally renders `BlueprintDetailPanel` from session `plannerState`, with right-panel mode switching.
+- Organizer AI workspace now supports interactive blueprint updates and approval flow in dummy orchestration mode.
 - Required documentation is updated in `docs/USERDASHBOARD_DEVELOPMENT_DOCUMENTATION.md`.
 
 ### Next Phase To Do
-- Implement Phase 8: wire blueprint actions (`Approve layout`) and connect deeper orchestration flows.
+- Implement Phase 9: wire real RAG/backend orchestration while keeping the planner service contract stable.
 
 ### Key Decisions
 - Public website AI planner remains unchanged.
@@ -26,3 +26,4 @@
 - Runtime validation uses Zod schemas for planner model + storage payload hydration safety.
 - Right panel rendering is now componentized in `RelevantMatchesPanel`, including tab persistence and card-level open actions.
 - Blueprint detail rendering is strictly driven by `PlannerState` JSON (no freeform text parsing), with `rightPanelView` toggle behavior (`Matches | Blueprint`).
+- Blueprint updates now react to chat constraints (inventory/guests/budget) with lightweight visual section highlights and a persisted `plannerStateUpdatedAt` indicator.

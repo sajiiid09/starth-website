@@ -67,6 +67,7 @@ export const zPlannerSession = z.object({
   title: z.string().min(1),
   createdAt: z.number(),
   updatedAt: z.number(),
+  plannerStateUpdatedAt: z.number().optional(),
   messages: z.array(zChatMessage),
   matches: zMatchesState,
   plannerState: zPlannerState.optional()

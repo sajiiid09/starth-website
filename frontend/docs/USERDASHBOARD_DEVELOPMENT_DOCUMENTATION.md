@@ -12,9 +12,10 @@ The Organizer/User dashboard is being redesigned so the post-login landing exper
 - [x] Phase 6 - Right panel `Relevant Matches` component wired to session state
 - [x] Phase 7 - Blueprint detail panel rendered from `PlannerState`
 - [x] Phase 8 - Interactive mock orchestration updates + approve flow
-- [ ] Phase 9 - RAG wiring and server-backed orchestration boundary
+- [x] Phase 9 - Credits/usage gating UI (frontend-only)
+- [x] Phase 10 - Polish, performance guardrails, and responsive QA
 
-## Current Route Behavior (After Phase 8)
+## Current Route Behavior (After Phase 10)
 - `/dashboard` (user role): renders `OrganizerAIWorkspace` as the default landing page.
 - `/dashboard/plan-with-ai` (user role): remains available and now renders `OrganizerAIWorkspace` as the dashboard AI workspace shell.
 - `/ai-planner` (public website): unchanged and still uses the existing public AI planner implementation.
@@ -159,3 +160,48 @@ The Organizer/User dashboard is being redesigned so the post-login landing exper
   - `Approve layout` sets `plannerState.status = 'approved'`
   - adds an assistant acknowledgment message to the thread
   - writes `plannerStateUpdatedAt` + session `updatedAt`, then persists to storage
+
+## Phase 9 Credits UI (Frontend Only)
+- Added env flags in `.env.example`:
+  - `VITE_ENABLE_CREDITS_UI=true`
+  - `VITE_DEFAULT_CREDITS=120`
+  - `VITE_CREDITS_PER_MESSAGE=1`
+- Added credits module:
+  - `src/features/planner/credits/types.ts`
+  - `src/features/planner/credits/storage.ts`
+  - `src/features/planner/credits/useCredits.ts`
+- Storage:
+  - key: `strathwell_credits_v1`
+  - versioned payload with credits + updatedAt
+- Behavior:
+  - credit badge appears in chat header (`Credits: N`) when enabled
+  - deduction happens immediately on send
+  - `Generate` is blocked when credits are below message cost
+  - out-of-credits banner appears with `Upgrade` CTA
+  - upgrade dialog is UI-only with demo actions (`Add demo credits`, `Reset to default`)
+- Planner sessions and planner state persistence remain unchanged (`strathwell_planner_sessions_v2`).
+
+## Phase 10 Polish / Mobile / Accessibility
+- Added lightweight transitions (`duration-200`) for chat bubbles, right-panel switching, and card interactions.
+- Added skeleton fallback rendering for missing/empty right-panel data in:
+  - `RelevantMatchesPanel`
+  - `BlueprintDetailPanel` timeline and budget sections
+- Accessibility + keyboard UX:
+  - Enter sends / Shift+Enter newline preserved in composer
+  - icon-only actions now include `aria-label` attributes
+  - focus-visible ring styles applied to key interactive controls
+- Responsive QA:
+  - desktop keeps 3-segment layout
+  - tablet keeps segmented `Chat | Matches`
+  - mobile keeps chat-first with right panel in sheet drawer and independent panel scroll
+- Performance guardrails:
+  - message sorting moved to `useMemo` in chat panel
+  - persistence remains event-driven (send/session updates), not per-keystroke.
+
+## How to Demo
+- Reset credits:
+  - use the out-of-credits `Upgrade` dialog and click `Reset to default`, or clear `strathwell_credits_v1` in localStorage.
+- Show out-of-credits state:
+  - set `strathwell_credits_v1` to `0` in localStorage or repeatedly send messages until credits reach zero.
+- Show blueprint updates:
+  - send inventory or budget prompts (for example: `need 250 chairs and 30 tables under $28k`) and observe KPI/inventory/budget updates in the Blueprint panel.

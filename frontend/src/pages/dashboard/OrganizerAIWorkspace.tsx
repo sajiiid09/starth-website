@@ -1,5 +1,6 @@
 import React from "react";
 import {
+  Coins,
   ChevronDown,
   CircleDot,
   Loader2,
@@ -9,6 +10,15 @@ import {
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger
+} from "@/components/ui/dialog";
 import {
   Sheet,
   SheetContent,
@@ -20,6 +30,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import BlueprintDetailPanel from "@/features/planner/components/BlueprintDetailPanel";
 import RelevantMatchesPanel from "@/features/planner/components/RelevantMatchesPanel";
+import { useCredits } from "@/features/planner/credits/useCredits";
+import { getCreditsConfig } from "@/features/planner/credits/storage";
 import { plannerService } from "@/features/planner/services/plannerService";
 import { usePlannerSessions } from "@/features/planner/PlannerSessionsContext";
 import { ChatMessage, MatchItem, MatchesState, PlannerState } from "@/features/planner/types";
@@ -86,6 +98,11 @@ type ChatPanelProps = {
   onSend: () => void;
   onQuickPrompt: (prompt: string) => void;
   disableSend: boolean;
+  isCreditsEnabled: boolean;
+  credits: number;
+  creditsPerMessage: number;
+  onAddDemoCredits: () => void;
+  onResetCredits: () => void;
   heightClass?: string;
 };
 
@@ -96,10 +113,22 @@ const ChatPanel: React.FC<ChatPanelProps> = ({
   onSend,
   onQuickPrompt,
   disableSend,
+  isCreditsEnabled,
+  credits,
+  creditsPerMessage,
+  onAddDemoCredits,
+  onResetCredits,
   heightClass = "h-[72vh] min-h-[520px]"
 }) => {
   const threadRef = React.useRef<HTMLDivElement>(null);
   const textareaRef = React.useRef<HTMLTextAreaElement>(null);
+  const [upgradeDialogOpen, setUpgradeDialogOpen] = React.useState(false);
+  const sortedMessages = React.useMemo(
+    () => [...messages].sort((a, b) => a.createdAt - b.createdAt),
+    [messages]
+  );
+  const isOutOfCredits = isCreditsEnabled && credits < creditsPerMessage;
+  const sendDisabled = disableSend || isOutOfCredits;
 
   React.useEffect(() => {
     if (!threadRef.current) return;
@@ -124,7 +153,7 @@ const ChatPanel: React.FC<ChatPanelProps> = ({
       message.status === "thinking" || message.status === "orchestrating";
 
     return (
-      <div key={message.id} className="flex items-start gap-3">
+      <div key={message.id} className="flex items-start gap-3 transition-all duration-200">
         <div className="mt-1 flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-slate-200 bg-white">
           <Sparkles className="h-4 w-4 text-brand-teal" />
         </div>
@@ -143,7 +172,7 @@ const ChatPanel: React.FC<ChatPanelProps> = ({
 
   const renderUserBubble = (message: ChatMessage) => {
     return (
-      <div key={message.id} className="flex justify-end">
+      <div key={message.id} className="flex justify-end transition-all duration-200">
         <div className="flex max-w-[85%] flex-col items-end gap-1">
           <span className="rounded-full border border-brand-teal/20 bg-brand-teal/10 px-2 py-0.5 text-[11px] font-semibold text-brand-teal">
             You
@@ -171,13 +200,24 @@ const ChatPanel: React.FC<ChatPanelProps> = ({
               <span>Ready to plan</span>
             </div>
           </div>
-          <Badge
-            variant="secondary"
-            className="border border-emerald-200 bg-emerald-50 text-emerald-700"
-          >
-            <CircleDot className="mr-1 h-3 w-3" />
-            Ready
-          </Badge>
+          <div className="flex items-center gap-2">
+            {isCreditsEnabled && (
+              <Badge
+                variant="secondary"
+                className="border border-brand-teal/20 bg-brand-teal/10 text-brand-teal"
+              >
+                <Coins className="mr-1 h-3 w-3" />
+                Credits: {credits}
+              </Badge>
+            )}
+            <Badge
+              variant="secondary"
+              className="border border-emerald-200 bg-emerald-50 text-emerald-700"
+            >
+              <CircleDot className="mr-1 h-3 w-3" />
+              Ready
+            </Badge>
+          </div>
         </div>
       </header>
 
@@ -198,7 +238,7 @@ const ChatPanel: React.FC<ChatPanelProps> = ({
                 <Button
                   key={prompt}
                   variant="outline"
-                  className="h-auto justify-start whitespace-normal rounded-xl border-slate-200 px-3 py-2 text-left text-xs text-slate-600 hover:bg-slate-50"
+                  className="h-auto justify-start whitespace-normal rounded-xl border-slate-200 px-3 py-2 text-left text-xs text-slate-600 hover:bg-slate-50 focus-visible:ring-brand-teal/35"
                   onClick={() => onQuickPrompt(prompt)}
                 >
                   {prompt}
@@ -207,28 +247,83 @@ const ChatPanel: React.FC<ChatPanelProps> = ({
             </div>
           </div>
         ) : (
-          [...messages]
-            .sort((a, b) => a.createdAt - b.createdAt)
-            .map((message) =>
-              message.role === "user"
-                ? renderUserBubble(message)
-                : renderAssistantBubble(message)
-            )
+          sortedMessages.map((message) =>
+            message.role === "user" ? renderUserBubble(message) : renderAssistantBubble(message)
+          )
         )}
       </div>
 
       <footer className="sticky bottom-0 z-10 border-t border-slate-200 bg-white/95 px-5 py-4 backdrop-blur">
         <div className="rounded-2xl border border-slate-200 bg-white p-3 shadow-sm">
+          {isOutOfCredits && (
+            <div className="mb-3 flex items-center justify-between gap-2 rounded-xl border border-amber-200 bg-amber-50 px-3 py-2">
+              <p className="text-xs text-amber-900">
+                You&apos;re out of credits. Upgrade to continue.
+              </p>
+              <Dialog open={upgradeDialogOpen} onOpenChange={setUpgradeDialogOpen}>
+                <DialogTrigger asChild>
+                  <Button
+                    size="sm"
+                    className="h-7 rounded-lg bg-brand-teal px-3 text-xs text-white hover:bg-brand-teal/90"
+                  >
+                    Upgrade
+                  </Button>
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>Upgrade is coming soon</DialogTitle>
+                    <DialogDescription>
+                      Billing and package management will arrive with backend integration.
+                    </DialogDescription>
+                  </DialogHeader>
+                  <DialogFooter>
+                    <Button
+                      onClick={() => {
+                        onAddDemoCredits();
+                        setUpgradeDialogOpen(false);
+                      }}
+                      className="bg-brand-teal text-white hover:bg-brand-teal/90"
+                    >
+                      Add demo credits (+50)
+                    </Button>
+                    <Button
+                      variant="outline"
+                      onClick={() => {
+                        onResetCredits();
+                        setUpgradeDialogOpen(false);
+                      }}
+                    >
+                      Reset to default
+                    </Button>
+                  </DialogFooter>
+                </DialogContent>
+              </Dialog>
+            </div>
+          )}
           <div className="mb-2 flex items-center justify-between gap-2">
-            <Button variant="outline" size="sm" className="h-8 rounded-lg border-slate-200 px-2">
+            <Button
+              variant="outline"
+              size="sm"
+              className="h-8 rounded-lg border-slate-200 px-2 focus-visible:ring-brand-teal/35"
+            >
               Styles
               <ChevronDown className="ml-1 h-3.5 w-3.5" />
             </Button>
             <div className="flex items-center gap-1">
-              <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-500">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8 text-slate-500 focus-visible:ring-brand-teal/35"
+                aria-label="Attach file"
+              >
                 <Paperclip className="h-4 w-4" />
               </Button>
-              <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-500">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8 text-slate-500 focus-visible:ring-brand-teal/35"
+                aria-label="Voice input"
+              >
                 <Mic className="h-4 w-4" />
               </Button>
             </div>
@@ -245,12 +340,19 @@ const ChatPanel: React.FC<ChatPanelProps> = ({
             />
             <Button
               onClick={onSend}
-              disabled={disableSend}
-              className="h-10 rounded-xl bg-brand-teal px-4 text-white hover:bg-brand-teal/90 disabled:opacity-50"
+              disabled={sendDisabled}
+              className="h-10 rounded-xl bg-brand-teal px-4 text-white transition-colors duration-200 hover:bg-brand-teal/90 disabled:opacity-50"
             >
               Generate
             </Button>
           </div>
+          {isCreditsEnabled && (
+            <div className="mt-2 flex justify-end">
+              <p className="text-[11px] text-slate-500">
+                {creditsPerMessage} {creditsPerMessage === 1 ? "credit" : "credits"} per message
+              </p>
+            </div>
+          )}
         </div>
       </footer>
     </section>
@@ -263,6 +365,8 @@ const OrganizerAIWorkspace: React.FC = () => {
   const [draftMessage, setDraftMessage] = React.useState("");
   const [blueprintHighlights, setBlueprintHighlights] =
     React.useState<BlueprintHighlights>(defaultBlueprintHighlights);
+  const creditsConfig = React.useMemo(() => getCreditsConfig(), []);
+  const { credits, deduct, add, resetToDefault, isEnabled: isCreditsEnabled } = useCredits();
   const { isReady, activeSessionId, activeSession, createNewSession, updateSession } =
     usePlannerSessions();
   const timeoutRefs = React.useRef<number[]>([]);
@@ -423,29 +527,31 @@ const OrganizerAIWorkspace: React.FC = () => {
 
   const renderRightPanel = (heightClass?: string) => {
     return (
-      <div className="space-y-3">
+      <div className="space-y-3 transition-all duration-200">
         {hasPlannerState && (
           <div className="rounded-xl border border-slate-200 bg-white p-1 shadow-sm">
             <div className="grid grid-cols-2 rounded-lg bg-slate-100 p-1 text-sm">
               <button
                 type="button"
                 onClick={() => setRightPanelView("matches")}
-                className={`rounded-md px-3 py-1.5 font-medium transition-colors ${
+                className={`rounded-md px-3 py-1.5 font-medium transition-colors focus-visible:ring-2 focus-visible:ring-brand-teal/35 ${
                   rightPanelView === "matches"
                     ? "bg-white text-slate-900 shadow-sm"
                     : "text-slate-600 hover:text-slate-900"
                 }`}
+                aria-pressed={rightPanelView === "matches"}
               >
                 Matches
               </button>
               <button
                 type="button"
                 onClick={() => setRightPanelView("blueprint")}
-                className={`rounded-md px-3 py-1.5 font-medium transition-colors ${
+                className={`rounded-md px-3 py-1.5 font-medium transition-colors focus-visible:ring-2 focus-visible:ring-brand-teal/35 ${
                   rightPanelView === "blueprint"
                     ? "bg-white text-slate-900 shadow-sm"
                     : "text-slate-600 hover:text-slate-900"
                 }`}
+                aria-pressed={rightPanelView === "blueprint"}
               >
                 Blueprint
               </button>
@@ -477,6 +583,7 @@ const OrganizerAIWorkspace: React.FC = () => {
     async (incomingText?: string) => {
       const messageText = (incomingText ?? draftMessage).trim();
       if (!messageText) return;
+      if (isCreditsEnabled && !deduct(creditsConfig.creditsPerMessage)) return;
 
       setDraftMessage("");
       const sessionSnapshot = activeSession ?? createNewSession();
@@ -567,7 +674,15 @@ const OrganizerAIWorkspace: React.FC = () => {
         }));
       }
     },
-    [activeSession, createNewSession, draftMessage, updateSession]
+    [
+      activeSession,
+      createNewSession,
+      creditsConfig.creditsPerMessage,
+      deduct,
+      draftMessage,
+      isCreditsEnabled,
+      updateSession
+    ]
   );
 
   if (!isReady) {
@@ -604,6 +719,11 @@ const OrganizerAIWorkspace: React.FC = () => {
           onSend={() => void sendMessage()}
           onQuickPrompt={(prompt) => void sendMessage(prompt)}
           disableSend={!draftMessage.trim()}
+          isCreditsEnabled={isCreditsEnabled}
+          credits={credits}
+          creditsPerMessage={creditsConfig.creditsPerMessage}
+          onAddDemoCredits={() => add(50)}
+          onResetCredits={resetToDefault}
         />
         {renderRightPanel()}
       </div>
@@ -632,6 +752,11 @@ const OrganizerAIWorkspace: React.FC = () => {
               onSend={() => void sendMessage()}
               onQuickPrompt={(prompt) => void sendMessage(prompt)}
               disableSend={!draftMessage.trim()}
+              isCreditsEnabled={isCreditsEnabled}
+              credits={credits}
+              creditsPerMessage={creditsConfig.creditsPerMessage}
+              onAddDemoCredits={() => add(50)}
+              onResetCredits={resetToDefault}
             />
           </TabsContent>
           <TabsContent value="matches" className="mt-0">
@@ -662,13 +787,18 @@ const OrganizerAIWorkspace: React.FC = () => {
             onSend={() => void sendMessage()}
             onQuickPrompt={(prompt) => void sendMessage(prompt)}
             disableSend={!draftMessage.trim()}
+            isCreditsEnabled={isCreditsEnabled}
+            credits={credits}
+            creditsPerMessage={creditsConfig.creditsPerMessage}
+            onAddDemoCredits={() => add(50)}
+            onResetCredits={resetToDefault}
             heightClass="h-[70vh] min-h-[460px]"
           />
           <SheetContent side="right" className="w-full p-0 sm:max-w-md">
             <SheetHeader className="border-b border-slate-200 px-5 py-4">
               <SheetTitle>Planner Panel</SheetTitle>
             </SheetHeader>
-            <div className="p-4">
+            <div className="flex h-[calc(100vh-4.5rem)] flex-col overflow-hidden p-4">
               {renderRightPanel("h-[calc(100vh-7.5rem)] min-h-0 rounded-xl")}
             </div>
           </SheetContent>

@@ -2,6 +2,7 @@ import React from "react";
 import { CheckCircle2, CircleDollarSign, Gauge, WalletCards } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 import { PlannerState } from "@/features/planner/types";
 
 type BlueprintChangedSections = {
@@ -114,6 +115,8 @@ const BlueprintDetailPanel: React.FC<BlueprintDetailPanelProps> = ({
 }) => {
   const status = statusStyles[plannerState.status];
   const isApproved = plannerState.status === "approved";
+  const hasTimelineEntries = plannerState.timeline.length > 0;
+  const hasBudgetBreakdown = plannerState.budget.breakdown.length > 0;
 
   return (
     <aside
@@ -153,7 +156,7 @@ const BlueprintDetailPanel: React.FC<BlueprintDetailPanelProps> = ({
 
       <div className="flex-1 space-y-5 overflow-y-auto p-5">
         <section
-          className={`grid grid-cols-3 gap-2 rounded-2xl p-1 transition-colors duration-700 ${
+          className={`grid grid-cols-3 gap-2 rounded-2xl p-1 transition-all duration-700 ${
             changedSections?.kpis ? "bg-brand-teal/5" : ""
           }`}
         >
@@ -187,7 +190,7 @@ const BlueprintDetailPanel: React.FC<BlueprintDetailPanelProps> = ({
         </section>
 
         <section
-          className={`space-y-3 rounded-2xl border border-slate-200 p-4 transition-colors duration-700 ${
+          className={`space-y-3 rounded-2xl border border-slate-200 p-4 transition-all duration-700 ${
             changedSections?.inventory ? "bg-brand-teal/5" : "bg-slate-50/60"
           }`}
         >
@@ -220,47 +223,63 @@ const BlueprintDetailPanel: React.FC<BlueprintDetailPanelProps> = ({
         </section>
 
         <section
-          className={`space-y-3 rounded-2xl border border-slate-200 p-4 transition-colors duration-700 ${
+          className={`space-y-3 rounded-2xl border border-slate-200 p-4 transition-all duration-700 ${
             changedSections?.timeline ? "bg-brand-teal/5" : "bg-white"
           }`}
         >
           <h3 className="text-sm font-semibold text-slate-900">Timeline & Dependencies</h3>
-          <div className="space-y-3 border-l border-slate-200 pl-3">
-            {plannerState.timeline.map((item, index) => (
-              <article key={`${item.time}-${index}`} className="relative">
-                <span className="absolute -left-[1.01rem] top-1 h-2.5 w-2.5 rounded-full bg-brand-teal" />
-                <p className="text-xs font-semibold text-slate-900">
-                  {item.time} - {item.title}
-                </p>
-                <p className="mt-1 text-xs text-slate-600">{item.notes}</p>
-              </article>
-            ))}
-          </div>
+          {hasTimelineEntries ? (
+            <div className="space-y-3 border-l border-slate-200 pl-3">
+              {plannerState.timeline.map((item, index) => (
+                <article key={`${item.time}-${index}`} className="relative">
+                  <span className="absolute -left-[1.01rem] top-1 h-2.5 w-2.5 rounded-full bg-brand-teal" />
+                  <p className="text-xs font-semibold text-slate-900">
+                    {item.time} - {item.title}
+                  </p>
+                  <p className="mt-1 text-xs text-slate-600">{item.notes}</p>
+                </article>
+              ))}
+            </div>
+          ) : (
+            <div className="space-y-2">
+              <Skeleton className="h-4 w-11/12" />
+              <Skeleton className="h-4 w-3/4" />
+              <Skeleton className="h-4 w-10/12" />
+            </div>
+          )}
         </section>
 
         <section
-          className={`space-y-3 rounded-2xl border border-slate-200 p-4 transition-colors duration-700 ${
+          className={`space-y-3 rounded-2xl border border-slate-200 p-4 transition-all duration-700 ${
             changedSections?.budget ? "bg-brand-teal/5" : "bg-white"
           }`}
         >
           <h3 className="text-sm font-semibold text-slate-900">Budget Simulation</h3>
-          <div className="flex items-center gap-4">
-            <BudgetDonut breakdown={plannerState.budget.breakdown} />
-            <div className="flex-1 space-y-2">
-              {plannerState.budget.breakdown.map((item, index) => (
-                <div key={item.label} className="flex items-center justify-between text-xs">
-                  <div className="flex items-center gap-2 text-slate-600">
-                    <span
-                      className="h-2.5 w-2.5 rounded-full"
-                      style={{ backgroundColor: donutColors[index % donutColors.length] }}
-                    />
-                    <span>{item.label}</span>
+          {hasBudgetBreakdown ? (
+            <div className="flex items-center gap-4">
+              <BudgetDonut breakdown={plannerState.budget.breakdown} />
+              <div className="flex-1 space-y-2">
+                {plannerState.budget.breakdown.map((item, index) => (
+                  <div key={item.label} className="flex items-center justify-between text-xs">
+                    <div className="flex items-center gap-2 text-slate-600">
+                      <span
+                        className="h-2.5 w-2.5 rounded-full"
+                        style={{ backgroundColor: donutColors[index % donutColors.length] }}
+                      />
+                      <span>{item.label}</span>
+                    </div>
+                    <span className="font-semibold text-slate-900">{item.pct}%</span>
                   </div>
-                  <span className="font-semibold text-slate-900">{item.pct}%</span>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
-          </div>
+          ) : (
+            <div className="space-y-2">
+              <Skeleton className="h-28 w-28 rounded-full" />
+              <Skeleton className="h-3 w-2/3" />
+              <Skeleton className="h-3 w-3/4" />
+            </div>
+          )}
           <p className="text-xs font-semibold text-slate-900">
             Total: {currencyFormatter.format(plannerState.budget.total)}
           </p>

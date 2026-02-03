@@ -21,6 +21,11 @@ The Organizer/User dashboard is being redesigned so the post-login landing exper
 - `/ai-planner` (public website): unchanged and still uses the existing public AI planner implementation.
 - `/vendor` and `/admin`: unchanged behavior and routing.
 
+### Frontend Polish (Routing Reliability - Phase 1)
+- Added a dedicated `NotFoundPage` and a catch-all route so unknown URLs now render a friendly 404 state instead of blank content.
+- Routing reliability improved with low-risk canonical redirects (`/home` -> `/`, `/app-entry` -> `/appentry`, `/signin` -> `/appentry`) while keeping existing URL access paths valid.
+- Existing organizer, vendor, and admin dashboard experiences were not redesigned as part of this polish pass.
+
 ## Phase 2 Layout Behavior
 - Desktop (`xl` and above): two-column main workspace inside dashboard content area with chat panel at ~62% width and matches panel at ~38% width.
 - Tablet (`md` to `lg`): segmented toggle (`Chat | Matches`) shows one panel at a time for focus and lower visual density.

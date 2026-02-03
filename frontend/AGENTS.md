@@ -31,3 +31,16 @@
 - Credits are deducted immediately on send (when enabled); send is blocked when credits are insufficient.
 - Upgrade action is demo-only (no payments/backend) and can add demo credits for walkthroughs.
 - Credits persist via `strathwell_credits_v1`; planner sessions continue using `strathwell_planner_sessions_v2`.
+
+## Frontend Polish Phase 1 (Routing Reliability)
+
+### Status
+- Done.
+
+### What Changed
+- Added `src/pages/NotFoundPage.tsx` with a friendly 404 experience and actions for `Go Home`, `Go Back`, and conditional `Go to Dashboard` for authenticated users.
+- Added a catch-all route in `src/pages/index.tsx` (`path="*"`) to ensure unknown routes render the NotFound page instead of a blank screen.
+- Consolidated obvious route aliases into redirects:
+  - `/home` now redirects to `/` (canonical home route).
+  - `/app-entry` and `/signin` now redirect to `/appentry` to preserve legacy links.
+- Verified existing `ScrollToTop` behavior remains wired and reliable in the router wrapper; no redesign changes were introduced for dashboard surfaces.

@@ -108,6 +108,7 @@ import Legals from "./Legals";
 import Reviews from "./Reviews";
 
 import Legal from "./Legal";
+import NotFoundPage from "./NotFoundPage";
 
 import TemplateDetails from "./TemplateDetails";
 
@@ -167,7 +168,7 @@ import AdminTemplates from "./admin/AdminTemplates";
 
 import AdminSettings from "./admin/AdminSettings";
 
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import { BrowserRouter as Router, Navigate, Route, Routes } from 'react-router-dom';
 import { createPageUrl } from "@/utils";
 import RoleGate from "@/components/auth/RoleGate";
 import ScrollToTop from "@/components/shared/ScrollToTop";
@@ -184,7 +185,11 @@ function PagesContent() {
                     <Route path="/" element={<Home />} />
                 
                 
-                <Route path={createPageUrl("Home")} element={<Home />} />
+                <Route path={createPageUrl("Home")} element={<Navigate to="/" replace />} />
+
+                <Route path="/app-entry" element={<Navigate to={createPageUrl("AppEntry")} replace />} />
+
+                <Route path="/signin" element={<Navigate to={createPageUrl("AppEntry")} replace />} />
                 
                 <Route path={createPageUrl("AIPlanner")} element={<AIPlanner />} />
                 
@@ -578,6 +583,8 @@ function PagesContent() {
                 <Route path={createPageUrl("Reviews")} element={<Reviews />} />
 
                 <Route path={createPageUrl("Legal")} element={<Legal />} />
+
+                <Route path="*" element={<NotFoundPage />} />
                 
             </Routes>
             </Layout>

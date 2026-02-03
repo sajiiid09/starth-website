@@ -115,7 +115,7 @@ import MarketplaceDetails from "./MarketplaceDetails";
 
 import PlansPage from "./PlansPage";
 
-import UserDashboardHome from "./dashboard/UserDashboardHome";
+import OrganizerAIWorkspace from "./dashboard/OrganizerAIWorkspace";
 
 import UserEvents from "./dashboard/UserEvents";
 
@@ -200,7 +200,7 @@ function PagesContent() {
                   path={createPageUrl("Dashboard")}
                   element={
                     <RoleGate allowedRoles={["user"]}>
-                      <UserDashboardHome />
+                      <OrganizerAIWorkspace />
                     </RoleGate>
                   }
                 />

@@ -10,7 +10,7 @@ import {
 export const sidebarUser = [
   { label: "Dashboard Home", href: "/dashboard", icon: Home },
   { label: "Events", href: "/dashboard/events", icon: Calendar },
-  { label: "Plan with AI", href: "/dashboard/plan-with-ai", icon: Sparkles },
+  { label: "AI Planner", href: "/dashboard/plan-with-ai", icon: Sparkles },
   { label: "Create Event", href: "/dashboard/create", icon: PlusCircle },
   { label: "Messages", href: "/dashboard/messages", icon: MessageSquare, badge: "3" },
   { label: "Settings", href: "/dashboard/settings", icon: Settings }

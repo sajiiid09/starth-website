@@ -19,18 +19,14 @@ import {
 } from "@/components/ui/sheet";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
+import {
+  ChatMessage,
+  toSessionTitleFromMessage,
+  usePlannerSessions
+} from "@/features/planner/PlannerSessionsContext";
 
 type WorkspaceView = "chat" | "matches";
 type MatchSource = "templates" | "marketplace";
-type ChatRole = "user" | "assistant" | "system";
-type ChatStatus = "thinking" | "orchestrating" | "final";
-type ChatMessage = {
-  id: string;
-  role: ChatRole;
-  text: string;
-  status?: ChatStatus;
-  createdAt: number;
-};
 
 let messageCounter = 0;
 const createMessageId = () => {
@@ -325,8 +321,9 @@ const OrganizerAIWorkspace: React.FC = () => {
   const [tabletView, setTabletView] = React.useState<WorkspaceView>("chat");
   const [activeMatchSource, setActiveMatchSource] = React.useState<MatchSource>("templates");
   const [draftMessage, setDraftMessage] = React.useState("");
-  const [messages, setMessages] = React.useState<ChatMessage[]>([]);
+  const { activeSessionId, activeSession, createNewSession, updateSession } = usePlannerSessions();
   const timeoutRefs = React.useRef<number[]>([]);
+  const messages = activeSession?.messages ?? [];
 
   React.useEffect(() => {
     return () => {
@@ -341,6 +338,8 @@ const OrganizerAIWorkspace: React.FC = () => {
       if (!messageText) return;
 
       setDraftMessage("");
+      const targetSessionId = activeSessionId ?? createNewSession();
+      const shouldRetitle = !activeSession || activeSession.messages.length === 0;
 
       const now = Date.now();
       const userMessage: ChatMessage = {
@@ -359,11 +358,16 @@ const OrganizerAIWorkspace: React.FC = () => {
         createdAt: now + 1
       };
 
-      setMessages((prev) => [...prev, userMessage, thinkingMessage]);
+      updateSession(targetSessionId, (session) => ({
+        ...session,
+        title: shouldRetitle ? toSessionTitleFromMessage(messageText) : session.title,
+        messages: [...session.messages, userMessage, thinkingMessage]
+      }));
 
       const orchestratingTimer = window.setTimeout(() => {
-        setMessages((prev) =>
-          prev.map((message) =>
+        updateSession(targetSessionId, (session) => ({
+          ...session,
+          messages: session.messages.map((message) =>
             message.id === assistantMessageId
               ? {
                   ...message,
@@ -372,12 +376,13 @@ const OrganizerAIWorkspace: React.FC = () => {
                 }
               : message
           )
-        );
+        }));
       }, 450);
 
       const resolvedTimer = window.setTimeout(() => {
-        setMessages((prev) =>
-          prev.map((message) =>
+        updateSession(targetSessionId, (session) => ({
+          ...session,
+          messages: session.messages.map((message) =>
             message.id === assistantMessageId
               ? {
                   ...message,
@@ -386,12 +391,12 @@ const OrganizerAIWorkspace: React.FC = () => {
                 }
               : message
           )
-        );
+        }));
       }, 900);
 
       timeoutRefs.current.push(orchestratingTimer, resolvedTimer);
     },
-    [draftMessage]
+    [activeSession, activeSessionId, createNewSession, draftMessage, updateSession]
   );
 
   return (

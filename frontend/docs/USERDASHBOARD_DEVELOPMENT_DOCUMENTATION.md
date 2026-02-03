@@ -7,9 +7,10 @@ The Organizer/User dashboard is being redesigned so the post-login landing exper
 - [x] Phase 1 - Foundations, routing switch, and documentation scaffolding
 - [x] Phase 2 - 3-panel responsive workspace layout (chat + matches placeholders)
 - [x] Phase 3 - Premium chat UI (dummy message loop, chips, sticky composer)
-- [ ] Phase 4 - Conversation quality pass, richer right-panel intelligence, and session controls
+- [x] Phase 4 - Multi-session chat history in sidebar + local persistence
+- [ ] Phase 5 - Conversation quality pass, richer right-panel intelligence, and service extraction
 
-## Current Route Behavior (After Phase 3)
+## Current Route Behavior (After Phase 4)
 - `/dashboard` (user role): renders `OrganizerAIWorkspace` as the default landing page.
 - `/dashboard/plan-with-ai` (user role): remains available and now renders `OrganizerAIWorkspace` as the dashboard AI workspace shell.
 - `/ai-planner` (public website): unchanged and still uses the existing public AI planner implementation.
@@ -47,3 +48,26 @@ The Organizer/User dashboard is being redesigned so the post-login landing exper
 - Bubble alignment/colors map to role-based message rendering in the chat thread.
 - Temporary thinking/orchestrating visuals map to assistant status transitions in timed state updates.
 - Prompt chips and premium sticky composer map to the empty-state + footer composer sections.
+
+## Phase 4 Session + Sidebar Integration
+- Added planner session model:
+  - `PlannerSession = { id, title, createdAt, updatedAt, messages }`
+  - `messages` use the existing Phase 3 `ChatMessage` shape.
+- Local persistence:
+  - sessions key: `strathwell_planner_sessions_v1`
+  - active session key: `strathwell_planner_active_session_v1`
+- First-load demo seeding now creates multiple realistic sessions for organizer users.
+- Sidebar integration under organizer-only `AI Planner` item:
+  - collapsible `Chat History` subsection
+  - active session highlighting
+  - `+ New chat` action
+  - session timestamp metadata
+- Session behavior:
+  - most recent session opens by default
+  - new chat starts as `New plan`
+  - first user message auto-titles session from the message lead words
+  - switching sessions updates the central chat thread while preserving composer draft
+
+## Role Gating Notes (Phase 4)
+- Session provider and chat history sidebar UI are enabled only for organizer/user role.
+- Vendor/admin dashboards keep their existing sidebar and behavior unchanged.

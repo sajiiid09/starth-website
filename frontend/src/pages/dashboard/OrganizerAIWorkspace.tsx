@@ -1,5 +1,13 @@
 import React from "react";
-import { CircleDot, LayoutTemplate, Sparkles, Store } from "lucide-react";
+import {
+  ChevronDown,
+  CircleDot,
+  LayoutTemplate,
+  Mic,
+  Paperclip,
+  Sparkles,
+  Store
+} from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -10,9 +18,50 @@ import {
   SheetTrigger
 } from "@/components/ui/sheet";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Textarea } from "@/components/ui/textarea";
 
 type WorkspaceView = "chat" | "matches";
 type MatchSource = "templates" | "marketplace";
+type ChatRole = "user" | "assistant" | "system";
+type ChatStatus = "thinking" | "orchestrating" | "final";
+type ChatMessage = {
+  id: string;
+  role: ChatRole;
+  text: string;
+  status?: ChatStatus;
+  createdAt: number;
+};
+
+let messageCounter = 0;
+const createMessageId = () => {
+  messageCounter += 1;
+  return `chat-${Date.now()}-${messageCounter}`;
+};
+
+const quickPrompts = [
+  "Plan a 120-guest product launch in SF for March, budget $25k.",
+  "Build a premium timeline for a two-day executive summit in Austin.",
+  "Find a venue + catering direction for a 90-person networking night.",
+  "Create a staffing and vendor checklist for a spring brand activation."
+];
+
+const createAssistantReply = (input: string) => {
+  const normalized = input.toLowerCase();
+
+  if (normalized.includes("product launch")) {
+    return "Great brief. I would start with a venue shortlist, guest flow plan, and a launch-night run-of-show. Next, I can draft your budget split and production timeline.";
+  }
+  if (normalized.includes("budget") || normalized.includes("$")) {
+    return "I can structure this into venue, food + beverage, production, staffing, and contingency buckets, then optimize each line for impact.";
+  }
+  if (normalized.includes("timeline") || normalized.includes("checklist")) {
+    return "Perfect. I will orchestrate a phase-by-phase timeline with owner assignments so your team has clear dependencies and deadlines.";
+  }
+  if (normalized.includes("vendor") || normalized.includes("venue")) {
+    return "Got it. I can map ideal venue and vendor profiles first, then rank options by fit, availability window, and service quality.";
+  }
+  return "Excellent direction. I can turn this into a practical event blueprint with milestones, vendor priorities, and a realistic budget path.";
+};
 
 const templateMatches = [
   {
@@ -45,21 +94,96 @@ const marketplaceMatches = [
 ];
 
 type ChatPanelProps = {
+  messages: ChatMessage[];
+  draftMessage: string;
+  onDraftChange: (value: string) => void;
+  onSend: () => void;
+  onQuickPrompt: (prompt: string) => void;
+  disableSend: boolean;
   heightClass?: string;
 };
 
-const ChatPanel: React.FC<ChatPanelProps> = ({ heightClass = "h-[72vh] min-h-[520px]" }) => {
+const ChatPanel: React.FC<ChatPanelProps> = ({
+  messages,
+  draftMessage,
+  onDraftChange,
+  onSend,
+  onQuickPrompt,
+  disableSend,
+  heightClass = "h-[72vh] min-h-[520px]"
+}) => {
+  const threadRef = React.useRef<HTMLDivElement>(null);
+  const textareaRef = React.useRef<HTMLTextAreaElement>(null);
+
+  React.useEffect(() => {
+    if (!threadRef.current) return;
+    threadRef.current.scrollTop = threadRef.current.scrollHeight;
+  }, [messages]);
+
+  React.useEffect(() => {
+    if (!textareaRef.current) return;
+    textareaRef.current.style.height = "auto";
+    textareaRef.current.style.height = `${Math.min(textareaRef.current.scrollHeight, 112)}px`;
+  }, [draftMessage]);
+
+  const handleComposerKeyDown = (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (event.key === "Enter" && !event.shiftKey) {
+      event.preventDefault();
+      onSend();
+    }
+  };
+
+  const renderAssistantBubble = (message: ChatMessage) => {
+    const isTransient =
+      message.status === "thinking" || message.status === "orchestrating";
+
+    return (
+      <div key={message.id} className="flex items-start gap-3">
+        <div className="mt-1 flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-slate-200 bg-white">
+          <Sparkles className="h-4 w-4 text-brand-teal" />
+        </div>
+        <div
+          className={`max-w-[85%] rounded-2xl border px-4 py-3 text-sm text-slate-700 ${
+            isTransient
+              ? "border-slate-300 bg-slate-100 italic text-slate-600"
+              : "border-slate-200 bg-slate-100"
+          }`}
+        >
+          <p className={isTransient ? "animate-pulse" : ""}>{message.text}</p>
+        </div>
+      </div>
+    );
+  };
+
+  const renderUserBubble = (message: ChatMessage) => {
+    return (
+      <div key={message.id} className="flex justify-end">
+        <div className="flex max-w-[85%] flex-col items-end gap-1">
+          <span className="rounded-full border border-brand-teal/20 bg-brand-teal/10 px-2 py-0.5 text-[11px] font-semibold text-brand-teal">
+            You
+          </span>
+          <div className="rounded-2xl bg-brand-teal px-4 py-3 text-sm text-white">
+            <p>{message.text}</p>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
   return (
     <section
       className={`flex min-h-0 flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm ${heightClass}`}
     >
       <header className="sticky top-0 z-10 border-b border-slate-200 bg-white/95 px-5 py-4 backdrop-blur">
-        <div className="flex items-center justify-between">
+        <div className="flex items-start justify-between gap-4">
           <div>
             <p className="text-xs font-semibold uppercase tracking-[0.28em] text-brand-teal">
               Strathwell AI
             </p>
-            <h2 className="mt-1 text-lg font-semibold text-slate-900">Conversation Workspace</h2>
+            <div className="mt-2 flex items-center gap-2 text-sm text-slate-600">
+              <span className="h-2 w-2 rounded-full bg-emerald-500" />
+              <span>Ready to plan</span>
+            </div>
           </div>
           <Badge
             variant="secondary"
@@ -71,29 +195,77 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ heightClass = "h-[72vh] min-h-[52
         </div>
       </header>
 
-      <div className="flex-1 overflow-y-auto p-5">
-        <div className="flex h-full min-h-[280px] items-center justify-center rounded-2xl border border-dashed border-slate-300 bg-gradient-to-br from-slate-50 to-white p-6 text-center">
-          <div className="space-y-2">
-            <p className="text-xs font-semibold uppercase tracking-[0.28em] text-slate-500">
-              Phase 3 target
-            </p>
-            <h3 className="text-2xl font-semibold text-slate-900">Chat thread (Phase 3)</h3>
-            <p className="max-w-xl text-sm text-slate-600">
-              Interactive planning chat, memory, and action tools will be connected in the next
-              phase.
-            </p>
+      <div ref={threadRef} className="flex-1 space-y-4 overflow-y-auto p-5">
+        {messages.length === 0 ? (
+          <div className="space-y-5">
+            <div className="flex items-start gap-3">
+              <div className="mt-1 flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-slate-200 bg-white">
+                <Sparkles className="h-4 w-4 text-brand-teal" />
+              </div>
+              <div className="max-w-[85%] rounded-2xl border border-slate-200 bg-slate-100 px-4 py-3 text-sm text-slate-700">
+                Hi! I&apos;m your AI event planner. Share your goals and constraints, and I&apos;ll
+                help orchestrate the plan.
+              </div>
+            </div>
+            <div className="grid gap-2 sm:grid-cols-2">
+              {quickPrompts.map((prompt) => (
+                <Button
+                  key={prompt}
+                  variant="outline"
+                  className="h-auto justify-start whitespace-normal rounded-xl border-slate-200 px-3 py-2 text-left text-xs text-slate-600 hover:bg-slate-50"
+                  onClick={() => onQuickPrompt(prompt)}
+                >
+                  {prompt}
+                </Button>
+              ))}
+            </div>
           </div>
-        </div>
+        ) : (
+          [...messages]
+            .sort((a, b) => a.createdAt - b.createdAt)
+            .map((message) =>
+              message.role === "user"
+                ? renderUserBubble(message)
+                : renderAssistantBubble(message)
+            )
+        )}
       </div>
 
-      <footer className="border-t border-slate-200 bg-white/95 px-5 py-4">
-        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">
-          Composer
-        </p>
-        <div className="mt-3 rounded-xl border border-dashed border-slate-300 bg-slate-50 px-4 py-3 text-sm text-slate-500">
-          Message composer placeholder (Phase 3)
+      <footer className="sticky bottom-0 z-10 border-t border-slate-200 bg-white/95 px-5 py-4 backdrop-blur">
+        <div className="rounded-2xl border border-slate-200 bg-white p-3 shadow-sm">
+          <div className="mb-2 flex items-center justify-between gap-2">
+            <Button variant="outline" size="sm" className="h-8 rounded-lg border-slate-200 px-2">
+              Styles
+              <ChevronDown className="ml-1 h-3.5 w-3.5" />
+            </Button>
+            <div className="flex items-center gap-1">
+              <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-500">
+                <Paperclip className="h-4 w-4" />
+              </Button>
+              <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-500">
+                <Mic className="h-4 w-4" />
+              </Button>
+            </div>
+          </div>
+          <div className="flex items-end gap-2">
+            <Textarea
+              ref={textareaRef}
+              value={draftMessage}
+              onChange={(event) => onDraftChange(event.target.value)}
+              onKeyDown={handleComposerKeyDown}
+              rows={1}
+              placeholder="Describe your event goals, guest count, date, and budget..."
+              className="min-h-[44px] max-h-[112px] resize-none border-slate-200 text-sm focus-visible:ring-brand-teal/35"
+            />
+            <Button
+              onClick={onSend}
+              disabled={disableSend}
+              className="h-10 rounded-xl bg-brand-teal px-4 text-white hover:bg-brand-teal/90 disabled:opacity-50"
+            >
+              Generate
+            </Button>
+          </div>
         </div>
-        {/* TODO: Implement live chat input, send actions, and response streaming in Phase 3. */}
       </footer>
     </section>
   );
@@ -152,6 +324,75 @@ const MatchesPanel: React.FC<MatchesPanelProps> = ({
 const OrganizerAIWorkspace: React.FC = () => {
   const [tabletView, setTabletView] = React.useState<WorkspaceView>("chat");
   const [activeMatchSource, setActiveMatchSource] = React.useState<MatchSource>("templates");
+  const [draftMessage, setDraftMessage] = React.useState("");
+  const [messages, setMessages] = React.useState<ChatMessage[]>([]);
+  const timeoutRefs = React.useRef<number[]>([]);
+
+  React.useEffect(() => {
+    return () => {
+      timeoutRefs.current.forEach((timer) => window.clearTimeout(timer));
+      timeoutRefs.current = [];
+    };
+  }, []);
+
+  const sendMessage = React.useCallback(
+    (incomingText?: string) => {
+      const messageText = (incomingText ?? draftMessage).trim();
+      if (!messageText) return;
+
+      setDraftMessage("");
+
+      const now = Date.now();
+      const userMessage: ChatMessage = {
+        id: createMessageId(),
+        role: "user",
+        text: messageText,
+        status: "final",
+        createdAt: now
+      };
+      const assistantMessageId = createMessageId();
+      const thinkingMessage: ChatMessage = {
+        id: assistantMessageId,
+        role: "assistant",
+        text: "Strath AI is thinking ...",
+        status: "thinking",
+        createdAt: now + 1
+      };
+
+      setMessages((prev) => [...prev, userMessage, thinkingMessage]);
+
+      const orchestratingTimer = window.setTimeout(() => {
+        setMessages((prev) =>
+          prev.map((message) =>
+            message.id === assistantMessageId
+              ? {
+                  ...message,
+                  text: "Strath AI is orchestrating ...",
+                  status: "orchestrating"
+                }
+              : message
+          )
+        );
+      }, 450);
+
+      const resolvedTimer = window.setTimeout(() => {
+        setMessages((prev) =>
+          prev.map((message) =>
+            message.id === assistantMessageId
+              ? {
+                  ...message,
+                  text: createAssistantReply(messageText),
+                  status: "final"
+                }
+              : message
+          )
+        );
+      }, 900);
+
+      timeoutRefs.current.push(orchestratingTimer, resolvedTimer);
+    },
+    [draftMessage]
+  );
 
   return (
     <div className="mx-auto w-full max-w-[1400px] space-y-4">
@@ -173,7 +414,14 @@ const OrganizerAIWorkspace: React.FC = () => {
       </section>
 
       <div className="hidden gap-4 xl:grid xl:grid-cols-[minmax(0,1.65fr)_minmax(0,1fr)]">
-        <ChatPanel />
+        <ChatPanel
+          messages={messages}
+          draftMessage={draftMessage}
+          onDraftChange={setDraftMessage}
+          onSend={() => sendMessage()}
+          onQuickPrompt={(prompt) => sendMessage(prompt)}
+          disableSend={!draftMessage.trim()}
+        />
         <MatchesPanel
           activeSource={activeMatchSource}
           onSourceChange={setActiveMatchSource}
@@ -197,7 +445,14 @@ const OrganizerAIWorkspace: React.FC = () => {
             </TabsList>
           </div>
           <TabsContent value="chat" className="mt-0">
-            <ChatPanel />
+            <ChatPanel
+              messages={messages}
+              draftMessage={draftMessage}
+              onDraftChange={setDraftMessage}
+              onSend={() => sendMessage()}
+              onQuickPrompt={(prompt) => sendMessage(prompt)}
+              disableSend={!draftMessage.trim()}
+            />
           </TabsContent>
           <TabsContent value="matches" className="mt-0">
             <MatchesPanel
@@ -223,7 +478,15 @@ const OrganizerAIWorkspace: React.FC = () => {
               </Button>
             </SheetTrigger>
           </div>
-          <ChatPanel heightClass="h-[70vh] min-h-[460px]" />
+          <ChatPanel
+            messages={messages}
+            draftMessage={draftMessage}
+            onDraftChange={setDraftMessage}
+            onSend={() => sendMessage()}
+            onQuickPrompt={(prompt) => sendMessage(prompt)}
+            disableSend={!draftMessage.trim()}
+            heightClass="h-[70vh] min-h-[460px]"
+          />
           <SheetContent side="right" className="w-full p-0 sm:max-w-md">
             <SheetHeader className="border-b border-slate-200 px-5 py-4">
               <SheetTitle>Matches</SheetTitle>

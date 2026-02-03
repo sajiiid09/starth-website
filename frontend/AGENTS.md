@@ -3,13 +3,13 @@
 ## User Dashboard Redesign
 
 ### Current Status
-- Phase 2 is complete.
+- Phase 3 is complete.
 - Organizer/User dashboard default landing now uses `OrganizerAIWorkspace`.
-- Organizer AI workspace now uses a responsive 3-panel system with chat and matches placeholders.
+- Organizer AI workspace now includes a premium front-end chat experience in the center panel.
 - Required documentation is updated in `docs/USERDASHBOARD_DEVELOPMENT_DOCUMENTATION.md`.
 
 ### Next Phase To Do
-- Implement Phase 3: real chat behavior, streaming responses, matches data integration, and blueprint/actions wiring.
+- Implement Phase 4: improve conversation quality, add session controls, and connect right-panel insights to chat context.
 
 ### Key Decisions
 - Public website AI planner remains unchanged.
@@ -17,3 +17,6 @@
 - Vendor and admin dashboards remain unchanged.
 - Tablet behavior uses `Chat | Matches` segmented tabs (single panel visible at a time).
 - Mobile behavior uses a `Sheet` drawer to open matches while keeping chat as the default view.
+- Chat bubbles use role-based styles: assistant left/light bubble with icon, user right/teal bubble with `You` badge.
+- Auto-scroll currently follows new messages to the bottom by default.
+- Empty-state chips use click-to-send behavior for faster first prompt entry.

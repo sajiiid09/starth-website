@@ -6,9 +6,10 @@ The Organizer/User dashboard is being redesigned so the post-login landing exper
 ## Phase Checklist
 - [x] Phase 1 - Foundations, routing switch, and documentation scaffolding
 - [x] Phase 2 - 3-panel responsive workspace layout (chat + matches placeholders)
-- [ ] Phase 3 - Connected workflows, persistence, and UX refinement
+- [x] Phase 3 - Premium chat UI (dummy message loop, chips, sticky composer)
+- [ ] Phase 4 - Conversation quality pass, richer right-panel intelligence, and session controls
 
-## Current Route Behavior (After Phase 2)
+## Current Route Behavior (After Phase 3)
 - `/dashboard` (user role): renders `OrganizerAIWorkspace` as the default landing page.
 - `/dashboard/plan-with-ai` (user role): remains available and now renders `OrganizerAIWorkspace` as the dashboard AI workspace shell.
 - `/ai-planner` (public website): unchanged and still uses the existing public AI planner implementation.
@@ -22,4 +23,27 @@ The Organizer/User dashboard is being redesigned so the post-login landing exper
 ## Notes
 - The left dashboard sidebar remains unchanged and continues to provide organizer navigation.
 - Public AI planner pages remain untouched and are not reused in the dashboard workspace.
-- Phase 2 is placeholder-first: chat thread/composer and match cards are scaffolded for Phase 3 data integration.
+- Phase 2 established the responsive layout foundation; Phase 3 fills the middle panel with a usable front-end-only chat flow.
+
+## Phase 3 Chat UI Implementation
+- Sticky chat header now includes `Strathwell AI`, a small status dot, and `Ready to plan`.
+- Thread supports left-aligned assistant bubbles (with Strathwell icon avatar) and right-aligned user bubbles (teal with `You` badge).
+- Sending a message appends user text, then simulates assistant lifecycle states:
+  - `Strath AI is thinking ...`
+  - `Strath AI is orchestrating ...`
+  - final dummy assistant response
+- Auto-scroll behavior currently scrolls to bottom whenever new messages are appended.
+- Empty state includes:
+  - intro assistant message (`Hi! I'm your AI event planner...`)
+  - quick prompt chips (click-to-send behavior)
+- Sticky composer card includes:
+  - auto-grow textarea (up to ~4 lines)
+  - `Styles` placeholder control
+  - attach/mic icon affordances (UI-only)
+  - teal `Generate` action disabled when empty
+
+## Screenshot Mapping Notes
+- Header requirement maps to the sticky chat panel header in `OrganizerAIWorkspace`.
+- Bubble alignment/colors map to role-based message rendering in the chat thread.
+- Temporary thinking/orchestrating visuals map to assistant status transitions in timed state updates.
+- Prompt chips and premium sticky composer map to the empty-state + footer composer sections.

@@ -100,3 +100,18 @@
 - Added small performance guardrails:
   - memoized message-thread rendering to avoid full thread recompute on every composer keystroke
   - debounced planner session localStorage persistence in `src/features/planner/PlannerSessionsContext.tsx`.
+
+## Frontend Polish Phase 5 (TypeScript + Dependency Cleanup)
+
+### Status
+- Done.
+
+### What Changed
+- Migrated critical shared JS modules to TypeScript:
+  - `src/lib/utils.js` -> `src/lib/utils.ts`
+  - `src/api/entities.js` -> `src/api/entities.ts`
+  - `src/api/functions.js` -> `src/api/functions.ts`
+  - `src/api/integrations.js` -> `src/api/integrations.ts`
+  - `src/api/base44Client.js` -> `src/api/base44Client.ts`
+- Added lightweight explicit types to core API wrappers (entity/function/integration maps) while preserving existing export names and runtime behavior.
+- Confirmed `lucide-react` imports remain named-import style (tree-shaking friendly); no namespace/default icon imports were introduced.

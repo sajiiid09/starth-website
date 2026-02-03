@@ -56,6 +56,10 @@ The Organizer/User dashboard is being redesigned so the post-login landing exper
   - focus-visible ring styling remains applied for keyboard navigation
   - chat message content now wraps long words and URLs more safely to prevent layout breaks.
 
+### Frontend Polish (Phase 5 - TypeScript Standardization)
+- Critical shared frontend modules in `src/api` and `src/lib` were migrated from `.js` to `.ts` with explicit wrapper types, while preserving behavior and existing import ergonomics.
+- This improves compile-time safety and maintainability for future backend/RAG integration work, without changing dashboard UI behavior.
+
 ## Phase 2 Layout Behavior
 - Desktop (`xl` and above): two-column main workspace inside dashboard content area with chat panel at ~62% width and matches panel at ~38% width.
 - Tablet (`md` to `lg`): segmented toggle (`Chat | Matches`) shows one panel at a time for focus and lower visual density.

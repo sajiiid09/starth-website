@@ -44,3 +44,13 @@
   - `/home` now redirects to `/` (canonical home route).
   - `/app-entry` and `/signin` now redirect to `/appentry` to preserve legacy links.
 - Verified existing `ScrollToTop` behavior remains wired and reliable in the router wrapper; no redesign changes were introduced for dashboard surfaces.
+
+## Frontend Polish Phase 3 (Route-Based Code Splitting)
+
+### Status
+- Done.
+
+### What Changed
+- Implemented route-based lazy loading in `src/pages/index.tsx` using `React.lazy` for most route components, including organizer dashboard, vendor dashboard, and admin dashboard pages.
+- Added a reusable suspense fallback component at `src/components/RouteLoader.tsx` and wrapped route rendering with `Suspense` to show a lightweight loading state during chunk fetch.
+- Kept route paths and page behavior unchanged; this is import/loading mechanics only to reduce upfront bundle loading on public pages.

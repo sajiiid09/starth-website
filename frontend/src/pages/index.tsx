@@ -1,188 +1,111 @@
+import { Suspense, lazy } from "react";
 import Layout from "./Layout";
-
 import Home from "./Home";
-
-import AIPlanner from "./AIPlanner";
-
-import DFY from "./DFY";
-
-import Marketplace from "./Marketplace";
-
-import CaseStudies from "./CaseStudies";
-
-
-import CreateEvent from "./CreateEvent";
-
-import Events from "./Events";
-
-import ListSpace from "./ListSpace";
-
-import VenueDetails from "./VenueDetails";
-
-import ServiceDetails from "./ServiceDetails";
-
-import EventDetails from "./EventDetails";
-
-import EditEvent from "./EditEvent";
-
-import PlanDetails from "./PlanDetails";
-
-import VenuePortal from "./VenuePortal";
-
-import ProviderPortal from "./ProviderPortal";
-
-import VenueOrganization from "./VenueOrganization";
-
-import VenueListings from "./VenueListings";
-
-import VenueInsurance from "./VenueInsurance";
-
-import VenueDocuments from "./VenueDocuments";
-
-import VenueAvailability from "./VenueAvailability";
-
-import VenueSettings from "./VenueSettings";
-
-import Checklist from "./Checklist";
-
-import EventMarketingDashboard from "./EventMarketingDashboard";
-
-import Marketing from "./Marketing";
-
-import ProviderServices from "./ProviderServices";
-
-import ProviderDocuments from "./ProviderDocuments";
-
-import ProviderInsurance from "./ProviderInsurance";
-
-import VenueMessages from "./VenueMessages";
-
-import ProviderSettings from "./ProviderSettings";
-
-import ProviderMessages from "./ProviderMessages";
-
-import ProviderOrganization from "./ProviderOrganization";
-
-import Messages from "./Messages";
-
-import PaymentMethods from "./PaymentMethods";
-
-import AddVenue from "./AddVenue";
-
-import ProfileSettings from "./ProfileSettings";
-
-import EventCalendar from "./EventCalendar";
-
-import About from "./About";
-
-import Contact from "./Contact";
-
-import Terms from "./Terms";
-
-import Privacy from "./Privacy";
-
-import DashboardPreview from "./DashboardPreview";
-
-import EditVenue from "./EditVenue";
-
-import VerifyEmail from "./VerifyEmail";
-
-import ResetPassword from "./ResetPassword";
-
-import AppStrathwell from "./AppStrathwell";
-
 import AppEntry from "./AppEntry";
-
-import WhyStrathwell from "./WhyStrathwell";
-
-import VirtualRobotics from "./VirtualRobotics";
-
-import EventBuilder from "./EventBuilder";
-
-import Templates from "./Templates";
-
-import Vendors from "./Vendors";
-
-import Legals from "./Legals";
-
-import Reviews from "./Reviews";
-
-import Legal from "./Legal";
 import NotFoundPage from "./NotFoundPage";
-
-import TemplateDetails from "./TemplateDetails";
-
-import MarketplaceDetails from "./MarketplaceDetails";
-
-import PlansPage from "./PlansPage";
-
-import OrganizerAIWorkspace from "./dashboard/OrganizerAIWorkspace";
-
-import UserEvents from "./dashboard/UserEvents";
-
-import UserCreateEvent from "./dashboard/UserCreateEvent";
-
-import UserMessages from "./dashboard/UserMessages";
-
-import UserSettings from "./dashboard/UserSettings";
-
-import PlanWithAI from "./dashboard/PlanWithAI";
-
-import VendorDashboardHome from "./vendor/VendorDashboardHome";
-
-import VendorListings from "./vendor/VendorListings";
-
-import VendorInquiries from "./vendor/VendorInquiries";
-
-import VendorCalendar from "./vendor/VendorCalendar";
-
-import VendorSettings from "./vendor/VendorSettings";
-
-import VenueOnboarding from "./vendor/VenueOnboarding";
-
-import ServiceOnboarding from "./vendor/ServiceOnboarding";
-
-import VendorTypeSelect from "./vendor/VendorTypeSelect";
-
-import VendorProfile from "./vendor/VendorProfile";
-
-import VendorSubmission from "./vendor/VendorSubmission";
-
-import AdminDashboardHome from "./admin/AdminDashboardHome";
-import AdminFinanceOverview from "./admin/AdminFinanceOverview";
-import AdminBookings from "./admin/AdminBookings";
-import AdminBookingDetail from "./admin/AdminBookingDetail";
-import AdminPayments from "./admin/AdminPayments";
-import AdminPayouts from "./admin/AdminPayouts";
-import AdminAuditLogs from "./admin/AdminAuditLogs";
-import AdminDisputes from "./admin/AdminDisputes";
-import AdminDisputeDetail from "./admin/AdminDisputeDetail";
-import AdminOps from "./admin/AdminOps";
-
-import AdminUsers from "./admin/AdminUsers";
-
-import AdminVendors from "./admin/AdminVendors";
-import AdminVendorReview from "./admin/AdminVendorReview";
-
-import AdminTemplates from "./admin/AdminTemplates";
-
-import AdminSettings from "./admin/AdminSettings";
-
-import { BrowserRouter as Router, Navigate, Route, Routes } from 'react-router-dom';
+import { BrowserRouter as Router, Navigate, Route, Routes } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import RoleGate from "@/components/auth/RoleGate";
 import ScrollToTop from "@/components/shared/ScrollToTop";
+import RouteLoader from "@/components/RouteLoader";
 import { hasAdminOpsTools } from "@/features/admin/config";
+
+const AIPlanner = lazy(() => import("./AIPlanner"));
+const DFY = lazy(() => import("./DFY"));
+const Marketplace = lazy(() => import("./Marketplace"));
+const CaseStudies = lazy(() => import("./CaseStudies"));
+const CreateEvent = lazy(() => import("./CreateEvent"));
+const Events = lazy(() => import("./Events"));
+const ListSpace = lazy(() => import("./ListSpace"));
+const VenueDetails = lazy(() => import("./VenueDetails"));
+const ServiceDetails = lazy(() => import("./ServiceDetails"));
+const EventDetails = lazy(() => import("./EventDetails"));
+const EditEvent = lazy(() => import("./EditEvent"));
+const PlanDetails = lazy(() => import("./PlanDetails"));
+const VenuePortal = lazy(() => import("./VenuePortal"));
+const ProviderPortal = lazy(() => import("./ProviderPortal"));
+const VenueOrganization = lazy(() => import("./VenueOrganization"));
+const VenueListings = lazy(() => import("./VenueListings"));
+const VenueInsurance = lazy(() => import("./VenueInsurance"));
+const VenueDocuments = lazy(() => import("./VenueDocuments"));
+const VenueAvailability = lazy(() => import("./VenueAvailability"));
+const VenueSettings = lazy(() => import("./VenueSettings"));
+const Checklist = lazy(() => import("./Checklist"));
+const EventMarketingDashboard = lazy(() => import("./EventMarketingDashboard"));
+const Marketing = lazy(() => import("./Marketing"));
+const ProviderServices = lazy(() => import("./ProviderServices"));
+const ProviderDocuments = lazy(() => import("./ProviderDocuments"));
+const ProviderInsurance = lazy(() => import("./ProviderInsurance"));
+const VenueMessages = lazy(() => import("./VenueMessages"));
+const ProviderSettings = lazy(() => import("./ProviderSettings"));
+const ProviderMessages = lazy(() => import("./ProviderMessages"));
+const ProviderOrganization = lazy(() => import("./ProviderOrganization"));
+const Messages = lazy(() => import("./Messages"));
+const PaymentMethods = lazy(() => import("./PaymentMethods"));
+const AddVenue = lazy(() => import("./AddVenue"));
+const ProfileSettings = lazy(() => import("./ProfileSettings"));
+const EventCalendar = lazy(() => import("./EventCalendar"));
+const About = lazy(() => import("./About"));
+const Contact = lazy(() => import("./Contact"));
+const Terms = lazy(() => import("./Terms"));
+const Privacy = lazy(() => import("./Privacy"));
+const DashboardPreview = lazy(() => import("./DashboardPreview"));
+const EditVenue = lazy(() => import("./EditVenue"));
+const VerifyEmail = lazy(() => import("./VerifyEmail"));
+const ResetPassword = lazy(() => import("./ResetPassword"));
+const AppStrathwell = lazy(() => import("./AppStrathwell"));
+const WhyStrathwell = lazy(() => import("./WhyStrathwell"));
+const VirtualRobotics = lazy(() => import("./VirtualRobotics"));
+const EventBuilder = lazy(() => import("./EventBuilder"));
+const Templates = lazy(() => import("./Templates"));
+const Vendors = lazy(() => import("./Vendors"));
+const Legals = lazy(() => import("./Legals"));
+const Reviews = lazy(() => import("./Reviews"));
+const Legal = lazy(() => import("./Legal"));
+const TemplateDetails = lazy(() => import("./TemplateDetails"));
+const MarketplaceDetails = lazy(() => import("./MarketplaceDetails"));
+const PlansPage = lazy(() => import("./PlansPage"));
+const OrganizerAIWorkspace = lazy(() => import("./dashboard/OrganizerAIWorkspace"));
+const UserEvents = lazy(() => import("./dashboard/UserEvents"));
+const UserCreateEvent = lazy(() => import("./dashboard/UserCreateEvent"));
+const UserMessages = lazy(() => import("./dashboard/UserMessages"));
+const UserSettings = lazy(() => import("./dashboard/UserSettings"));
+const PlanWithAI = lazy(() => import("./dashboard/PlanWithAI"));
+const VendorDashboardHome = lazy(() => import("./vendor/VendorDashboardHome"));
+const VendorListings = lazy(() => import("./vendor/VendorListings"));
+const VendorInquiries = lazy(() => import("./vendor/VendorInquiries"));
+const VendorCalendar = lazy(() => import("./vendor/VendorCalendar"));
+const VendorSettings = lazy(() => import("./vendor/VendorSettings"));
+const VenueOnboarding = lazy(() => import("./vendor/VenueOnboarding"));
+const ServiceOnboarding = lazy(() => import("./vendor/ServiceOnboarding"));
+const VendorTypeSelect = lazy(() => import("./vendor/VendorTypeSelect"));
+const VendorProfile = lazy(() => import("./vendor/VendorProfile"));
+const VendorSubmission = lazy(() => import("./vendor/VendorSubmission"));
+const AdminDashboardHome = lazy(() => import("./admin/AdminDashboardHome"));
+const AdminFinanceOverview = lazy(() => import("./admin/AdminFinanceOverview"));
+const AdminBookings = lazy(() => import("./admin/AdminBookings"));
+const AdminBookingDetail = lazy(() => import("./admin/AdminBookingDetail"));
+const AdminPayments = lazy(() => import("./admin/AdminPayments"));
+const AdminPayouts = lazy(() => import("./admin/AdminPayouts"));
+const AdminAuditLogs = lazy(() => import("./admin/AdminAuditLogs"));
+const AdminDisputes = lazy(() => import("./admin/AdminDisputes"));
+const AdminDisputeDetail = lazy(() => import("./admin/AdminDisputeDetail"));
+const AdminOps = lazy(() => import("./admin/AdminOps"));
+const AdminUsers = lazy(() => import("./admin/AdminUsers"));
+const AdminVendors = lazy(() => import("./admin/AdminVendors"));
+const AdminVendorReview = lazy(() => import("./admin/AdminVendorReview"));
+const AdminTemplates = lazy(() => import("./admin/AdminTemplates"));
+const AdminSettings = lazy(() => import("./admin/AdminSettings"));
 
 // Create a wrapper component that uses useLocation inside the Router context
 function PagesContent() {
-    return (
-        <>
-            <ScrollToTop />
-            <Layout>
-            <Routes>            
-                
-                    <Route path="/" element={<Home />} />
+  return (
+    <>
+      <ScrollToTop />
+      <Layout>
+        <Suspense fallback={<RouteLoader />}>
+          <Routes>
+            <Route path="/" element={<Home />} />
                 
                 
                 <Route path={createPageUrl("Home")} element={<Navigate to="/" replace />} />
@@ -584,18 +507,18 @@ function PagesContent() {
 
                 <Route path={createPageUrl("Legal")} element={<Legal />} />
 
-                <Route path="*" element={<NotFoundPage />} />
-                
-            </Routes>
-            </Layout>
-        </>
-    );
+            <Route path="*" element={<NotFoundPage />} />
+          </Routes>
+        </Suspense>
+      </Layout>
+    </>
+  );
 }
 
 export default function Pages() {
-    return (
-        <Router>
-            <PagesContent />
-        </Router>
-    );
+  return (
+    <Router>
+      <PagesContent />
+    </Router>
+  );
 }

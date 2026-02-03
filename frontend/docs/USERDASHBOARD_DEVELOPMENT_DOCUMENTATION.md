@@ -26,6 +26,11 @@ The Organizer/User dashboard is being redesigned so the post-login landing exper
 - Routing reliability improved with low-risk canonical redirects (`/home` -> `/`, `/app-entry` -> `/appentry`, `/signin` -> `/appentry`) while keeping existing URL access paths valid.
 - Existing organizer, vendor, and admin dashboard experiences were not redesigned as part of this polish pass.
 
+### Frontend Polish (Phase 3 - Route-Based Code Splitting)
+- Route components are now lazy loaded through the route registry with a shared suspense fallback loader.
+- Organizer AI workspace routes (`/dashboard` and `/dashboard/plan-with-ai`) are now lazy-loaded to reduce initial public-page bundle pressure.
+- No dashboard UI or behavior changes were introduced in this phase.
+
 ## Phase 2 Layout Behavior
 - Desktop (`xl` and above): two-column main workspace inside dashboard content area with chat panel at ~62% width and matches panel at ~38% width.
 - Tablet (`md` to `lg`): segmented toggle (`Chat | Matches`) shows one panel at a time for focus and lower visual density.

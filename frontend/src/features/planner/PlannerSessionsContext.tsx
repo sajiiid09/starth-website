@@ -34,6 +34,7 @@ export const PlannerSessionsProvider: React.FC<PlannerSessionsProviderProps> = (
   const [isReady, setIsReady] = React.useState(false);
   const [sessions, setSessions] = React.useState<PlannerSession[]>([]);
   const [activeSessionId, setActiveSessionId] = React.useState<string | null>(null);
+  const persistTimeoutRef = React.useRef<number | null>(null);
 
   React.useEffect(() => {
     if (!enabled) {
@@ -60,12 +61,29 @@ export const PlannerSessionsProvider: React.FC<PlannerSessionsProviderProps> = (
   }, [enabled]);
 
   React.useEffect(() => {
-    if (!enabled || !isReady) return;
-    savePlannerStorage({
-      version: 2,
-      sessions,
-      activeSessionId
-    });
+    if (!enabled || !isReady) {
+      return;
+    }
+
+    if (persistTimeoutRef.current) {
+      window.clearTimeout(persistTimeoutRef.current);
+    }
+
+    persistTimeoutRef.current = window.setTimeout(() => {
+      savePlannerStorage({
+        version: 2,
+        sessions,
+        activeSessionId
+      });
+      persistTimeoutRef.current = null;
+    }, 140);
+
+    return () => {
+      if (persistTimeoutRef.current) {
+        window.clearTimeout(persistTimeoutRef.current);
+        persistTimeoutRef.current = null;
+      }
+    };
   }, [activeSessionId, enabled, isReady, sessions]);
 
   React.useEffect(() => {

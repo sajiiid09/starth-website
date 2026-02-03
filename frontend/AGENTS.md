@@ -84,3 +84,19 @@
 - Replaced brittle URL string concatenation with robust URL resolution/joining using `URL`, with validation and fallback for invalid `VITE_API_BASE_URL`.
 - Standardized thrown API errors to consistently include `status`, `message`, and `details` via `HttpClientError`.
 - Added `src/api/authStorage.ts` token helpers (`get/set/clear` access and refresh token utilities) and wired `httpClient` to use them.
+
+## Frontend Polish Phase 6 (Organizer AI UX Polish)
+
+### Status
+- Done.
+
+### What Changed
+- Refined organizer AI workspace UX in `src/pages/dashboard/OrganizerAIWorkspace.tsx` with smoother empty state spacing/typography, helper text in composer (`Shift+Enter for a new line`), clearer disabled generate state, and improved long-text/link wrapping inside message bubbles.
+- Added lightweight CSS-only micro-interactions (fade/slide bubble entry, right-panel transition, and faster blueprint section highlight fades) without introducing animation dependencies.
+- Improved right-panel loading continuity during session switches by wiring loading skeleton behavior into:
+  - `src/features/planner/components/RelevantMatchesPanel.tsx`
+  - `src/features/planner/components/BlueprintDetailPanel.tsx`
+- Tightened scroll ergonomics with explicit overscroll containment for chat and right-panel bodies while preserving sticky headers/composer behavior.
+- Added small performance guardrails:
+  - memoized message-thread rendering to avoid full thread recompute on every composer keystroke
+  - debounced planner session localStorage persistence in `src/features/planner/PlannerSessionsContext.tsx`.

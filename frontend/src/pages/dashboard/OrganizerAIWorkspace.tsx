@@ -85,11 +85,148 @@ const fallbackMatches: MatchesState = {
   ]
 };
 
+const loadingMatches: MatchesState = {
+  activeTab: "templates",
+  templates: [],
+  marketplace: []
+};
+
 let localMessageCounter = 0;
 const createMessageId = (prefix: string) => {
   localMessageCounter += 1;
   return `${prefix}-${Date.now()}-${localMessageCounter}`;
 };
+
+const renderMessageText = (text: string, isUserBubble = false) => {
+  const segments = text.split(/(https?:\/\/[^\s]+)/gi);
+  const linkClassName = isUserBubble
+    ? "font-medium underline underline-offset-2 break-all text-white/95 hover:text-white"
+    : "font-medium underline underline-offset-2 break-all text-brand-teal hover:text-brand-teal/80";
+
+  return segments.map((segment, index) => {
+    if (/^https?:\/\//i.test(segment)) {
+      return (
+        <a
+          key={`msg-link-${index}-${segment}`}
+          href={segment}
+          target="_blank"
+          rel="noopener noreferrer"
+          className={linkClassName}
+        >
+          {segment}
+        </a>
+      );
+    }
+
+    return <React.Fragment key={`msg-text-${index}`}>{segment}</React.Fragment>;
+  });
+};
+
+type MessageThreadProps = {
+  messages: ChatMessage[];
+  onQuickPrompt: (prompt: string) => void;
+};
+
+const MessageThread: React.FC<MessageThreadProps> = React.memo(({ messages, onQuickPrompt }) => {
+  const sortedMessages = React.useMemo(
+    () => [...messages].sort((a, b) => a.createdAt - b.createdAt),
+    [messages]
+  );
+
+  const renderAssistantBubble = (message: ChatMessage) => {
+    const isTransient =
+      message.status === "thinking" || message.status === "orchestrating";
+
+    return (
+      <div
+        key={message.id}
+        className="animate-in fade-in-0 slide-in-from-bottom-1 flex items-start gap-3 duration-200 ease-out"
+      >
+        <div className="mt-1 flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-slate-200 bg-white">
+          <Sparkles className="h-4 w-4 text-brand-teal" />
+        </div>
+        <div
+          className={`max-w-[85%] rounded-2xl border px-4 py-3 text-sm text-slate-700 ${
+            isTransient
+              ? "border-slate-300 bg-slate-100 italic text-slate-600"
+              : "border-slate-200 bg-slate-100"
+          }`}
+        >
+          <p
+            className={`whitespace-pre-wrap break-words [overflow-wrap:anywhere] ${
+              isTransient ? "animate-pulse" : ""
+            }`}
+          >
+            {renderMessageText(message.text)}
+          </p>
+        </div>
+      </div>
+    );
+  };
+
+  const renderUserBubble = (message: ChatMessage) => {
+    return (
+      <div
+        key={message.id}
+        className="animate-in fade-in-0 slide-in-from-bottom-1 flex justify-end duration-200 ease-out"
+      >
+        <div className="flex max-w-[85%] flex-col items-end gap-1.5">
+          <span className="rounded-full border border-brand-teal/20 bg-brand-teal/10 px-2 py-0.5 text-[11px] font-semibold text-brand-teal">
+            You
+          </span>
+          <div className="rounded-2xl bg-brand-teal px-4 py-3 text-sm text-white">
+            <p className="whitespace-pre-wrap break-words [overflow-wrap:anywhere]">
+              {renderMessageText(message.text, true)}
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  if (messages.length === 0) {
+    return (
+      <div className="space-y-6">
+        <div className="flex items-start gap-3">
+          <div className="mt-1 flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-slate-200 bg-white">
+            <Sparkles className="h-4 w-4 text-brand-teal" />
+          </div>
+          <div className="max-w-[85%] rounded-2xl border border-slate-200 bg-slate-100 px-4 py-3 text-sm text-slate-700">
+            Hi! I&apos;m your AI event planner. Share your goals and constraints, and I&apos;ll
+            help orchestrate the plan.
+          </div>
+        </div>
+        <div className="space-y-2">
+          <p className="text-xs font-medium uppercase tracking-[0.16em] text-slate-500">
+            Try one of these prompts
+          </p>
+          <div className="grid gap-2 sm:grid-cols-2">
+            {quickPrompts.map((prompt) => (
+              <Button
+                key={prompt}
+                variant="outline"
+                className="h-auto justify-start whitespace-normal rounded-xl border-slate-200 px-3 py-2 text-left text-xs text-slate-600 transition-colors duration-200 hover:bg-slate-50 focus-visible:ring-brand-teal/35"
+                onClick={() => onQuickPrompt(prompt)}
+              >
+                {prompt}
+              </Button>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-5">
+      {sortedMessages.map((message) =>
+        message.role === "user" ? renderUserBubble(message) : renderAssistantBubble(message)
+      )}
+    </div>
+  );
+});
+
+MessageThread.displayName = "MessageThread";
 
 type ChatPanelProps = {
   messages: ChatMessage[];
@@ -123,10 +260,6 @@ const ChatPanel: React.FC<ChatPanelProps> = ({
   const threadRef = React.useRef<HTMLDivElement>(null);
   const textareaRef = React.useRef<HTMLTextAreaElement>(null);
   const [upgradeDialogOpen, setUpgradeDialogOpen] = React.useState(false);
-  const sortedMessages = React.useMemo(
-    () => [...messages].sort((a, b) => a.createdAt - b.createdAt),
-    [messages]
-  );
   const isOutOfCredits = isCreditsEnabled && credits < creditsPerMessage;
   const sendDisabled = disableSend || isOutOfCredits;
 
@@ -146,43 +279,6 @@ const ChatPanel: React.FC<ChatPanelProps> = ({
       event.preventDefault();
       onSend();
     }
-  };
-
-  const renderAssistantBubble = (message: ChatMessage) => {
-    const isTransient =
-      message.status === "thinking" || message.status === "orchestrating";
-
-    return (
-      <div key={message.id} className="flex items-start gap-3 transition-all duration-200">
-        <div className="mt-1 flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-slate-200 bg-white">
-          <Sparkles className="h-4 w-4 text-brand-teal" />
-        </div>
-        <div
-          className={`max-w-[85%] rounded-2xl border px-4 py-3 text-sm text-slate-700 ${
-            isTransient
-              ? "border-slate-300 bg-slate-100 italic text-slate-600"
-              : "border-slate-200 bg-slate-100"
-          }`}
-        >
-          <p className={isTransient ? "animate-pulse" : ""}>{message.text}</p>
-        </div>
-      </div>
-    );
-  };
-
-  const renderUserBubble = (message: ChatMessage) => {
-    return (
-      <div key={message.id} className="flex justify-end transition-all duration-200">
-        <div className="flex max-w-[85%] flex-col items-end gap-1">
-          <span className="rounded-full border border-brand-teal/20 bg-brand-teal/10 px-2 py-0.5 text-[11px] font-semibold text-brand-teal">
-            You
-          </span>
-          <div className="rounded-2xl bg-brand-teal px-4 py-3 text-sm text-white">
-            <p>{message.text}</p>
-          </div>
-        </div>
-      </div>
-    );
   };
 
   return (
@@ -221,36 +317,8 @@ const ChatPanel: React.FC<ChatPanelProps> = ({
         </div>
       </header>
 
-      <div ref={threadRef} className="flex-1 space-y-4 overflow-y-auto p-5">
-        {messages.length === 0 ? (
-          <div className="space-y-5">
-            <div className="flex items-start gap-3">
-              <div className="mt-1 flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-slate-200 bg-white">
-                <Sparkles className="h-4 w-4 text-brand-teal" />
-              </div>
-              <div className="max-w-[85%] rounded-2xl border border-slate-200 bg-slate-100 px-4 py-3 text-sm text-slate-700">
-                Hi! I&apos;m your AI event planner. Share your goals and constraints, and I&apos;ll
-                help orchestrate the plan.
-              </div>
-            </div>
-            <div className="grid gap-2 sm:grid-cols-2">
-              {quickPrompts.map((prompt) => (
-                <Button
-                  key={prompt}
-                  variant="outline"
-                  className="h-auto justify-start whitespace-normal rounded-xl border-slate-200 px-3 py-2 text-left text-xs text-slate-600 hover:bg-slate-50 focus-visible:ring-brand-teal/35"
-                  onClick={() => onQuickPrompt(prompt)}
-                >
-                  {prompt}
-                </Button>
-              ))}
-            </div>
-          </div>
-        ) : (
-          sortedMessages.map((message) =>
-            message.role === "user" ? renderUserBubble(message) : renderAssistantBubble(message)
-          )
-        )}
+      <div ref={threadRef} className="flex-1 overflow-y-auto overscroll-y-contain p-5">
+        <MessageThread messages={messages} onQuickPrompt={onQuickPrompt} />
       </div>
 
       <footer className="sticky bottom-0 z-10 border-t border-slate-200 bg-white/95 px-5 py-4 backdrop-blur">
@@ -335,24 +403,26 @@ const ChatPanel: React.FC<ChatPanelProps> = ({
               onChange={(event) => onDraftChange(event.target.value)}
               onKeyDown={handleComposerKeyDown}
               rows={1}
+              aria-label="Message composer"
               placeholder="Describe your event goals, guest count, date, and budget..."
               className="min-h-[44px] max-h-[112px] resize-none border-slate-200 text-sm focus-visible:ring-brand-teal/35"
             />
             <Button
               onClick={onSend}
               disabled={sendDisabled}
-              className="h-10 rounded-xl bg-brand-teal px-4 text-white transition-colors duration-200 hover:bg-brand-teal/90 disabled:opacity-50"
+              className="h-10 min-w-[112px] rounded-xl bg-brand-teal px-4 text-white transition-colors duration-200 hover:bg-brand-teal/90 disabled:cursor-not-allowed disabled:bg-slate-200 disabled:text-slate-400 disabled:opacity-100"
             >
               Generate
             </Button>
           </div>
-          {isCreditsEnabled && (
-            <div className="mt-2 flex justify-end">
+          <div className="mt-2 flex flex-wrap items-center justify-between gap-2">
+            <p className="text-[11px] text-slate-500">Shift+Enter for a new line.</p>
+            {isCreditsEnabled && (
               <p className="text-[11px] text-slate-500">
                 {creditsPerMessage} {creditsPerMessage === 1 ? "credit" : "credits"} per message
               </p>
-            </div>
-          )}
+            )}
+          </div>
         </div>
       </footer>
     </section>
@@ -363,6 +433,7 @@ const OrganizerAIWorkspace: React.FC = () => {
   const [tabletView, setTabletView] = React.useState<WorkspaceView>("chat");
   const [rightPanelView, setRightPanelView] = React.useState<RightPanelView>("matches");
   const [draftMessage, setDraftMessage] = React.useState("");
+  const [isRightPanelLoading, setIsRightPanelLoading] = React.useState(false);
   const [blueprintHighlights, setBlueprintHighlights] =
     React.useState<BlueprintHighlights>(defaultBlueprintHighlights);
   const creditsConfig = React.useMemo(() => getCreditsConfig(), []);
@@ -413,6 +484,22 @@ const OrganizerAIWorkspace: React.FC = () => {
     rightPanelHadPlannerRef.current = true;
     rightPanelSessionRef.current = activeSessionId ?? null;
   }, [activeSessionId, hasPlannerState]);
+
+  React.useEffect(() => {
+    if (!activeSessionId) {
+      setIsRightPanelLoading(false);
+      return;
+    }
+
+    setIsRightPanelLoading(true);
+    const timer = window.setTimeout(() => {
+      setIsRightPanelLoading(false);
+    }, 140);
+
+    return () => {
+      window.clearTimeout(timer);
+    };
+  }, [activeSessionId]);
 
   React.useEffect(() => {
     const currentState = activeSession?.plannerState;
@@ -467,7 +554,7 @@ const OrganizerAIWorkspace: React.FC = () => {
       blueprintTimeoutRef.current = window.setTimeout(() => {
         setBlueprintHighlights(defaultBlueprintHighlights);
         blueprintTimeoutRef.current = null;
-      }, 1100);
+      }, 700);
     }
 
     previousPlannerSnapshotRef.current = {
@@ -526,32 +613,37 @@ const OrganizerAIWorkspace: React.FC = () => {
   }, [activeSessionId, updateSession]);
 
   const renderRightPanel = (heightClass?: string) => {
+    const showBlueprintPanel = hasPlannerState && rightPanelView === "blueprint";
+    const panelTransitionKey = `${activeSessionId ?? "none"}-${showBlueprintPanel ? "blueprint" : "matches"}-${isRightPanelLoading ? "loading" : "ready"}`;
+
     return (
-      <div className="space-y-3 transition-all duration-200">
+      <div className="space-y-3">
         {hasPlannerState && (
           <div className="rounded-xl border border-slate-200 bg-white p-1 shadow-sm">
             <div className="grid grid-cols-2 rounded-lg bg-slate-100 p-1 text-sm">
               <button
                 type="button"
                 onClick={() => setRightPanelView("matches")}
-                className={`rounded-md px-3 py-1.5 font-medium transition-colors focus-visible:ring-2 focus-visible:ring-brand-teal/35 ${
+                className={`rounded-md px-3 py-2 font-medium transition-all duration-200 ease-out focus-visible:ring-2 focus-visible:ring-brand-teal/35 ${
                   rightPanelView === "matches"
                     ? "bg-white text-slate-900 shadow-sm"
                     : "text-slate-600 hover:text-slate-900"
                 }`}
                 aria-pressed={rightPanelView === "matches"}
+                aria-label="Show matches panel"
               >
                 Matches
               </button>
               <button
                 type="button"
                 onClick={() => setRightPanelView("blueprint")}
-                className={`rounded-md px-3 py-1.5 font-medium transition-colors focus-visible:ring-2 focus-visible:ring-brand-teal/35 ${
+                className={`rounded-md px-3 py-2 font-medium transition-all duration-200 ease-out focus-visible:ring-2 focus-visible:ring-brand-teal/35 ${
                   rightPanelView === "blueprint"
                     ? "bg-white text-slate-900 shadow-sm"
                     : "text-slate-600 hover:text-slate-900"
                 }`}
                 aria-pressed={rightPanelView === "blueprint"}
+                aria-label="Show blueprint panel"
               >
                 Blueprint
               </button>
@@ -559,29 +651,37 @@ const OrganizerAIWorkspace: React.FC = () => {
           </div>
         )}
 
-        {hasPlannerState && rightPanelView === "blueprint" && activeSession?.plannerState ? (
-          <BlueprintDetailPanel
-            plannerState={activeSession.plannerState}
-            plannerStateUpdatedAt={activeSession.plannerStateUpdatedAt}
-            changedSections={blueprintHighlights}
-            onApproveLayout={handleApproveLayout}
-            heightClass={heightClass}
-          />
-        ) : (
-          <RelevantMatchesPanel
-            matches={matches}
-            onTabChange={handleMatchTabChange}
-            onOpenItem={handleOpenMatchItem}
-            heightClass={heightClass}
-          />
-        )}
+        <div
+          key={panelTransitionKey}
+          className="animate-in fade-in-0 slide-in-from-bottom-1 duration-200 ease-out"
+        >
+          {showBlueprintPanel && activeSession?.plannerState ? (
+            <BlueprintDetailPanel
+              plannerState={activeSession.plannerState}
+              plannerStateUpdatedAt={activeSession.plannerStateUpdatedAt}
+              changedSections={blueprintHighlights}
+              onApproveLayout={handleApproveLayout}
+              heightClass={heightClass}
+              isLoading={isRightPanelLoading}
+            />
+          ) : (
+            <RelevantMatchesPanel
+              matches={matches}
+              onTabChange={handleMatchTabChange}
+              onOpenItem={handleOpenMatchItem}
+              heightClass={heightClass}
+              isLoading={isRightPanelLoading}
+              loadingMatches={loadingMatches}
+            />
+          )}
+        </div>
       </div>
     );
   };
 
   const sendMessage = React.useCallback(
-    async (incomingText?: string) => {
-      const messageText = (incomingText ?? draftMessage).trim();
+    async (rawMessageText: string) => {
+      const messageText = rawMessageText.trim();
       if (!messageText) return;
       if (isCreditsEnabled && !deduct(creditsConfig.creditsPerMessage)) return;
 
@@ -679,10 +779,20 @@ const OrganizerAIWorkspace: React.FC = () => {
       createNewSession,
       creditsConfig.creditsPerMessage,
       deduct,
-      draftMessage,
       isCreditsEnabled,
       updateSession
     ]
+  );
+
+  const handleSendCurrentDraft = React.useCallback(() => {
+    void sendMessage(draftMessage);
+  }, [draftMessage, sendMessage]);
+
+  const handleSendQuickPrompt = React.useCallback(
+    (prompt: string) => {
+      void sendMessage(prompt);
+    },
+    [sendMessage]
   );
 
   if (!isReady) {
@@ -716,8 +826,8 @@ const OrganizerAIWorkspace: React.FC = () => {
           messages={messages}
           draftMessage={draftMessage}
           onDraftChange={setDraftMessage}
-          onSend={() => void sendMessage()}
-          onQuickPrompt={(prompt) => void sendMessage(prompt)}
+          onSend={handleSendCurrentDraft}
+          onQuickPrompt={handleSendQuickPrompt}
           disableSend={!draftMessage.trim()}
           isCreditsEnabled={isCreditsEnabled}
           credits={credits}
@@ -749,8 +859,8 @@ const OrganizerAIWorkspace: React.FC = () => {
               messages={messages}
               draftMessage={draftMessage}
               onDraftChange={setDraftMessage}
-              onSend={() => void sendMessage()}
-              onQuickPrompt={(prompt) => void sendMessage(prompt)}
+              onSend={handleSendCurrentDraft}
+              onQuickPrompt={handleSendQuickPrompt}
               disableSend={!draftMessage.trim()}
               isCreditsEnabled={isCreditsEnabled}
               credits={credits}
@@ -775,7 +885,7 @@ const OrganizerAIWorkspace: React.FC = () => {
               <p className="text-sm font-medium text-slate-900">Chat is active</p>
             </div>
             <SheetTrigger asChild>
-              <Button size="sm" variant="outline">
+              <Button size="sm" variant="outline" className="h-10 px-4" aria-label="Open planner panel">
                 Open Matches
               </Button>
             </SheetTrigger>
@@ -784,8 +894,8 @@ const OrganizerAIWorkspace: React.FC = () => {
             messages={messages}
             draftMessage={draftMessage}
             onDraftChange={setDraftMessage}
-            onSend={() => void sendMessage()}
-            onQuickPrompt={(prompt) => void sendMessage(prompt)}
+            onSend={handleSendCurrentDraft}
+            onQuickPrompt={handleSendQuickPrompt}
             disableSend={!draftMessage.trim()}
             isCreditsEnabled={isCreditsEnabled}
             credits={credits}

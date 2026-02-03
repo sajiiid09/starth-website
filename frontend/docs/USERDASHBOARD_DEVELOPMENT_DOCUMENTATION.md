@@ -39,6 +39,23 @@ The Organizer/User dashboard is being redesigned so the post-login landing exper
 - The shared API client now includes stronger token handling, centralized `401` logout/redirect behavior, and safer base URL resolution.
 - Error normalization was tightened in the HTTP layer to improve consistency for future backend/RAG service integration, without changing dashboard UI behavior.
 
+### Frontend Polish (Phase 6 - UX Polish)
+- Loading/empty states:
+  - chat empty-state spacing and typography were refined for consistency
+  - right-panel loading skeleton behavior now covers both Matches and Blueprint panels during session transitions
+- Responsive behavior summary:
+  - desktop keeps the chat + right-panel split with independent panel scroll
+  - tablet keeps `Chat | Matches` segmented flow
+  - mobile keeps chat-first with planner panel in a sheet overlay and fast return to chat on close
+- Keyboard shortcuts and input UX:
+  - Enter sends message
+  - Shift+Enter inserts newline
+  - composer includes helper text to communicate newline behavior
+- Accessibility notes:
+  - icon buttons include explicit `aria-label`s
+  - focus-visible ring styling remains applied for keyboard navigation
+  - chat message content now wraps long words and URLs more safely to prevent layout breaks.
+
 ## Phase 2 Layout Behavior
 - Desktop (`xl` and above): two-column main workspace inside dashboard content area with chat panel at ~62% width and matches panel at ~38% width.
 - Tablet (`md` to `lg`): segmented toggle (`Chat | Matches`) shows one panel at a time for focus and lower visual density.

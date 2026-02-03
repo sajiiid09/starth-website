@@ -18,6 +18,7 @@ type BlueprintDetailPanelProps = {
   plannerStateUpdatedAt?: number;
   changedSections?: BlueprintChangedSections;
   onApproveLayout?: () => void;
+  isLoading?: boolean;
   heightClass?: string;
 };
 
@@ -111,8 +112,62 @@ const BlueprintDetailPanel: React.FC<BlueprintDetailPanelProps> = ({
   plannerStateUpdatedAt,
   changedSections,
   onApproveLayout,
+  isLoading = false,
   heightClass = "h-[72vh] min-h-[520px]"
 }) => {
+  if (isLoading) {
+    return (
+      <aside
+        className={`flex min-h-0 flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm ${heightClass}`}
+      >
+        <header className="sticky top-0 z-10 border-b border-slate-200 bg-white/95 px-5 py-4 backdrop-blur">
+          <Skeleton className="h-3 w-24" />
+          <Skeleton className="mt-3 h-6 w-3/4" />
+          <Skeleton className="mt-2 h-3 w-full" />
+          <Skeleton className="mt-1 h-3 w-2/3" />
+          <Skeleton className="mt-4 h-9 w-full rounded-xl" />
+        </header>
+        <div className="flex-1 space-y-5 overflow-y-auto overscroll-y-contain p-5">
+          <section className="grid grid-cols-3 gap-2 rounded-2xl p-1">
+            <Skeleton className="h-[76px] rounded-xl" />
+            <Skeleton className="h-[76px] rounded-xl" />
+            <Skeleton className="h-[76px] rounded-xl" />
+          </section>
+          <section className="space-y-3 rounded-2xl border border-slate-200 bg-slate-50/60 p-4">
+            <Skeleton className="h-4 w-40" />
+            <div className="grid grid-cols-2 gap-2">
+              <Skeleton className="h-14 rounded-xl" />
+              <Skeleton className="h-14 rounded-xl" />
+            </div>
+            <div className="grid grid-cols-2 gap-2">
+              <Skeleton className="h-8 rounded-lg" />
+              <Skeleton className="h-8 rounded-lg" />
+              <Skeleton className="h-8 rounded-lg" />
+              <Skeleton className="h-8 rounded-lg" />
+            </div>
+          </section>
+          <section className="space-y-3 rounded-2xl border border-slate-200 bg-white p-4">
+            <Skeleton className="h-4 w-44" />
+            <Skeleton className="h-4 w-11/12" />
+            <Skeleton className="h-4 w-3/4" />
+            <Skeleton className="h-4 w-10/12" />
+          </section>
+          <section className="space-y-3 rounded-2xl border border-slate-200 bg-white p-4">
+            <Skeleton className="h-4 w-36" />
+            <div className="flex items-center gap-4">
+              <Skeleton className="h-28 w-28 rounded-full" />
+              <div className="flex-1 space-y-2">
+                <Skeleton className="h-3 w-11/12" />
+                <Skeleton className="h-3 w-3/4" />
+                <Skeleton className="h-3 w-4/5" />
+              </div>
+            </div>
+          </section>
+        </div>
+      </aside>
+    );
+  }
+
   const status = statusStyles[plannerState.status];
   const isApproved = plannerState.status === "approved";
   const hasTimelineEntries = plannerState.timeline.length > 0;
@@ -123,7 +178,7 @@ const BlueprintDetailPanel: React.FC<BlueprintDetailPanelProps> = ({
       className={`flex min-h-0 flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm ${heightClass}`}
     >
       <header
-        className={`sticky top-0 z-10 border-b border-slate-200 bg-white/95 px-5 py-4 backdrop-blur transition-colors duration-700 ${
+        className={`sticky top-0 z-10 border-b border-slate-200 bg-white/95 px-5 py-4 backdrop-blur transition-colors duration-200 ease-out ${
           changedSections?.header ? "bg-brand-teal/5" : ""
         }`}
       >
@@ -154,9 +209,9 @@ const BlueprintDetailPanel: React.FC<BlueprintDetailPanelProps> = ({
         </Button>
       </header>
 
-      <div className="flex-1 space-y-5 overflow-y-auto p-5">
+      <div className="flex-1 space-y-5 overflow-y-auto overscroll-y-contain p-5">
         <section
-          className={`grid grid-cols-3 gap-2 rounded-2xl p-1 transition-all duration-700 ${
+          className={`grid grid-cols-3 gap-2 rounded-2xl p-1 transition-all duration-200 ease-out ${
             changedSections?.kpis ? "bg-brand-teal/5" : ""
           }`}
         >
@@ -190,7 +245,7 @@ const BlueprintDetailPanel: React.FC<BlueprintDetailPanelProps> = ({
         </section>
 
         <section
-          className={`space-y-3 rounded-2xl border border-slate-200 p-4 transition-all duration-700 ${
+          className={`space-y-3 rounded-2xl border border-slate-200 p-4 transition-all duration-200 ease-out ${
             changedSections?.inventory ? "bg-brand-teal/5" : "bg-slate-50/60"
           }`}
         >
@@ -223,7 +278,7 @@ const BlueprintDetailPanel: React.FC<BlueprintDetailPanelProps> = ({
         </section>
 
         <section
-          className={`space-y-3 rounded-2xl border border-slate-200 p-4 transition-all duration-700 ${
+          className={`space-y-3 rounded-2xl border border-slate-200 p-4 transition-all duration-200 ease-out ${
             changedSections?.timeline ? "bg-brand-teal/5" : "bg-white"
           }`}
         >
@@ -250,7 +305,7 @@ const BlueprintDetailPanel: React.FC<BlueprintDetailPanelProps> = ({
         </section>
 
         <section
-          className={`space-y-3 rounded-2xl border border-slate-200 p-4 transition-all duration-700 ${
+          className={`space-y-3 rounded-2xl border border-slate-200 p-4 transition-all duration-200 ease-out ${
             changedSections?.budget ? "bg-brand-teal/5" : "bg-white"
           }`}
         >

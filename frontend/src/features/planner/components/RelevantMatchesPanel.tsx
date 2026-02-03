@@ -8,6 +8,8 @@ type RelevantMatchesPanelProps = {
   matches: MatchesState;
   onTabChange: (tab: MatchesState["activeTab"]) => void;
   onOpenItem: (item: MatchItem) => void;
+  isLoading?: boolean;
+  loadingMatches?: MatchesState;
   heightClass?: string;
 };
 
@@ -20,12 +22,17 @@ const RelevantMatchesPanel: React.FC<RelevantMatchesPanelProps> = ({
   matches,
   onTabChange,
   onOpenItem,
+  isLoading = false,
+  loadingMatches,
   heightClass = "h-[72vh] min-h-[520px]"
 }) => {
+  const activeMatches = isLoading && loadingMatches ? loadingMatches : matches;
   const activeItems =
-    matches.activeTab === "templates" ? matches.templates : matches.marketplace;
+    activeMatches.activeTab === "templates"
+      ? activeMatches.templates
+      : activeMatches.marketplace;
 
-  const showSkeleton = activeItems.length === 0;
+  const showSkeleton = isLoading || activeItems.length === 0;
 
   return (
     <aside
@@ -44,13 +51,13 @@ const RelevantMatchesPanel: React.FC<RelevantMatchesPanelProps> = ({
 
         <div className="mt-4 grid w-full grid-cols-2 rounded-xl border border-slate-200 bg-slate-100 p-1">
           {tabConfig.map((tab) => {
-            const isActive = matches.activeTab === tab.value;
+            const isActive = activeMatches.activeTab === tab.value;
             return (
               <button
                 key={tab.value}
                 type="button"
                 onClick={() => onTabChange(tab.value)}
-                className={`rounded-lg px-3 py-2 text-sm font-medium transition-colors focus-visible:ring-2 focus-visible:ring-brand-teal/35 ${
+                className={`rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-200 ease-out focus-visible:ring-2 focus-visible:ring-brand-teal/35 ${
                   isActive
                     ? "bg-white text-slate-900 shadow-sm"
                     : "text-slate-600 hover:text-slate-900"
@@ -64,7 +71,7 @@ const RelevantMatchesPanel: React.FC<RelevantMatchesPanelProps> = ({
         </div>
       </header>
 
-      <div className="flex-1 space-y-3 overflow-y-auto p-5">
+      <div className="flex-1 space-y-3 overflow-y-auto overscroll-y-contain p-5">
         {showSkeleton
           ? Array.from({ length: 3 }).map((_, index) => (
               <article

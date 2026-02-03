@@ -69,3 +69,18 @@
   - `AdminRoutes.tsx`
 - Added centralized lazy imports in `src/pages/routes/lazyPages.ts` and reused them across route groups.
 - Simplified `src/pages/index.tsx` to compose route groups with existing wrappers (`Layout`, `ScrollToTop`, `Suspense`, `RouteLoader`) and keep catch-all NotFound routing at the end.
+
+## Frontend Polish Phase 4 (Auth/API Hardening)
+
+### Status
+- Done.
+
+### What Changed
+- Hardened `src/api/httpClient.ts` so auth tokens are read immediately before each authenticated `fetch` call.
+- Added centralized `401` handling in `httpClient`:
+  - clears auth tokens
+  - dispatches an `auth:unauthorized` event
+  - redirects safely to `/appentry` (with loop guard when already on auth routes)
+- Replaced brittle URL string concatenation with robust URL resolution/joining using `URL`, with validation and fallback for invalid `VITE_API_BASE_URL`.
+- Standardized thrown API errors to consistently include `status`, `message`, and `details` via `HttpClientError`.
+- Added `src/api/authStorage.ts` token helpers (`get/set/clear` access and refresh token utilities) and wired `httpClient` to use them.

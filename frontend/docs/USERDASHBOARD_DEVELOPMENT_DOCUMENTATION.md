@@ -35,6 +35,10 @@ The Organizer/User dashboard is being redesigned so the post-login landing exper
 - Routing has been refactored from a single mega route file into grouped route modules with a shared lazy import map.
 - This was an architecture cleanup only; route paths, role gating, layout behavior, and UI behavior remain unchanged.
 
+### Frontend Polish (Phase 4 - Auth/API Hardening)
+- The shared API client now includes stronger token handling, centralized `401` logout/redirect behavior, and safer base URL resolution.
+- Error normalization was tightened in the HTTP layer to improve consistency for future backend/RAG service integration, without changing dashboard UI behavior.
+
 ## Phase 2 Layout Behavior
 - Desktop (`xl` and above): two-column main workspace inside dashboard content area with chat panel at ~62% width and matches panel at ~38% width.
 - Tablet (`md` to `lg`): segmented toggle (`Chat | Matches`) shows one panel at a time for focus and lower visual density.

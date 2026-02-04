@@ -3,8 +3,8 @@
 ## Immersive AI Editor Redesign (Rail + Co-pilot + Canvas)
 
 ### Status
-- Phase 2 complete.
-- Phase 3 next.
+- Phase 3 complete.
+- Phase 4 next.
 
 ### Key Decisions
 - Rail icon strip (5%), Co-pilot persistent chat (25%), Canvas read-only preview (70%).
@@ -13,6 +13,8 @@
 - Zero state = centered prompt + 3-card template grid only.
 - Canvas hidden during scratch flow until chain questions completed; template selection loads canvas immediately.
 - Phase 2 scoping is organizer/user dashboard only; vendor/admin keep legacy sidebar and public pages/layout remain unchanged.
+- Phase 3 responsive choice: desktop split view, tablet stacked co-pilot/canvas, mobile canvas in `Sheet` opened via `Preview`.
+- Matches UI is removed from organizer AI planner workspace shell.
 
 ## User Dashboard Redesign
 

@@ -19,25 +19,14 @@ import {
   DialogTitle,
   DialogTrigger
 } from "@/components/ui/dialog";
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger
-} from "@/components/ui/sheet";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import BlueprintDetailPanel from "@/features/planner/components/BlueprintDetailPanel";
-import RelevantMatchesPanel from "@/features/planner/components/RelevantMatchesPanel";
+import OrganizerImmersiveShell from "@/features/immersive/OrganizerImmersiveShell";
 import { useCredits } from "@/features/planner/credits/useCredits";
 import { getCreditsConfig } from "@/features/planner/credits/storage";
 import { plannerService } from "@/features/planner/services/plannerService";
 import { usePlannerSessions } from "@/features/planner/PlannerSessionsContext";
-import { ChatMessage, MatchItem, MatchesState, PlannerState } from "@/features/planner/types";
-
-type WorkspaceView = "chat" | "matches";
-type RightPanelView = "matches" | "blueprint";
+import { ChatMessage, PlannerState } from "@/features/planner/types";
 type BlueprintHighlights = {
   header: boolean;
   kpis: boolean;
@@ -60,36 +49,6 @@ const quickPrompts = [
   "Find a venue + catering direction for a 90-person networking night.",
   "Create a staffing and vendor checklist for a spring brand activation."
 ];
-
-const fallbackMatches: MatchesState = {
-  activeTab: "templates",
-  templates: [
-    {
-      id: "fallback-template-1",
-      type: "template",
-      title: "Launch Blueprint Starter",
-      description: "Structured outline for premium launch sequencing.",
-      imageUrl:
-        "https://images.unsplash.com/photo-1505373877841-8d25f7d46678?auto=format&fit=crop&q=80&w=600"
-    }
-  ],
-  marketplace: [
-    {
-      id: "fallback-market-1",
-      type: "marketplace",
-      title: "Venue + Vendor Match",
-      description: "Shortlist appears here as planning context develops.",
-      imageUrl:
-        "https://images.unsplash.com/photo-1519671482502-9759101d4561?auto=format&fit=crop&q=80&w=600"
-    }
-  ]
-};
-
-const loadingMatches: MatchesState = {
-  activeTab: "templates",
-  templates: [],
-  marketplace: []
-};
 
 let localMessageCounter = 0;
 const createMessageId = (prefix: string) => {
@@ -255,7 +214,7 @@ const ChatPanel: React.FC<ChatPanelProps> = ({
   creditsPerMessage,
   onAddDemoCredits,
   onResetCredits,
-  heightClass = "h-[72vh] min-h-[520px]"
+  heightClass = "h-full min-h-0"
 }) => {
   const threadRef = React.useRef<HTMLDivElement>(null);
   const textareaRef = React.useRef<HTMLTextAreaElement>(null);
@@ -430,10 +389,8 @@ const ChatPanel: React.FC<ChatPanelProps> = ({
 };
 
 const OrganizerAIWorkspace: React.FC = () => {
-  const [tabletView, setTabletView] = React.useState<WorkspaceView>("chat");
-  const [rightPanelView, setRightPanelView] = React.useState<RightPanelView>("matches");
   const [draftMessage, setDraftMessage] = React.useState("");
-  const [isRightPanelLoading, setIsRightPanelLoading] = React.useState(false);
+  const [isCanvasLoading, setIsCanvasLoading] = React.useState(false);
   const [blueprintHighlights, setBlueprintHighlights] =
     React.useState<BlueprintHighlights>(defaultBlueprintHighlights);
   const creditsConfig = React.useMemo(() => getCreditsConfig(), []);
@@ -441,8 +398,6 @@ const OrganizerAIWorkspace: React.FC = () => {
   const { isReady, activeSessionId, activeSession, createNewSession, updateSession } =
     usePlannerSessions();
   const timeoutRefs = React.useRef<number[]>([]);
-  const rightPanelSessionRef = React.useRef<string | null>(null);
-  const rightPanelHadPlannerRef = React.useRef(false);
   const blueprintTimeoutRef = React.useRef<number | null>(null);
   const previousPlannerSnapshotRef = React.useRef<{
     sessionId: string | null;
@@ -453,24 +408,6 @@ const OrganizerAIWorkspace: React.FC = () => {
   });
 
   const messages = activeSession?.messages ?? [];
-  const matches = React.useMemo(() => {
-    const sessionMatches = activeSession?.matches;
-    if (!sessionMatches) {
-      return fallbackMatches;
-    }
-
-    const hasItems =
-      sessionMatches.templates.length > 0 || sessionMatches.marketplace.length > 0;
-    if (hasItems) {
-      return sessionMatches;
-    }
-
-    return {
-      ...fallbackMatches,
-      activeTab: sessionMatches.activeTab
-    };
-  }, [activeSession?.matches]);
-  const hasPlannerState = Boolean(activeSession?.plannerState);
 
   React.useEffect(() => {
     return () => {
@@ -484,32 +421,14 @@ const OrganizerAIWorkspace: React.FC = () => {
   }, []);
 
   React.useEffect(() => {
-    const sessionChanged = rightPanelSessionRef.current !== (activeSessionId ?? null);
-
-    if (!hasPlannerState) {
-      setRightPanelView("matches");
-      rightPanelHadPlannerRef.current = false;
-      rightPanelSessionRef.current = activeSessionId ?? null;
-      return;
-    }
-
-    if (sessionChanged || !rightPanelHadPlannerRef.current) {
-      setRightPanelView("blueprint");
-    }
-
-    rightPanelHadPlannerRef.current = true;
-    rightPanelSessionRef.current = activeSessionId ?? null;
-  }, [activeSessionId, hasPlannerState]);
-
-  React.useEffect(() => {
     if (!activeSessionId) {
-      setIsRightPanelLoading(false);
+      setIsCanvasLoading(false);
       return;
     }
 
-    setIsRightPanelLoading(true);
+    setIsCanvasLoading(true);
     const timer = window.setTimeout(() => {
-      setIsRightPanelLoading(false);
+      setIsCanvasLoading(false);
     }, 140);
 
     return () => {
@@ -580,24 +499,6 @@ const OrganizerAIWorkspace: React.FC = () => {
     };
   }, [activeSession?.plannerState, activeSession?.plannerStateUpdatedAt, activeSessionId]);
 
-  const handleMatchTabChange = React.useCallback(
-    (tab: MatchesState["activeTab"]) => {
-      if (!activeSessionId) return;
-      updateSession(activeSessionId, (session) => ({
-        ...session,
-        matches: {
-          ...session.matches,
-          activeTab: tab
-        }
-      }));
-    },
-    [activeSessionId, updateSession]
-  );
-
-  const handleOpenMatchItem = React.useCallback((item: MatchItem) => {
-    console.log("Open match item:", item);
-  }, []);
-
   const handleApproveLayout = React.useCallback(() => {
     if (!activeSessionId) return;
     const approvalTime = Date.now();
@@ -625,79 +526,37 @@ const OrganizerAIWorkspace: React.FC = () => {
         messages: [...session.messages, approvalMessage]
       };
     });
-    setRightPanelView("blueprint");
   }, [activeSessionId, updateSession]);
 
-  const renderRightPanel = (heightClass?: string) => {
-    const showBlueprintPanel = rightPanelView === "blueprint";
-    const panelHeightClass = heightClass ?? "h-[72vh] min-h-[520px]";
-    const panelTransitionKey = `${activeSessionId ?? "none"}-${showBlueprintPanel ? "blueprint" : "matches"}-${hasPlannerState ? "state" : "blank"}-${isRightPanelLoading ? "loading" : "ready"}`;
+  const renderCanvasPanel = (heightClass = "h-full min-h-0") => {
+    if (activeSession?.plannerState) {
+      return (
+        <BlueprintDetailPanel
+          plannerState={activeSession.plannerState}
+          plannerStateUpdatedAt={activeSession.plannerStateUpdatedAt}
+          changedSections={blueprintHighlights}
+          onApproveLayout={handleApproveLayout}
+          heightClass={heightClass}
+          isLoading={isCanvasLoading}
+        />
+      );
+    }
 
     return (
-      <div className="space-y-3">
-        <div className="rounded-xl border border-slate-200 bg-white p-1 shadow-sm">
-          <div className="grid grid-cols-2 rounded-lg bg-slate-100 p-1 text-sm">
-            <button
-              type="button"
-              onClick={() => setRightPanelView("matches")}
-              className={`rounded-md px-3 py-2 font-medium transition-all duration-200 ease-out focus-visible:ring-2 focus-visible:ring-brand-teal/35 ${
-                rightPanelView === "matches"
-                  ? "bg-white text-slate-900 shadow-sm"
-                  : "text-slate-600 hover:text-slate-900"
-              }`}
-              aria-pressed={rightPanelView === "matches"}
-              aria-label="Show matches panel"
-            >
-              Matches
-            </button>
-            <button
-              type="button"
-              onClick={() => setRightPanelView("blueprint")}
-              className={`rounded-md px-3 py-2 font-medium transition-all duration-200 ease-out focus-visible:ring-2 focus-visible:ring-brand-teal/35 ${
-                rightPanelView === "blueprint"
-                  ? "bg-white text-slate-900 shadow-sm"
-                  : "text-slate-600 hover:text-slate-900"
-              }`}
-              aria-pressed={rightPanelView === "blueprint"}
-              aria-label="Show blueprint panel"
-            >
-              Blueprint
-            </button>
-          </div>
+      <aside
+        className={`flex min-h-0 flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm ${heightClass}`}
+        aria-label="Canvas preview panel"
+      >
+        <div className="border-b border-slate-200 px-5 py-4">
+          <p className="text-xs font-semibold uppercase tracking-[0.24em] text-slate-500">
+            Canvas Preview
+          </p>
+          <h2 className="mt-1 text-lg font-semibold text-slate-900">Blueprint will appear here</h2>
+          <p className="mt-1 text-xs text-slate-600">
+            Send a prompt in Co-pilot to generate your first planning blueprint.
+          </p>
         </div>
-
-        <div
-          key={panelTransitionKey}
-          className="animate-in fade-in-0 slide-in-from-bottom-1 duration-200 ease-out"
-        >
-          {showBlueprintPanel ? (
-            activeSession?.plannerState ? (
-              <BlueprintDetailPanel
-                plannerState={activeSession.plannerState}
-                plannerStateUpdatedAt={activeSession.plannerStateUpdatedAt}
-                changedSections={blueprintHighlights}
-                onApproveLayout={handleApproveLayout}
-                heightClass={heightClass}
-                isLoading={isRightPanelLoading}
-              />
-            ) : (
-              <aside
-                className={`flex min-h-0 flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm ${panelHeightClass}`}
-                aria-label="Blueprint panel"
-              />
-            )
-          ) : (
-            <RelevantMatchesPanel
-              matches={matches}
-              onTabChange={handleMatchTabChange}
-              onOpenItem={handleOpenMatchItem}
-              heightClass={heightClass}
-              isLoading={isRightPanelLoading}
-              loadingMatches={loadingMatches}
-            />
-          )}
-        </div>
-      </div>
+      </aside>
     );
   };
 
@@ -826,92 +685,28 @@ const OrganizerAIWorkspace: React.FC = () => {
   }
 
   return (
-    <div className="mx-auto w-full max-w-[1400px] space-y-4">
-      <section className="overflow-hidden rounded-2xl border border-slate-200 bg-gradient-to-br from-white via-slate-50 to-brand-light px-6 py-5 shadow-sm">
-        <p className="text-xs font-semibold uppercase tracking-[0.3em] text-brand-teal">
-          Strathwell AI
-        </p>
-        <div className="mt-2 flex flex-wrap items-center justify-between gap-3">
-          <h1 className="text-2xl font-semibold text-slate-900">Ready to plan</h1>
-          <Badge variant="secondary" className="border border-slate-200 bg-white text-slate-700">
-            <Sparkles className="mr-1 h-3.5 w-3.5 text-brand-teal" />
-            Workspace shell active
-          </Badge>
-        </div>
-        <p className="mt-2 max-w-3xl text-sm text-slate-600">
-          Session-backed planner architecture is active with typed blueprint and matches state.
-        </p>
-      </section>
-
-      <div className="hidden gap-4 xl:grid xl:grid-cols-[minmax(0,1.65fr)_minmax(0,1fr)]">
-        <ChatPanel
-          messages={messages}
-          draftMessage={draftMessage}
-          onDraftChange={setDraftMessage}
-          onSend={handleSendCurrentDraft}
-          onQuickPrompt={handleSendQuickPrompt}
-          disableSend={!draftMessage.trim()}
-          isCreditsEnabled={isCreditsEnabled}
-          credits={credits}
-          creditsPerMessage={creditsConfig.creditsPerMessage}
-          onAddDemoCredits={() => add(50)}
-          onResetCredits={resetToDefault}
-        />
-        {renderRightPanel()}
-      </div>
-
-      <div className="hidden md:block xl:hidden">
-        <Tabs
-          value={tabletView}
-          onValueChange={(value) => setTabletView(value as WorkspaceView)}
-          className="space-y-3"
-        >
-          <div className="rounded-xl border border-slate-200 bg-white p-2 shadow-sm">
-            <TabsList className="grid h-auto w-full grid-cols-2 rounded-lg bg-slate-100 p-1">
-              <TabsTrigger value="chat" className="rounded-md">
-                Chat
-              </TabsTrigger>
-              <TabsTrigger value="matches" className="rounded-md">
-                Matches
-              </TabsTrigger>
-            </TabsList>
-          </div>
-          <TabsContent value="chat" className="mt-0">
-            <ChatPanel
-              messages={messages}
-              draftMessage={draftMessage}
-              onDraftChange={setDraftMessage}
-              onSend={handleSendCurrentDraft}
-              onQuickPrompt={handleSendQuickPrompt}
-              disableSend={!draftMessage.trim()}
-              isCreditsEnabled={isCreditsEnabled}
-              credits={credits}
-              creditsPerMessage={creditsConfig.creditsPerMessage}
-              onAddDemoCredits={() => add(50)}
-              onResetCredits={resetToDefault}
-            />
-          </TabsContent>
-          <TabsContent value="matches" className="mt-0">
-            {renderRightPanel()}
-          </TabsContent>
-        </Tabs>
-      </div>
-
-      <div className="space-y-3 md:hidden">
-        <Sheet>
-          <div className="flex items-center justify-between rounded-xl border border-slate-200 bg-white px-4 py-3 shadow-sm">
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">
-                Mobile view
-              </p>
-              <p className="text-sm font-medium text-slate-900">Chat is active</p>
+    <div className="mx-auto w-full max-w-[1600px]">
+      <OrganizerImmersiveShell
+        showCanvas={true}
+        topBar={
+          <section className="overflow-hidden rounded-2xl border border-slate-200 bg-gradient-to-br from-white via-slate-50 to-brand-light px-6 py-5 shadow-sm">
+            <p className="text-xs font-semibold uppercase tracking-[0.3em] text-brand-teal">
+              Strathwell AI
+            </p>
+            <div className="mt-2 flex flex-wrap items-center justify-between gap-3">
+              <h1 className="text-2xl font-semibold text-slate-900">Immersive Planner Workspace</h1>
+              <Badge variant="secondary" className="border border-slate-200 bg-white text-slate-700">
+                <Sparkles className="mr-1 h-3.5 w-3.5 text-brand-teal" />
+                Co-pilot + Canvas shell active
+              </Badge>
             </div>
-            <SheetTrigger asChild>
-              <Button size="sm" variant="outline" className="h-10 px-4" aria-label="Open planner panel">
-                Open Panel
-              </Button>
-            </SheetTrigger>
-          </div>
+            <p className="mt-2 max-w-3xl text-sm text-slate-600">
+              Persistent co-pilot chat sits alongside a live canvas preview with independent
+              scrolling regions.
+            </p>
+          </section>
+        }
+        copilot={
           <ChatPanel
             messages={messages}
             draftMessage={draftMessage}
@@ -924,18 +719,11 @@ const OrganizerAIWorkspace: React.FC = () => {
             creditsPerMessage={creditsConfig.creditsPerMessage}
             onAddDemoCredits={() => add(50)}
             onResetCredits={resetToDefault}
-            heightClass="h-[70vh] min-h-[460px]"
+            heightClass="h-full min-h-0 rounded-none border-0 shadow-none"
           />
-          <SheetContent side="right" className="w-full p-0 sm:max-w-md">
-            <SheetHeader className="border-b border-slate-200 px-5 py-4">
-              <SheetTitle>Planner Panel</SheetTitle>
-            </SheetHeader>
-            <div className="flex h-[calc(100vh-4.5rem)] flex-col overflow-hidden p-4">
-              {renderRightPanel("h-[calc(100vh-7.5rem)] min-h-0 rounded-xl")}
-            </div>
-          </SheetContent>
-        </Sheet>
-      </div>
+        }
+        canvas={renderCanvasPanel("h-full min-h-0 rounded-none border-0 shadow-none")}
+      />
     </div>
   );
 };

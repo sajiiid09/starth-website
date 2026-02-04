@@ -15,7 +15,7 @@ The Organizer/User dashboard is being redesigned so the post-login landing exper
 ### Phase Checklist (1–8)
 - [Done] Phase 1 - Baseline audit + docs setup.
 - [Done] Phase 2 - Navigation redesign (rail + floating overlay drawer, organizer scoped).
-- [Not Started] Phase 3 - Co-pilot persistent chat column behavior.
+- [Done] Phase 3 - Workspace shell (persistent Co-pilot + Canvas containers).
 - [Not Started] Phase 4 - Canvas read-only preview surface and data mapping.
 - [Not Started] Phase 5 - Zero-state flow (center prompt + 3 templates).
 - [Not Started] Phase 6 - Scratch/template branching behavior and canvas gating rules.
@@ -40,6 +40,25 @@ The Organizer/User dashboard is being redesigned so the post-login landing exper
   - `frontend/src/features/immersive/NavDrawerOverlay.tsx` (floating drawer + scrim/close behavior)
   - `frontend/src/components/dashboard/DashboardShell.tsx` (organizer-only wiring and conditional sidebar scoping)
 
+### Phase 3 Workspace Shell (Implemented)
+- Added dedicated immersive shell component:
+  - `frontend/src/features/immersive/OrganizerImmersiveShell.tsx`
+  - Props: `copilot`, `canvas`, `showCanvas`, optional `topBar`.
+- Organizer AI planner now renders through the shell in:
+  - `frontend/src/pages/dashboard/OrganizerAIWorkspace.tsx`
+- Layout model:
+  - Desktop (`lg+`): split container with persistent Co-pilot left column (`clamp(22rem, 25vw, 26rem)`) and Canvas right column (`1fr`).
+  - Tablet (`md` to `lg`): stacked layout (Co-pilot above Canvas).
+  - Mobile (`<md`): Co-pilot only by default; Canvas opens via `Preview` button in a right-side `Sheet`.
+- Scroll behavior:
+  - Co-pilot and Canvas are both mounted in isolated overflow containers (`min-h-0` + internal scrolling components).
+- Matches UI removal:
+  - Removed organizer workspace `Matches` tab/toggle UI and related panel wiring from the planner route.
+  - Planner session/service persistence remains intact; match data can still be stored but is not rendered in Phase 3.
+- Files changed for Phase 3:
+  - `frontend/src/features/immersive/OrganizerImmersiveShell.tsx`
+  - `frontend/src/pages/dashboard/OrganizerAIWorkspace.tsx`
+
 ### Current Code Map
 
 #### Route files involved
@@ -55,11 +74,13 @@ The Organizer/User dashboard is being redesigned so the post-login landing exper
 
 #### Layout + workspace components
 - `frontend/src/components/dashboard/DashboardShell.tsx`: organizer dashboard shell with immersive rail + overlay drawer; vendor/admin keep legacy sidebar.
+- `frontend/src/features/immersive/OrganizerImmersiveShell.tsx`: immersive workspace shell used by organizer planner route (Co-pilot + Canvas columns).
 - `frontend/src/pages/dashboard/PlanWithAI.tsx`: route-level wrapper that renders `OrganizerAIWorkspace`.
 - `frontend/src/pages/dashboard/OrganizerAIWorkspace.tsx`:
-  - Chat surface (internal `ChatPanel` + `MessageThread`).
-  - Right panel mode switch (`matches` / `blueprint`) and responsive tablet/mobile variants.
-- `frontend/src/features/planner/components/RelevantMatchesPanel.tsx`: current matches panel UI (still present in current implementation).
+  - Chat surface (internal `ChatPanel` + `MessageThread`) mounted as Co-pilot.
+  - Blueprint detail panel mounted as Canvas preview within immersive shell.
+  - No `Matches` tabs/toggles rendered in organizer planner route.
+- `frontend/src/features/planner/components/RelevantMatchesPanel.tsx`: legacy component remains in repo but is not wired to organizer planner route in Phase 3.
 - `frontend/src/features/planner/components/BlueprintDetailPanel.tsx`: current blueprint detail panel (closest current "canvas-ish" read-only structure).
 - `frontend/src/features/planner/PlannerSessionsContext.tsx`: planner session lifecycle/provider used by dashboard shell + workspace.
 - Legacy public planner (still in repo, not dashboard planner):

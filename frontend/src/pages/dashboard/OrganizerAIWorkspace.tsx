@@ -819,8 +819,7 @@ const OrganizerAIWorkspace: React.FC = () => {
             plannerState: response.updatedPlannerState ?? session.plannerState,
             plannerStateUpdatedAt: response.updatedPlannerState
               ? Date.now()
-              : session.plannerStateUpdatedAt,
-            matches: response.updatedMatches ?? session.matches
+              : session.plannerStateUpdatedAt
           };
         });
       } catch (error) {

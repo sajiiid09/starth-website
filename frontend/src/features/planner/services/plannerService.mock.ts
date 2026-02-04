@@ -1,7 +1,5 @@
 import { assertValidPlannerState } from "@/features/planner/schemas";
 import {
-  MatchItem,
-  MatchesState,
   PlannerService,
   PlannerSession,
   PlannerState
@@ -14,74 +12,6 @@ const nextId = (prefix: string) => {
 };
 
 const delay = (ms: number) => new Promise((resolve) => window.setTimeout(resolve, ms));
-
-const templateThumbs = {
-  launch:
-    "https://images.unsplash.com/photo-1505373877841-8d25f7d46678?auto=format&fit=crop&q=80&w=600",
-  offsite:
-    "https://images.unsplash.com/photo-1510798831971-661eb04b3739?auto=format&fit=crop&q=80&w=600",
-  evening:
-    "https://images.unsplash.com/photo-1561489413-985b06da5bee?auto=format&fit=crop&q=80&w=600"
-};
-
-const marketplaceThumbs = {
-  venue:
-    "https://images.unsplash.com/photo-1519671482502-9759101d4561?auto=format&fit=crop&q=80&w=600",
-  catering:
-    "https://images.unsplash.com/photo-1555244162-803834f70033?auto=format&fit=crop&q=80&w=600",
-  av:
-    "https://images.unsplash.com/photo-1505236858219-8359eb29e329?auto=format&fit=crop&q=80&w=600"
-};
-
-const createBaseMatches = (): MatchesState => ({
-  activeTab: "templates",
-  templates: [
-    {
-      id: "template-launch-core",
-      type: "template",
-      title: "Launch Night Control Room",
-      description: "Structured launch format with timed reveals and stage transitions.",
-      imageUrl: templateThumbs.launch
-    },
-    {
-      id: "template-executive-offsite",
-      type: "template",
-      title: "Executive Offsite Sequence",
-      description: "Two-day agenda framework with networking and breakout choreography.",
-      imageUrl: templateThumbs.offsite
-    },
-    {
-      id: "template-brand-evening",
-      type: "template",
-      title: "Brand Evening Arc",
-      description: "Premium guest journey from arrival through closing storytelling moment.",
-      imageUrl: templateThumbs.evening
-    }
-  ],
-  marketplace: [
-    {
-      id: "market-harbor-loft",
-      type: "marketplace",
-      title: "Harbor Loft",
-      description: "Waterfront venue with modular staging and hospitality support.",
-      imageUrl: marketplaceThumbs.venue
-    },
-    {
-      id: "market-northline-catering",
-      type: "marketplace",
-      title: "Northline Catering Studio",
-      description: "Culinary partner with plated and roaming menu options.",
-      imageUrl: marketplaceThumbs.catering
-    },
-    {
-      id: "market-summit-av",
-      type: "marketplace",
-      title: "Summit AV Collective",
-      description: "AV and production partner for hybrid and in-room experiences.",
-      imageUrl: marketplaceThumbs.av
-    }
-  ]
-});
 
 const retitleFromText = (text: string) => {
   const normalized = text.replace(/\s+/g, " ").trim();
@@ -385,48 +315,8 @@ const applyPlannerIntentUpdates = (
   };
 };
 
-const updateMatchesForContext = (base: MatchesState, userText: string): MatchesState => {
-  const location = guessLocation(userText);
-  if (!location) {
-    return base;
-  }
-
-  const relabel = (items: MatchItem[]) =>
-    items.map((item) => ({
-      ...item,
-      description: `${item.description} Shortlisted for ${location}.`
-    }));
-
-  return {
-    ...base,
-    templates: [
-      {
-        id: `template-${location.toLowerCase().replace(/\s+/g, "-")}-signal`,
-        type: "template",
-        title: `${location} Signature Flow`,
-        description:
-          "Local market pacing template tuned for arrival velocity, networking cadence, and premium close.",
-        imageUrl: templateThumbs.launch
-      },
-      ...relabel(base.templates).slice(0, 4)
-    ].slice(0, 5),
-    marketplace: [
-      {
-        id: `market-${location.toLowerCase().replace(/\s+/g, "-")}-collective`,
-        type: "marketplace",
-        title: `${location} Venue Collective`,
-        description:
-          "High-fit local shortlist combining flexible floorplans with experienced guest operations teams.",
-        imageUrl: marketplaceThumbs.venue
-      },
-      ...relabel(base.marketplace).slice(0, 4)
-    ].slice(0, 5),
-  };
-};
-
 const createSeedSessions = (): PlannerSession[] => {
   const now = Date.now();
-  const sharedMatches = createBaseMatches();
 
   return [
     {
@@ -438,7 +328,7 @@ const createSeedSessions = (): PlannerSession[] => {
         {
           id: "seed-msg-1",
           role: "assistant",
-          text: "Welcome back. We can tighten your launch timeline and venue shortlist.",
+          text: "Welcome back. We can tighten your launch timeline.",
           status: "final",
           createdAt: now - 1000 * 60 * 44
         },
@@ -450,7 +340,6 @@ const createSeedSessions = (): PlannerSession[] => {
           createdAt: now - 1000 * 60 * 43
         }
       ],
-      matches: sharedMatches,
       plannerState: buildPlannerStateDraft(
         {
           id: "seed-state-source",
@@ -464,8 +353,7 @@ const createSeedSessions = (): PlannerSession[] => {
               text: "Plan a 140 guest product launch in SF with $30k budget.",
               createdAt: now
             }
-          ],
-          matches: sharedMatches
+          ]
         },
         "Plan a 140 guest product launch in SF with $30k budget."
       ),
@@ -476,40 +364,35 @@ const createSeedSessions = (): PlannerSession[] => {
       title: "Offsite Q2",
       createdAt: now - 1000 * 60 * 60 * 80,
       updatedAt: now - 1000 * 60 * 60 * 7,
-      messages: [],
-      matches: createBaseMatches()
+      messages: []
     },
     {
       id: "seed-brand-evening",
       title: "Brand Evening Blueprint",
       createdAt: now - 1000 * 60 * 60 * 110,
       updatedAt: now - 1000 * 60 * 60 * 22,
-      messages: [],
-      matches: createBaseMatches()
+      messages: []
     },
     {
       id: "seed-roadshow-nyc",
       title: "Roadshow NYC",
       createdAt: now - 1000 * 60 * 60 * 140,
       updatedAt: now - 1000 * 60 * 60 * 30,
-      messages: [],
-      matches: createBaseMatches()
+      messages: []
     },
     {
       id: "seed-board-retreat",
       title: "Board Retreat",
       createdAt: now - 1000 * 60 * 60 * 190,
       updatedAt: now - 1000 * 60 * 60 * 60,
-      messages: [],
-      matches: createBaseMatches()
+      messages: []
     },
     {
       id: "seed-holiday-gala",
       title: "Holiday Gala Draft",
       createdAt: now - 1000 * 60 * 60 * 220,
       updatedAt: now - 1000 * 60 * 60 * 90,
-      messages: [],
-      matches: createBaseMatches()
+      messages: []
     }
   ];
 };
@@ -520,8 +403,6 @@ export const plannerServiceMock: PlannerService = {
 
     const trimmedText = userText.trim();
     const userTurnCount = session.messages.filter((message) => message.role === "user").length;
-    const currentMatches = session.matches ?? createBaseMatches();
-    let updatedMatches = updateMatchesForContext(currentMatches, trimmedText);
     let updatedPlannerState: PlannerState | undefined;
     let assistantText =
       "Great context. I can refine this into a stronger execution plan right away.";
@@ -559,8 +440,7 @@ export const plannerServiceMock: PlannerService = {
         status: "final",
         createdAt: Date.now()
       },
-      updatedPlannerState,
-      updatedMatches
+      updatedPlannerState
     };
   },
 
@@ -571,8 +451,7 @@ export const plannerServiceMock: PlannerService = {
       title: "New plan",
       createdAt: now,
       updatedAt: now,
-      messages: [],
-      matches: createBaseMatches()
+      messages: []
     };
   },
 

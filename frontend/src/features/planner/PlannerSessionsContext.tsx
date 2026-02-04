@@ -71,7 +71,7 @@ export const PlannerSessionsProvider: React.FC<PlannerSessionsProviderProps> = (
 
     persistTimeoutRef.current = window.setTimeout(() => {
       savePlannerStorage({
-        version: 2,
+        version: 3,
         sessions,
         activeSessionId
       });

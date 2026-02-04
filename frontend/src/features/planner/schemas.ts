@@ -9,20 +9,6 @@ export const zChatMessage = z.object({
   status: z.enum(["thinking", "orchestrating", "final"]).optional()
 });
 
-export const zMatchItem = z.object({
-  id: z.string().min(1),
-  type: z.enum(["template", "marketplace"]),
-  title: z.string().min(1),
-  description: z.string(),
-  imageUrl: z.string().url().optional()
-});
-
-export const zMatchesState = z.object({
-  activeTab: z.enum(["templates", "marketplace"]),
-  templates: z.array(zMatchItem),
-  marketplace: z.array(zMatchItem)
-});
-
 export const zPlannerState = z.object({
   blueprintId: z.string().min(1),
   title: z.string().min(1),
@@ -69,12 +55,11 @@ export const zPlannerSession = z.object({
   updatedAt: z.number(),
   plannerStateUpdatedAt: z.number().optional(),
   messages: z.array(zChatMessage),
-  matches: zMatchesState,
   plannerState: zPlannerState.optional()
 });
 
 export const zPlannerSessionsPayload = z.object({
-  version: z.literal(2),
+  version: z.literal(3),
   activeSessionId: z.string().nullable(),
   sessions: z.array(zPlannerSession)
 });

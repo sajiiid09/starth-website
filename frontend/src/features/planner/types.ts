@@ -8,20 +8,6 @@ export type ChatMessage = {
   status?: "thinking" | "orchestrating" | "final";
 };
 
-export type MatchItem = {
-  id: string;
-  type: "template" | "marketplace";
-  title: string;
-  description: string;
-  imageUrl?: string;
-};
-
-export type MatchesState = {
-  activeTab: "templates" | "marketplace";
-  templates: MatchItem[];
-  marketplace: MatchItem[];
-};
-
 export type PlannerState = {
   blueprintId: string;
   title: string;
@@ -64,14 +50,12 @@ export type PlannerSession = {
   updatedAt: number;
   plannerStateUpdatedAt?: number;
   messages: ChatMessage[];
-  matches: MatchesState;
   plannerState?: PlannerState;
 };
 
 export type PlannerServiceResponse = {
   assistantMessage: ChatMessage;
   updatedPlannerState?: PlannerState;
-  updatedMatches?: MatchesState;
 };
 
 export type PlannerService = {

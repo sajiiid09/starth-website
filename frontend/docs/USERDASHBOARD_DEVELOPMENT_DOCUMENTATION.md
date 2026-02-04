@@ -19,7 +19,7 @@ The Organizer/User dashboard is being redesigned so the post-login landing exper
 - [Done] Phase 4 - Zero-state redesign (center prompt + 3 starter templates only).
 - [Done] Phase 5 - Remove Matches state/UI/service plumbing completely.
 - [Done] Phase 6 - Read-only canvas viewport contract (`PlanPreviewCanvas`) and organizer wiring.
-- [Not Started] Phase 7 - Scratch/template branching behavior and auto-scroll canvas guidance.
+- [Done] Phase 7 - Scratch-flow brief collection state machine and delayed canvas reveal.
 - [Not Started] Phase 8 - QA hardening, regression checks, and rollout docs.
 
 ### Phase 2 Navigation Redesign (Implemented)
@@ -93,6 +93,7 @@ The Organizer/User dashboard is being redesigned so the post-login landing exper
   - new storage key: `strathwell_planner_sessions_v3`
   - legacy v2 payloads (`strathwell_planner_sessions_v2`) are migrated on load by safely dropping legacy `matches` fields.
   - migrated payload is persisted to v3 and legacy key is cleared.
+  - note: Phase 7 later bumped storage to `strathwell_planner_sessions_v4` for scratch brief-state fields.
 - Planner mock service updates:
   - no template/marketplace matches generation in planner service mock.
   - `sendMessage` now returns only `assistantMessage` and optional `updatedPlannerState`.
@@ -131,6 +132,39 @@ The Organizer/User dashboard is being redesigned so the post-login landing exper
   - modified: `frontend/src/pages/dashboard/OrganizerAIWorkspace.tsx`
   - deleted: `frontend/src/features/planner/components/BlueprintDetailPanel.tsx`
 
+### Phase 7 Scratch-flow State Machine (Implemented)
+- Added session-level planner state machine fields in `PlannerSession`:
+  - `mode: 'scratch' | 'template'`
+  - `draftBrief?: { eventType?, guestCount?, budget?, city?, dateRange? }`
+  - `briefStatus: 'collecting' | 'ready_to_generate' | 'generating' | 'generated'`
+  - `canvasState: 'hidden' | 'visible'`
+  - `lastAskedField?: keyof draftBrief`
+- Required scratch brief fields:
+  - `eventType`, `guestCount`, `budget`, `city`, `dateRange`
+- Scratch path behavior:
+  - first zero-state prompt starts/continues `mode='scratch'` collection
+  - AI asks chained next-missing-field questions
+  - canvas remains blank read-only until brief completion
+  - on completion, assistant posts `Generating your blueprint...`, then generated planner state appears after a short delay.
+- Template path behavior:
+  - zero-state template select sets `mode='template'`, `briefStatus='generated'`, `canvasState='visible'`
+  - template planner state is mounted immediately
+  - assistant asks: `Loaded the [Template Name]. What would you like to change?`
+- Service boundary wiring:
+  - state machine logic is centralized in `plannerService.mock.sendMessage`
+  - organizer workspace applies returned session patches and deferred generation updates.
+- Persistence/migration:
+  - planner storage key bumped to `strathwell_planner_sessions_v4`
+  - legacy `v3` and `v2` payloads are migrated into new session shape (including default mode/brief/canvas fields)
+  - refresh preserves in-progress scratch brief collection and blank canvas state.
+- Files changed for Phase 7:
+  - `frontend/src/features/planner/types.ts`
+  - `frontend/src/features/planner/schemas.ts`
+  - `frontend/src/features/planner/utils/storage.ts`
+  - `frontend/src/features/planner/PlannerSessionsContext.tsx`
+  - `frontend/src/features/planner/services/plannerService.mock.ts`
+  - `frontend/src/pages/dashboard/OrganizerAIWorkspace.tsx`
+
 ### Current Code Map
 
 #### Route files involved
@@ -154,6 +188,7 @@ The Organizer/User dashboard is being redesigned so the post-login landing exper
   - Chat surface (internal `ChatPanel` + `MessageThread`) mounted as Co-pilot.
   - `PlanPreviewCanvas` mounted as the read-only Canvas preview within immersive shell.
   - Canvas receives one-way planner data via `planData={activeSession?.plannerState ?? null}`.
+  - Scratch flow uses session brief state machine; canvas stays blank until `briefStatus='generated'`.
   - No `Matches` tabs/toggles rendered in organizer planner route.
   - Zero-state routing logic: show `ZeroStateLanding` when session has no messages and no planner state.
 - `frontend/src/components/planner/PlanPreviewCanvas.tsx`: organizer canvas renderer (read-only, passive, deterministic preview).
@@ -169,10 +204,11 @@ The Organizer/User dashboard is being redesigned so the post-login landing exper
   - `frontend/src/utils/role.ts` -> localStorage key `activeRole` (`AppRole` + role mapping helpers).
   - `frontend/src/utils/session.ts` -> localStorage key `starth_session_state` (`SessionState` with role/vendor onboarding state).
 - Planner sessions (dashboard AI workspace):
-  - `frontend/src/features/planner/utils/storage.ts` -> localStorage key `strathwell_planner_sessions_v3`.
-  - Payload schema (`version: 3`): `{ version, activeSessionId, sessions }`.
-  - Migration: reads legacy `strathwell_planner_sessions_v2`, drops legacy `matches`, validates, and rewrites to v3.
-  - Types: `PlannerStoragePayload`, `PlannerSession`, `ChatMessage`, `PlannerState` from `frontend/src/features/planner/types.ts`.
+  - `frontend/src/features/planner/utils/storage.ts` -> localStorage key `strathwell_planner_sessions_v4`.
+  - Payload schema (`version: 4`): `{ version, activeSessionId, sessions }`.
+  - Migration: reads legacy `strathwell_planner_sessions_v3` and `strathwell_planner_sessions_v2`, drops legacy `matches`, applies default scratch/template state-machine fields, validates, and rewrites to v4.
+  - Types: `PlannerStoragePayload`, `PlannerSession`, `ChatMessage`, `PlannerState`, `DraftBrief` from `frontend/src/features/planner/types.ts`.
+  - `PlannerSession` scratch fields: `mode`, `briefStatus`, `canvasState`, optional `draftBrief`, optional `lastAskedField`.
   - Validation: `zPlannerSessionsPayload`, `zPlannerSession`, `zPlannerState` in `frontend/src/features/planner/schemas.ts`.
 - Credits (planner gating, frontend-only):
   - `frontend/src/features/planner/credits/storage.ts` -> localStorage key `strathwell_credits_v1` (versioned credits payload).

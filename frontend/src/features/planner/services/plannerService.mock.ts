@@ -1,5 +1,7 @@
 import { assertValidPlannerState } from "@/features/planner/schemas";
 import {
+  DraftBrief,
+  DraftBriefField,
   PlannerService,
   PlannerSession,
   PlannerState
@@ -12,6 +14,22 @@ const nextId = (prefix: string) => {
 };
 
 const delay = (ms: number) => new Promise((resolve) => window.setTimeout(resolve, ms));
+
+const REQUIRED_BRIEF_FIELDS: DraftBriefField[] = [
+  "eventType",
+  "guestCount",
+  "budget",
+  "city",
+  "dateRange"
+];
+
+const BRIEF_FIELD_QUESTIONS: Record<DraftBriefField, string> = {
+  eventType: "What kind of event are we planning?",
+  guestCount: "How many guests are you expecting?",
+  budget: "What's your budget range?",
+  city: "Which city is this in?",
+  dateRange: "When is the event (date or month)?"
+};
 
 const retitleFromText = (text: string) => {
   const normalized = text.replace(/\s+/g, " ").trim();
@@ -315,6 +333,181 @@ const applyPlannerIntentUpdates = (
   };
 };
 
+const MONTH_REGEX =
+  /(january|february|march|april|may|june|july|august|september|october|november|december)\s+(20\d{2})/i;
+const MONTH_ONLY_REGEX =
+  /(january|february|march|april|may|june|july|august|september|october|november|december)\b/i;
+const QUARTER_REGEX = /\bq([1-4])\s*(20\d{2})\b/i;
+const SEASON_REGEX = /\b(spring|summer|fall|winter)\s+(20\d{2})\b/i;
+const DATE_SLASH_REGEX = /\b\d{1,2}[\/-]\d{1,2}(?:[\/-]\d{2,4})?\b/;
+
+const EVENT_TYPE_RULES: Array<{ label: string; pattern: RegExp }> = [
+  { label: "Product launch", pattern: /\bproduct\s+launch\b/i },
+  { label: "Executive summit", pattern: /\bexecutive\s+summit\b/i },
+  { label: "Brand evening", pattern: /\bbrand\s+evening\b/i },
+  { label: "Conference", pattern: /\bconference\b/i },
+  { label: "Offsite", pattern: /\boffsite\b/i },
+  { label: "Retreat", pattern: /\bretreat\b/i },
+  { label: "Networking event", pattern: /\bnetworking\b/i },
+  { label: "Workshop", pattern: /\bworkshop\b/i },
+  { label: "Gala", pattern: /\bgala\b/i }
+];
+
+const toTitleCase = (value: string) =>
+  value
+    .split(/\s+/)
+    .filter(Boolean)
+    .map((part) => `${part.charAt(0).toUpperCase()}${part.slice(1).toLowerCase()}`)
+    .join(" ");
+
+const normalizeBriefString = (value: string) => value.trim().replace(/\s+/g, " ");
+
+const extractEventType = (text: string) => {
+  for (const rule of EVENT_TYPE_RULES) {
+    if (rule.pattern.test(text)) return rule.label;
+  }
+
+  const generic = text.match(/\b(?:event|plan|planning)\s+(?:a|an)\s+([a-z\s-]{3,40})/i);
+  if (!generic?.[1]) return null;
+
+  const cleaned = normalizeBriefString(generic[1]).replace(/\b(in|for|with|on)\b.*$/i, "").trim();
+  if (!cleaned) return null;
+  return toTitleCase(cleaned);
+};
+
+const extractCity = (text: string) => {
+  const known = guessLocation(text);
+  if (known) return known;
+
+  const match = text.match(/\b(?:in|at)\s+([a-zA-Z]+(?:\s+[a-zA-Z]+){0,2})\b/i);
+  if (!match?.[1]) return null;
+
+  const candidate = normalizeBriefString(match[1]);
+  if (!candidate) return null;
+  if (MONTH_ONLY_REGEX.test(candidate)) return null;
+  if (/\b(next|this|early|late)\b/i.test(candidate)) return null;
+
+  return toTitleCase(candidate);
+};
+
+const extractDateRange = (text: string) => {
+  const monthYear = text.match(MONTH_REGEX);
+  if (monthYear) {
+    return `${toTitleCase(monthYear[1])} ${monthYear[2]}`;
+  }
+
+  const quarter = text.match(QUARTER_REGEX);
+  if (quarter) {
+    return `Q${quarter[1]} ${quarter[2]}`;
+  }
+
+  const season = text.match(SEASON_REGEX);
+  if (season) {
+    return `${toTitleCase(season[1])} ${season[2]}`;
+  }
+
+  const slashDate = text.match(DATE_SLASH_REGEX);
+  if (slashDate) return slashDate[0];
+
+  const monthOnly = text.match(MONTH_ONLY_REGEX);
+  if (monthOnly) {
+    return toTitleCase(monthOnly[1]);
+  }
+
+  return null;
+};
+
+const extractDraftBriefFromText = (text: string): Partial<DraftBrief> => {
+  const partial: Partial<DraftBrief> = {};
+
+  const eventType = extractEventType(text);
+  if (eventType) partial.eventType = eventType;
+
+  const guestCount = extractGuestCount(text);
+  if (guestCount && guestCount > 0) partial.guestCount = Math.round(guestCount);
+
+  const budget = extractBudget(text);
+  if (budget && budget > 0) partial.budget = Math.round(budget);
+
+  const city = extractCity(text);
+  if (city) partial.city = city;
+
+  const dateRange = extractDateRange(text);
+  if (dateRange) partial.dateRange = dateRange;
+
+  return partial;
+};
+
+const coerceReplyForAskedField = (
+  field: DraftBriefField,
+  text: string
+): Partial<DraftBrief> => {
+  const normalized = normalizeBriefString(text);
+  if (!normalized) return {};
+
+  if (field === "guestCount") {
+    const count = extractValue(normalized, /(\d+)/);
+    return count && count > 0 ? { guestCount: Math.round(count) } : {};
+  }
+
+  if (field === "budget") {
+    const budget = extractBudget(normalized);
+    return budget && budget > 0 ? { budget: Math.round(budget) } : {};
+  }
+
+  if (field === "city") {
+    return { city: toTitleCase(normalized.replace(/\.$/, "")) };
+  }
+
+  if (field === "dateRange") {
+    const extracted = extractDateRange(normalized);
+    return { dateRange: extracted ?? normalized.replace(/\.$/, "") };
+  }
+
+  return { eventType: toTitleCase(normalized.replace(/\.$/, "")) };
+};
+
+const getNextMissingBriefField = (brief: DraftBrief): DraftBriefField | null => {
+  for (const field of REQUIRED_BRIEF_FIELDS) {
+    const value = brief[field];
+    if (value === undefined || value === null || value === "") {
+      return field;
+    }
+  }
+  return null;
+};
+
+const deriveSessionTitleFromBrief = (brief: DraftBrief) => {
+  if (brief.eventType && brief.city) {
+    return `${brief.eventType} - ${brief.city}`;
+  }
+  if (brief.eventType) return `${brief.eventType} Plan`;
+  if (brief.city) return `${brief.city} Plan`;
+  return "New plan";
+};
+
+const buildBlueprintFromBrief = (session: PlannerSession, brief: DraftBrief): PlannerState => {
+  const summaryPrompt = `Plan a ${brief.eventType ?? "premium event"} for ${brief.guestCount ?? 150} guests in ${brief.city ?? "San Francisco"} around ${brief.dateRange ?? "next quarter"} with $${brief.budget ?? 35000} budget.`;
+  const draft = buildPlannerStateDraft(session, summaryPrompt);
+
+  return assertValidPlannerState({
+    ...draft,
+    title: brief.eventType ? `${brief.eventType} Blueprint` : draft.title,
+    summary: `Initial draft for a ${brief.eventType ?? "premium event"} in ${brief.city ?? "your city"} (${brief.dateRange ?? "timing TBD"}) for ${brief.guestCount ?? 0} guests with a target budget of ${brief.budget ? `$${brief.budget.toLocaleString()}` : "TBD"}.`
+  });
+};
+
+const ensureSessionDefaults = (session: PlannerSession): PlannerSession => {
+  const hasPlannerState = Boolean(session.plannerState);
+
+  return {
+    ...session,
+    mode: session.mode ?? (hasPlannerState ? "template" : "scratch"),
+    briefStatus: session.briefStatus ?? (hasPlannerState ? "generated" : "collecting"),
+    canvasState: session.canvasState ?? (hasPlannerState ? "visible" : "hidden")
+  };
+};
+
 const createSeedSessions = (): PlannerSession[] => {
   const now = Date.now();
 
@@ -324,6 +517,16 @@ const createSeedSessions = (): PlannerSession[] => {
       title: "Product Launch Plan",
       createdAt: now - 1000 * 60 * 60 * 36,
       updatedAt: now - 1000 * 60 * 15,
+      mode: "template",
+      briefStatus: "generated",
+      canvasState: "visible",
+      draftBrief: {
+        eventType: "Product launch",
+        guestCount: 140,
+        budget: 30000,
+        city: "San Francisco",
+        dateRange: "March 2026"
+      },
       messages: [
         {
           id: "seed-msg-1",
@@ -346,6 +549,9 @@ const createSeedSessions = (): PlannerSession[] => {
           title: "source",
           createdAt: now,
           updatedAt: now,
+          mode: "template",
+          briefStatus: "generated",
+          canvasState: "visible",
           messages: [
             {
               id: "seed-state-user",
@@ -364,6 +570,9 @@ const createSeedSessions = (): PlannerSession[] => {
       title: "Offsite Q2",
       createdAt: now - 1000 * 60 * 60 * 80,
       updatedAt: now - 1000 * 60 * 60 * 7,
+      mode: "scratch",
+      briefStatus: "collecting",
+      canvasState: "hidden",
       messages: []
     },
     {
@@ -371,6 +580,9 @@ const createSeedSessions = (): PlannerSession[] => {
       title: "Brand Evening Blueprint",
       createdAt: now - 1000 * 60 * 60 * 110,
       updatedAt: now - 1000 * 60 * 60 * 22,
+      mode: "scratch",
+      briefStatus: "collecting",
+      canvasState: "hidden",
       messages: []
     },
     {
@@ -378,6 +590,9 @@ const createSeedSessions = (): PlannerSession[] => {
       title: "Roadshow NYC",
       createdAt: now - 1000 * 60 * 60 * 140,
       updatedAt: now - 1000 * 60 * 60 * 30,
+      mode: "scratch",
+      briefStatus: "collecting",
+      canvasState: "hidden",
       messages: []
     },
     {
@@ -385,6 +600,9 @@ const createSeedSessions = (): PlannerSession[] => {
       title: "Board Retreat",
       createdAt: now - 1000 * 60 * 60 * 190,
       updatedAt: now - 1000 * 60 * 60 * 60,
+      mode: "scratch",
+      briefStatus: "collecting",
+      canvasState: "hidden",
       messages: []
     },
     {
@@ -392,55 +610,110 @@ const createSeedSessions = (): PlannerSession[] => {
       title: "Holiday Gala Draft",
       createdAt: now - 1000 * 60 * 60 * 220,
       updatedAt: now - 1000 * 60 * 60 * 90,
+      mode: "scratch",
+      briefStatus: "collecting",
+      canvasState: "hidden",
       messages: []
     }
   ];
 };
 
+const createAssistantMessage = (text: string) => ({
+  id: nextId("assistant"),
+  role: "assistant" as const,
+  text,
+  status: "final" as const,
+  createdAt: Date.now()
+});
+
 export const plannerServiceMock: PlannerService = {
-  async sendMessage(session, userText) {
+  async sendMessage(sessionInput, userText) {
     await delay(520);
 
+    const session = ensureSessionDefaults(sessionInput);
     const trimmedText = userText.trim();
-    const userTurnCount = session.messages.filter((message) => message.role === "user").length;
-    let updatedPlannerState: PlannerState | undefined;
-    let assistantText =
-      "Great context. I can refine this into a stronger execution plan right away.";
 
-    if (userTurnCount <= 1) {
-      assistantText =
-        "Great start. To calibrate correctly, what guest count, target city, and budget range should I optimize for?";
-    } else if (userTurnCount === 2) {
-      assistantText =
-        "Perfect. Next I need your format priorities: stage-forward program, networking density, or content depth?";
-    } else if (userTurnCount === 3) {
-      updatedPlannerState = buildPlannerStateDraft(session, trimmedText);
-      assistantText =
-        "I drafted a blueprint with cost KPIs, layout inventory, and a working timeline. Review the right panel and tell me what to tighten.";
-    } else {
-      const existing = session.plannerState ?? buildPlannerStateDraft(session, trimmedText);
-      const revision = applyPlannerIntentUpdates(existing, trimmedText);
-      updatedPlannerState = revision.updatedState;
-      assistantText = revision.meta.conflictDetected
-        ? "I applied your changes, but the new constraints create execution pressure. I adjusted the tradeoff note and confidence so you can review the implications."
-        : revision.meta.inventoryChanged
-          ? "Inventory updates applied. I recalibrated cost, per-attendee spend, and execution confidence."
-          : revision.meta.budgetAdjusted
-            ? "Budget constraints are now reflected in the simulation, including a refreshed tradeoff note and spend mix."
-            : revision.meta.guestCountChanged
-              ? "Guest count update applied. Capacity assumptions and KPI efficiency are now aligned."
-              : "Updated the draft to reflect your latest guidance. Want me to prepare this for review status?";
+    if (session.mode === "scratch" && session.briefStatus !== "generated") {
+      const extracted = extractDraftBriefFromText(trimmedText);
+      const mergedBrief: DraftBrief = {
+        ...(session.draftBrief ?? {}),
+        ...extracted
+      };
+
+      if (session.lastAskedField && mergedBrief[session.lastAskedField] === undefined) {
+        Object.assign(mergedBrief, coerceReplyForAskedField(session.lastAskedField, trimmedText));
+      }
+
+      const missingField = getNextMissingBriefField(mergedBrief);
+      if (missingField) {
+        return {
+          assistantMessage: createAssistantMessage(BRIEF_FIELD_QUESTIONS[missingField]),
+          updatedSession: {
+            mode: "scratch",
+            briefStatus: "collecting",
+            canvasState: "hidden",
+            draftBrief: mergedBrief,
+            lastAskedField: missingField,
+            title:
+              session.title === "New plan"
+                ? deriveSessionTitleFromBrief(mergedBrief)
+                : session.title
+          }
+        };
+      }
+
+      const generatedPlannerState = buildBlueprintFromBrief(session, mergedBrief);
+      const synthesizedTitle = deriveSessionTitleFromBrief(mergedBrief);
+
+      return {
+        assistantMessage: createAssistantMessage("Generating your blueprint..."),
+        updatedSession: {
+          mode: "scratch",
+          briefStatus: "generating",
+          canvasState: "hidden",
+          draftBrief: mergedBrief,
+          lastAskedField: undefined,
+          title: synthesizedTitle
+        },
+        deferredGeneration: {
+          delayMs: 820,
+          plannerState: generatedPlannerState,
+          assistantText:
+            "Blueprint ready. I mapped your brief into the first draft. Tell me what you want to adjust.",
+          sessionUpdate: {
+            mode: "scratch",
+            briefStatus: "generated",
+            canvasState: "visible",
+            draftBrief: mergedBrief,
+            lastAskedField: undefined,
+            title: synthesizedTitle
+          }
+        }
+      };
     }
 
+    const existing = session.plannerState ?? buildPlannerStateDraft(session, trimmedText);
+    const revision = applyPlannerIntentUpdates(existing, trimmedText);
+    const updatedPlannerState = revision.updatedState;
+
+    const assistantText = revision.meta.conflictDetected
+      ? "I applied your changes, but the new constraints create execution pressure. I adjusted the tradeoff note and confidence so you can review the implications."
+      : revision.meta.inventoryChanged
+        ? "Inventory updates applied. I recalibrated cost, per-attendee spend, and execution confidence."
+        : revision.meta.budgetAdjusted
+          ? "Budget constraints are now reflected in the simulation, including a refreshed tradeoff note and spend mix."
+          : revision.meta.guestCountChanged
+            ? "Guest count update applied. Capacity assumptions and KPI efficiency are now aligned."
+            : "Updated the draft to reflect your latest guidance. Want me to tighten the timeline next?";
+
     return {
-      assistantMessage: {
-        id: nextId("assistant"),
-        role: "assistant",
-        text: assistantText,
-        status: "final",
-        createdAt: Date.now()
-      },
-      updatedPlannerState
+      assistantMessage: createAssistantMessage(assistantText),
+      updatedPlannerState,
+      updatedSession: {
+        mode: session.mode,
+        briefStatus: "generated",
+        canvasState: "visible"
+      }
     };
   },
 
@@ -451,6 +724,9 @@ export const plannerServiceMock: PlannerService = {
       title: "New plan",
       createdAt: now,
       updatedAt: now,
+      mode: "scratch",
+      briefStatus: "collecting",
+      canvasState: "hidden",
       messages: []
     };
   },

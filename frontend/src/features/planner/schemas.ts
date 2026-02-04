@@ -48,18 +48,31 @@ export const zPlannerState = z.object({
   status: z.enum(["draft", "ready_for_review", "approved"])
 });
 
+export const zDraftBrief = z.object({
+  eventType: z.string().min(1).optional(),
+  guestCount: z.number().positive().optional(),
+  budget: z.number().positive().optional(),
+  city: z.string().min(1).optional(),
+  dateRange: z.string().min(1).optional()
+});
+
 export const zPlannerSession = z.object({
   id: z.string().min(1),
   title: z.string().min(1),
   createdAt: z.number(),
   updatedAt: z.number(),
+  mode: z.enum(["scratch", "template"]),
+  briefStatus: z.enum(["collecting", "ready_to_generate", "generating", "generated"]),
+  canvasState: z.enum(["hidden", "visible"]),
+  draftBrief: zDraftBrief.optional(),
+  lastAskedField: z.enum(["eventType", "guestCount", "budget", "city", "dateRange"]).optional(),
   plannerStateUpdatedAt: z.number().optional(),
   messages: z.array(zChatMessage),
   plannerState: zPlannerState.optional()
 });
 
 export const zPlannerSessionsPayload = z.object({
-  version: z.literal(3),
+  version: z.literal(4),
   activeSessionId: z.string().nullable(),
   sessions: z.array(zPlannerSession)
 });

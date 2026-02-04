@@ -647,16 +647,48 @@ const OrganizerAIWorkspace: React.FC = () => {
             message.id === thinkingMessageId ? response.assistantMessage : message
           );
           const hasReplaced = replaced.some((message) => message.id === response.assistantMessage.id);
+          const sessionPatch = response.updatedSession ?? {};
+          const nextPlannerState =
+            response.updatedPlannerState ?? sessionPatch.plannerState ?? session.plannerState;
+          const plannerStateDidChange =
+            response.updatedPlannerState !== undefined || sessionPatch.plannerState !== undefined;
 
           return {
             ...session,
+            ...sessionPatch,
             messages: hasReplaced ? replaced : [...replaced, response.assistantMessage],
-            plannerState: response.updatedPlannerState ?? session.plannerState,
-            plannerStateUpdatedAt: response.updatedPlannerState
-              ? Date.now()
-              : session.plannerStateUpdatedAt
+            plannerState: nextPlannerState,
+            plannerStateUpdatedAt: plannerStateDidChange
+              ? sessionPatch.plannerStateUpdatedAt ?? Date.now()
+              : sessionPatch.plannerStateUpdatedAt ?? session.plannerStateUpdatedAt
           };
         });
+
+        if (response.deferredGeneration) {
+          const generationTimer = window.setTimeout(() => {
+            updateSession(targetSessionId, (session) => {
+              const generationAssistantMessage: ChatMessage = {
+                id: createMessageId("assistant-generated"),
+                role: "assistant",
+                text: response.deferredGeneration?.assistantText ?? "Blueprint generated.",
+                status: "final",
+                createdAt: Date.now()
+              };
+              const generationPatch = response.deferredGeneration?.sessionUpdate ?? {};
+
+              return {
+                ...session,
+                ...generationPatch,
+                plannerState: response.deferredGeneration?.plannerState ?? session.plannerState,
+                plannerStateUpdatedAt:
+                  generationPatch.plannerStateUpdatedAt ?? Date.now(),
+                messages: [...session.messages, generationAssistantMessage]
+              };
+            });
+          }, response.deferredGeneration.delayMs);
+
+          timeoutRefs.current.push(generationTimer);
+        }
       } catch (error) {
         console.error("plannerService.sendMessage failed:", error);
         updateSession(targetSessionId, (session) => ({
@@ -713,7 +745,7 @@ const OrganizerAIWorkspace: React.FC = () => {
       const assistantMessage: ChatMessage = {
         id: createMessageId("assistant-template"),
         role: "assistant",
-        text: `${template.title} is loaded. What do you want to change?`,
+        text: `Loaded the ${template.title}. What would you like to change?`,
         status: "final",
         createdAt: now
       };
@@ -721,6 +753,11 @@ const OrganizerAIWorkspace: React.FC = () => {
       updateSession(targetSessionId, (session) => ({
         ...session,
         title: template.title,
+        mode: "template",
+        briefStatus: "generated",
+        canvasState: "visible",
+        draftBrief: undefined,
+        lastAskedField: undefined,
         messages: [...session.messages, assistantMessage],
         plannerState: createTemplatePlannerState(template),
         plannerStateUpdatedAt: now

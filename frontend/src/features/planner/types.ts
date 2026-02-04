@@ -43,19 +43,55 @@ export type PlannerState = {
   status: "draft" | "ready_for_review" | "approved";
 };
 
+export type DraftBrief = {
+  eventType?: string;
+  guestCount?: number;
+  budget?: number;
+  city?: string;
+  dateRange?: string;
+};
+
+export type DraftBriefField = keyof DraftBrief;
+
+export type PlannerMode = "scratch" | "template";
+export type PlannerBriefStatus =
+  | "collecting"
+  | "ready_to_generate"
+  | "generating"
+  | "generated";
+export type PlannerCanvasState = "hidden" | "visible";
+
 export type PlannerSession = {
   id: string;
   title: string;
   createdAt: number;
   updatedAt: number;
+  mode: PlannerMode;
+  briefStatus: PlannerBriefStatus;
+  canvasState: PlannerCanvasState;
+  draftBrief?: DraftBrief;
+  lastAskedField?: DraftBriefField;
   plannerStateUpdatedAt?: number;
   messages: ChatMessage[];
   plannerState?: PlannerState;
 };
 
+export type PlannerSessionUpdate = Partial<
+  Omit<PlannerSession, "id" | "createdAt" | "updatedAt" | "messages">
+>;
+
+export type PlannerDeferredGeneration = {
+  delayMs: number;
+  plannerState: PlannerState;
+  assistantText: string;
+  sessionUpdate?: PlannerSessionUpdate;
+};
+
 export type PlannerServiceResponse = {
   assistantMessage: ChatMessage;
   updatedPlannerState?: PlannerState;
+  updatedSession?: PlannerSessionUpdate;
+  deferredGeneration?: PlannerDeferredGeneration;
 };
 
 export type PlannerService = {

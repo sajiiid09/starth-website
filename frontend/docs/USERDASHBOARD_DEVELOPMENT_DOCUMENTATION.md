@@ -18,8 +18,8 @@ The Organizer/User dashboard is being redesigned so the post-login landing exper
 - [Done] Phase 3 - Workspace shell (persistent Co-pilot + Canvas containers).
 - [Done] Phase 4 - Zero-state redesign (center prompt + 3 starter templates only).
 - [Done] Phase 5 - Remove Matches state/UI/service plumbing completely.
-- [Not Started] Phase 6 - Scratch/template branching behavior and canvas gating rules.
-- [Not Started] Phase 7 - Session continuity, accessibility, and responsive pass.
+- [Done] Phase 6 - Read-only canvas viewport contract (`PlanPreviewCanvas`) and organizer wiring.
+- [Not Started] Phase 7 - Scratch/template branching behavior and auto-scroll canvas guidance.
 - [Not Started] Phase 8 - QA hardening, regression checks, and rollout docs.
 
 ### Phase 2 Navigation Redesign (Implemented)
@@ -72,7 +72,7 @@ The Organizer/User dashboard is being redesigned so the post-login landing exper
 - Fresh-session bootstrap:
   - On first organizer planner load with no persisted planner storage, the route opens a fresh session so zero state is shown instead of seeded mock conversation content.
 - Transition behavior:
-  - Prompt submit from zero state -> exits zero state and starts Co-pilot chat flow; canvas visibility remains deferred until planning state exists (Phase 7 finalizes strict gating rules).
+  - Prompt submit from zero state -> exits zero state and starts Co-pilot chat flow; as of Phase 6, the canvas viewport mounts in read-only mode and remains blank until `planData` is available.
   - Template select from zero state -> exits zero state, seeds a template planner state + assistant follow-up message, and shows canvas immediately.
 - Scope safety:
   - Organizer/user planner route only.
@@ -105,6 +105,32 @@ The Organizer/User dashboard is being redesigned so the post-login landing exper
   - `frontend/src/pages/dashboard/OrganizerAIWorkspace.tsx`
   - deleted: `frontend/src/features/planner/components/RelevantMatchesPanel.tsx`
 
+### Phase 6 Read-only Canvas (Implemented)
+- Organizer planner canvas is now rendered by:
+  - `frontend/src/components/planner/PlanPreviewCanvas.tsx`
+- `PlanPreviewCanvas` contract:
+  - `planData: PlannerState | null`
+  - optional `highlightSection`
+  - one-way data flow only (no setter props).
+- Read-only enforcement:
+  - no inputs/selects/edit fields
+  - no drag/drop or reorder controls
+  - no approve/state-change actions in canvas UI
+  - no click-to-edit affordances.
+- Null-state rendering:
+  - when `planData` is `null`, canvas renders a blank white viewport (no placeholder copy).
+- Section anchors prepared for Phase 7/8 guidance:
+  - `#canvas-inventory`
+  - `#canvas-timeline`
+  - `#canvas-budget`
+- Organizer wiring:
+  - `frontend/src/pages/dashboard/OrganizerAIWorkspace.tsx` now passes `planData={activeSession?.plannerState ?? null}`.
+  - Canvas remains passive; all modifications happen through chat turns.
+- Files changed for Phase 6:
+  - added: `frontend/src/components/planner/PlanPreviewCanvas.tsx`
+  - modified: `frontend/src/pages/dashboard/OrganizerAIWorkspace.tsx`
+  - deleted: `frontend/src/features/planner/components/BlueprintDetailPanel.tsx`
+
 ### Current Code Map
 
 #### Route files involved
@@ -126,10 +152,11 @@ The Organizer/User dashboard is being redesigned so the post-login landing exper
 - `frontend/src/pages/dashboard/PlanWithAI.tsx`: route-level wrapper that renders `OrganizerAIWorkspace`.
 - `frontend/src/pages/dashboard/OrganizerAIWorkspace.tsx`:
   - Chat surface (internal `ChatPanel` + `MessageThread`) mounted as Co-pilot.
-  - Blueprint detail panel mounted as Canvas preview within immersive shell.
+  - `PlanPreviewCanvas` mounted as the read-only Canvas preview within immersive shell.
+  - Canvas receives one-way planner data via `planData={activeSession?.plannerState ?? null}`.
   - No `Matches` tabs/toggles rendered in organizer planner route.
   - Zero-state routing logic: show `ZeroStateLanding` when session has no messages and no planner state.
-- `frontend/src/features/planner/components/BlueprintDetailPanel.tsx`: current blueprint detail panel (closest current "canvas-ish" read-only structure).
+- `frontend/src/components/planner/PlanPreviewCanvas.tsx`: organizer canvas renderer (read-only, passive, deterministic preview).
 - `frontend/src/features/planner/PlannerSessionsContext.tsx`: planner session lifecycle/provider used by dashboard shell + workspace.
 - Legacy public planner (still in repo, not dashboard planner):
   - `frontend/src/pages/AIPlanner.tsx`

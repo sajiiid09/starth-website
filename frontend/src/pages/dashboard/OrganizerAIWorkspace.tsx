@@ -19,8 +19,8 @@ import {
   DialogTitle,
   DialogTrigger
 } from "@/components/ui/dialog";
+import PlanPreviewCanvas from "@/components/planner/PlanPreviewCanvas";
 import { Textarea } from "@/components/ui/textarea";
-import BlueprintDetailPanel from "@/features/planner/components/BlueprintDetailPanel";
 import OrganizerImmersiveShell from "@/features/immersive/OrganizerImmersiveShell";
 import ZeroStateLanding from "@/features/immersive/ZeroStateLanding";
 import {
@@ -33,21 +33,6 @@ import { plannerService } from "@/features/planner/services/plannerService";
 import { usePlannerSessions } from "@/features/planner/PlannerSessionsContext";
 import { PLANNER_SESSIONS_STORAGE_KEY } from "@/features/planner/utils/storage";
 import { ChatMessage, PlannerState } from "@/features/planner/types";
-type BlueprintHighlights = {
-  header: boolean;
-  kpis: boolean;
-  inventory: boolean;
-  timeline: boolean;
-  budget: boolean;
-};
-
-const defaultBlueprintHighlights: BlueprintHighlights = {
-  header: false,
-  kpis: false,
-  inventory: false,
-  timeline: false,
-  budget: false
-};
 
 const quickPrompts = [
   "Plan a 120-guest product launch in SF for March, budget $25k.",
@@ -552,23 +537,12 @@ const ChatPanel: React.FC<ChatPanelProps> = ({
 
 const OrganizerAIWorkspace: React.FC = () => {
   const [draftMessage, setDraftMessage] = React.useState("");
-  const [isCanvasLoading, setIsCanvasLoading] = React.useState(false);
-  const [blueprintHighlights, setBlueprintHighlights] =
-    React.useState<BlueprintHighlights>(defaultBlueprintHighlights);
   const creditsConfig = React.useMemo(() => getCreditsConfig(), []);
   const { credits, deduct, add, resetToDefault, isEnabled: isCreditsEnabled } = useCredits();
-  const { isReady, activeSessionId, activeSession, setActiveSession, createNewSession, updateSession } =
+  const { isReady, activeSession, setActiveSession, createNewSession, updateSession } =
     usePlannerSessions();
   const timeoutRefs = React.useRef<number[]>([]);
-  const blueprintTimeoutRef = React.useRef<number | null>(null);
   const hasBootstrappedFreshSessionRef = React.useRef(false);
-  const previousPlannerSnapshotRef = React.useRef<{
-    sessionId: string | null;
-    plannerState?: PlannerState;
-    plannerStateUpdatedAt?: number;
-  }>({
-    sessionId: null
-  });
 
   const messages = activeSession?.messages ?? [];
   const hasBlueprint = Boolean(activeSession?.plannerState);
@@ -578,10 +552,6 @@ const OrganizerAIWorkspace: React.FC = () => {
     return () => {
       timeoutRefs.current.forEach((timer) => window.clearTimeout(timer));
       timeoutRefs.current = [];
-      if (blueprintTimeoutRef.current) {
-        window.clearTimeout(blueprintTimeoutRef.current);
-        blueprintTimeoutRef.current = null;
-      }
     };
   }, []);
 
@@ -604,145 +574,10 @@ const OrganizerAIWorkspace: React.FC = () => {
     hasBootstrappedFreshSessionRef.current = true;
   }, [activeSession, createNewSession, isReady]);
 
-  React.useEffect(() => {
-    if (!activeSessionId) {
-      setIsCanvasLoading(false);
-      return;
-    }
-
-    setIsCanvasLoading(true);
-    const timer = window.setTimeout(() => {
-      setIsCanvasLoading(false);
-    }, 140);
-
-    return () => {
-      window.clearTimeout(timer);
-    };
-  }, [activeSessionId]);
-
-  React.useEffect(() => {
-    const currentState = activeSession?.plannerState;
-    const currentUpdatedAt = activeSession?.plannerStateUpdatedAt;
-    const previous = previousPlannerSnapshotRef.current;
-    const sessionChanged = previous.sessionId !== (activeSessionId ?? null);
-
-    if (!currentState) {
-      previousPlannerSnapshotRef.current = {
-        sessionId: activeSessionId ?? null,
-        plannerState: undefined,
-        plannerStateUpdatedAt: undefined
-      };
-      setBlueprintHighlights(defaultBlueprintHighlights);
-      return;
-    }
-
-    if (sessionChanged || !previous.plannerState) {
-      previousPlannerSnapshotRef.current = {
-        sessionId: activeSessionId ?? null,
-        plannerState: currentState,
-        plannerStateUpdatedAt: currentUpdatedAt
-      };
-      setBlueprintHighlights(defaultBlueprintHighlights);
-      return;
-    }
-
-    const nextHighlights: BlueprintHighlights = {
-      header:
-        previous.plannerState.status !== currentState.status ||
-        previous.plannerState.summary !== currentState.summary ||
-        previous.plannerState.title !== currentState.title ||
-        previous.plannerStateUpdatedAt !== currentUpdatedAt,
-      kpis:
-        previous.plannerState.kpis.totalCost !== currentState.kpis.totalCost ||
-        previous.plannerState.kpis.costPerAttendee !== currentState.kpis.costPerAttendee ||
-        previous.plannerState.kpis.confidencePct !== currentState.kpis.confidencePct,
-      inventory:
-        JSON.stringify(previous.plannerState.spacePlan.inventory) !==
-        JSON.stringify(currentState.spacePlan.inventory),
-      timeline:
-        JSON.stringify(previous.plannerState.timeline) !== JSON.stringify(currentState.timeline),
-      budget: JSON.stringify(previous.plannerState.budget) !== JSON.stringify(currentState.budget)
-    };
-
-    const hasChanges = Object.values(nextHighlights).some(Boolean);
-    if (hasChanges) {
-      setBlueprintHighlights(nextHighlights);
-      if (blueprintTimeoutRef.current) {
-        window.clearTimeout(blueprintTimeoutRef.current);
-      }
-      blueprintTimeoutRef.current = window.setTimeout(() => {
-        setBlueprintHighlights(defaultBlueprintHighlights);
-        blueprintTimeoutRef.current = null;
-      }, 700);
-    }
-
-    previousPlannerSnapshotRef.current = {
-      sessionId: activeSessionId ?? null,
-      plannerState: currentState,
-      plannerStateUpdatedAt: currentUpdatedAt
-    };
-  }, [activeSession?.plannerState, activeSession?.plannerStateUpdatedAt, activeSessionId]);
-
-  const handleApproveLayout = React.useCallback(() => {
-    if (!activeSessionId) return;
-    const approvalTime = Date.now();
-
-    updateSession(activeSessionId, (session) => {
-      if (!session.plannerState || session.plannerState.status === "approved") {
-        return session;
-      }
-
-      const approvalMessage: ChatMessage = {
-        id: createMessageId("assistant-approval"),
-        role: "assistant",
-        text: "Layout approved. I locked the blueprint status and captured this as the active orchestration baseline.",
-        status: "final",
-        createdAt: approvalTime
-      };
-
-      return {
-        ...session,
-        plannerState: {
-          ...session.plannerState,
-          status: "approved"
-        },
-        plannerStateUpdatedAt: approvalTime,
-        messages: [...session.messages, approvalMessage]
-      };
-    });
-  }, [activeSessionId, updateSession]);
-
-  const renderCanvasPanel = (heightClass = "h-full min-h-0") => {
-    if (activeSession?.plannerState) {
-      return (
-        <BlueprintDetailPanel
-          plannerState={activeSession.plannerState}
-          plannerStateUpdatedAt={activeSession.plannerStateUpdatedAt}
-          changedSections={blueprintHighlights}
-          onApproveLayout={handleApproveLayout}
-          heightClass={heightClass}
-          isLoading={isCanvasLoading}
-        />
-      );
-    }
-
-    return (
-      <aside
-        className={`flex min-h-0 flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm ${heightClass}`}
-        aria-label="Canvas preview panel"
-      >
-        <div className="border-b border-slate-200 px-5 py-4">
-          <p className="text-xs font-semibold uppercase tracking-[0.24em] text-slate-500">
-            Canvas Preview
-          </p>
-          <h2 className="mt-1 text-lg font-semibold text-slate-900">Blueprint will appear here</h2>
-          <p className="mt-1 text-xs text-slate-600">
-            Send a prompt in Co-pilot to generate your first planning blueprint.
-          </p>
-        </div>
-      </aside>
-    );
-  };
+  const renderCanvasPanel = React.useCallback(
+    () => <PlanPreviewCanvas planData={activeSession?.plannerState ?? null} />,
+    [activeSession?.plannerState]
+  );
 
   const sendMessage = React.useCallback(
     async (rawMessageText: string) => {
@@ -919,7 +754,7 @@ const OrganizerAIWorkspace: React.FC = () => {
   return (
     <div className="mx-auto w-full max-w-[1600px]">
       <OrganizerImmersiveShell
-        showCanvas={hasBlueprint}
+        showCanvas
         topBar={
           <section className="overflow-hidden rounded-2xl border border-slate-200 bg-gradient-to-br from-white via-slate-50 to-brand-light px-6 py-5 shadow-sm">
             <p className="text-xs font-semibold uppercase tracking-[0.3em] text-brand-teal">
@@ -935,7 +770,7 @@ const OrganizerAIWorkspace: React.FC = () => {
             <p className="mt-2 max-w-3xl text-sm text-slate-600">
               {hasBlueprint
                 ? "Persistent co-pilot chat sits alongside a live canvas preview with independent scrolling regions."
-                : "Co-pilot remains active while your plan is being initialized. Canvas visibility is controlled by the planning path."}
+                : "The canvas viewport is mounted in read-only mode and remains blank until a generated plan is available."}
             </p>
           </section>
         }
@@ -955,7 +790,7 @@ const OrganizerAIWorkspace: React.FC = () => {
             heightClass="h-full min-h-0 rounded-none border-0 shadow-none"
           />
         }
-        canvas={renderCanvasPanel("h-full min-h-0 rounded-none border-0 shadow-none")}
+        canvas={renderCanvasPanel()}
       />
     </div>
   );

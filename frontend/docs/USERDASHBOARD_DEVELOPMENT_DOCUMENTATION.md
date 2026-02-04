@@ -14,13 +14,31 @@ The Organizer/User dashboard is being redesigned so the post-login landing exper
 
 ### Phase Checklist (1–8)
 - [Done] Phase 1 - Baseline audit + docs setup.
-- [Not Started] Phase 2 - Immersive shell scaffolding wired behind current routes.
-- [Not Started] Phase 3 - Rail icon strip + nav drawer overlay behavior.
-- [Not Started] Phase 4 - Persistent co-pilot chat column behavior.
-- [Not Started] Phase 5 - Canvas read-only preview surface and data mapping.
-- [Not Started] Phase 6 - Zero-state flow (center prompt + 3 templates) and scratch/template branching.
+- [Done] Phase 2 - Navigation redesign (rail + floating overlay drawer, organizer scoped).
+- [Not Started] Phase 3 - Co-pilot persistent chat column behavior.
+- [Not Started] Phase 4 - Canvas read-only preview surface and data mapping.
+- [Not Started] Phase 5 - Zero-state flow (center prompt + 3 templates).
+- [Not Started] Phase 6 - Scratch/template branching behavior and canvas gating rules.
 - [Not Started] Phase 7 - Session continuity, accessibility, and responsive pass.
 - [Not Started] Phase 8 - QA hardening, regression checks, and rollout docs.
+
+### Phase 2 Navigation Redesign (Implemented)
+- Organizer dashboard now uses a thin icon rail (`w-16`) as the default nav surface.
+- Organizer rail menu opens a fixed-position floating drawer overlay that sits over content and does not change workspace column widths.
+- Overlay close behaviors implemented:
+  - Escape key closes drawer.
+  - Scrim/outside click closes drawer.
+  - Selecting a nav link or planner session closes drawer.
+- Overlay also locks body scroll while open and restores scroll on close.
+- Scope safety:
+  - Applied only to organizer/user dashboard shell.
+  - Vendor/admin keep the existing full sidebar behavior.
+  - Public website layout/pages are unchanged.
+- Files added/modified for Phase 2:
+  - `frontend/src/features/immersive/navItems.ts` (typed organizer nav config)
+  - `frontend/src/features/immersive/RailNav.tsx` (icon rail + tooltips + menu trigger)
+  - `frontend/src/features/immersive/NavDrawerOverlay.tsx` (floating drawer + scrim/close behavior)
+  - `frontend/src/components/dashboard/DashboardShell.tsx` (organizer-only wiring and conditional sidebar scoping)
 
 ### Current Code Map
 
@@ -36,7 +54,7 @@ The Organizer/User dashboard is being redesigned so the post-login landing exper
 - `frontend/src/pages/AppEntry.tsx`: organizer post-auth redirect target is `/dashboard/ai-planner` via `getPostAuthRedirectPath`.
 
 #### Layout + workspace components
-- `frontend/src/components/dashboard/DashboardShell.tsx`: organizer dashboard shell, sidebar nav, and planner chat-session list under `AI Planner`.
+- `frontend/src/components/dashboard/DashboardShell.tsx`: organizer dashboard shell with immersive rail + overlay drawer; vendor/admin keep legacy sidebar.
 - `frontend/src/pages/dashboard/PlanWithAI.tsx`: route-level wrapper that renders `OrganizerAIWorkspace`.
 - `frontend/src/pages/dashboard/OrganizerAIWorkspace.tsx`:
   - Chat surface (internal `ChatPanel` + `MessageThread`).

@@ -3,6 +3,68 @@
 ## Overview
 The Organizer/User dashboard is being redesigned so the post-login landing experience is a dedicated AI workspace shell. This decouples dashboard planning UX from the public website AI planner and sets a clean foundation for phased feature delivery.
 
+## Immersive AI Editor Redesign (Rail + Co-pilot + Canvas)
+
+### Locked UX Rules
+- Rail icon strip (5%), Co-pilot persistent chat (25%), Canvas read-only preview (70%).
+- Global nav behaves like overlay drawer (no layout shift).
+- No Matches tab.
+- Zero state = centered prompt + 3-card template grid only.
+- Canvas hidden during scratch flow until chain questions completed; template selection loads canvas immediately.
+
+### Phase Checklist (1–8)
+- [Done] Phase 1 - Baseline audit + docs setup.
+- [Not Started] Phase 2 - Immersive shell scaffolding wired behind current routes.
+- [Not Started] Phase 3 - Rail icon strip + nav drawer overlay behavior.
+- [Not Started] Phase 4 - Persistent co-pilot chat column behavior.
+- [Not Started] Phase 5 - Canvas read-only preview surface and data mapping.
+- [Not Started] Phase 6 - Zero-state flow (center prompt + 3 templates) and scratch/template branching.
+- [Not Started] Phase 7 - Session continuity, accessibility, and responsive pass.
+- [Not Started] Phase 8 - QA hardening, regression checks, and rollout docs.
+
+### Current Code Map
+
+#### Route files involved
+- `frontend/src/pages/routes/DashboardRoutes.tsx`:
+  - Organizer dashboard home route: `createPageUrl("Dashboard")` -> `/dashboard`.
+  - Organizer AI planner route: `/dashboard/ai-planner` -> `PlanWithAI`.
+  - Planner compatibility alias: `/dashboard/plan-with-ai` -> redirect to `/dashboard/ai-planner`.
+  - Dashboard home alias: `/dashboard/home` -> redirect to `/dashboard`.
+- `frontend/src/pages/routes/lazyPages.ts`: lazy route bindings for `PlanWithAI`, `OrganizerAIWorkspace`, and organizer dashboard pages.
+- `frontend/src/pages/Layout.tsx`: dashboard route matcher (`/dashboard`, `/vendor`, `/admin`) and `DashboardShell` wrapper selection.
+- `frontend/src/pages/routes/PublicRoutes.tsx`: public planner route (`createPageUrl("AIPlanner")` -> `/ai-planner`) remains separate from dashboard planner.
+- `frontend/src/pages/AppEntry.tsx`: organizer post-auth redirect target is `/dashboard/ai-planner` via `getPostAuthRedirectPath`.
+
+#### Layout + workspace components
+- `frontend/src/components/dashboard/DashboardShell.tsx`: organizer dashboard shell, sidebar nav, and planner chat-session list under `AI Planner`.
+- `frontend/src/pages/dashboard/PlanWithAI.tsx`: route-level wrapper that renders `OrganizerAIWorkspace`.
+- `frontend/src/pages/dashboard/OrganizerAIWorkspace.tsx`:
+  - Chat surface (internal `ChatPanel` + `MessageThread`).
+  - Right panel mode switch (`matches` / `blueprint`) and responsive tablet/mobile variants.
+- `frontend/src/features/planner/components/RelevantMatchesPanel.tsx`: current matches panel UI (still present in current implementation).
+- `frontend/src/features/planner/components/BlueprintDetailPanel.tsx`: current blueprint detail panel (closest current "canvas-ish" read-only structure).
+- `frontend/src/features/planner/PlannerSessionsContext.tsx`: planner session lifecycle/provider used by dashboard shell + workspace.
+- Legacy public planner (still in repo, not dashboard planner):
+  - `frontend/src/pages/AIPlanner.tsx`
+  - `frontend/src/components/planner/ChatInterface.tsx`
+  - `frontend/src/components/planner/ResultsPanels.tsx`
+  - `frontend/src/components/planner/PlannerPromptBox.tsx`
+
+#### Current session storage + types
+- Organizer role + dashboard session:
+  - `frontend/src/utils/role.ts` -> localStorage key `activeRole` (`AppRole` + role mapping helpers).
+  - `frontend/src/utils/session.ts` -> localStorage key `starth_session_state` (`SessionState` with role/vendor onboarding state).
+- Planner sessions (dashboard AI workspace):
+  - `frontend/src/features/planner/utils/storage.ts` -> localStorage key `strathwell_planner_sessions_v2`.
+  - Payload schema (`version: 2`): `{ version, activeSessionId, sessions }`.
+  - Types: `PlannerStoragePayload`, `PlannerSession`, `ChatMessage`, `MatchesState`, `PlannerState` from `frontend/src/features/planner/types.ts`.
+  - Validation: `zPlannerSessionsPayload`, `zPlannerSession`, `zPlannerState` in `frontend/src/features/planner/schemas.ts`.
+- Credits (planner gating, frontend-only):
+  - `frontend/src/features/planner/credits/storage.ts` -> localStorage key `strathwell_credits_v1` (versioned credits payload).
+- Auth/planner intent sessionStorage:
+  - `frontend/src/utils/authSession.ts` -> sessionStorage key `currentUser`.
+  - `frontend/src/utils/pendingIntent.ts` -> sessionStorage key `pendingPlannerIntent`.
+
 ## Phase Checklist
 - [x] Phase 1 - Foundations, routing switch, and documentation scaffolding
 - [x] Phase 2 - 3-panel responsive workspace layout (chat + matches placeholders)

@@ -57,6 +57,9 @@ const DashboardShellContent: React.FC<DashboardShellContentProps> = ({ children,
   const location = useLocation();
   const navigate = useNavigate();
   const [isImmersiveDrawerOpen, setIsImmersiveDrawerOpen] = React.useState(false);
+  const railMenuTriggerRef = React.useRef<HTMLButtonElement | null>(null);
+  const mobileMenuTriggerRef = React.useRef<HTMLButtonElement | null>(null);
+  const drawerReturnFocusRef = React.useRef<HTMLElement | null>(null);
   const { sessions, activeSessionId, setActiveSession, createNewSession } = usePlannerSessions();
   const useImmersiveNav = role === "user";
 
@@ -97,6 +100,16 @@ const DashboardShellContent: React.FC<DashboardShellContentProps> = ({ children,
     navigate(AI_PLANNER_ROUTE);
   };
 
+  const openImmersiveDrawer = React.useCallback((trigger?: HTMLElement | null) => {
+    drawerReturnFocusRef.current =
+      trigger ?? railMenuTriggerRef.current ?? mobileMenuTriggerRef.current;
+    setIsImmersiveDrawerOpen(true);
+  }, []);
+
+  const closeImmersiveDrawer = React.useCallback(() => {
+    setIsImmersiveDrawerOpen(false);
+  }, []);
+
   React.useEffect(() => {
     setIsImmersiveDrawerOpen(false);
   }, [location.pathname]);
@@ -107,17 +120,19 @@ const DashboardShellContent: React.FC<DashboardShellContentProps> = ({ children,
         <>
           <RailNav
             items={organizerNavItems}
-            onOpenDrawer={() => setIsImmersiveDrawerOpen(true)}
+            menuButtonRef={railMenuTriggerRef}
+            onOpenDrawer={openImmersiveDrawer}
           />
           <NavDrawerOverlay
             isOpen={isImmersiveDrawerOpen}
-            onClose={() => setIsImmersiveDrawerOpen(false)}
+            onClose={closeImmersiveDrawer}
             items={organizerNavItems}
             onSignOut={handleSignOut}
             plannerSessions={sessions}
             activeSessionId={activeSessionId}
             onSelectPlannerSession={handleSelectPlannerSession}
             onCreatePlannerSession={handleCreatePlannerSession}
+            returnFocusRef={drawerReturnFocusRef}
           />
         </>
       ) : (
@@ -176,10 +191,11 @@ const DashboardShellContent: React.FC<DashboardShellContentProps> = ({ children,
           <div className="flex items-center gap-2">
             {useImmersiveNav && (
               <Button
+                ref={mobileMenuTriggerRef}
                 variant="ghost"
                 size="icon"
                 className="h-9 w-9 rounded-xl md:hidden"
-                onClick={() => setIsImmersiveDrawerOpen(true)}
+                onClick={(event) => openImmersiveDrawer(event.currentTarget)}
                 aria-label="Open organizer navigation menu"
               >
                 <Menu className="h-4 w-4" />

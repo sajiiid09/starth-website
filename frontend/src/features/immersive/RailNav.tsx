@@ -7,10 +7,11 @@ import { NavItem, isNavItemActive } from "@/features/immersive/navItems";
 
 type RailNavProps = {
   items: NavItem[];
-  onOpenDrawer: () => void;
+  onOpenDrawer: (trigger?: HTMLElement | null) => void;
+  menuButtonRef?: React.RefObject<HTMLButtonElement | null>;
 };
 
-const RailNav: React.FC<RailNavProps> = ({ items, onOpenDrawer }) => {
+const RailNav: React.FC<RailNavProps> = ({ items, onOpenDrawer, menuButtonRef }) => {
   const location = useLocation();
 
   return (
@@ -19,10 +20,11 @@ const RailNav: React.FC<RailNavProps> = ({ items, onOpenDrawer }) => {
         <Tooltip>
           <TooltipTrigger asChild>
             <Button
+              ref={menuButtonRef}
               variant="ghost"
               size="icon"
               className="h-10 w-10 rounded-xl text-slate-600 hover:bg-slate-100 hover:text-slate-900"
-              onClick={onOpenDrawer}
+              onClick={(event) => onOpenDrawer(event.currentTarget)}
               aria-label="Open navigation menu"
             >
               <Menu className="h-4 w-4" />

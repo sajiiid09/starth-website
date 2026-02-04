@@ -33,9 +33,9 @@ const ZeroStateLanding: React.FC<ZeroStateLandingProps> = ({
   };
 
   return (
-    <div className="flex min-h-[calc(100vh-12rem)] w-full items-center justify-center px-4 py-6">
+    <div className="flex min-h-[calc(100vh-8rem)] w-full items-center justify-center px-4 py-6 transition-opacity duration-200 ease-out">
       <div className="w-full max-w-5xl">
-        <div className="mx-auto w-full max-w-2xl rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+        <div className="mx-auto w-full max-w-2xl rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
           <div className="flex items-end gap-2">
             <Textarea
               value={draft}
@@ -56,13 +56,13 @@ const ZeroStateLanding: React.FC<ZeroStateLandingProps> = ({
           </div>
         </div>
 
-        <div className="mx-auto mt-5 grid w-full max-w-5xl gap-3 md:grid-cols-3">
+        <div className="mx-auto mt-5 grid w-full max-w-5xl gap-4 md:grid-cols-3">
           {templates.map((template) => (
             <button
               key={template.id}
               type="button"
               onClick={() => onSelectTemplate(template.id)}
-              className="group overflow-hidden rounded-2xl border border-slate-200 bg-white text-left shadow-sm transition-colors duration-200 hover:border-slate-300 hover:bg-slate-50"
+              className="group overflow-hidden rounded-2xl border border-slate-200 bg-white text-left shadow-sm transition-all duration-200 ease-out hover:-translate-y-0.5 hover:border-slate-300 hover:bg-slate-50"
             >
               <div className="h-32 w-full overflow-hidden bg-slate-100">
                 {template.imageUrl ? (

@@ -12,6 +12,15 @@ The Organizer/User dashboard is being redesigned so the post-login landing exper
 - Zero state = centered prompt + 3-card template grid only.
 - Canvas hidden during scratch flow until chain questions completed; template selection loads canvas immediately.
 
+### Locked Rules (Do Not Change)
+- Rail remains thin icon-first navigation (`~5%` visual footprint).
+- Drawer overlays workspace and never causes co-pilot/canvas layout shift.
+- Co-pilot chat is the only control surface for plan changes.
+- Canvas stays read-only with one-way `planData` input.
+- Zero state contains only centered prompt + 3 starter cards.
+- Scratch start delays canvas population until required brief fields are completed.
+- Template start loads canvas immediately and asks what to change.
+
 ### Phase Checklist (1–8)
 - [Done] Phase 1 - Baseline audit + docs setup.
 - [Done] Phase 2 - Navigation redesign (rail + floating overlay drawer, organizer scoped).
@@ -20,7 +29,7 @@ The Organizer/User dashboard is being redesigned so the post-login landing exper
 - [Done] Phase 5 - Remove Matches state/UI/service plumbing completely.
 - [Done] Phase 6 - Read-only canvas viewport contract (`PlanPreviewCanvas`) and organizer wiring.
 - [Done] Phase 7 - Scratch-flow brief collection state machine and delayed canvas reveal.
-- [Not Started] Phase 8 - QA hardening, regression checks, and rollout docs.
+- [Done] Phase 8 - Polish, accessibility QA, motion pass, and finalization.
 
 ### Phase 2 Navigation Redesign (Implemented)
 - Organizer dashboard now uses a thin icon rail (`w-16`) as the default nav surface.
@@ -164,6 +173,44 @@ The Organizer/User dashboard is being redesigned so the post-login landing exper
   - `frontend/src/features/planner/PlannerSessionsContext.tsx`
   - `frontend/src/features/planner/services/plannerService.mock.ts`
   - `frontend/src/pages/dashboard/OrganizerAIWorkspace.tsx`
+
+### Phase 8 Polish + QA + Finalization (Implemented)
+- Motion polish (Tailwind-only):
+  - nav drawer keeps smooth slide-in transform and scrim fade.
+  - chat messages retain lightweight enter motion (`opacity + slight translate`).
+  - zero-state and immersive surfaces share consistent viewport sizing to reduce transition jank.
+- Accessibility + keyboard:
+  - drawer `Esc` close kept and validated.
+  - focus management added for drawer open/close:
+    - opening focuses drawer close button.
+    - closing returns focus to the trigger element (rail button or mobile menu button).
+  - keyboard tab loop is constrained within drawer while open.
+- Mobile behavior:
+  - menu button opens drawer reliably on touch devices.
+  - co-pilot stays primary in mobile shell; canvas stays in `Preview` sheet.
+  - drawer open keeps body scroll locked to avoid overlay scroll conflicts.
+- Visual consistency pass:
+  - standardized spacing/padding across `ZeroStateLanding` and `NavDrawerOverlay`.
+  - confirmed no `Chat history` label is rendered in organizer nav.
+  - canvas remains read-only and blank when no plan data exists.
+- Files changed for Phase 8:
+  - `frontend/src/components/dashboard/DashboardShell.tsx`
+  - `frontend/src/features/immersive/RailNav.tsx`
+  - `frontend/src/features/immersive/NavDrawerOverlay.tsx`
+  - `frontend/src/features/immersive/ZeroStateLanding.tsx`
+
+### Demo Checklist (Scratch vs Template)
+- Scratch flow:
+  - open `/dashboard/ai-planner` as organizer
+  - submit freeform prompt in zero-state composer
+  - verify chained assistant questions for missing brief fields
+  - verify canvas stays blank/read-only until brief completion
+  - verify `Generating your blueprint...` assistant step appears, then blueprint renders.
+- Template flow:
+  - open `/dashboard/ai-planner` zero state
+  - click any starter template card
+  - verify canvas renders template blueprint immediately
+  - verify assistant asks what to change and follow-up edits happen via chat only.
 
 ### Current Code Map
 

@@ -14,6 +14,7 @@ type NavDrawerOverlayProps = {
   activeSessionId: string | null;
   onSelectPlannerSession: (sessionId: string) => void;
   onCreatePlannerSession: () => void;
+  returnFocusRef?: React.RefObject<HTMLElement | null>;
 };
 
 const NavDrawerOverlay: React.FC<NavDrawerOverlayProps> = ({
@@ -24,22 +25,56 @@ const NavDrawerOverlay: React.FC<NavDrawerOverlayProps> = ({
   plannerSessions,
   activeSessionId,
   onSelectPlannerSession,
-  onCreatePlannerSession
+  onCreatePlannerSession,
+  returnFocusRef
 }) => {
   const location = useLocation();
+  const closeButtonRef = React.useRef<HTMLButtonElement>(null);
+  const dialogRef = React.useRef<HTMLElement>(null);
+  const wasOpenRef = React.useRef(false);
 
   React.useEffect(() => {
     if (!isOpen) return;
 
-    const handleEscape = (event: KeyboardEvent) => {
+    const focusInitialTarget = window.setTimeout(() => {
+      closeButtonRef.current?.focus();
+    }, 0);
+
+    const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
         onClose();
+        return;
+      }
+
+      if (event.key !== "Tab" || !dialogRef.current) {
+        return;
+      }
+
+      const focusable = dialogRef.current.querySelectorAll<HTMLElement>(
+        'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), [tabindex]:not([tabindex="-1"])'
+      );
+
+      if (focusable.length === 0) {
+        return;
+      }
+
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      const active = document.activeElement as HTMLElement | null;
+
+      if (event.shiftKey && active === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && active === last) {
+        event.preventDefault();
+        first.focus();
       }
     };
 
-    window.addEventListener("keydown", handleEscape);
+    window.addEventListener("keydown", handleKeyDown);
     return () => {
-      window.removeEventListener("keydown", handleEscape);
+      window.clearTimeout(focusInitialTarget);
+      window.removeEventListener("keydown", handleKeyDown);
     };
   }, [isOpen, onClose]);
 
@@ -54,21 +89,31 @@ const NavDrawerOverlay: React.FC<NavDrawerOverlayProps> = ({
     };
   }, [isOpen]);
 
+  React.useEffect(() => {
+    if (wasOpenRef.current && !isOpen) {
+      returnFocusRef?.current?.focus();
+    }
+    wasOpenRef.current = isOpen;
+  }, [isOpen, returnFocusRef]);
+
   return (
     <div
-      className={`fixed inset-0 z-40 transition-opacity duration-200 ${
+      className={`fixed inset-0 z-40 transition-opacity duration-200 ease-out ${
         isOpen ? "pointer-events-auto opacity-100" : "pointer-events-none opacity-0"
       }`}
       aria-hidden={!isOpen}
     >
       <button
         type="button"
-        className="absolute inset-0 bg-slate-900/35"
+        className={`absolute inset-0 bg-slate-900/35 transition-opacity duration-200 ease-out ${
+          isOpen ? "opacity-100" : "opacity-0"
+        }`}
         aria-label="Close navigation menu"
         onClick={onClose}
       />
 
       <aside
+        ref={dialogRef}
         role="dialog"
         aria-modal="true"
         aria-label="Organizer navigation menu"
@@ -85,6 +130,7 @@ const NavDrawerOverlay: React.FC<NavDrawerOverlayProps> = ({
               <h2 className="mt-1 text-lg font-semibold text-slate-900">Workspace Menu</h2>
             </div>
             <Button
+              ref={closeButtonRef}
               variant="ghost"
               size="icon"
               className="h-9 w-9 rounded-xl text-slate-600 hover:bg-slate-100 hover:text-slate-900"
@@ -95,7 +141,7 @@ const NavDrawerOverlay: React.FC<NavDrawerOverlayProps> = ({
             </Button>
           </header>
 
-          <div className="flex-1 space-y-5 overflow-y-auto p-4">
+          <div className="flex-1 space-y-5 overflow-y-auto p-5">
             <nav className="space-y-1">
               {items.map((item) => {
                 const Icon = item.icon;
@@ -119,7 +165,7 @@ const NavDrawerOverlay: React.FC<NavDrawerOverlayProps> = ({
               })}
             </nav>
 
-            <section className="rounded-xl border border-slate-200 bg-slate-50/70 p-3">
+            <section className="rounded-xl border border-slate-200 bg-slate-50/70 p-4">
               <div className="mb-2 flex items-center justify-between gap-2">
                 <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">
                   Planner Sessions
@@ -172,7 +218,7 @@ const NavDrawerOverlay: React.FC<NavDrawerOverlayProps> = ({
             </section>
           </div>
 
-          <footer className="border-t border-slate-200 p-4">
+          <footer className="border-t border-slate-200 p-5">
             <Button
               variant="outline"
               className="w-full justify-start rounded-xl border-slate-200 text-slate-700 hover:bg-slate-100"

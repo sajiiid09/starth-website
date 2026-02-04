@@ -16,19 +16,30 @@ const OrganizerImmersiveShell: React.FC<OrganizerImmersiveShellProps> = ({
   topBar
 }) => {
   const [isPreviewOpen, setIsPreviewOpen] = React.useState(false);
+  const desktopColumnsClass = showCanvas
+    ? "lg:grid-cols-[clamp(22rem,25vw,26rem)_minmax(0,1fr)]"
+    : "lg:grid-cols-1";
 
   return (
     <div className="flex min-h-[calc(100vh-8rem)] flex-col gap-4">
       {topBar}
 
       <div className="min-h-0 flex-1">
-        <div className="hidden h-full min-h-0 rounded-2xl border border-slate-200 bg-white shadow-sm lg:grid lg:grid-cols-[clamp(22rem,25vw,26rem)_minmax(0,1fr)]">
-          <div className="min-h-0 overflow-hidden border-r border-slate-200">{copilot}</div>
+        <div
+          className={`hidden h-full min-h-0 rounded-2xl border border-slate-200 bg-white shadow-sm lg:grid ${desktopColumnsClass}`}
+        >
+          <div className={`min-h-0 overflow-hidden ${showCanvas ? "border-r border-slate-200" : ""}`}>
+            {copilot}
+          </div>
           {showCanvas && <div className="min-h-0 overflow-hidden">{canvas}</div>}
         </div>
 
         <div className="hidden h-full min-h-0 flex-col gap-4 md:flex lg:hidden">
-          <div className="min-h-0 basis-[56%] overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+          <div
+            className={`min-h-0 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm ${
+              showCanvas ? "basis-[56%]" : "flex-1"
+            }`}
+          >
             {copilot}
           </div>
           {showCanvas && (

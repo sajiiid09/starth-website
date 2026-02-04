@@ -22,10 +22,16 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import BlueprintDetailPanel from "@/features/planner/components/BlueprintDetailPanel";
 import OrganizerImmersiveShell from "@/features/immersive/OrganizerImmersiveShell";
+import ZeroStateLanding from "@/features/immersive/ZeroStateLanding";
+import {
+  StarterTemplate,
+  starterTemplates
+} from "@/features/immersive/data/starterTemplates";
 import { useCredits } from "@/features/planner/credits/useCredits";
 import { getCreditsConfig } from "@/features/planner/credits/storage";
 import { plannerService } from "@/features/planner/services/plannerService";
 import { usePlannerSessions } from "@/features/planner/PlannerSessionsContext";
+import { PLANNER_SESSIONS_STORAGE_KEY } from "@/features/planner/utils/storage";
 import { ChatMessage, PlannerState } from "@/features/planner/types";
 type BlueprintHighlights = {
   header: boolean;
@@ -49,6 +55,162 @@ const quickPrompts = [
   "Find a venue + catering direction for a 90-person networking night.",
   "Create a staffing and vendor checklist for a spring brand activation."
 ];
+
+const createTemplatePlannerState = (template: StarterTemplate): PlannerState => {
+  if (template.id === "executive-summit") {
+    return {
+      blueprintId: `template-${template.id}`,
+      title: "Executive Summit Blueprint",
+      summary: "Structured two-day summit with keynote depth, breakouts, and concierge hospitality.",
+      kpis: {
+        totalCost: 42000,
+        costPerAttendee: 280,
+        confidencePct: 82
+      },
+      spacePlan: {
+        beforeLabel: "Open ballroom",
+        afterLabel: "Summit zones with breakout wings",
+        inventory: {
+          chairs: 180,
+          tables: 30,
+          stage: 2,
+          buffet: 5
+        }
+      },
+      timeline: [
+        {
+          time: "T-6 weeks",
+          title: "Confirm speaker blocks",
+          notes: "Finalize keynote and panel sequencing."
+        },
+        {
+          time: "T-2 weeks",
+          title: "Production rehearsal",
+          notes: "Dry-run AV, stage transitions, and room resets."
+        },
+        {
+          time: "Event day",
+          title: "Operate summit flow",
+          notes: "Coordinate welcome, sessions, and closing dinner cadence."
+        }
+      ],
+      budget: {
+        total: 42000,
+        breakdown: [
+          { label: "Venue", pct: 36 },
+          { label: "Food + Beverage", pct: 24 },
+          { label: "Production", pct: 20 },
+          { label: "Staffing", pct: 14 },
+          { label: "Contingency", pct: 6 }
+        ],
+        tradeoffNote: "Protect keynote production quality before optimizing decor layers."
+      },
+      status: "ready_for_review"
+    };
+  }
+
+  if (template.id === "brand-evening") {
+    return {
+      blueprintId: `template-${template.id}`,
+      title: "Brand Evening Blueprint",
+      summary: "Atmospheric evening program designed for storytelling and high-touch networking.",
+      kpis: {
+        totalCost: 34000,
+        costPerAttendee: 227,
+        confidencePct: 80
+      },
+      spacePlan: {
+        beforeLabel: "Raw venue floor",
+        afterLabel: "Arrival lounge + stage + experience pods",
+        inventory: {
+          chairs: 140,
+          tables: 24,
+          stage: 1,
+          buffet: 4
+        }
+      },
+      timeline: [
+        {
+          time: "T-5 weeks",
+          title: "Lock guest journey script",
+          notes: "Confirm arrival, reveal, and networking beats."
+        },
+        {
+          time: "T-10 days",
+          title: "Finalize visual production",
+          notes: "Approve run-of-show visuals, lighting, and audio cues."
+        },
+        {
+          time: "Event day",
+          title: "Host branded experience",
+          notes: "Run transitions between showcase moments and close."
+        }
+      ],
+      budget: {
+        total: 34000,
+        breakdown: [
+          { label: "Venue", pct: 34 },
+          { label: "Food + Beverage", pct: 26 },
+          { label: "Production", pct: 18 },
+          { label: "Staffing", pct: 15 },
+          { label: "Contingency", pct: 7 }
+        ],
+        tradeoffNote: "If needed, trim decorative accents before reducing guest hospitality."
+      },
+      status: "ready_for_review"
+    };
+  }
+
+  return {
+    blueprintId: `template-${template.id}`,
+    title: "Product Launch Blueprint",
+    summary: "Launch-first orchestration with timed reveals, demo moments, and conversion checkpoints.",
+    kpis: {
+      totalCost: 30000,
+      costPerAttendee: 214,
+      confidencePct: 84
+    },
+    spacePlan: {
+      beforeLabel: "Open event floor",
+      afterLabel: "Launch stage + demo zones + networking area",
+      inventory: {
+        chairs: 160,
+        tables: 26,
+        stage: 1,
+        buffet: 4
+      }
+    },
+    timeline: [
+      {
+        time: "T-4 weeks",
+        title: "Finalize launch narrative",
+        notes: "Align messaging, keynote, and feature reveal sequence."
+      },
+      {
+        time: "T-1 week",
+        title: "Full run-through",
+        notes: "Test stage cues, demos, and guest check-in flows."
+      },
+      {
+        time: "Event day",
+        title: "Execute launch experience",
+        notes: "Run arrival to close with live conversion checkpoints."
+      }
+    ],
+    budget: {
+      total: 30000,
+      breakdown: [
+        { label: "Venue", pct: 37 },
+        { label: "Food + Beverage", pct: 23 },
+        { label: "Production", pct: 22 },
+        { label: "Staffing", pct: 12 },
+        { label: "Contingency", pct: 6 }
+      ],
+      tradeoffNote: "Preserve launch demo quality before reducing hospitality depth."
+    },
+    status: "ready_for_review"
+  };
+};
 
 let localMessageCounter = 0;
 const createMessageId = (prefix: string) => {
@@ -395,10 +557,11 @@ const OrganizerAIWorkspace: React.FC = () => {
     React.useState<BlueprintHighlights>(defaultBlueprintHighlights);
   const creditsConfig = React.useMemo(() => getCreditsConfig(), []);
   const { credits, deduct, add, resetToDefault, isEnabled: isCreditsEnabled } = useCredits();
-  const { isReady, activeSessionId, activeSession, createNewSession, updateSession } =
+  const { isReady, activeSessionId, activeSession, setActiveSession, createNewSession, updateSession } =
     usePlannerSessions();
   const timeoutRefs = React.useRef<number[]>([]);
   const blueprintTimeoutRef = React.useRef<number | null>(null);
+  const hasBootstrappedFreshSessionRef = React.useRef(false);
   const previousPlannerSnapshotRef = React.useRef<{
     sessionId: string | null;
     plannerState?: PlannerState;
@@ -408,6 +571,8 @@ const OrganizerAIWorkspace: React.FC = () => {
   });
 
   const messages = activeSession?.messages ?? [];
+  const hasBlueprint = Boolean(activeSession?.plannerState);
+  const isZeroState = !activeSession || (messages.length === 0 && !hasBlueprint);
 
   React.useEffect(() => {
     return () => {
@@ -419,6 +584,25 @@ const OrganizerAIWorkspace: React.FC = () => {
       }
     };
   }, []);
+
+  React.useEffect(() => {
+    if (!isReady || hasBootstrappedFreshSessionRef.current) {
+      return;
+    }
+
+    const hasPersistedPlannerState = Boolean(
+      window.localStorage.getItem(PLANNER_SESSIONS_STORAGE_KEY)
+    );
+    const seededSessionHasContent = Boolean(
+      activeSession && (activeSession.messages.length > 0 || activeSession.plannerState)
+    );
+
+    if (!hasPersistedPlannerState && seededSessionHasContent) {
+      createNewSession();
+    }
+
+    hasBootstrappedFreshSessionRef.current = true;
+  }, [activeSession, createNewSession, isReady]);
 
   React.useEffect(() => {
     if (!activeSessionId) {
@@ -676,6 +860,43 @@ const OrganizerAIWorkspace: React.FC = () => {
     [sendMessage]
   );
 
+  const handleZeroStatePromptSubmit = React.useCallback(
+    (text: string) => {
+      void sendMessage(text);
+    },
+    [sendMessage]
+  );
+
+  const handleZeroStateTemplateSelect = React.useCallback(
+    (templateId: string) => {
+      const template = starterTemplates.find((entry) => entry.id === templateId);
+      if (!template) return;
+
+      const sessionSnapshot = activeSession ?? createNewSession();
+      const targetSessionId = sessionSnapshot.id;
+      const now = Date.now();
+
+      const assistantMessage: ChatMessage = {
+        id: createMessageId("assistant-template"),
+        role: "assistant",
+        text: `${template.title} is loaded. What do you want to change?`,
+        status: "final",
+        createdAt: now
+      };
+
+      updateSession(targetSessionId, (session) => ({
+        ...session,
+        title: template.title,
+        messages: [...session.messages, assistantMessage],
+        plannerState: createTemplatePlannerState(template),
+        plannerStateUpdatedAt: now
+      }));
+      setActiveSession(targetSessionId);
+      setDraftMessage("");
+    },
+    [activeSession, createNewSession, setActiveSession, updateSession]
+  );
+
   if (!isReady) {
     return (
       <div className="flex min-h-[60vh] items-center justify-center">
@@ -684,10 +905,22 @@ const OrganizerAIWorkspace: React.FC = () => {
     );
   }
 
+  if (isZeroState) {
+    return (
+      <div className="mx-auto w-full max-w-[1600px]">
+        <ZeroStateLanding
+          onSubmitPrompt={handleZeroStatePromptSubmit}
+          templates={starterTemplates}
+          onSelectTemplate={handleZeroStateTemplateSelect}
+        />
+      </div>
+    );
+  }
+
   return (
     <div className="mx-auto w-full max-w-[1600px]">
       <OrganizerImmersiveShell
-        showCanvas={true}
+        showCanvas={hasBlueprint}
         topBar={
           <section className="overflow-hidden rounded-2xl border border-slate-200 bg-gradient-to-br from-white via-slate-50 to-brand-light px-6 py-5 shadow-sm">
             <p className="text-xs font-semibold uppercase tracking-[0.3em] text-brand-teal">
@@ -697,12 +930,13 @@ const OrganizerAIWorkspace: React.FC = () => {
               <h1 className="text-2xl font-semibold text-slate-900">Immersive Planner Workspace</h1>
               <Badge variant="secondary" className="border border-slate-200 bg-white text-slate-700">
                 <Sparkles className="mr-1 h-3.5 w-3.5 text-brand-teal" />
-                Co-pilot + Canvas shell active
+                {hasBlueprint ? "Co-pilot + Canvas shell active" : "Co-pilot shell active"}
               </Badge>
             </div>
             <p className="mt-2 max-w-3xl text-sm text-slate-600">
-              Persistent co-pilot chat sits alongside a live canvas preview with independent
-              scrolling regions.
+              {hasBlueprint
+                ? "Persistent co-pilot chat sits alongside a live canvas preview with independent scrolling regions."
+                : "Co-pilot remains active while your plan is being initialized. Canvas visibility is controlled by the planning path."}
             </p>
           </section>
         }

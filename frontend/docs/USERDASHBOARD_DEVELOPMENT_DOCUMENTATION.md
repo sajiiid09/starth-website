@@ -16,8 +16,8 @@ The Organizer/User dashboard is being redesigned so the post-login landing exper
 - [Done] Phase 1 - Baseline audit + docs setup.
 - [Done] Phase 2 - Navigation redesign (rail + floating overlay drawer, organizer scoped).
 - [Done] Phase 3 - Workspace shell (persistent Co-pilot + Canvas containers).
-- [Not Started] Phase 4 - Canvas read-only preview surface and data mapping.
-- [Not Started] Phase 5 - Zero-state flow (center prompt + 3 templates).
+- [Done] Phase 4 - Zero-state redesign (center prompt + 3 starter templates only).
+- [Not Started] Phase 5 - Canvas read-only preview surface and data mapping.
 - [Not Started] Phase 6 - Scratch/template branching behavior and canvas gating rules.
 - [Not Started] Phase 7 - Session continuity, accessibility, and responsive pass.
 - [Not Started] Phase 8 - QA hardening, regression checks, and rollout docs.
@@ -59,6 +59,26 @@ The Organizer/User dashboard is being redesigned so the post-login landing exper
   - `frontend/src/features/immersive/OrganizerImmersiveShell.tsx`
   - `frontend/src/pages/dashboard/OrganizerAIWorkspace.tsx`
 
+### Phase 4 Zero State Redesign (Implemented)
+- Zero-state rule is enforced as a minimal surface only:
+  - centered prompt composer
+  - 3-card template preview grid directly below
+  - no matches panel and no extra workspace sections.
+- Added:
+  - `frontend/src/features/immersive/ZeroStateLanding.tsx`
+  - `frontend/src/features/immersive/data/starterTemplates.ts` (exactly 3 starter templates)
+- Organizer planner wiring updates in:
+  - `frontend/src/pages/dashboard/OrganizerAIWorkspace.tsx`
+- Fresh-session bootstrap:
+  - On first organizer planner load with no persisted planner storage, the route opens a fresh session so zero state is shown instead of seeded mock conversation content.
+- Transition behavior:
+  - Prompt submit from zero state -> exits zero state and starts Co-pilot chat flow; canvas visibility remains deferred until planning state exists (Phase 7 finalizes strict gating rules).
+  - Template select from zero state -> exits zero state, seeds a template planner state + assistant follow-up message, and shows canvas immediately.
+- Scope safety:
+  - Organizer/user planner route only.
+  - Vendor/admin dashboards unchanged.
+  - Public website pages/layout unchanged.
+
 ### Current Code Map
 
 #### Route files involved
@@ -75,11 +95,14 @@ The Organizer/User dashboard is being redesigned so the post-login landing exper
 #### Layout + workspace components
 - `frontend/src/components/dashboard/DashboardShell.tsx`: organizer dashboard shell with immersive rail + overlay drawer; vendor/admin keep legacy sidebar.
 - `frontend/src/features/immersive/OrganizerImmersiveShell.tsx`: immersive workspace shell used by organizer planner route (Co-pilot + Canvas columns).
+- `frontend/src/features/immersive/ZeroStateLanding.tsx`: zero-state minimal landing (center prompt + 3 template cards only).
+- `frontend/src/features/immersive/data/starterTemplates.ts`: fixed three-card starter template data for zero state.
 - `frontend/src/pages/dashboard/PlanWithAI.tsx`: route-level wrapper that renders `OrganizerAIWorkspace`.
 - `frontend/src/pages/dashboard/OrganizerAIWorkspace.tsx`:
   - Chat surface (internal `ChatPanel` + `MessageThread`) mounted as Co-pilot.
   - Blueprint detail panel mounted as Canvas preview within immersive shell.
   - No `Matches` tabs/toggles rendered in organizer planner route.
+  - Zero-state routing logic: show `ZeroStateLanding` when session has no messages and no planner state.
 - `frontend/src/features/planner/components/RelevantMatchesPanel.tsx`: legacy component remains in repo but is not wired to organizer planner route in Phase 3.
 - `frontend/src/features/planner/components/BlueprintDetailPanel.tsx`: current blueprint detail panel (closest current "canvas-ish" read-only structure).
 - `frontend/src/features/planner/PlannerSessionsContext.tsx`: planner session lifecycle/provider used by dashboard shell + workspace.

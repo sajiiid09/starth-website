@@ -15,9 +15,10 @@ The Organizer/User dashboard is being redesigned so the post-login landing exper
 - [x] Phase 9 - Credits/usage gating UI (frontend-only)
 - [x] Phase 10 - Polish, performance guardrails, and responsive QA
 
-## Current Route Behavior (After Phase 10)
-- `/dashboard` (user role): renders `OrganizerAIWorkspace` as the default landing page.
-- `/dashboard/plan-with-ai` (user role): remains available and now renders `OrganizerAIWorkspace` as the dashboard AI workspace shell.
+## Current Route Behavior (After Final UX Lock)
+- `/dashboard` (user role): renders `UserDashboardHome` overview (not the AI workspace).
+- `/dashboard/ai-planner` (user role): renders `OrganizerAIWorkspace` as the dashboard AI workspace.
+- `/dashboard/plan-with-ai` (user role): preserved as a compatibility alias and redirects to `/dashboard/ai-planner`.
 - `/ai-planner` (public website): unchanged and still uses the existing public AI planner implementation.
 - `/vendor` and `/admin`: unchanged behavior and routing.
 
@@ -28,7 +29,7 @@ The Organizer/User dashboard is being redesigned so the post-login landing exper
 
 ### Frontend Polish (Phase 3 - Route-Based Code Splitting)
 - Route components are now lazy loaded through the route registry with a shared suspense fallback loader.
-- Organizer AI workspace routes (`/dashboard` and `/dashboard/plan-with-ai`) are now lazy-loaded to reduce initial public-page bundle pressure.
+- Organizer routes are lazy-loaded, including dashboard home and AI workspace (`/dashboard`, `/dashboard/ai-planner`), to reduce initial public-page bundle pressure.
 - No dashboard UI or behavior changes were introduced in this phase.
 
 ### Frontend Polish (Phase 2 - Router Architecture Cleanup)
@@ -102,7 +103,7 @@ The Organizer/User dashboard is being redesigned so the post-login landing exper
   - active session id is now stored inside the v2 payload
 - First-load demo seeding now creates multiple realistic sessions for organizer users.
 - Sidebar integration under organizer-only `AI Planner` item:
-  - collapsible `Chat History` subsection
+  - collapsible session list under AI Planner (label text removed in final UX lock)
   - active session highlighting
   - `+ New chat` action
   - session timestamp metadata
@@ -236,6 +237,23 @@ The Organizer/User dashboard is being redesigned so the post-login landing exper
 - Performance guardrails:
   - message sorting moved to `useMemo` in chat panel
   - persistence remains event-driven (send/session updates), not per-keystroke.
+
+## Final UX Rules (Locked)
+- 3-panel organizer dashboard workspace remains fixed in structure:
+  - left dashboard sidebar
+  - middle chat panel
+  - right planner panel with `Matches | Blueprint` tabs
+- Right panel defaults:
+  - `Matches` always shows seeded/default items, including pre-chat states
+  - `Blueprint` shows a blank white panel if no blueprint state exists (no placeholder text)
+- Dashboard route separation is locked:
+  - `/dashboard` = organizer overview home
+  - `/dashboard/ai-planner` = organizer AI workspace
+  - `/dashboard/plan-with-ai` = compatibility redirect to `/dashboard/ai-planner`
+- Organizer post-auth landing behavior is locked to AI workspace route (`/dashboard/ai-planner`), while vendor/admin post-auth behavior remains unchanged.
+- Sidebar polish:
+  - `Chat history` heading text is removed
+  - sessions list, active highlighting, collapse/expand behavior, and `New chat` action remain intact.
 
 ## How to Demo
 - Reset credits:

@@ -17,11 +17,11 @@ function PagesContent() {
       <Layout>
         <Suspense fallback={<RouteLoader />}>
           <Routes>
-            <PublicRoutes />
-            <AuthRoutes />
-            <DashboardRoutes />
-            <VendorRoutes />
-            <AdminRoutes />
+            {PublicRoutes}
+            {AuthRoutes}
+            {DashboardRoutes}
+            {VendorRoutes}
+            {AdminRoutes}
             <Route path="*" element={<NotFoundPage />} />
           </Routes>
         </Suspense>

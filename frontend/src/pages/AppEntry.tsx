@@ -47,6 +47,9 @@ const roleOptions = [
 
 type RoleOptionId = (typeof roleOptions)[number]["id"];
 type AuthView = "role" | "signup" | "login";
+const ORGANIZER_AI_PLANNER_ROUTE = "/dashboard/ai-planner";
+const getPostAuthRedirectPath = (role: AppRole) =>
+  role === "user" ? ORGANIZER_AI_PLANNER_ROUTE : getRoleHomePath(role);
 
 // --- Components ---
 
@@ -563,7 +566,7 @@ export default function AppEntryPage() {
             return;
           }
           if (!handlePendingPlannerRedirect(nextRole)) {
-            navigate(getRoleHomePath(nextRole), { replace: true });
+            navigate(getPostAuthRedirectPath(nextRole), { replace: true });
           }
           return;
         }
@@ -843,7 +846,7 @@ export default function AppEntryPage() {
                               return;
                             }
                             if (!handlePendingPlannerRedirect("user")) {
-                              navigate(getRoleHomePath("user"));
+                              navigate(getPostAuthRedirectPath("user"));
                             }
                           }}
                         />
@@ -851,7 +854,7 @@ export default function AppEntryPage() {
                         <LoginForm
                           onLoginSuccess={(role) => {
                             if (!handlePendingPlannerRedirect(role)) {
-                              navigate(getRoleHomePath(role));
+                              navigate(getPostAuthRedirectPath(role));
                             }
                           }}
                         />

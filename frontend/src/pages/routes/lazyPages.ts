@@ -57,6 +57,7 @@ export const MarketplaceDetails = lazy(() => import("../MarketplaceDetails"));
 export const PlansPage = lazy(() => import("../PlansPage"));
 
 export const OrganizerAIWorkspace = lazy(() => import("../dashboard/OrganizerAIWorkspace"));
+export const UserDashboardHome = lazy(() => import("../dashboard/UserDashboardHome"));
 export const UserEvents = lazy(() => import("../dashboard/UserEvents"));
 export const UserCreateEvent = lazy(() => import("../dashboard/UserCreateEvent"));
 export const UserMessages = lazy(() => import("../dashboard/UserMessages"));

@@ -4,7 +4,7 @@
 
 ### Current Status
 - Phase 9 and Phase 10 are complete.
-- Organizer/User dashboard default landing now uses `OrganizerAIWorkspace`.
+- Organizer/User post-auth landing targets `OrganizerAIWorkspace` at `/dashboard/ai-planner`, while `/dashboard` is restored as overview home.
 - Organizer AI workspace now supports interactive blueprint updates, approval flow, credits gating UI, and responsive polish in dummy orchestration mode.
 - Required documentation is updated in `docs/USERDASHBOARD_DEVELOPMENT_DOCUMENTATION.md`.
 
@@ -20,7 +20,7 @@
 - Chat bubbles use role-based styles: assistant left/light bubble with icon, user right/teal bubble with `You` badge.
 - Auto-scroll currently follows new messages to the bottom by default.
 - Empty-state chips use click-to-send behavior for faster first prompt entry.
-- Chat history renders only for organizer/user role under the `AI Planner` sidebar item as an independent collapsible section.
+- Planner sessions render only for organizer/user role under the `AI Planner` sidebar item as an independent collapsible section (without a visible `Chat history` label).
 - Planner sessions persist in localStorage (`strathwell_planner_sessions_v2`) with active session tracking.
 - UI now consumes `plannerService`; dummy mode is default (`VITE_DUMMY_PLANNER_MODE` defaults true), and API stub is ready for drop-in replacement.
 - Runtime validation uses Zod schemas for planner model + storage payload hydration safety.
@@ -115,3 +115,18 @@
   - `src/api/base44Client.js` -> `src/api/base44Client.ts`
 - Added lightweight explicit types to core API wrappers (entity/function/integration maps) while preserving existing export names and runtime behavior.
 - Confirmed `lucide-react` imports remain named-import style (tree-shaking friendly); no namespace/default icon imports were introduced.
+
+## Frontend Final UX Lock (Organizer Dashboard)
+
+### Status
+- Done.
+
+### What Changed
+- Organizer post-auth redirect now lands on the dashboard AI Planner route (`/dashboard/ai-planner`) for user/organizer role only; vendor/admin behavior remains unchanged.
+- Restored Dashboard Home as a standard organizer overview page at `/dashboard` (`UserDashboardHome`), with AI Planner now isolated to `/dashboard/ai-planner`.
+- Kept backward compatibility for existing links by redirecting `/dashboard/plan-with-ai` to `/dashboard/ai-planner`.
+- Locked right panel behavior in `OrganizerAIWorkspace`:
+  - tabs are always visible (`Matches | Blueprint`)
+  - `Matches` always has default seeded items available pre-chat
+  - `Blueprint` renders a blank white panel when no blueprint state exists.
+- Removed the visible `Chat history` label in the organizer sidebar while keeping sessions list, active state, collapse control, and `New chat` action intact.

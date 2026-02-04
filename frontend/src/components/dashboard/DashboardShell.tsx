@@ -43,7 +43,8 @@ import {
 import { isAdminReadOnly } from "@/features/admin/config";
 
 const isDev = import.meta.env.MODE !== "production";
-const AI_PLANNER_ROUTE = "/dashboard/plan-with-ai";
+const AI_PLANNER_ROUTE = "/dashboard/ai-planner";
+const AI_PLANNER_ALIASES = [AI_PLANNER_ROUTE, "/dashboard/plan-with-ai"];
 
 type DashboardShellProps = {
   children: React.ReactNode;
@@ -129,7 +130,7 @@ const DashboardShellContent: React.FC<DashboardShellContentProps> = ({ children,
                   const isPlannerItem = role === "user" && item.href === AI_PLANNER_ROUTE;
                   const isItemActive =
                     location.pathname === item.href ||
-                    (isPlannerItem && location.pathname === "/dashboard");
+                    (isPlannerItem && AI_PLANNER_ALIASES.includes(location.pathname));
 
                   return (
                     <SidebarMenuItem key={item.label}>
@@ -152,14 +153,18 @@ const DashboardShellContent: React.FC<DashboardShellContentProps> = ({ children,
                               <CollapsibleTrigger asChild>
                                 <button
                                   type="button"
-                                  className="flex items-center gap-1 rounded-md px-2 py-1 text-xs font-medium text-slate-600 hover:bg-slate-100"
+                                  className="flex h-7 w-7 items-center justify-center rounded-md text-slate-600 hover:bg-slate-100"
+                                  aria-label={
+                                    isChatHistoryOpen
+                                      ? "Collapse planner sessions"
+                                      : "Expand planner sessions"
+                                  }
                                 >
                                   {isChatHistoryOpen ? (
                                     <ChevronDown className="h-3.5 w-3.5" />
                                   ) : (
                                     <ChevronRight className="h-3.5 w-3.5" />
                                   )}
-                                  Chat History
                                 </button>
                               </CollapsibleTrigger>
                               <Button

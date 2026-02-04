@@ -453,7 +453,23 @@ const OrganizerAIWorkspace: React.FC = () => {
   });
 
   const messages = activeSession?.messages ?? [];
-  const matches = activeSession?.matches ?? fallbackMatches;
+  const matches = React.useMemo(() => {
+    const sessionMatches = activeSession?.matches;
+    if (!sessionMatches) {
+      return fallbackMatches;
+    }
+
+    const hasItems =
+      sessionMatches.templates.length > 0 || sessionMatches.marketplace.length > 0;
+    if (hasItems) {
+      return sessionMatches;
+    }
+
+    return {
+      ...fallbackMatches,
+      activeTab: sessionMatches.activeTab
+    };
+  }, [activeSession?.matches]);
   const hasPlannerState = Boolean(activeSession?.plannerState);
 
   React.useEffect(() => {
@@ -613,57 +629,63 @@ const OrganizerAIWorkspace: React.FC = () => {
   }, [activeSessionId, updateSession]);
 
   const renderRightPanel = (heightClass?: string) => {
-    const showBlueprintPanel = hasPlannerState && rightPanelView === "blueprint";
-    const panelTransitionKey = `${activeSessionId ?? "none"}-${showBlueprintPanel ? "blueprint" : "matches"}-${isRightPanelLoading ? "loading" : "ready"}`;
+    const showBlueprintPanel = rightPanelView === "blueprint";
+    const panelHeightClass = heightClass ?? "h-[72vh] min-h-[520px]";
+    const panelTransitionKey = `${activeSessionId ?? "none"}-${showBlueprintPanel ? "blueprint" : "matches"}-${hasPlannerState ? "state" : "blank"}-${isRightPanelLoading ? "loading" : "ready"}`;
 
     return (
       <div className="space-y-3">
-        {hasPlannerState && (
-          <div className="rounded-xl border border-slate-200 bg-white p-1 shadow-sm">
-            <div className="grid grid-cols-2 rounded-lg bg-slate-100 p-1 text-sm">
-              <button
-                type="button"
-                onClick={() => setRightPanelView("matches")}
-                className={`rounded-md px-3 py-2 font-medium transition-all duration-200 ease-out focus-visible:ring-2 focus-visible:ring-brand-teal/35 ${
-                  rightPanelView === "matches"
-                    ? "bg-white text-slate-900 shadow-sm"
-                    : "text-slate-600 hover:text-slate-900"
-                }`}
-                aria-pressed={rightPanelView === "matches"}
-                aria-label="Show matches panel"
-              >
-                Matches
-              </button>
-              <button
-                type="button"
-                onClick={() => setRightPanelView("blueprint")}
-                className={`rounded-md px-3 py-2 font-medium transition-all duration-200 ease-out focus-visible:ring-2 focus-visible:ring-brand-teal/35 ${
-                  rightPanelView === "blueprint"
-                    ? "bg-white text-slate-900 shadow-sm"
-                    : "text-slate-600 hover:text-slate-900"
-                }`}
-                aria-pressed={rightPanelView === "blueprint"}
-                aria-label="Show blueprint panel"
-              >
-                Blueprint
-              </button>
-            </div>
+        <div className="rounded-xl border border-slate-200 bg-white p-1 shadow-sm">
+          <div className="grid grid-cols-2 rounded-lg bg-slate-100 p-1 text-sm">
+            <button
+              type="button"
+              onClick={() => setRightPanelView("matches")}
+              className={`rounded-md px-3 py-2 font-medium transition-all duration-200 ease-out focus-visible:ring-2 focus-visible:ring-brand-teal/35 ${
+                rightPanelView === "matches"
+                  ? "bg-white text-slate-900 shadow-sm"
+                  : "text-slate-600 hover:text-slate-900"
+              }`}
+              aria-pressed={rightPanelView === "matches"}
+              aria-label="Show matches panel"
+            >
+              Matches
+            </button>
+            <button
+              type="button"
+              onClick={() => setRightPanelView("blueprint")}
+              className={`rounded-md px-3 py-2 font-medium transition-all duration-200 ease-out focus-visible:ring-2 focus-visible:ring-brand-teal/35 ${
+                rightPanelView === "blueprint"
+                  ? "bg-white text-slate-900 shadow-sm"
+                  : "text-slate-600 hover:text-slate-900"
+              }`}
+              aria-pressed={rightPanelView === "blueprint"}
+              aria-label="Show blueprint panel"
+            >
+              Blueprint
+            </button>
           </div>
-        )}
+        </div>
 
         <div
           key={panelTransitionKey}
           className="animate-in fade-in-0 slide-in-from-bottom-1 duration-200 ease-out"
         >
-          {showBlueprintPanel && activeSession?.plannerState ? (
-            <BlueprintDetailPanel
-              plannerState={activeSession.plannerState}
-              plannerStateUpdatedAt={activeSession.plannerStateUpdatedAt}
-              changedSections={blueprintHighlights}
-              onApproveLayout={handleApproveLayout}
-              heightClass={heightClass}
-              isLoading={isRightPanelLoading}
-            />
+          {showBlueprintPanel ? (
+            activeSession?.plannerState ? (
+              <BlueprintDetailPanel
+                plannerState={activeSession.plannerState}
+                plannerStateUpdatedAt={activeSession.plannerStateUpdatedAt}
+                changedSections={blueprintHighlights}
+                onApproveLayout={handleApproveLayout}
+                heightClass={heightClass}
+                isLoading={isRightPanelLoading}
+              />
+            ) : (
+              <aside
+                className={`flex min-h-0 flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm ${panelHeightClass}`}
+                aria-label="Blueprint panel"
+              />
+            )
           ) : (
             <RelevantMatchesPanel
               matches={matches}
@@ -886,7 +908,7 @@ const OrganizerAIWorkspace: React.FC = () => {
             </div>
             <SheetTrigger asChild>
               <Button size="sm" variant="outline" className="h-10 px-4" aria-label="Open planner panel">
-                Open Matches
+                Open Panel
               </Button>
             </SheetTrigger>
           </div>

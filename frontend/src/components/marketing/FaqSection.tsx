@@ -36,11 +36,6 @@ const DEFAULT_FAQ_ITEMS: FaqItem[] = [
       "You request a booking, vendors confirm availability, and payments are tracked inside Strathwell."
   },
   {
-    question: "How does Strathwell make money?",
-    answer:
-      "A $20/month subscription for AI access, plus a 10% commission only when a booking happens."
-  },
-  {
     question: "Does Strathwell sell tickets or host events?",
     answer:
       "No. Strathwell does not resell events or tickets—it helps you plan and coordinate execution."

@@ -242,10 +242,11 @@ const SignUpForm: React.FC<SignUpFormProps> = ({
           />
         </div>
         <div className="space-y-1.5">
-          <Label htmlFor="phone" className="text-xs font-semibold uppercase tracking-wider text-brand-dark/60">Phone (Optional)</Label>
+          <Label htmlFor="phone" className="text-xs font-semibold uppercase tracking-wider text-brand-dark/60">Phone</Label>
           <Input
             id="phone"
             type="tel"
+            required
             placeholder="+1 (555) 000-0000"
             className="h-12 border-brand-dark/10 bg-white/60 text-base focus:border-brand-teal focus:ring-brand-teal/20"
             value={formData.phone}
@@ -606,7 +607,7 @@ export default function AppEntryPage() {
             className="h-16 w-auto sm:h-20 md:h-[72px]"
           />
         </Link>
-        <div className="flex items-center gap-3">
+        <div className="hidden sm:flex items-center gap-3">
           <Button
             variant="ghost"
             className="rounded-full text-sm font-medium text-brand-dark/70 hover:text-brand-dark hover:bg-brand-dark/5"
@@ -634,47 +635,16 @@ export default function AppEntryPage() {
       </header>
 
       {/* Main Layout */}
-      <div className="grid min-h-screen grid-cols-1 lg:grid-cols-[1fr_600px] xl:grid-cols-[1fr_700px]">
+      {/* Main Layout */}
+      <div className="relative min-h-screen flex items-center justify-center overflow-hidden bg-[#F8F7F4] pt-32 pb-12 px-4 sm:px-6 lg:px-8">
         
-        {/* Left Column: Cinematic Video */}
-        <div className="relative hidden lg:block sticky top-0 h-screen overflow-hidden">
-          {/* Enhanced Overlay for Text Readability */}
-          <div className="absolute inset-0 bg-gradient-to-t from-brand-dark via-brand-dark/40 to-transparent opacity-90 z-10" />
-          <div className="absolute inset-0 bg-brand-teal/20 mix-blend-multiply z-10" />
-          
-          <video
-            className="h-full w-full object-cover scale-105"
-            autoPlay
-            muted
-            loop
-            playsInline
-            poster="/images/solutions/launch.svg"
-          >
-            <source src="/herovid.mp4" type="video/mp4" />
-          </video>
-          
-          <div className="absolute z-20 bottom-0 left-0 w-full p-16 text-brand-light">
-            <div className="max-w-xl space-y-6">
-              <div className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 py-1.5 backdrop-blur-md">
-                <SparklesIcon className="w-3 h-3 text-brand-teal" />
-                <span className="text-xs font-bold uppercase tracking-widest">Platform Access</span>
-              </div>
-              <h1 className="text-5xl font-semibold leading-[1.1] tracking-tight">
-                Orchestration, <br/>
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-teal via-white to-white">
-                  beautifully streamlined.
-                </span>
-              </h1>
-              <p className="text-lg text-brand-light/80 leading-relaxed max-w-md">
-                Join the ecosystem where AI-powered planning meets a curated marketplace of world-class vendors.
-              </p>
-            </div>
-          </div>
+        {/* Background "Strathwell" Text */}
+        <div className="absolute inset-0 flex items-center justify-center pointer-events-none select-none overflow-hidden">
+          <h1 className="font-serif text-[18vw] leading-none text-brand-teal opacity-[0.06] tracking-tighter whitespace-nowrap">Strathwell</h1>
         </div>
 
-        {/* Right Column: Form Container */}
-        <div className="flex min-h-screen flex-col items-center justify-center bg-[#F8F7F4] px-6 py-24 lg:px-12">
-          <div className="w-full max-w-[420px]">
+        {/* Form Container */}
+        <div className="relative z-10 w-full max-w-[440px]">
             <AnimatePresence mode="wait">
               {activeView === "role" && (
                 <motion.div
@@ -890,7 +860,6 @@ export default function AppEntryPage() {
                 </Link>.
               </p>
             </div>
-          </div>
         </div>
       </div>
     </div>

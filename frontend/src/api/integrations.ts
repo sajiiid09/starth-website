@@ -15,9 +15,10 @@ type Base44CoreIntegrations = {
 const core = (base44 as { integrations: { Core: Base44CoreIntegrations } }).integrations.Core;
 
 export const Core = core;
-export const InvokeLLM = core.InvokeLLM;
+// Define specific return types to calm TS
+export const InvokeLLM = core.InvokeLLM as (args: { prompt: string; response_json_schema?: any }) => Promise<{ captions: any[] }>;
 export const SendEmail = core.SendEmail;
-export const UploadFile = core.UploadFile;
+export const UploadFile = core.UploadFile as (args: { file: File }) => Promise<{ file_url: string }>;
 export const GenerateImage = core.GenerateImage;
 export const ExtractDataFromUploadedFile = core.ExtractDataFromUploadedFile;
 export const CreateFileSignedUrl = core.CreateFileSignedUrl;

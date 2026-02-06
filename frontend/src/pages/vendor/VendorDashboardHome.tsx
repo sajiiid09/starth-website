@@ -1,5 +1,5 @@
 import React from "react";
-import { BarChart3, ChevronRight, MessageSquare, Megaphone } from "lucide-react";
+import { ChartBar, CaretRight, ChatCircle, Megaphone } from "@phosphor-icons/react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import VendorStatusBanner from "@/components/vendor/VendorStatusBanner";
@@ -51,8 +51,8 @@ const VendorDashboardHome: React.FC = () => {
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {[
-          { label: "New inquiries", value: "8", icon: MessageSquare },
-          { label: "Listing views", value: "312", icon: BarChart3 },
+          { label: "New inquiries", value: "8", icon: ChatCircle },
+          { label: "Listing views", value: "312", icon: ChartBar },
           { label: "Active campaigns", value: "2", icon: Megaphone }
         ].map((stat) => {
           const Icon = stat.icon;
@@ -162,7 +162,7 @@ const VendorDashboardHome: React.FC = () => {
                 title={isVerified ? "" : "Available after verification"}
               >
                 Create listing
-                <ChevronRight className="h-4 w-4" />
+                <CaretRight className="h-4 w-4" />
               </Button>
               <Button
                 variant="outline"
@@ -171,7 +171,7 @@ const VendorDashboardHome: React.FC = () => {
                 title={isVerified ? "" : "Available after verification"}
               >
                 Update availability
-                <ChevronRight className="h-4 w-4" />
+                <CaretRight className="h-4 w-4" />
               </Button>
               <Button
                 variant="outline"
@@ -180,7 +180,7 @@ const VendorDashboardHome: React.FC = () => {
                 title={isVerified ? "" : "Available after verification"}
               >
                 View messages
-                <ChevronRight className="h-4 w-4" />
+                <CaretRight className="h-4 w-4" />
               </Button>
             </div>
           </CardContent>

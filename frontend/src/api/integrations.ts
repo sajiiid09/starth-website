@@ -1,25 +1,109 @@
-import { base44 } from "./base44Client";
+import { request } from "./httpClient";
 
-type Base44IntegrationFn<TResponse = unknown> = (...args: unknown[]) => Promise<TResponse>;
+// ---------------------------------------------------------------------------
+// Types
+// ---------------------------------------------------------------------------
 
-type Base44CoreIntegrations = {
-  InvokeLLM: Base44IntegrationFn;
-  SendEmail: Base44IntegrationFn;
-  UploadFile: Base44IntegrationFn;
-  GenerateImage: Base44IntegrationFn;
-  ExtractDataFromUploadedFile: Base44IntegrationFn;
-  CreateFileSignedUrl: Base44IntegrationFn;
-  UploadPrivateFile: Base44IntegrationFn;
+type LLMRequest = {
+  prompt: string;
+  response_json_schema?: unknown;
+  add_context_from_internet?: boolean;
+  [key: string]: unknown;
 };
 
-const core = (base44 as { integrations: { Core: Base44CoreIntegrations } }).integrations.Core;
+type LLMResponse = {
+  captions?: unknown[];
+  [key: string]: unknown;
+};
 
-export const Core = core;
-// Define specific return types to calm TS
-export const InvokeLLM = core.InvokeLLM as (args: { prompt: string; response_json_schema?: any }) => Promise<{ captions: any[] }>;
-export const SendEmail = core.SendEmail;
-export const UploadFile = core.UploadFile as (args: { file: File }) => Promise<{ file_url: string }>;
-export const GenerateImage = core.GenerateImage;
-export const ExtractDataFromUploadedFile = core.ExtractDataFromUploadedFile;
-export const CreateFileSignedUrl = core.CreateFileSignedUrl;
-export const UploadPrivateFile = core.UploadPrivateFile;
+type EmailRequest = {
+  to: string;
+  subject: string;
+  body: string;
+  [key: string]: unknown;
+};
+
+type FileUploadResponse = {
+  file_url: string;
+};
+
+type ImageGenerateResponse = {
+  url: string;
+};
+
+type SignedUrlResponse = {
+  signedUrl: string;
+};
+
+// ---------------------------------------------------------------------------
+// Integration functions — all delegated to the backend
+// ---------------------------------------------------------------------------
+
+/**
+ * Invoke an LLM via the backend. The frontend never calls LLM APIs directly.
+ * Backend endpoint handles prompt engineering, model selection, and response parsing.
+ */
+export async function InvokeLLM(args: LLMRequest): Promise<LLMResponse> {
+  return request<LLMResponse>("POST", "/api/integrations/invoke-llm", {
+    body: args,
+    auth: true,
+  });
+}
+
+export async function SendEmail(args: EmailRequest): Promise<void> {
+  return request<void>("POST", "/api/integrations/send-email", {
+    body: args,
+    auth: true,
+  });
+}
+
+export async function UploadFile(args: { file: File }): Promise<FileUploadResponse> {
+  const formData = new FormData();
+  formData.append("file", args.file);
+
+  return request<FileUploadResponse>("POST", "/api/integrations/upload-file", {
+    body: formData,
+    auth: true,
+  });
+}
+
+export async function GenerateImage(args: Record<string, unknown>): Promise<ImageGenerateResponse> {
+  return request<ImageGenerateResponse>("POST", "/api/integrations/generate-image", {
+    body: args,
+    auth: true,
+  });
+}
+
+export async function ExtractDataFromUploadedFile(args: Record<string, unknown>): Promise<unknown> {
+  return request<unknown>("POST", "/api/integrations/extract-data-from-file", {
+    body: args,
+    auth: true,
+  });
+}
+
+export async function CreateFileSignedUrl(args: Record<string, unknown>): Promise<SignedUrlResponse> {
+  return request<SignedUrlResponse>("POST", "/api/integrations/create-file-signed-url", {
+    body: args,
+    auth: true,
+  });
+}
+
+export async function UploadPrivateFile(args: Record<string, unknown>): Promise<FileUploadResponse> {
+  return request<FileUploadResponse>("POST", "/api/integrations/upload-private-file", {
+    body: args,
+    auth: true,
+  });
+}
+
+/**
+ * Legacy namespace export for consumers that use `Core.InvokeLLM(...)` pattern.
+ */
+export const Core = {
+  InvokeLLM,
+  SendEmail,
+  UploadFile,
+  GenerateImage,
+  ExtractDataFromUploadedFile,
+  CreateFileSignedUrl,
+  UploadPrivateFile,
+};

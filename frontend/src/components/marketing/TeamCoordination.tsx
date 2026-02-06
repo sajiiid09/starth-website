@@ -14,13 +14,13 @@ import { format } from 'date-fns';
 import { 
   Users, 
   Calendar as CalendarIcon, 
-  Video,
-  Mail,
+  VideoCamera,
+  Envelope,
   Clock,
   Plus,
-  Send,
-  ExternalLink
-} from 'lucide-react';
+  PaperPlaneTilt,
+  ArrowSquareOut
+} from '@phosphor-icons/react';
 import { toast } from 'sonner';
 
 export default function TeamCoordination({ eventId, event, collaborators, onRefresh }) {
@@ -183,7 +183,7 @@ Meeting organized by ${currentUser?.full_name || currentUser?.email}
 
             <Button variant="outline" className="h-16">
               <div className="text-center">
-                <Mail className="w-6 h-6 mx-auto mb-1" />
+                <Envelope className="w-6 h-6 mx-auto mb-1" />
                 <div className="text-sm">Email Team</div>
               </div>
             </Button>
@@ -260,7 +260,7 @@ Meeting organized by ${currentUser?.full_name || currentUser?.email}
               <SelectContent>
                 <SelectItem value="google-meet">
                   <div className="flex items-center gap-2">
-                    <Video className="w-4 h-4" />
+                    <VideoCamera className="w-4 h-4" />
                     Google Meet
                   </div>
                 </SelectItem>
@@ -274,7 +274,7 @@ Meeting organized by ${currentUser?.full_name || currentUser?.email}
             </Select>
 
             <Button onClick={handleCreateMeeting} className="w-full bg-green-600 hover:bg-green-700">
-              <Send className="w-4 h-4 mr-2" />
+              <PaperPlaneTilt className="w-4 h-4 mr-2" />
               Schedule & Send Invites
             </Button>
           </CardContent>
@@ -298,7 +298,7 @@ Meeting organized by ${currentUser?.full_name || currentUser?.email}
                     <h4 className="font-medium">{meeting.title}</h4>
                     <Badge variant="outline" className="flex items-center gap-1">
                       {meeting.type === 'google-meet' ? (
-                        <Video className="w-3 h-3" />
+                        <VideoCamera className="w-3 h-3" />
                       ) : (
                         <Users className="w-3 h-3" />
                       )}
@@ -323,7 +323,7 @@ Meeting organized by ${currentUser?.full_name || currentUser?.email}
                     size="sm"
                     onClick={() => window.open(generateMeetingUrl(meeting), '_blank')}
                   >
-                    <ExternalLink className="w-3 h-3 mr-1" />
+                    <ArrowSquareOut className="w-3 h-3 mr-1" />
                     Join Meeting
                   </Button>
                 </div>

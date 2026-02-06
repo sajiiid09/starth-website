@@ -8,14 +8,14 @@ import FadeIn from "@/components/animations/FadeIn";
 import { 
   Users, 
   Target, 
-  Award,
+  Trophy,
   Lightbulb,
   Heart,
-  Sparkles,
+  Sparkle,
   Megaphone,
   Cpu,
-  BarChart3
-} from "lucide-react";
+  ChartBar
+} from "@phosphor-icons/react";
 
 // --- Background SVG Pattern ---
 // A subtle architectural contour map style to match "Blueprints" theme
@@ -39,7 +39,7 @@ const BackgroundPattern = () => (
 const teamGroups = [
   {
     category: "EXEC TEAM",
-    icon: Award,
+    icon: Trophy,
     description: "Vision & Strategy",
     members: [
       {
@@ -93,7 +93,7 @@ const teamGroups = [
   },
   {
     category: "ANALYTICS TEAM",
-    icon: BarChart3,
+    icon: ChartBar,
     description: "Data & Insights",
     members: [
       {
@@ -233,7 +233,7 @@ export default function AboutPage() {
           <Container>
             <FadeIn className="text-center mb-12 md:mb-24">
               <Badge className="mb-6 inline-flex items-center gap-2 rounded-full border border-brand-dark/10 bg-white px-4 py-2 text-xs font-semibold uppercase tracking-[0.3em] text-brand-dark">
-                <Award className="h-4 w-4" />
+                <Trophy className="h-4 w-4" />
                 Our Team
               </Badge>
               <h2 className="text-3xl font-bold sm:text-4xl md:text-5xl">World-Class Experts</h2>
@@ -332,7 +332,7 @@ export default function AboutPage() {
                 <div className="absolute -left-20 -bottom-20 h-96 w-96 rounded-full bg-brand-cream/10 blur-3xl" />
                 
                 <CardContent className="relative z-10 p-8 text-center sm:p-12 md:p-16">
-                  <Sparkles className="mx-auto mb-8 h-12 w-12 text-brand-teal" />
+                  <Sparkle className="mx-auto mb-8 h-12 w-12 text-brand-teal" />
                   <h3 className="text-3xl font-bold sm:text-4xl md:text-5xl">Ready to Transform Your Events?</h3>
                   <p className="mx-auto mt-4 max-w-2xl text-base text-white/80 sm:text-lg md:mt-6 md:text-xl">
                     Join thousands of event organizers who trust Strathwell to orchestrate their most important moments.

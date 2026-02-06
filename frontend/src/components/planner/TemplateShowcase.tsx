@@ -1,5 +1,6 @@
-import React from "react";
-import { dummyTemplates } from "@/data/dummyTemplates";
+import React, { useEffect, useState } from "react";
+import { dummyTemplates, type DummyTemplate } from "@/data/dummyTemplates";
+import { fetchAllTemplates } from "@/api/templates";
 import FadeIn from "@/components/animations/FadeIn";
 import Container from "@/components/home-v2/primitives/Container";
 import Section from "@/components/home-v2/primitives/Section";
@@ -9,7 +10,18 @@ import Lead from "@/components/home-v2/primitives/Lead";
 import TemplateCard from "@/components/templates/TemplateCard";
 
 const TemplateShowcase: React.FC = () => {
-  const templates = dummyTemplates.slice(0, 6);
+  const [templates, setTemplates] = useState<DummyTemplate[]>(dummyTemplates.slice(0, 6));
+
+  useEffect(() => {
+    let cancelled = false;
+    fetchAllTemplates()
+      .then((items) => {
+        if (cancelled) return;
+        if (items.length > 0) setTemplates(items.slice(0, 6));
+      })
+      .catch(() => { /* keep fallback */ });
+    return () => { cancelled = true; };
+  }, []);
 
   return (
     <Section theme="light">

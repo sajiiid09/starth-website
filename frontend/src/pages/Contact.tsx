@@ -9,18 +9,18 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Card, CardContent } from "@/components/ui/card";
 import { toast } from "sonner";
 import {
-  Mail,
+  Envelope,
   MapPin,
   Clock,
-  Send,
-  CheckCircle2,
-  Loader2,
-  Building,
+  PaperPlaneTilt,
+  CheckCircle,
+  SpinnerGap,
+  Buildings,
   Users,
-  Sparkles,
+  Sparkle,
   ArrowRight,
   Phone
-} from "lucide-react";
+} from "@phosphor-icons/react";
 import gsap from "gsap";
 import Container from "@/components/home-v2/primitives/Container";
 import FadeIn from "@/components/animations/FadeIn";
@@ -145,7 +145,7 @@ ${formData.message}
         <Card className="w-full max-w-lg border-none bg-white shadow-2xl">
           <CardContent className="flex flex-col items-center p-12 text-center">
             <div className="relative mb-8 flex h-24 w-24 items-center justify-center rounded-full bg-brand-teal/10 ring-1 ring-brand-teal/20">
-              <CheckCircle2 className="h-12 w-12 text-brand-teal" />
+              <CheckCircle className="h-12 w-12 text-brand-teal" />
               <div className="absolute inset-0 animate-ping rounded-full bg-brand-teal/5 duration-1000" />
             </div>
             <h1 className="font-display text-3xl font-semibold text-brand-dark">
@@ -182,7 +182,7 @@ ${formData.message}
         
         <Container className="relative z-10 text-center">
           <div className="hero-text mx-auto mb-6 inline-flex items-center gap-2 rounded-full border border-brand-teal/20 bg-white/50 px-4 py-1.5 text-xs font-bold uppercase tracking-widest text-brand-teal backdrop-blur-sm">
-            <Sparkles className="h-3 w-3" />
+            <Sparkle className="h-3 w-3" />
             Get in Touch
           </div>
 
@@ -211,7 +211,7 @@ ${formData.message}
                 <div className="space-y-6">
                   <div className="group flex items-start gap-4 transition-colors hover:text-brand-teal">
                     <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-brand-blue/30 text-brand-teal transition-transform group-hover:scale-110">
-                      <Mail className="h-5 w-5" />
+                      <Envelope className="h-5 w-5" />
                     </div>
                     <div>
                       <p className="text-xs font-bold uppercase tracking-widest text-brand-dark/40">Email</p>
@@ -347,12 +347,12 @@ ${formData.message}
                     >
                       {loading ? (
                         <>
-                          <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                          <SpinnerGap className="mr-2 h-5 w-5 animate-spin" />
                           Sending...
                         </>
                       ) : (
                         <div className="flex items-center justify-center gap-2">
-                          <Send className="h-5 w-5 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
+                          <PaperPlaneTilt className="h-5 w-5 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
                           <span>Send Message</span>
                         </div>
                       )}

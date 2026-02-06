@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
-import { Send, Sparkles, Loader2, Info } from 'lucide-react';
+import { PaperPlaneTilt, SpinnerGap, Info, Sparkle } from '@phosphor-icons/react';
 import MessageBubble from './MessageBubble';
 import { InvokeLLM } from '@/api/integrations';
 import { toast } from "sonner";
@@ -93,11 +93,11 @@ Draft a response as the Venue Owner:`;
                 disabled={isGenerating || messages.length === 0}
                 className="text-blue-600 hover:text-blue-700 hover:bg-blue-50"
              >
-                {isGenerating ? <Loader2 className="w-4 h-4 animate-spin"/> : <Sparkles className="w-4 h-4" />}
+                {isGenerating ? <SpinnerGap className="w-4 h-4 animate-spin"/> : <Sparkle className="w-4 h-4" />}
                 <span className="ml-1 hidden sm:inline">AI Reply</span>
             </Button>
             <Button size="icon" onClick={handleSendMessage} disabled={isSending || !newMessage.trim()}>
-                {isSending ? <Loader2 className="w-4 h-4 animate-spin"/> : <Send className="w-4 h-4" />}
+                {isSending ? <SpinnerGap className="w-4 h-4 animate-spin"/> : <PaperPlaneTilt className="w-4 h-4" />}
             </Button>
           </div>
         </div>

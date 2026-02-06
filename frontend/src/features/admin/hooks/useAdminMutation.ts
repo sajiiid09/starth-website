@@ -30,7 +30,8 @@ export const useAdminMutation = <TInput, TResult, TContext = unknown>(
       setIsLoading(true);
       setError(null);
 
-      const optimistic = options.onMutate?.(input);
+      const raw = options.onMutate?.(input);
+      const optimistic: MutationLifecycleContext<TContext> | undefined = raw || undefined;
 
       try {
         const result = await mutateFn(input);

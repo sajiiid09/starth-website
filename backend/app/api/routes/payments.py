@@ -1,151 +1,203 @@
-from __future__ import annotations
+"""Payment and booking routes."""
 
-import math
-from uuid import UUID
+import uuid
+from typing import Any
 
-from fastapi import APIRouter, Depends, status
-from sqlalchemy import select
-from sqlalchemy.orm import Session
+from fastapi import APIRouter, Depends
+from pydantic import BaseModel
+from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.api.deps import get_db, require_role, require_subscription_active
-from app.core.config import get_settings
-from app.core.errors import APIError, forbidden, not_found
-from app.models.booking import Booking
-from app.models.booking_vendor import BookingVendor
-from app.models.enums import BookingStatus, PaymentProvider, PaymentStatus, UserRole
-from app.models.payment import Payment
+from app.core.deps import get_current_user
+from app.db.engine import get_db
 from app.models.user import User
-from app.schemas.payments import BookingPaymentCreateIn, BookingPaymentOut
-from app.services.bookings_pricing import compute_booking_total
-from app.services.payments.stripe import StripePaymentService
+from app.services import booking_service, payment_service
 
-router = APIRouter(tags=["payments"])
+router = APIRouter(prefix="/api", tags=["payments", "bookings"])
 
 
-@router.post("/bookings/{booking_id}/pay", response_model=BookingPaymentOut)
-def create_payment_intent(
-    booking_id: UUID,
-    payload: BookingPaymentCreateIn,
-    db: Session = Depends(get_db),
-    user: User = Depends(require_role(UserRole.ORGANIZER)),
-    _: User = Depends(require_subscription_active),
-) -> BookingPaymentOut:
-    booking = db.execute(select(Booking).where(Booking.id == booking_id)).scalar_one_or_none()
-    if not booking:
-        raise not_found("Booking not found")
-    if booking.organizer_user_id != user.id:
-        raise forbidden("Forbidden")
-    if booking.status != BookingStatus.READY_FOR_PAYMENT:
-        raise APIError(
-            error_code="booking_not_ready_for_payment",
-            message="Booking not ready for payment.",
-            status_code=status.HTTP_400_BAD_REQUEST,
-        )
+# ---------------------------------------------------------------------------
+# Payment schemas
+# ---------------------------------------------------------------------------
 
-    existing_payment = db.execute(
-        select(Payment).where(Payment.idempotency_key == payload.idempotency_key)
-    ).scalar_one_or_none()
-    stripe_service = StripePaymentService()
-    if existing_payment:
-        if existing_payment.booking_id != booking.id:
-            raise APIError(
-                error_code="idempotency_key_conflict",
-                message="Idempotency key conflict.",
-                status_code=status.HTTP_400_BAD_REQUEST,
-            )
-        if not existing_payment.provider_intent_id:
-            raise APIError(
-                error_code="payment_missing_provider_intent",
-                message="Payment missing provider intent.",
-                status_code=status.HTTP_409_CONFLICT,
-            )
-        intent = stripe_service.retrieve_payment_intent(existing_payment.provider_intent_id)
-        client_secret = intent.get("client_secret")
-        if not client_secret:
-            raise APIError(
-                error_code="payment_missing_client_secret",
-                message="Payment missing client secret.",
-                status_code=status.HTTP_409_CONFLICT,
-            )
-        return BookingPaymentOut(
-            provider=existing_payment.provider.value,
-            client_secret=client_secret,
-            payment_id=str(existing_payment.id),
-            amount_cents=existing_payment.amount_cents,
-            currency=existing_payment.currency,
-        )
 
-    booking_payment = db.execute(
-        select(Payment).where(Payment.booking_id == booking.id)
-    ).scalar_one_or_none()
-    if booking_payment:
-        raise APIError(
-            error_code="payment_already_exists",
-            message="Payment already exists.",
-            status_code=status.HTTP_400_BAD_REQUEST,
-        )
+class CreatePaymentIntentRequest(BaseModel):
+    event_id: str
+    amount: float
 
-    booking_vendors = db.execute(
-        select(BookingVendor).where(BookingVendor.booking_id == booking.id)
-    ).scalars().all()
-    try:
-        total_cents = compute_booking_total(booking, booking_vendors)
-    except ValueError as exc:
-        raise APIError(
-            error_code=str(exc),
-            message="Invalid booking total.",
-            status_code=status.HTTP_400_BAD_REQUEST,
-        ) from exc
 
-    settings = get_settings()
-    if payload.mode == "deposit":
-        amount_cents = int(math.ceil(total_cents * settings.booking_deposit_percent))
-    else:
-        amount_cents = total_cents
+class ConfirmPaymentRequest(BaseModel):
+    payment_intent_id: str
 
-    if amount_cents <= 0:
-        raise APIError(
-            error_code="invalid_payment_amount",
-            message="Invalid payment amount.",
-            status_code=status.HTTP_400_BAD_REQUEST,
-        )
 
-    metadata = {"organizer_user_id": str(user.id)}
-    intent = stripe_service.create_payment_intent(
-        booking_id=str(booking.id),
-        amount_cents=amount_cents,
-        currency=booking.currency,
-        idempotency_key=payload.idempotency_key,
-        metadata=metadata,
+class ReleasePaymentRequest(BaseModel):
+    event_service_id: str
+
+
+class CancelEventRequest(BaseModel):
+    reason: str = ""
+
+
+# ---------------------------------------------------------------------------
+# Booking schemas
+# ---------------------------------------------------------------------------
+
+
+class BookVenueRequest(BaseModel):
+    event_id: str
+    venue_id: str
+
+
+class BookServiceProviderRequest(BaseModel):
+    event_id: str
+    provider_id: str
+    service_id: str | None = None
+    agreed_price: float
+
+
+class CreateEventFromPlanRequest(BaseModel):
+    plan_data: dict[str, Any]
+    draft_brief: dict[str, Any]
+
+
+# ---------------------------------------------------------------------------
+# Payment endpoints
+# ---------------------------------------------------------------------------
+
+
+@router.post("/payments/create-intent")
+async def create_payment_intent(
+    body: CreatePaymentIntentRequest,
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+) -> dict[str, Any]:
+    """Create a Stripe PaymentIntent for an event."""
+    result = await payment_service.create_payment_intent(
+        db=db,
+        event_id=uuid.UUID(body.event_id),
+        payer_id=user.id,
+        amount=body.amount,
     )
+    return result
 
-    with db.begin():
-        booking.total_gross_amount_cents = total_cents
-        payment = Payment(
-            booking_id=booking.id,
-            payer_user_id=user.id,
-            provider=PaymentProvider.STRIPE,
-            provider_intent_id=intent.get("id"),
-            status=PaymentStatus.PENDING,
-            amount_cents=amount_cents,
-            currency=booking.currency,
-            idempotency_key=payload.idempotency_key,
-        )
-        db.add(booking)
-        db.add(payment)
 
-    client_secret = intent.get("client_secret")
-    if not client_secret:
-        raise APIError(
-            error_code="stripe_client_secret_missing",
-            message="Stripe client secret missing.",
-            status_code=status.HTTP_502_BAD_GATEWAY,
-        )
-
-    return BookingPaymentOut(
-        provider=payment.provider.value,
-        client_secret=client_secret,
-        payment_id=str(payment.id),
-        amount_cents=payment.amount_cents,
-        currency=payment.currency,
+@router.post("/payments/confirm")
+async def confirm_payment(
+    body: ConfirmPaymentRequest,
+    _user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+) -> dict[str, Any]:
+    """Confirm a payment was completed."""
+    result = await payment_service.confirm_payment(
+        db=db,
+        payment_intent_id=body.payment_intent_id,
     )
+    return result
+
+
+@router.get("/payments/{event_id}")
+async def get_event_payments(
+    event_id: uuid.UUID,
+    _user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+) -> dict[str, Any]:
+    """Get all payments for an event."""
+    payments = await payment_service.get_event_payments(db=db, event_id=event_id)
+    return {"success": True, "data": payments}
+
+
+@router.post("/payments/release/{event_service_id}")
+async def release_payment(
+    event_service_id: uuid.UUID,
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+) -> dict[str, Any]:
+    """Release payment to a service provider after task completion."""
+    result = await payment_service.release_payment(
+        db=db,
+        event_service_id=event_service_id,
+        approver_id=user.id,
+    )
+    return result
+
+
+@router.post("/events/{event_id}/cancel")
+async def cancel_event(
+    event_id: uuid.UUID,
+    body: CancelEventRequest,
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+) -> dict[str, Any]:
+    """Cancel an event and process refund."""
+    result = await payment_service.process_cancellation(
+        db=db,
+        event_id=event_id,
+        user_id=user.id,
+        reason=body.reason,
+    )
+    return result
+
+
+# ---------------------------------------------------------------------------
+# Booking endpoints
+# ---------------------------------------------------------------------------
+
+
+@router.post("/bookings/create-from-plan")
+async def create_event_from_plan(
+    body: CreateEventFromPlanRequest,
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+) -> dict[str, Any]:
+    """Create an event from an approved plan."""
+    result = await booking_service.create_event_from_plan(
+        db=db,
+        user_id=user.id,
+        plan_data=body.plan_data,
+        draft_brief=body.draft_brief,
+    )
+    return result
+
+
+@router.post("/bookings/book-venue")
+async def book_venue(
+    body: BookVenueRequest,
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+) -> dict[str, Any]:
+    """Send a booking request to a venue."""
+    result = await booking_service.book_venue(
+        db=db,
+        event_id=uuid.UUID(body.event_id),
+        venue_id=uuid.UUID(body.venue_id),
+        user_id=user.id,
+    )
+    return result
+
+
+@router.post("/bookings/book-service")
+async def book_service_provider(
+    body: BookServiceProviderRequest,
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+) -> dict[str, Any]:
+    """Add a service provider to an event."""
+    result = await booking_service.book_service_provider(
+        db=db,
+        event_id=uuid.UUID(body.event_id),
+        provider_id=uuid.UUID(body.provider_id),
+        service_id=uuid.UUID(body.service_id) if body.service_id else None,
+        agreed_price=body.agreed_price,
+        user_id=user.id,
+    )
+    return result
+
+
+@router.post("/events/{event_id}/confirm")
+async def confirm_event(
+    event_id: uuid.UUID,
+    _user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+) -> dict[str, Any]:
+    """Confirm an event (venue accepted booking)."""
+    result = await booking_service.confirm_event(db=db, event_id=event_id)
+    return result

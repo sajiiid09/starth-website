@@ -8,10 +8,10 @@ import {
   Calendar, 
   MapPin, 
   Users, 
-  ExternalLink,
+  ArrowSquareOut,
   ArrowRight,
   Clock
-} from "lucide-react";
+} from "@phosphor-icons/react";
 
 export default function UpcomingEvents() {
   const upcomingEvents = [
@@ -117,7 +117,7 @@ export default function UpcomingEvents() {
                   ) : (
                     <>
                       Learn More
-                      <ExternalLink className="w-4 h-4 ml-2 group-hover:translate-x-1 strathwell-transition" />
+                      <ArrowSquareOut className="w-4 h-4 ml-2 group-hover:translate-x-1 strathwell-transition" />
                     </>
                   )}
                 </Button>

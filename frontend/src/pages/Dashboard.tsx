@@ -18,20 +18,20 @@ import ServiceProviderGrid from "@/components/marketplace/ServiceProviderGrid";
 import MarketplaceFilters from "@/components/marketplace/MarketplaceFilters";
 import { 
   Plus, 
-  Sparkles, 
+  Sparkle, 
   Calendar, 
-  LayoutList, 
+  ListBullets, 
   ArrowRight,
-  Loader2,
+  SpinnerGap,
   Heart,
   Bell,
   MapPin,
   Users,
-  DollarSign,
+  CurrencyDollar,
   CheckCircle,
-  TrendingUp,
-  Box
-} from "lucide-react";
+  TrendUp,
+  Cube
+} from "@phosphor-icons/react";
 import { toast } from "sonner";
 
 export default function DashboardPage() {
@@ -186,7 +186,7 @@ export default function DashboardPage() {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-gray-400" />
+        <SpinnerGap className="w-8 h-8 animate-spin text-gray-400" />
       </div>
     );
   }
@@ -267,7 +267,7 @@ export default function DashboardPage() {
                   <p className="text-3xl font-bold text-gray-900">{stats.savedPlans}</p>
                 </div>
                 <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center">
-                  <LayoutList className="w-6 h-6 text-purple-600" />
+                  <ListBullets className="w-6 h-6 text-purple-600" />
                 </div>
               </div>
             </CardContent>
@@ -322,7 +322,7 @@ export default function DashboardPage() {
                   </Link>
                   <Link to={createPageUrl("EventBuilder")}>
                     <Button size="sm" variant="outline">
-                      <Box className="w-4 h-4 mr-2" />
+                      <Cube className="w-4 h-4 mr-2" />
                       Event Builder
                     </Button>
                   </Link>
@@ -378,14 +378,14 @@ export default function DashboardPage() {
               <CardHeader className="flex flex-row items-center justify-between">
                 <div>
                   <CardTitle className="flex items-center gap-2">
-                    <Sparkles className="w-5 h-5 text-purple-600" />
+                    <Sparkle className="w-5 h-5 text-purple-600" />
                     AI Plans
                   </CardTitle>
                   <CardDescription>Your saved AI-generated plans</CardDescription>
                 </div>
                 <Link to={createPageUrl("AIPlanner")}>
                   <Button size="sm" className="bg-purple-600 hover:bg-purple-700">
-                    <Sparkles className="w-4 h-4 mr-2" />
+                    <Sparkle className="w-4 h-4 mr-2" />
                     Plan with AI
                   </Button>
                 </Link>
@@ -393,7 +393,7 @@ export default function DashboardPage() {
               <CardContent>
                 {plans.length === 0 ? (
                   <div className="text-center py-8">
-                    <Sparkles className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                    <Sparkle className="w-12 h-12 text-gray-400 mx-auto mb-4" />
                     <p className="text-gray-500 mb-4">No plans yet</p>
                     <Link to={createPageUrl("AIPlanner")}>
                       <Button variant="outline">Start Planning with AI</Button>
@@ -505,14 +505,14 @@ export default function DashboardPage() {
             <Card className="border-none shadow-lg bg-gradient-to-br from-blue-600 to-indigo-600 text-white mb-8">
               <CardContent className="p-8">
                 <div className="text-center">
-                  <Sparkles className="w-16 h-16 mx-auto mb-4" />
+                  <Sparkle className="w-16 h-16 mx-auto mb-4" />
                   <h2 className="text-3xl font-bold mb-4">AI Event Planner</h2>
                   <p className="text-blue-100 mb-6 text-lg max-w-2xl mx-auto">
                     Let our AI find the perfect venues and vendors for your event in seconds. Just describe your event and we'll do the rest.
                   </p>
                   <Link to={createPageUrl("AIPlanner")}>
                     <Button size="lg" className="bg-white text-blue-600 hover:bg-blue-50">
-                      <Sparkles className="w-5 h-5 mr-2" />
+                      <Sparkle className="w-5 h-5 mr-2" />
                       Start Planning with AI
                     </Button>
                   </Link>
@@ -524,14 +524,14 @@ export default function DashboardPage() {
               <Card className="border-none shadow-lg">
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
-                    <Sparkles className="w-5 h-5 text-purple-600" />
+                    <Sparkle className="w-5 h-5 text-purple-600" />
                     Recent AI Plans
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
                   {plans.length === 0 ? (
                     <div className="text-center py-8">
-                      <Sparkles className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                      <Sparkle className="w-12 h-12 text-gray-400 mx-auto mb-4" />
                       <p className="text-gray-500 mb-4">No plans yet</p>
                       <Link to={createPageUrl("AIPlanner")}>
                         <Button variant="outline">Create Your First Plan</Button>
@@ -628,11 +628,11 @@ export default function DashboardPage() {
               </TabsList>
 
               <TabsContent value="venues">
-                <VenueGrid venues={filteredVenues} />
+                <VenueGrid venues={filteredVenues} onAskAI={() => {}} />
               </TabsContent>
 
               <TabsContent value="providers">
-                <ServiceProviderGrid services={filteredServices} />
+                <ServiceProviderGrid services={filteredServices} onAskAI={() => {}} />
               </TabsContent>
             </Tabs>
           </TabsContent>

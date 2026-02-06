@@ -9,13 +9,13 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { 
   CreditCard, 
   Plus, 
-  Trash2, 
+  Trash, 
   CheckCircle,
-  Apple,
-  Smartphone,
-  Building,
-  Loader2
-} from "lucide-react";
+  AppleLogo,
+  DeviceMobile,
+  Buildings,
+  SpinnerGap
+} from "@phosphor-icons/react";
 import { toast } from "sonner";
 
 export default function PaymentMethodsPage() {
@@ -48,7 +48,7 @@ export default function PaymentMethodsPage() {
           lastFour: null,
           isDefault: true,
           status: 'active',
-          icon: Apple
+          icon: AppleLogo
         },
         {
           id: 2,
@@ -57,7 +57,7 @@ export default function PaymentMethodsPage() {
           lastFour: null,
           isDefault: false,
           status: 'setup_required',
-          icon: Smartphone
+          icon: DeviceMobile
         }
       ];
 
@@ -137,7 +137,7 @@ export default function PaymentMethodsPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-screen">
-        <Loader2 className="w-8 h-8 animate-spin text-gray-500" />
+        <SpinnerGap className="w-8 h-8 animate-spin text-gray-500" />
       </div>
     );
   }
@@ -273,7 +273,7 @@ export default function PaymentMethodsPage() {
                             onClick={() => handleRemoveMethod(method.id)}
                             className="text-red-500 hover:text-red-700 hover:bg-red-50"
                           >
-                            <Trash2 className="w-4 h-4" />
+                            <Trash className="w-4 h-4" />
                           </Button>
                         )}
                       </div>

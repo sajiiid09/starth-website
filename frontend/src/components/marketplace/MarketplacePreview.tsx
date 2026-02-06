@@ -11,12 +11,12 @@ import {
   Star, 
   ArrowRight, 
   Play,
-  Sparkles,
-  Building,
+  Sparkle,
+  Buildings,
   Camera,
-  Music,
-  Utensils
-} from "lucide-react";
+  MusicNotes,
+  ForkKnife
+} from "@phosphor-icons/react";
 
 const sampleVenues = [
   {
@@ -59,7 +59,7 @@ const sampleServices = [
     price: "From $85/person", 
     rating: 4.9,
     image: "https://images.unsplash.com/photo-1555244162-803834f70033?w=800&fit=crop",
-    icon: Utensils
+    icon: ForkKnife
   },
   {
     name: "Lens & Light Photography",
@@ -77,7 +77,7 @@ const sampleServices = [
     price: "From $1,800/event",
     rating: 4.7,
     image: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=800&fit=crop", 
-    icon: Music
+    icon: MusicNotes
   }
 ];
 
@@ -108,7 +108,7 @@ export default function MarketplacePreview({ isAuthenticated, onLoginClick, onDe
               onClick={isAuthenticated ? onDemoClick : onLoginClick}
               className="bg-purple-600 hover:bg-purple-700 text-white px-8 py-4 text-lg rounded-xl font-semibold group"
             >
-              <Sparkles className="w-5 h-5 mr-2" />
+              <Sparkle className="w-5 h-5 mr-2" />
               {isAuthenticated ? "Request Demo to Access" : "Explore Full Marketplace"}
               <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
             </Button>
@@ -242,7 +242,7 @@ export default function MarketplacePreview({ isAuthenticated, onLoginClick, onDe
         <div className="max-w-4xl mx-auto text-center">
           <Card className="bg-gradient-to-r from-purple-600 to-pink-600 border-none text-white">
             <CardContent className="p-12">
-              <Building className="w-16 h-16 mx-auto mb-6 text-pink-200" />
+              <Buildings className="w-16 h-16 mx-auto mb-6 text-pink-200" />
               <h3 className="text-3xl font-bold mb-4">
                 Ready to Find Your Perfect Match?
               </h3>

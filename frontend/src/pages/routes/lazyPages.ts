@@ -43,6 +43,7 @@ export const DashboardPreview = lazy(() => import("../DashboardPreview"));
 export const EditVenue = lazy(() => import("../EditVenue"));
 export const VerifyEmail = lazy(() => import("../VerifyEmail"));
 export const ResetPassword = lazy(() => import("../ResetPassword"));
+export const ForgotPassword = lazy(() => import("../ForgotPassword"));
 export const AppStrathwell = lazy(() => import("../AppStrathwell"));
 export const WhyStrathwell = lazy(() => import("../WhyStrathwell"));
 export const VirtualRobotics = lazy(() => import("../VirtualRobotics"));
@@ -63,6 +64,9 @@ export const UserCreateEvent = lazy(() => import("../dashboard/UserCreateEvent")
 export const UserMessages = lazy(() => import("../dashboard/UserMessages"));
 export const UserSettings = lazy(() => import("../dashboard/UserSettings"));
 export const PlanWithAI = lazy(() => import("../dashboard/PlanWithAI"));
+export const UserTemplates = lazy(() => import("../dashboard/UserTemplates"));
+export const UserMarketplace = lazy(() => import("../dashboard/UserMarketplace"));
+export const SuccessPage = lazy(() => import("../dashboard/SuccessPage"));
 
 export const VendorDashboardHome = lazy(() => import("../vendor/VendorDashboardHome"));
 export const VendorListings = lazy(() => import("../vendor/VendorListings"));

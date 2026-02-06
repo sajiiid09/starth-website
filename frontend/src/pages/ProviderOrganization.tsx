@@ -8,7 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Building, Save, Loader2 } from "lucide-react";
+import { Buildings, FloppyDisk, SpinnerGap } from "@phosphor-icons/react";
 import { toast } from "sonner";
 import RoleGuard from "../components/auth/RoleGuard";
 import ProviderPortalLayout from "../components/provider/ProviderPortalLayout";
@@ -96,7 +96,7 @@ export default function ProviderOrganizationPage() {
       <RoleGuard requiredRole="service_provider">
         <ProviderPortalLayout>
           <div className="flex items-center justify-center h-64">
-            <Loader2 className="w-8 h-8 animate-spin text-gray-500" />
+            <SpinnerGap className="w-8 h-8 animate-spin text-gray-500" />
           </div>
         </ProviderPortalLayout>
       </RoleGuard>
@@ -122,7 +122,7 @@ export default function ProviderOrganizationPage() {
           <Card className="border-none shadow-lg">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <Building className="w-5 h-5 text-green-600" />
+                <Buildings className="w-5 h-5 text-green-600" />
                 Business Information
               </CardTitle>
             </CardHeader>
@@ -199,9 +199,9 @@ export default function ProviderOrganizationPage() {
               <div className="flex justify-end">
                 <Button onClick={handleSave} disabled={saving || !formData.name || !formData.city || !formData.country}>
                   {saving ? (
-                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    <SpinnerGap className="w-4 h-4 mr-2 animate-spin" />
                   ) : (
-                    <Save className="w-4 h-4 mr-2" />
+                    <FloppyDisk className="w-4 h-4 mr-2" />
                   )}
                   Save Changes
                 </Button>

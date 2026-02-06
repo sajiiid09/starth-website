@@ -10,10 +10,10 @@ import {
   Image as ImageIcon, 
   FileText, 
   Download, 
-  ExternalLink,
+  ArrowSquareOut,
   Plus,
-  Trash2
-} from 'lucide-react';
+  Trash
+} from '@phosphor-icons/react';
 import { toast } from 'sonner';
 
 export default function MarketingAssets({ eventId, event, onRefresh }) {
@@ -35,7 +35,7 @@ export default function MarketingAssets({ eventId, event, onRefresh }) {
   };
 
   const handleFileUpload = async (e) => {
-    const files = Array.from(e.target.files);
+    const files = Array.from(e.target.files) as File[];
     if (files.length === 0) return;
 
     setUploading(true);
@@ -88,7 +88,7 @@ export default function MarketingAssets({ eventId, event, onRefresh }) {
           <div className="grid md:grid-cols-3 gap-4">
             <Button onClick={openCanva} className="bg-purple-600 hover:bg-purple-700 h-16">
               <div className="text-center">
-                <ExternalLink className="w-6 h-6 mx-auto mb-1" />
+                <ArrowSquareOut className="w-6 h-6 mx-auto mb-1" />
                 <div className="text-sm">Design with Canva</div>
               </div>
             </Button>
@@ -154,7 +154,7 @@ export default function MarketingAssets({ eventId, event, onRefresh }) {
                       onClick={() => removeAsset(asset.id)}
                       className="text-red-500 hover:text-red-700"
                     >
-                      <Trash2 className="w-4 h-4" />
+                      <Trash className="w-4 h-4" />
                     </Button>
                   </div>
                   

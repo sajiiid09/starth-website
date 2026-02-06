@@ -2,25 +2,27 @@ import React from "react";
 import { Link, useParams } from "react-router-dom";
 import {
   ArrowRight,
-  BadgeCheck,
+  SealCheck,
   Clock,
-  DollarSign,
-  LayoutGrid,
+  CurrencyDollar,
+  SquaresFour,
   ShieldCheck,
-  ShieldAlert,
+  ShieldWarning,
   Users,
-  Volume2,
-  FileCheck,
-  Building,
-  Utensils,
-  Sparkles,
-  Radio
-} from "lucide-react";
+  SpeakerHigh,
+  Buildings,
+  ForkKnife,
+  Sparkle,
+  Broadcast,
+  SpinnerGap
+} from "@phosphor-icons/react";
 import { toast } from "sonner";
 import Container from "@/components/home-v2/primitives/Container";
 import FadeIn from "@/components/animations/FadeIn";
 import { cn } from "@/lib/utils";
 import { dummyTemplates } from "@/data/dummyTemplates";
+import type { DummyTemplate } from "@/data/dummyTemplates";
+import { fetchTemplateById } from "@/api/templates";
 import SpacePlannerSchematic from "@/components/os/SpacePlannerSchematic";
 import TemplateGallery from "@/components/templates/detail/TemplateGallery";
 import { venues } from "@/data/venues";
@@ -57,10 +59,34 @@ const parseCurrency = (value?: string) => {
 
 const TemplateDetails: React.FC = () => {
   const { id } = useParams();
-  const template = dummyTemplates.find((item) => item.id === id);
-  const [layoutMode, setLayoutMode] = React.useState<LayoutMode>(
-    template?.recommendedMode ?? "optimized"
-  );
+  const [template, setTemplate] = React.useState<DummyTemplate | undefined>(undefined);
+  const [loading, setLoading] = React.useState(true);
+
+  React.useEffect(() => {
+    if (!id) {
+      setLoading(false);
+      return;
+    }
+    let cancelled = false;
+    fetchTemplateById(id)
+      .then((item) => {
+        if (cancelled) return;
+        // Fall back to dummyTemplates if API returns nothing (e.g. old slug-based IDs)
+        setTemplate(item ?? dummyTemplates.find((t) => t.id === id));
+      })
+      .catch(() => {
+        if (!cancelled) setTemplate(dummyTemplates.find((t) => t.id === id));
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+    return () => { cancelled = true; };
+  }, [id]);
+
+  const [layoutMode, setLayoutMode] = React.useState<LayoutMode>("optimized");
+  React.useEffect(() => {
+    if (template?.recommendedMode) setLayoutMode(template.recommendedMode);
+  }, [template?.recommendedMode]);
   const [showComparison, setShowComparison] = React.useState(true);
   const [serviceTier, setServiceTier] = React.useState<"standard" | "premium">(
     "standard"
@@ -180,13 +206,13 @@ const TemplateDetails: React.FC = () => {
   }, [budgetSlices]);
 
   const vendorIconMap: Record<string, React.ElementType> = {
-    Venue: Building,
-    Catering: Utensils,
-    Production: LayoutGrid,
-    Entertainment: Sparkles,
-    PR: Radio,
+    Venue: Buildings,
+    Catering: ForkKnife,
+    Production: SquaresFour,
+    Entertainment: Sparkle,
+    PR: Broadcast,
     Wellness: ShieldCheck,
-    Facilitation: BadgeCheck
+    Facilitation: SealCheck
   };
 
   const serviceStack = React.useMemo(() => {
@@ -211,6 +237,18 @@ const TemplateDetails: React.FC = () => {
       };
     });
   }, [serviceTier, template?.vendors]);
+
+  if (loading) {
+    return (
+      <div className="pb-24 pt-12">
+        <Container>
+          <div className="flex justify-center py-20">
+            <SpinnerGap className="h-8 w-8 animate-spin text-brand-teal" />
+          </div>
+        </Container>
+      </div>
+    );
+  }
 
   if (!template) {
     return (
@@ -272,7 +310,7 @@ const TemplateDetails: React.FC = () => {
                   {
                     label: "Est. Total Cost",
                     value: budgetTotalLabel,
-                    icon: DollarSign
+                    icon: CurrencyDollar
                   },
                   {
                     label: "Cost per Attendee",
@@ -324,7 +362,7 @@ const TemplateDetails: React.FC = () => {
                 <h3 className="text-lg font-bold text-brand-dark">Space Transformation</h3>
                 <div className="flex items-center gap-2">
                   <span className="flex items-center gap-1.5 rounded-full bg-brand-teal/10 px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-brand-teal">
-                    <Sparkles className="h-3 w-3" />
+                    <Sparkle className="h-3 w-3" />
                     Optimal Flow
                   </span>
                 </div>
@@ -419,11 +457,11 @@ const TemplateDetails: React.FC = () => {
                 <p className="text-xs text-brand-dark/50">Required vendors for this blueprint</p>
                 
                 {serviceStack.map((vendor) => {
-                  const Icon = vendorIconMap[vendor.category] || Building;
+                  const Icon = vendorIconMap[vendor.category] || Buildings;
                   return (
                     <div key={vendor.name} className="flex gap-4">
                       <div className="mt-1 h-5 w-5 flex-shrink-0 rounded-full bg-brand-dark/5 flex items-center justify-center">
-                        <BadgeCheck className="h-3.5 w-3.5 text-brand-dark/40" />
+                        <SealCheck className="h-3.5 w-3.5 text-brand-dark/40" />
                       </div>
                       <div className="flex-1">
                         <div className="flex items-center justify-between">
@@ -456,8 +494,8 @@ const TemplateDetails: React.FC = () => {
             <h3 className="text-lg font-bold text-brand-dark">Risk & Compliance</h3>
             <div className="grid gap-4 md:grid-cols-3">
               {[
-                { title: "Insurance Required", desc: "Liability series pending upload.", icon: ShieldAlert, color: "bg-red-50 text-red-600 border-red-100" },
-                { title: "Noise Limit", desc: "Venue cap: 90dB after 10 PM.", icon: Volume2, color: "bg-amber-50 text-amber-600 border-amber-100" },
+                { title: "Insurance Required", desc: "Liability series pending upload.", icon: ShieldWarning, color: "bg-red-50 text-red-600 border-red-100" },
+                { title: "Noise Limit", desc: "Venue cap: 90dB after 10 PM.", icon: SpeakerHigh, color: "bg-amber-50 text-amber-600 border-amber-100" },
                 { title: "Capacity Cap", desc: "Max occupancy: 350 per SFM.", icon: Users, color: "bg-orange-50 text-orange-600 border-orange-100" }
               ].map((item) => (
                 <div key={item.title} className={cn("flex items-start gap-3 rounded-2xl border p-4", item.color)}>

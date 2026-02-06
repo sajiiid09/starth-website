@@ -2,7 +2,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { User } from "@/api/entities";
 import ActivateRoleScreen from "./ActivateRoleScreen";
-import { Loader2 } from "lucide-react";
+import { SpinnerGap } from "@phosphor-icons/react";
 
 export default function RoleGuard({ children, requiredRole }) {
   const [user, setUser] = useState(null);
@@ -56,7 +56,7 @@ export default function RoleGuard({ children, requiredRole }) {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-screen">
-        <Loader2 className="w-8 h-8 animate-spin text-gray-500" />
+        <SpinnerGap className="w-8 h-8 animate-spin text-gray-500" />
       </div>
     );
   }

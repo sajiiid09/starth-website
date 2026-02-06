@@ -11,30 +11,31 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Progress } from "@/components/ui/progress";
 import { 
-  CheckCircle2, 
+  CheckCircle, 
   Circle, 
   MapPin, 
-  Utensils, 
-  Music, 
+  ForkKnife, 
+  MusicNotes, 
   Camera, 
   Flower, 
   Palette,
   Monitor,
   Car,
-  Shield,
+  ShieldCheck,
   FileText,
   Megaphone,
-  Loader2,
+  SpinnerGap,
   Calendar,
-  DollarSign,
+  CurrencyDollar,
   User as UserIcon,
   Phone,
-  Edit2,
+  PencilSimple,
   Eye,
   Plus
-} from "lucide-react";
+} from "@phosphor-icons/react";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
+import { toast } from "sonner";
 
 const eventTypeCategories = {
   corporate: ["venue", "catering", "av_tech", "transportation", "photography", "permits"],
@@ -49,14 +50,14 @@ const eventTypeCategories = {
 
 const categoryConfig = {
   venue: { label: "Venue", icon: MapPin, color: "blue" },
-  catering: { label: "Food & Beverage", icon: Utensils, color: "green" },
-  entertainment: { label: "Entertainment & Media", icon: Music, color: "purple" },
+  catering: { label: "Food & Beverage", icon: ForkKnife, color: "green" },
+  entertainment: { label: "Entertainment & Media", icon: MusicNotes, color: "purple" },
   photography: { label: "Photography", icon: Camera, color: "pink" },
   flowers: { label: "Florist & Fresh Flowers", icon: Flower, color: "rose" },
   decor: { label: "Decor", icon: Palette, color: "orange" },
   av_tech: { label: "AV & Technology", icon: Monitor, color: "indigo" },
   transportation: { label: "Transportation", icon: Car, color: "gray" },
-  security: { label: "Security", icon: Shield, color: "red" },
+  security: { label: "Security", icon: ShieldCheck, color: "red" },
   permits: { label: "Permits & Licenses", icon: FileText, color: "yellow" },
   marketing: { label: "Marketing", icon: Megaphone, color: "cyan" }
 };
@@ -65,8 +66,8 @@ const statusConfig = {
   not_started: { label: "Not Started", color: "bg-gray-100 text-gray-800", icon: Circle },
   researching: { label: "Researching", color: "bg-blue-100 text-blue-800", icon: Circle },
   contacted: { label: "Contacted", color: "bg-yellow-100 text-yellow-800", icon: Circle },
-  booked: { label: "Booked", color: "bg-green-100 text-green-800", icon: CheckCircle2 },
-  confirmed: { label: "Confirmed", color: "bg-green-100 text-green-800", icon: CheckCircle2 }
+  booked: { label: "Booked", color: "bg-green-100 text-green-800", icon: CheckCircle },
+  confirmed: { label: "Confirmed", color: "bg-green-100 text-green-800", icon: CheckCircle }
 };
 
 export default function ChecklistPage() {
@@ -170,7 +171,7 @@ export default function ChecklistPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-screen">
-        <Loader2 className="w-8 h-8 animate-spin text-gray-500" />
+        <SpinnerGap className="w-8 h-8 animate-spin text-gray-500" />
       </div>
     );
   }
@@ -226,7 +227,7 @@ export default function ChecklistPage() {
               <Card className="border-none shadow-lg">
                 <CardContent className="p-6">
                   <div className="flex items-center gap-3 mb-4">
-                    <CheckCircle2 className="w-5 h-5 text-green-600" />
+                    <CheckCircle className="w-5 h-5 text-green-600" />
                     <h3 className="font-semibold text-gray-900">Progress</h3>
                   </div>
                   <div className="space-y-3">
@@ -245,7 +246,7 @@ export default function ChecklistPage() {
               <Card className="border-none shadow-lg">
                 <CardContent className="p-6">
                   <div className="flex items-center gap-3 mb-4">
-                    <DollarSign className="w-5 h-5 text-purple-600" />
+                    <CurrencyDollar className="w-5 h-5 text-purple-600" />
                     <h3 className="font-semibold text-gray-900">Budget</h3>
                   </div>
                   <div className="space-y-2 text-sm">
@@ -327,7 +328,7 @@ export default function ChecklistPage() {
                               size="sm"
                               onClick={() => setEditingItem(item)}
                             >
-                              <Edit2 className="w-4 h-4" />
+                              <PencilSimple className="w-4 h-4" />
                             </Button>
                             <Link to={createPageUrl("Marketplace")}>
                               <Button variant="outline" size="sm">

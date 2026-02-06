@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 40">
+  <defs>
+    <style>
+      .text { font-family: 'Segoe UI', Arial, sans-serif; }
+    </style>
+  </defs>
+  <text x="0" y="28" class="text" font-weight="bold" font-size="22" fill="#000000">FOUNDER</text>
+  <text x="105" y="28" class="text" font-size="22" fill="#000000">UNIVERSITY</text>
+</svg>

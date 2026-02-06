@@ -8,13 +8,13 @@ import {
   MapPin, 
   Users, 
   Calendar, 
-  Award,
+  Trophy,
   ArrowRight,
-  ExternalLink,
-  Bot,
-  TrendingUp,
-  Scale
-} from "lucide-react";
+  ArrowSquareOut,
+  Robot,
+  TrendUp,
+  Scales
+} from "@phosphor-icons/react";
 import Container from "@/components/home-v2/primitives/Container";
 import FadeIn from "@/components/animations/FadeIn";
 
@@ -52,7 +52,7 @@ const additionalCases = [
     location: "Massachusetts",
     title: "Massachusetts Law Firm",
     subtitle: "Unlocking New Revenue",
-    icon: Scale,
+    icon: Scales,
     challenge: "Premium office space sat unused on evenings/weekends, but partners feared compliance risks and administrative overhead involved in renting it out.",
     solution: "Piloted an AI-driven orchestration engine to identify low-risk, compliant event categories (like CLE sessions) without disrupting legal ops.",
     outcome: "Validated a new, low-risk revenue stream while maintaining strict professional and compliance standards.",
@@ -69,7 +69,7 @@ export default function FeaturedCase() {
         {/* --- Section Header --- */}
         <FadeIn className="text-center mb-10 md:mb-16">
           <Badge variant="outline" className="mb-6 inline-flex items-center gap-2 rounded-full border border-brand-teal/20 bg-brand-teal/5 px-4 py-2 text-xs font-semibold uppercase tracking-[0.3em] text-brand-teal">
-            <Award className="h-4 w-4" />
+            <Trophy className="h-4 w-4" />
             Case Studies
           </Badge>
           <h2 className="text-3xl font-bold text-brand-dark sm:text-4xl md:text-5xl leading-tight">
@@ -112,7 +112,7 @@ export default function FeaturedCase() {
                       </div>
                       <Link to={createPageUrl("AIPlanner")}>
                         <Button size="sm" variant="outline" className="hidden sm:flex border-brand-teal/30 text-brand-teal hover:bg-brand-teal/5">
-                          <Bot className="mr-2 h-4 w-4" />
+                          <Robot className="mr-2 h-4 w-4" />
                           Try AI Planner
                         </Button>
                       </Link>
@@ -138,13 +138,13 @@ export default function FeaturedCase() {
                       </div>
                       <div>
                         <div className="mb-1 flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-brand-dark/40">
-                          <Award className="h-4 w-4" /> Impact
+                          <Trophy className="h-4 w-4" /> Impact
                         </div>
                         <p className="text-xl font-semibold text-brand-dark">Flagship Success</p>
                       </div>
                       <div>
                         <div className="mb-1 flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-brand-dark/40">
-                          <Bot className="h-4 w-4" /> Tech
+                          <Robot className="h-4 w-4" /> Tech
                         </div>
                         <p className="text-xl font-semibold text-brand-dark">AI Orchestrated</p>
                       </div>
@@ -161,7 +161,7 @@ export default function FeaturedCase() {
                     >
                       <Button className="w-full rounded-full bg-brand-teal py-6 text-base hover:bg-brand-teal/90 shadow-lg hover:shadow-xl transition-all hover:-translate-y-0.5">
                         View Official Event
-                        <ExternalLink className="ml-2 h-4 w-4" />
+                        <ArrowSquareOut className="ml-2 h-4 w-4" />
                       </Button>
                     </a>
                   </div>
@@ -239,7 +239,7 @@ export default function FeaturedCase() {
                     
                     {/* Metric Tag */}
                     <div className="mt-4 inline-flex items-center gap-2 rounded-lg bg-white px-3 py-1.5 shadow-sm">
-                      <TrendingUp className="h-3.5 w-3.5 text-brand-teal" />
+                      <TrendUp className="h-3.5 w-3.5 text-brand-teal" />
                       <span className="text-xs font-bold text-brand-dark">{study.metric}</span>
                     </div>
                   </div>

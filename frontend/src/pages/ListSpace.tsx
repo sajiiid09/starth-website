@@ -13,11 +13,11 @@ import {
   Upload, 
   MapPin, 
   Users, 
-  DollarSign, 
+  CurrencyDollar, 
   Camera,
   CheckCircle,
   ArrowLeft
-} from "lucide-react";
+} from "@phosphor-icons/react";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 
@@ -58,7 +58,7 @@ export default function ListSpacePage() {
   };
 
   const handleFileUpload = async (event) => {
-    const files = Array.from(event.target.files);
+    const files = Array.from(event.target.files) as File[];
     setUploading(true);
     
     try {
@@ -206,7 +206,7 @@ export default function ListSpacePage() {
               <div>
                 <Label htmlFor="rate">Rate</Label>
                 <div className="relative">
-                  <DollarSign className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                  <CurrencyDollar className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
                   <Input
                     id="rate"
                     type="number"

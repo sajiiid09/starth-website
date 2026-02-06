@@ -1,6 +1,6 @@
 import React from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { Menu } from "lucide-react";
+import { List } from "@phosphor-icons/react";
 import {
   Sidebar,
   SidebarContent,
@@ -16,13 +16,9 @@ import {
 } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue
-} from "@/components/ui/select";
-import { sidebarUser } from "@/config/sidebarUser";
+  sidebarUser
+} from "@/config/sidebarUser";
+import { clearAuthTokens } from "@/api/authStorage";
 import { getSidebarVendor } from "@/config/sidebarVendor";
 import { sidebarAdmin } from "@/config/sidebarAdmin";
 import RailNav from "@/features/immersive/RailNav";
@@ -32,7 +28,7 @@ import {
   PlannerSessionsProvider,
   usePlannerSessions
 } from "@/features/planner/PlannerSessionsContext";
-import { AppRole, clearRole, getCurrentRole, getRoleHomePath, setCurrentRole } from "@/utils/role";
+import { AppRole, clearRole, getCurrentRole } from "@/utils/role";
 import {
   getSessionState,
   setVendorOnboardingStatus,
@@ -41,7 +37,6 @@ import {
 } from "@/utils/session";
 import { isAdminReadOnly } from "@/features/admin/config";
 
-const isDev = import.meta.env.MODE !== "production";
 const AI_PLANNER_ROUTE = "/dashboard/ai-planner";
 const AI_PLANNER_ALIASES = [AI_PLANNER_ROUTE, "/dashboard/plan-with-ai"];
 
@@ -76,17 +71,13 @@ const DashboardShellContent: React.FC<DashboardShellContentProps> = ({ children,
   }, [role]);
 
   const handleSignOut = () => {
+    clearAuthTokens();
     sessionStorage.removeItem("currentUser");
     clearRole();
     setVendorType(null);
     setVendorOnboardingStatus("draft");
     updateVendorProfileDraft({});
     navigate("/appentry");
-  };
-
-  const handleRoleSwitch = (nextRole: AppRole) => {
-    setCurrentRole(nextRole);
-    navigate(getRoleHomePath(nextRole));
   };
 
   const handleSelectPlannerSession = (sessionId: string) => {
@@ -165,7 +156,7 @@ const DashboardShellContent: React.FC<DashboardShellContentProps> = ({ children,
                             <span className="text-sm font-medium">{item.label}</span>
                             {"badge" in item && item.badge && (
                               <span className="ml-auto rounded-full bg-brand-teal/10 px-2 py-0.5 text-xs text-brand-teal">
-                                {item.badge}
+                                {item.badge as React.ReactNode}
                               </span>
                             )}
                           </Link>
@@ -198,25 +189,13 @@ const DashboardShellContent: React.FC<DashboardShellContentProps> = ({ children,
                 onClick={(event) => openImmersiveDrawer(event.currentTarget)}
                 aria-label="Open organizer navigation menu"
               >
-                <Menu className="h-4 w-4" />
+                <List weight="bold" className="h-4 w-4" />
               </Button>
             )}
             <div className="text-sm font-semibold text-gray-700">
               {role ? `${role.charAt(0).toUpperCase()}${role.slice(1)} Dashboard` : "Dashboard"}
             </div>
           </div>
-          {isDev && (
-            <Select value={role || "user"} onValueChange={(value) => handleRoleSwitch(value as AppRole)}>
-              <SelectTrigger className="w-[180px]">
-                <SelectValue placeholder="Switch role" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="user">User</SelectItem>
-                <SelectItem value="vendor">Vendor</SelectItem>
-                <SelectItem value="admin">Admin</SelectItem>
-              </SelectContent>
-            </Select>
-          )}
         </header>
         {role === "admin" && isAdminReadOnly && (
           <div className="mx-6 mt-4 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">

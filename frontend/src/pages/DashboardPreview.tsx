@@ -8,26 +8,26 @@ import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { 
   Plus, 
-  Sparkles, 
+  Sparkle, 
   Calendar, 
-  LayoutList, 
+  ListBullets, 
   ArrowRight,
   Heart,
   Bell,
   MapPin,
   Users,
-  DollarSign,
+  CurrencyDollar,
   CheckCircle,
-  TrendingUp,
-  Building,
+  TrendUp,
+  Buildings,
   CalendarCheck,
   Eye,
   Briefcase,
   FileText,
   Shield,
   Clock,
-  LayoutGrid
-} from "lucide-react";
+  SquaresFour
+} from "@phosphor-icons/react";
 
 // Mock Data
 const mockEvents = [
@@ -44,8 +44,8 @@ const OrganizerDashboardPreview = () => (
   <div className="space-y-6">
     <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
       <StatCard title="Total Events" value="12" icon={<Calendar />} color="blue" />
-      <StatCard title="Upcoming" value="3" icon={<TrendingUp />} color="green" />
-      <StatCard title="Total Budget" value="$1.2M" icon={<DollarSign />} color="purple" />
+      <StatCard title="Upcoming" value="3" icon={<TrendUp />} color="green" />
+      <StatCard title="Total Budget" value="$1.2M" icon={<CurrencyDollar />} color="purple" />
       <StatCard title="Avg. Event Size" value="250" icon={<Users />} color="orange" />
     </div>
     <div className="grid lg:grid-cols-3 gap-6">
@@ -65,7 +65,7 @@ const OrganizerDashboardPreview = () => (
           </CardContent>
         </Card>
         <Card className="border-none shadow-lg">
-          <CardHeader><CardTitle className="flex items-center gap-2"><LayoutList className="text-blue-600"/>Saved AI Plans</CardTitle></CardHeader>
+          <CardHeader><CardTitle className="flex items-center gap-2"><ListBullets className="text-blue-600"/>Saved AI Plans</CardTitle></CardHeader>
           <CardContent>
             {mockPlans.map(plan => (
               <div key={plan.id} className="p-3 bg-gray-50 rounded-lg mb-2">
@@ -97,10 +97,10 @@ const OrganizerDashboardPreview = () => (
 const VenueDashboardPreview = () => (
   <div className="space-y-6">
     <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-      <StatCard title="Total Venues" value="5" icon={<Building />} color="blue" />
+      <StatCard title="Total Venues" value="5" icon={<Buildings />} color="blue" />
       <StatCard title="Total Bookings" value="82" icon={<CalendarCheck />} color="green" />
-      <StatCard title="Total Revenue" value="$480k" icon={<DollarSign />} color="purple" />
-      <StatCard title="This Month" value="$35k" icon={<TrendingUp />} color="orange" />
+      <StatCard title="Total Revenue" value="$480k" icon={<CurrencyDollar />} color="purple" />
+      <StatCard title="This Month" value="$35k" icon={<TrendUp />} color="orange" />
     </div>
     <div className="grid lg:grid-cols-3 gap-6">
       <Card className="lg:col-span-2 border-none shadow-lg">
@@ -115,7 +115,7 @@ const VenueDashboardPreview = () => (
         </CardContent>
       </Card>
       <Card className="border-none shadow-lg">
-        <CardHeader><CardTitle className="flex items-center gap-2"><Building className="text-blue-600"/>Top Venues</CardTitle></CardHeader>
+        <CardHeader><CardTitle className="flex items-center gap-2"><Buildings className="text-blue-600"/>Top Venues</CardTitle></CardHeader>
         <CardContent>
           <p className="font-medium text-gray-900 text-sm">The Grand Ballroom</p>
           <p className="text-xs text-gray-500 mb-2">25 bookings</p>
@@ -132,8 +132,8 @@ const ProviderDashboardPreview = () => (
     <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
       <StatCard title="Total Services" value="8" icon={<Briefcase />} color="blue" />
       <StatCard title="Total Bookings" value="112" icon={<CheckCircle />} color="green" />
-      <StatCard title="Total Revenue" value="$215k" icon={<DollarSign />} color="purple" />
-      <StatCard title="This Month" value="$18k" icon={<TrendingUp />} color="orange" />
+      <StatCard title="Total Revenue" value="$215k" icon={<CurrencyDollar />} color="purple" />
+      <StatCard title="This Month" value="$18k" icon={<TrendUp />} color="orange" />
     </div>
     <Card className="border-none shadow-lg">
       <CardContent className="p-6">
@@ -144,7 +144,7 @@ const ProviderDashboardPreview = () => (
       </CardContent>
     </Card>
     <div className="grid md:grid-cols-2 gap-6">
-      <SetupStep title="Organization Profile" icon={<Building />} score={100} />
+      <SetupStep title="Organization Profile" icon={<Buildings />} score={100} />
       <SetupStep title="Services" icon={<Briefcase />} score={100} />
       <SetupStep title="Documents" icon={<FileText />} score={50} />
       <SetupStep title="Insurance" icon={<Shield />} score={50} />
@@ -197,8 +197,8 @@ export default function DashboardPreviewPage() {
       <div className="max-w-7xl mx-auto px-4 pb-20">
         <Tabs defaultValue="organizer" className="w-full">
           <TabsList className="grid w-full grid-cols-3 max-w-2xl mx-auto mb-8">
-            <TabsTrigger value="organizer" className="flex items-center gap-2"><LayoutGrid className="w-4 h-4"/>Event Organizer</TabsTrigger>
-            <TabsTrigger value="venue" className="flex items-center gap-2"><Building className="w-4 h-4"/>Venue Owner</TabsTrigger>
+            <TabsTrigger value="organizer" className="flex items-center gap-2"><SquaresFour className="w-4 h-4"/>Event Organizer</TabsTrigger>
+            <TabsTrigger value="venue" className="flex items-center gap-2"><Buildings className="w-4 h-4"/>Venue Owner</TabsTrigger>
             <TabsTrigger value="provider" className="flex items-center gap-2"><Briefcase className="w-4 h-4"/>Service Provider</TabsTrigger>
           </TabsList>
 

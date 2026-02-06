@@ -5,7 +5,7 @@ import Eyebrow from "@/components/home-v2/primitives/Eyebrow";
 import DisplayH1 from "@/components/home-v2/primitives/DisplayH1";
 import Lead from "@/components/home-v2/primitives/Lead";
 import FadeIn from "@/components/animations/FadeIn";
-import { ScrollText, ShieldCheck, Scale, AlertCircle } from "lucide-react";
+import { Scroll, ShieldCheck, Scales, WarningCircle } from "@phosphor-icons/react";
 import { cn } from "@/lib/utils";
 
 // --- Data Structure ---
@@ -79,7 +79,7 @@ const legalSections = [
             "Strathwell disclaims all liability arising from third-party services, venues, vendors, or events."
           ].map((item) => (
             <li key={item} className="flex items-start gap-2 text-brand-dark/80">
-              <AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-brand-dark/40" />
+              <WarningCircle className="mt-0.5 h-4 w-4 shrink-0 text-brand-dark/40" />
               <span>{item}</span>
             </li>
           ))}
@@ -223,7 +223,7 @@ const legalSections = [
     title: "12. Governing Law & Jurisdiction",
     content: (
       <div className="flex items-start gap-3 rounded-lg border border-brand-dark/10 bg-white p-4">
-        <Scale className="mt-1 h-5 w-5 text-brand-dark/40" />
+        <Scales className="mt-1 h-5 w-5 text-brand-dark/40" />
         <div className="space-y-2 text-sm">
           <p>These Legal Terms are governed by the laws of the State of Delaware, without regard to conflict-of-law principles.</p>
           <p>Any disputes shall be resolved exclusively in state or federal courts located in Delaware.</p>
@@ -296,7 +296,7 @@ const Legal: React.FC = () => {
         <Container>
           <FadeIn className="text-center">
             <div className="mx-auto mb-6 flex h-14 w-14 items-center justify-center rounded-2xl bg-brand-dark/5 text-brand-dark">
-              <ScrollText className="h-6 w-6" />
+              <Scroll className="h-6 w-6" />
             </div>
             <Eyebrow theme="cream">Legal & Compliance</Eyebrow>
             <DisplayH1 theme="cream" className="mt-4">

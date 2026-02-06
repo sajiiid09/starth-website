@@ -4,10 +4,10 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { 
   Star, 
-  MessageSquare,
+  ChatCircle,
   X,
-  ExternalLink 
-} from "lucide-react";
+  ArrowSquareOut 
+} from "@phosphor-icons/react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { getGooglePlacePhotos } from "@/api/functions";
 import { convertGoogleDriveUrl } from "@/components/utils/imageUtils";
@@ -90,7 +90,7 @@ export default function VendorCard({ vendor }) { // Removed onRequestQuote from 
       console.error("Error creating message:", error);
       if (error.message.includes('Unauthorized')) {
         // If unauthorized, redirect to login
-        await User.loginWithRedirect(window.location.href);
+        window.location.href = '/login';
       }
     }
   };
@@ -209,7 +209,7 @@ export default function VendorCard({ vendor }) { // Removed onRequestQuote from 
               onClick={handleRequestQuote}
               className="flex-1 bg-blue-600 hover:bg-blue-700 text-white"
             >
-              <MessageSquare className="w-4 h-4 mr-2" />
+              <ChatCircle className="w-4 h-4 mr-2" />
               Message Vendor Admin
             </Button>
             {vendor.website && (
@@ -220,7 +220,7 @@ export default function VendorCard({ vendor }) { // Removed onRequestQuote from 
                 className="flex-1"
               >
                 <Button variant="outline" className="w-full">
-                  <ExternalLink className="w-4 h-4 mr-2" />
+                  <ArrowSquareOut className="w-4 h-4 mr-2" />
                   Visit Website
                 </Button>
               </a>
@@ -390,8 +390,8 @@ const PhotoCollage = ({ vendor }) => { // Changed props to accept a single 'vend
           if (result?.data?.photos) {
             photos = result.data.photos;
             console.log(`   Found via result.data.photos`);
-          } else if (result?.photos) {
-            photos = result.photos;
+          } else if ((result as any)?.photos) {
+            photos = (result as any).photos;
             console.log(`   Found via result.photos`);
           } else if (Array.isArray(result)) {
             photos = result;

@@ -9,12 +9,12 @@ import { motion } from "framer-motion";
 import {
   Check,
   X,
-  Sparkles,
-  Zap,
-  Building2,
+  Sparkle,
+  Lightning,
+  Buildings,
   ArrowRight,
-  HelpCircle,
-} from "lucide-react";
+  Question,
+} from "@phosphor-icons/react";
 import { cn } from "@/lib/utils";
 
 import FaqSection from "@/components/marketing/FaqSection";
@@ -83,7 +83,7 @@ export default function PlansPage() {
         <Container>
           <FadeIn>
             <Badge className="mb-6 inline-flex items-center gap-2 rounded-full border border-brand-teal/20 bg-brand-teal/5 px-4 py-2 text-xs font-semibold uppercase tracking-[0.3em] text-brand-teal">
-              <Zap className="h-4 w-4" />
+              <Lightning className="h-4 w-4" />
               Plans & Pricing
             </Badge>
             <h1 className="text-4xl font-bold tracking-tight text-brand-dark sm:text-5xl md:text-6xl">
@@ -263,7 +263,7 @@ export default function PlansPage() {
 
               <div className="relative z-10 mx-auto max-w-3xl">
                 <Badge className="mb-6 inline-flex items-center gap-2 rounded-full bg-white px-4 py-2 text-xs font-semibold uppercase tracking-[0.3em] text-brand-dark shadow-sm">
-                  <Building2 className="h-4 w-4 text-brand-teal" />
+                  <Buildings className="h-4 w-4 text-brand-teal" />
                   For Vendors & Venues
                 </Badge>
 
@@ -280,7 +280,7 @@ export default function PlansPage() {
                 <div className="grid gap-6 text-left md:grid-cols-2">
                   <div className="rounded-2xl border border-white/50 bg-white p-6 shadow-sm">
                     <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-xl bg-brand-dark text-white">
-                      <Sparkles className="h-5 w-5" />
+                      <Sparkle className="h-5 w-5" />
                     </div>
                     <h3 className="mb-2 text-lg font-bold text-brand-dark">
                       No Subscription Fees
@@ -323,7 +323,7 @@ export default function PlansPage() {
         <Container>
           <FadeIn>
         <div className="mb-6 inline-flex h-12 w-12 items-center justify-center rounded-full bg-brand-dark/5 text-brand-dark">
-          <HelpCircle className="h-6 w-6" />
+          <Question className="h-6 w-6" />
         </div>
         <h3 className="text-2xl font-bold text-brand-dark">Still have questions?</h3>
         <p className="mt-4 text-brand-dark/60">

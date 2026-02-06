@@ -1,225 +1,146 @@
-from __future__ import annotations
+"""Auth router — all /api/auth/* endpoints matching the frontend contract."""
 
-from datetime import datetime, timedelta, timezone
+from fastapi import APIRouter, Depends
+from sqlalchemy.ext.asyncio import AsyncSession
 
-from fastapi import APIRouter, Depends, Header, status
-from sqlalchemy import select
-from sqlalchemy.orm import Session
-
-from app.api.deps import get_db
-from app.core.config import get_settings
-from app.core.errors import APIError, forbidden
-from app.core.security import (
-    create_access_token,
-    create_refresh_token,
-    hash_password,
-    hash_token,
-    verify_password,
-)
-from app.models.enums import UserRole
-from app.models.refresh_token import RefreshToken
+from app.core.deps import get_current_user
+from app.db.engine import get_db
 from app.models.user import User
 from app.schemas.auth import (
-    AdminBootstrapRequest,
+    ForgotPasswordRequest,
     LoginRequest,
-    LogoutRequest,
-    RefreshRequest,
-    SignupRequest,
+    LogoutResponse,
+    RegisterRequest,
+    ResetPasswordRequest,
+    ResetPasswordResponse,
     TokenResponse,
+    UserRead,
+    UserUpdate,
+    VerifyEmailRequest,
+    VerifyEmailResponse,
+)
+from app.services.auth_service import (
+    login_user,
+    register_user,
+    reset_password,
+    send_forgot_password_otp,
+    verify_email_otp,
 )
 
-router = APIRouter(prefix="/auth", tags=["auth"])
+router = APIRouter(prefix="/api/auth", tags=["auth"])
 
 
-def _issue_tokens(db: Session, user: User) -> TokenResponse:
-    settings = get_settings()
-    access_token = create_access_token(subject=str(user.id), role=user.role.value)
-    refresh_token = create_refresh_token()
-    refresh_expires_at = datetime.now(timezone.utc) + timedelta(
-        days=settings.refresh_token_expire_days
-    )
-
-    refresh_record = RefreshToken(
-        user_id=user.id,
-        token_hash=hash_token(refresh_token),
-        expires_at=refresh_expires_at,
-    )
-    db.add(refresh_record)
-    db.commit()
-
-    return TokenResponse(
-        access_token=access_token,
-        refresh_token=refresh_token,
-        expires_in=settings.access_token_expire_minutes * 60,
-    )
+# ---------------------------------------------------------------------------
+# Registration (both /signup and /register hit the same logic)
+# ---------------------------------------------------------------------------
 
 
 @router.post("/signup", response_model=TokenResponse)
-def signup(payload: SignupRequest, db: Session = Depends(get_db)) -> TokenResponse:
-    settings = get_settings()
-    role = payload.role or UserRole.ORGANIZER
-    if role == UserRole.ADMIN:
-        raise forbidden("Admin users must be created via bootstrap")
-    if not payload.password.strip():
-        raise APIError(
-            error_code="invalid_password",
-            message="Password cannot be blank.",
-            status_code=status.HTTP_400_BAD_REQUEST,
-        )
+async def signup(
+    payload: RegisterRequest,
+    db: AsyncSession = Depends(get_db),
+) -> TokenResponse:
+    return await register_user(db, payload)
 
-    existing_user = db.execute(select(User).where(User.email == payload.email)).scalar_one_or_none()
-    if existing_user:
-        raise APIError(
-            error_code="email_already_registered",
-            message="Email already registered",
-            status_code=status.HTTP_409_CONFLICT,
-        )
 
-    user = User(
-        email=payload.email,
-        password_hash=hash_password(payload.password),
-        role=role,
-    )
-    db.add(user)
-    db.commit()
-    db.refresh(user)
+@router.post("/register", response_model=TokenResponse)
+async def register(
+    payload: RegisterRequest,
+    db: AsyncSession = Depends(get_db),
+) -> TokenResponse:
+    return await register_user(db, payload)
 
-    if not settings.jwt_secret:
-        raise APIError(
-            error_code="config_error",
-            message="JWT secret not configured",
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-        )
 
-    return _issue_tokens(db, user)
+# ---------------------------------------------------------------------------
+# Login / Logout
+# ---------------------------------------------------------------------------
 
 
 @router.post("/login", response_model=TokenResponse)
-def login(payload: LoginRequest, db: Session = Depends(get_db)) -> TokenResponse:
-    settings = get_settings()
-    user = db.execute(select(User).where(User.email == payload.email)).scalar_one_or_none()
-    if not user or not user.is_active:
-        raise APIError(
-            error_code="invalid_credentials",
-            message="Invalid credentials",
-            status_code=status.HTTP_401_UNAUTHORIZED,
-        )
-
-    if not verify_password(payload.password, user.password_hash):
-        raise APIError(
-            error_code="invalid_credentials",
-            message="Invalid credentials",
-            status_code=status.HTTP_401_UNAUTHORIZED,
-        )
-
-    if not settings.jwt_secret:
-        raise APIError(
-            error_code="config_error",
-            message="JWT secret not configured",
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-        )
-
-    return _issue_tokens(db, user)
+async def login(
+    payload: LoginRequest,
+    db: AsyncSession = Depends(get_db),
+) -> TokenResponse:
+    return await login_user(db, payload)
 
 
-@router.post("/refresh", response_model=TokenResponse)
-def refresh(payload: RefreshRequest, db: Session = Depends(get_db)) -> TokenResponse:
-    settings = get_settings()
-    token_hash = hash_token(payload.refresh_token)
-    refresh_record = db.execute(
-        select(RefreshToken).where(RefreshToken.token_hash == token_hash)
-    ).scalar_one_or_none()
-
-    if not refresh_record:
-        raise APIError(
-            error_code="invalid_credentials",
-            message="Invalid credentials",
-            status_code=status.HTTP_401_UNAUTHORIZED,
-        )
-    if refresh_record.revoked_at is not None:
-        active_tokens = db.execute(
-            select(RefreshToken).where(
-                RefreshToken.user_id == refresh_record.user_id,
-                RefreshToken.revoked_at.is_(None),
-            )
-        ).scalars().all()
-        now = datetime.now(timezone.utc)
-        for token in active_tokens:
-            token.revoked_at = now
-            db.add(token)
-        db.commit()
-        raise APIError(
-            error_code="refresh_token_reuse_detected",
-            message="Session expired. Please login again.",
-            status_code=status.HTTP_401_UNAUTHORIZED,
-        )
-    if refresh_record.expires_at <= datetime.now(timezone.utc):
-        raise APIError(
-            error_code="invalid_credentials",
-            message="Invalid credentials",
-            status_code=status.HTTP_401_UNAUTHORIZED,
-        )
-
-    user = db.execute(select(User).where(User.id == refresh_record.user_id)).scalar_one_or_none()
-    if not user or not user.is_active:
-        raise APIError(
-            error_code="invalid_credentials",
-            message="Invalid credentials",
-            status_code=status.HTTP_401_UNAUTHORIZED,
-        )
-
-    refresh_record.revoked_at = datetime.now(timezone.utc)
-    db.add(refresh_record)
-    db.commit()
-
-    if not settings.jwt_secret:
-        raise APIError(
-            error_code="config_error",
-            message="JWT secret not configured",
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-        )
-
-    return _issue_tokens(db, user)
+@router.post("/logout", response_model=LogoutResponse)
+async def logout() -> LogoutResponse:
+    # Stateless JWT — nothing to invalidate server-side
+    return LogoutResponse()
 
 
-@router.post("/logout")
-def logout(payload: LogoutRequest, db: Session = Depends(get_db)) -> dict[str, str]:
-    token_hash = hash_token(payload.refresh_token)
-    refresh_record = db.execute(
-        select(RefreshToken).where(
-            RefreshToken.token_hash == token_hash,
-            RefreshToken.revoked_at.is_(None),
-        )
-    ).scalar_one_or_none()
-
-    if refresh_record:
-        refresh_record.revoked_at = datetime.now(timezone.utc)
-        db.add(refresh_record)
-        db.commit()
-
-    return {"status": "ok"}
+# ---------------------------------------------------------------------------
+# Current user
+# ---------------------------------------------------------------------------
 
 
-@router.post("/bootstrap-admin")
-def bootstrap_admin(
-    payload: AdminBootstrapRequest,
-    db: Session = Depends(get_db),
-    admin_bootstrap_token: str | None = Header(default=None, alias="ADMIN_BOOTSTRAP_TOKEN"),
-) -> dict[str, str]:
-    settings = get_settings()
-    if not settings.admin_bootstrap_token or admin_bootstrap_token != settings.admin_bootstrap_token:
-        raise forbidden("Not authorized")
-
-    existing_admin = db.execute(select(User).where(User.role == UserRole.ADMIN)).scalar_one_or_none()
-    if existing_admin:
-        return {"status": "exists"}
-
-    user = User(
-        email=payload.email,
-        password_hash=hash_password(payload.password),
-        role=UserRole.ADMIN,
+@router.get("/me", response_model=UserRead)
+async def get_me(user: User = Depends(get_current_user)) -> UserRead:
+    return UserRead(
+        id=user.id,
+        email=user.email,
+        first_name=user.first_name,
+        last_name=user.last_name,
+        role=user.role,
+        roles=[user.role],
+        is_verified=user.is_verified,
+        created_at=user.created_at,
     )
-    db.add(user)
-    db.commit()
 
-    return {"status": "created"}
+
+@router.put("/me", response_model=UserRead)
+async def update_me(
+    payload: UserUpdate,
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+) -> UserRead:
+    if payload.first_name is not None:
+        user.first_name = payload.first_name
+    if payload.last_name is not None:
+        user.last_name = payload.last_name
+    await db.flush()
+
+    return UserRead(
+        id=user.id,
+        email=user.email,
+        first_name=user.first_name,
+        last_name=user.last_name,
+        role=user.role,
+        roles=[user.role],
+        is_verified=user.is_verified,
+        created_at=user.created_at,
+    )
+
+
+# ---------------------------------------------------------------------------
+# Email verification & password reset
+# ---------------------------------------------------------------------------
+
+
+@router.post("/verify-email", response_model=VerifyEmailResponse)
+async def verify_email(
+    payload: VerifyEmailRequest,
+    db: AsyncSession = Depends(get_db),
+) -> VerifyEmailResponse:
+    return await verify_email_otp(db, payload)
+
+
+@router.post("/forgot-password", response_model=ResetPasswordResponse)
+async def forgot_password(
+    payload: ForgotPasswordRequest,
+    db: AsyncSession = Depends(get_db),
+) -> ResetPasswordResponse:
+    """Send a password-reset OTP to the user's email."""
+    await send_forgot_password_otp(db, payload.email)
+    # Always return success to avoid leaking whether the email exists.
+    return ResetPasswordResponse()
+
+
+@router.post("/reset-password", response_model=ResetPasswordResponse)
+async def reset_pwd(
+    payload: ResetPasswordRequest,
+    db: AsyncSession = Depends(get_db),
+) -> ResetPasswordResponse:
+    await reset_password(db, payload)
+    return ResetPasswordResponse()

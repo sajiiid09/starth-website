@@ -5,14 +5,14 @@ import { Button } from "@/components/ui/button";
 import {
   MapPin,
   Users,
-  DollarSign,
+  CurrencyDollar,
   Star,
   Shield,
-  ExternalLink,
+  ArrowSquareOut,
   Heart,
-  MessageSquare,
-  Sparkles // Added Sparkles import
-} from "lucide-react";
+  ChatCircle,
+  Sparkle
+} from "@phosphor-icons/react";
 import SmartImage from "@/components/shared/SmartImage";
 
 // Placeholder for createPageUrl function
@@ -32,7 +32,7 @@ const FavoriteButton = ({ entityType, entityId, className }) => {
       className={`rounded-full ${className}`}
       onClick={toggleFavorite}
     >
-      <Heart className={`w-4 h-4 ${isFavorite ? "fill-red-500 text-red-500" : "text-gray-400"}`} />
+      <Heart className={`w-4 h-4 ${isFavorite ? "fill-red-500 text-red-500" : "text-gray-400"}`} weight={isFavorite ? "fill" : "regular"} />
     </Button>
   );
 };
@@ -49,7 +49,7 @@ const MessageVenueButton = ({ venue, className }) => {
       className={`bg-gray-200 hover:bg-gray-300 text-gray-800 ${className}`}
       onClick={handleMessageClick}
     >
-      <MessageSquare className="w-4 h-4" />
+      <ChatCircle className="w-4 h-4" />
     </Button>
   );
 };
@@ -135,7 +135,7 @@ export default function VenueGrid({ venues, onAskAI }) { // Added onAskAI prop
               <div className="text-right">
                 {venue.rate_card_json?.base_rate ? (
                   <div className="flex items-center gap-1 text-lg font-semibold text-brand-dark">
-                    <DollarSign className="w-4 h-4" />
+                    <CurrencyDollar className="w-4 h-4" />
                     <span>{venue.rate_card_json.base_rate.toLocaleString()}</span>
                   </div>
                 ) : venue.rate_card_json?.hourly_rate ? (
@@ -169,7 +169,7 @@ export default function VenueGrid({ venues, onAskAI }) { // Added onAskAI prop
               <a href={createPageUrl(`VenueDetails?id=${venue.id}`)} className="flex-1">
                 <Button className="w-full bg-brand-teal text-white hover:bg-brand-teal/90 group">
                   View Details
-                  <ExternalLink className="w-4 h-4 ml-2 group-hover:translate-x-1 strathwell-transition" />
+                  <ArrowSquareOut className="w-4 h-4 ml-2 group-hover:translate-x-1 strathwell-transition" />
                 </Button>
               </a>
               {onAskAI && (
@@ -180,7 +180,7 @@ export default function VenueGrid({ venues, onAskAI }) { // Added onAskAI prop
                   className="px-3"
                   title="Ask AI about this venue"
                 >
-                  <Sparkles className="w-4 h-4" />
+                  <Sparkle className="w-4 h-4" />
                 </Button>
               )}
             </div>

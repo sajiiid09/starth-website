@@ -1,5 +1,5 @@
 import React from "react";
-import { Search, ChevronDown, ChevronUp } from "lucide-react";
+import { MagnifyingGlass, CaretDown, CaretUp } from "@phosphor-icons/react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -98,7 +98,7 @@ const AdminAuditLogs: React.FC = () => {
         <CardContent className="space-y-4 p-6">
           <div className="grid gap-3 lg:grid-cols-5">
             <div className="relative lg:col-span-2">
-              <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+              <MagnifyingGlass className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-gray-400" />
               <Input
                 placeholder="Search logs"
                 className="pl-9"
@@ -182,7 +182,7 @@ const AdminAuditLogs: React.FC = () => {
                             size="sm"
                             onClick={() => setExpanded((prev) => ({ ...prev, [entry.id]: !isOpen }))}
                           >
-                            {isOpen ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+                            {isOpen ? <CaretUp className="size-4" /> : <CaretDown className="size-4" />}
                             {isOpen ? "Hide" : "View"}
                           </Button>
                         </TableCell>

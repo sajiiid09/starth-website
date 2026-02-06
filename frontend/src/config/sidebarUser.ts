@@ -1,17 +1,17 @@
 import {
   Calendar,
-  Home,
-  MessageSquare,
-  PlusCircle,
-  Settings,
-  Sparkles
-} from "lucide-react";
+  Tray,
+  SquaresFour,
+  Gear,
+  Sparkle,
+  Storefront
+} from "@phosphor-icons/react";
 
 export const sidebarUser = [
-  { label: "Dashboard Home", href: "/dashboard", icon: Home },
+  { label: "AI Planner", href: "/dashboard/ai-planner", icon: Sparkle },
   { label: "Events", href: "/dashboard/events", icon: Calendar },
-  { label: "AI Planner", href: "/dashboard/ai-planner", icon: Sparkles },
-  { label: "Create Event", href: "/dashboard/create", icon: PlusCircle },
-  { label: "Messages", href: "/dashboard/messages", icon: MessageSquare, badge: "3" },
-  { label: "Settings", href: "/dashboard/settings", icon: Settings }
+  { label: "Templates", href: "/dashboard/templates", icon: SquaresFour },
+  { label: "Marketplace", href: "/dashboard/marketplace", icon: Storefront },
+  { label: "Inbox", href: "/dashboard/messages", icon: Tray, badge: "3" },
+  { label: "Settings", href: "/dashboard/settings", icon: Gear }
 ];

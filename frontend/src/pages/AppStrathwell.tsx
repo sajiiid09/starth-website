@@ -3,7 +3,7 @@ import { User } from "@/api/entities";
 import { createPageUrl } from "@/utils";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Calendar, MapPin, Users, ArrowRight, Loader2 } from "lucide-react";
+import { Calendar, MapPin, Users, ArrowRight, SpinnerGap } from "@phosphor-icons/react";
 
 export default function AppStrathwellPage() {
   const [user, setUser] = useState(null);
@@ -40,7 +40,7 @@ export default function AppStrathwellPage() {
     return (
       <div className="flex items-center justify-center h-screen bg-gray-50">
         <div className="text-center">
-          <Loader2 className="w-12 h-12 text-blue-600 animate-spin mx-auto mb-4" />
+          <SpinnerGap className="w-12 h-12 text-blue-600 animate-spin mx-auto mb-4" />
           <p className="text-gray-600">Loading your dashboard...</p>
         </div>
       </div>

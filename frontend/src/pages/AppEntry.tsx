@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
-import { Loader2, Users, Briefcase, ArrowRight, CheckCircle2 } from "lucide-react";
+import { SpinnerGap, Users, Briefcase, ArrowRight, CheckCircle, Eye, EyeSlash } from "@phosphor-icons/react";
 import { toast } from "sonner";
 import { createPageUrl } from "@/utils";
 import { AppRole, getRoleHomePath, setCurrentRole } from "@/utils/role";
@@ -14,7 +14,7 @@ import {
   updateVendorProfileDraft,
   type VendorType
 } from "@/utils/session";
-import { base44 } from "@/api/base44Client";
+import { User } from "@/api/entities";
 import { authLogin, authRegister } from "@/api/functions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -48,8 +48,11 @@ const roleOptions = [
 type RoleOptionId = (typeof roleOptions)[number]["id"];
 type AuthView = "role" | "signup" | "login";
 const ORGANIZER_AI_PLANNER_ROUTE = "/dashboard/ai-planner";
-const getPostAuthRedirectPath = (role: AppRole) =>
-  role === "user" ? ORGANIZER_AI_PLANNER_ROUTE : getRoleHomePath(role);
+
+function getPostAuthRedirectPath(role: AppRole): string {
+  if (role === "user") return ORGANIZER_AI_PLANNER_ROUTE;
+  return getRoleHomePath(role);
+}
 
 // --- Components ---
 
@@ -59,12 +62,13 @@ type SignUpFormProps = {
   onSignUpSuccess: () => void;
 };
 
-const SignUpForm: React.FC<SignUpFormProps> = ({
+function SignUpForm({
   selectedRole,
   vendorType,
   onSignUpSuccess
-}) => {
+}: SignUpFormProps): React.ReactElement {
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const roleValue =
     selectedRole === "vendor" ? vendorType ?? "service_provider" : "organizer";
@@ -231,15 +235,25 @@ const SignUpForm: React.FC<SignUpFormProps> = ({
         </div>
         <div className="space-y-1.5">
           <Label htmlFor="signupPassword" className="text-xs font-semibold uppercase tracking-wider text-brand-dark/60">Password</Label>
-          <Input
-            id="signupPassword"
-            type="password"
-            placeholder="At least 8 characters"
-            required
-            className="h-12 border-brand-dark/10 bg-white/60 text-base focus:border-brand-teal focus:ring-brand-teal/20"
-            value={formData.password}
-            onChange={(e) => handleInputChange("password", e.target.value)}
-          />
+          <div className="relative">
+            <Input
+              id="signupPassword"
+              type={showPassword ? "text" : "password"}
+              required
+              minLength={8}
+              className="h-12 border-brand-dark/10 bg-white/60 text-base focus:border-brand-teal focus:ring-brand-teal/20 pr-10"
+              value={formData.password}
+              onChange={(e) => handleInputChange("password", e.target.value)}
+            />
+            <button
+              type="button"
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-brand-dark/40 hover:text-brand-dark transition-colors"
+              onClick={() => setShowPassword((prev) => !prev)}
+              aria-label={showPassword ? "Hide password" : "Show password"}
+            >
+              {showPassword ? <EyeSlash className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+            </button>
+          </div>
         </div>
         <div className="space-y-1.5">
           <Label htmlFor="phone" className="text-xs font-semibold uppercase tracking-wider text-brand-dark/60">Phone</Label>
@@ -376,7 +390,7 @@ const SignUpForm: React.FC<SignUpFormProps> = ({
         disabled={loading || (selectedRole === "vendor" && !vendorFieldsValid)}
       >
         {loading ? (
-          <Loader2 className="h-5 w-5 animate-spin" />
+          <SpinnerGap className="h-5 w-5 animate-spin" />
         ) : (
           <span className="flex items-center gap-2">
             Create Account <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
@@ -385,15 +399,17 @@ const SignUpForm: React.FC<SignUpFormProps> = ({
       </Button>
     </form>
   );
-};
+}
 
 type LoginFormProps = {
   onLoginSuccess: (role: AppRole) => void;
 };
 
-const LoginForm: React.FC<LoginFormProps> = ({ onLoginSuccess }) => {
+function LoginForm({ onLoginSuccess }: LoginFormProps): React.ReactElement {
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({ email: "", password: "" });
+  const navigate = useNavigate();
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -408,11 +424,12 @@ const LoginForm: React.FC<LoginFormProps> = ({ onLoginSuccess }) => {
       if (data?.user) {
         sessionStorage.setItem("currentUser", JSON.stringify(data.user));
         const userRoles = data.user.roles || ["organizer"];
-        const nextRole: AppRole = userRoles.includes("admin")
-          ? "admin"
-          : userRoles.includes("service_provider") || userRoles.includes("venue_owner")
-            ? "vendor"
-            : "user";
+        let nextRole: AppRole = "user";
+        if (userRoles.includes("admin")) {
+          nextRole = "admin";
+        } else if (userRoles.includes("service_provider") || userRoles.includes("venue_owner")) {
+          nextRole = "vendor";
+        }
         setCurrentRole(nextRole);
         if (nextRole === "vendor") {
           const derivedVendorType = userRoles.includes("venue_owner")
@@ -460,17 +477,33 @@ const LoginForm: React.FC<LoginFormProps> = ({ onLoginSuccess }) => {
       <div className="space-y-1.5">
         <div className="flex items-center justify-between">
           <Label htmlFor="loginPassword" className="text-xs font-semibold uppercase tracking-wider text-brand-dark/60">Password</Label>
-          <button type="button" className="text-xs font-medium text-brand-teal hover:text-brand-dark transition-colors">Forgot?</button>
+          <button
+            type="button"
+            className="text-xs font-medium text-brand-teal hover:text-brand-dark transition-colors"
+            onClick={() => navigate("/forgotpassword")}
+          >
+            Forgot?
+          </button>
         </div>
-        <Input
-          id="loginPassword"
-          type="password"
-          placeholder="••••••••"
-          required
-          className="h-12 border-brand-dark/10 bg-white/60 text-base focus:border-brand-teal focus:ring-brand-teal/20"
-          value={formData.password}
-          onChange={(e) => setFormData((prev) => ({ ...prev, password: e.target.value }))}
-        />
+        <div className="relative">
+          <Input
+            id="loginPassword"
+            type={showPassword ? "text" : "password"}
+            placeholder="Enter your password"
+            required
+            className="h-12 border-brand-dark/10 bg-white/60 text-base focus:border-brand-teal focus:ring-brand-teal/20 pr-10"
+            value={formData.password}
+            onChange={(e) => setFormData((prev) => ({ ...prev, password: e.target.value }))}
+          />
+          <button
+            type="button"
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-brand-dark/40 hover:text-brand-dark transition-colors"
+            onClick={() => setShowPassword((prev) => !prev)}
+            aria-label={showPassword ? "Hide password" : "Show password"}
+          >
+            {showPassword ? <EyeSlash className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+          </button>
+        </div>
       </div>
       <Button
         type="submit"
@@ -478,7 +511,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onLoginSuccess }) => {
         disabled={loading}
       >
         {loading ? (
-          <Loader2 className="h-5 w-5 animate-spin" />
+          <SpinnerGap className="h-5 w-5 animate-spin" />
         ) : (
           <span className="flex items-center gap-2">
             Log In <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
@@ -487,7 +520,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onLoginSuccess }) => {
       </Button>
     </form>
   );
-};
+}
 
 // Simple Icon for decoration
 function SparklesIcon(props: React.SVGProps<SVGSVGElement>) {
@@ -514,7 +547,6 @@ export default function AppEntryPage() {
   const [activeView, setActiveView] = useState<AuthView>("role");
   const [selectedRole, setSelectedRole] = useState<RoleOptionId | null>(null);
   const [vendorType, setVendorTypeState] = useState<VendorType | null>(null);
-  const location = useLocation();
   const navigate = useNavigate();
 
   const roleLabel = useMemo(() => {
@@ -540,15 +572,16 @@ export default function AppEntryPage() {
   useEffect(() => {
     const checkSession = async () => {
       try {
-        const user = await base44.auth.me();
+        const user = await User.me() as { roles?: string[]; [key: string]: unknown } | null;
         if (user) {
           sessionStorage.setItem("currentUser", JSON.stringify(user));
           const userRoles = user.roles || ["organizer"];
-          const nextRole: AppRole = userRoles.includes("admin")
-            ? "admin"
-            : userRoles.includes("service_provider") || userRoles.includes("venue_owner")
-              ? "vendor"
-              : "user";
+          let nextRole: AppRole = "user";
+          if (userRoles.includes("admin")) {
+            nextRole = "admin";
+          } else if (userRoles.includes("service_provider") || userRoles.includes("venue_owner")) {
+            nextRole = "vendor";
+          }
           setCurrentRole(nextRole);
           if (nextRole === "vendor") {
             const derivedVendorType = userRoles.includes("venue_owner")
@@ -579,19 +612,10 @@ export default function AppEntryPage() {
     checkSession();
   }, []);
 
-  useEffect(() => {
-    const params = new URLSearchParams(location.search);
-    const devRole = params.get("as");
-    if (import.meta.env.MODE !== "production" && devRole === "admin") {
-      setCurrentRole("admin");
-      navigate("/admin", { replace: true });
-    }
-  }, [location.search, navigate]);
-
   if (loading) {
     return (
       <div className="min-h-screen w-full flex items-center justify-center bg-brand-light">
-        <Loader2 className="w-8 h-8 text-brand-dark/40 animate-spin" />
+        <SpinnerGap className="w-8 h-8 text-brand-dark/40 animate-spin" />
       </div>
     );
   }
@@ -705,7 +729,7 @@ export default function AppEntryPage() {
                               <span className="block text-base font-bold text-brand-dark">
                                 {option.title}
                               </span>
-                              {isSelected && <CheckCircle2 className="h-5 w-5 text-brand-teal" />}
+                              {isSelected && <CheckCircle className="h-5 w-5 text-brand-teal" />}
                             </span>
                             <span className="block text-sm text-brand-dark/60 leading-relaxed">
                               {option.description}

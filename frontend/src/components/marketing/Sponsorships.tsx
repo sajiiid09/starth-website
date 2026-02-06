@@ -9,11 +9,11 @@ import { Badge } from "@/components/ui/badge";
 import { 
   Plus, 
   ArrowLeft, 
-  DollarSign, 
-  MoreVertical, 
-  Edit, 
-  Trash2 
-} from "lucide-react";
+  CurrencyDollar, 
+  DotsThreeVertical, 
+  Pencil, 
+  Trash 
+} from "@phosphor-icons/react";
 import { 
   DropdownMenu,
   DropdownMenuContent,
@@ -60,7 +60,7 @@ const SponsorForm = ({ eventId, sponsor, onSave, onCancel }) => {
       <div>
         <label className="text-sm font-medium">Amount</label>
         <div className="relative">
-          <DollarSign className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+          <CurrencyDollar className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
           <Input
             type="number"
             value={formData.price}
@@ -164,18 +164,18 @@ export default function Sponsorships({ eventId, sponsors, onUpdate }) {
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <Button variant="ghost" size="icon" className="w-8 h-8">
-                        <MoreVertical className="w-4 h-4" />
+                        <DotsThreeVertical className="w-4 h-4" />
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent>
                       <DropdownMenuItem onClick={() => handleEdit(sponsor)}>
-                        <Edit className="w-4 h-4 mr-2" /> Edit
+                        <Pencil className="w-4 h-4 mr-2" /> Edit
                       </DropdownMenuItem>
                       <DropdownMenuItem 
                         className="text-red-500"
                         onClick={() => handleDelete(sponsor.id)}
                       >
-                        <Trash2 className="w-4 h-4 mr-2" /> Delete
+                        <Trash className="w-4 h-4 mr-2" /> Delete
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>

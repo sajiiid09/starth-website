@@ -1,6 +1,6 @@
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Menu } from "lucide-react";
+import { List } from "@phosphor-icons/react";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { NavItem, isNavItemActive } from "@/features/immersive/navItems";
@@ -27,7 +27,7 @@ const RailNav: React.FC<RailNavProps> = ({ items, onOpenDrawer, menuButtonRef })
               onClick={(event) => onOpenDrawer(event.currentTarget)}
               aria-label="Open navigation menu"
             >
-              <Menu className="h-4 w-4" />
+              <List weight="bold" className="h-5 w-5" />
             </Button>
           </TooltipTrigger>
           <TooltipContent side="right">Open menu</TooltipContent>
@@ -45,13 +45,18 @@ const RailNav: React.FC<RailNavProps> = ({ items, onOpenDrawer, menuButtonRef })
                 <Link
                   to={item.to}
                   aria-label={item.label}
-                  className={`flex h-10 w-10 items-center justify-center rounded-xl border transition-colors duration-200 ${
+                  className={`relative flex h-10 w-10 items-center justify-center rounded-xl border transition-colors duration-200 ${
                     isActive
                       ? "border-brand-teal/30 bg-brand-teal/10 text-brand-teal"
                       : "border-transparent text-slate-600 hover:border-slate-200 hover:bg-slate-100 hover:text-slate-900"
                   }`}
                 >
                   <Icon className="h-4 w-4" />
+                  {item.badge && (
+                    <span className="absolute -right-1 -top-1 flex h-4 min-w-[16px] items-center justify-center rounded-full bg-brand-coral px-1 text-[10px] font-semibold text-white">
+                      {item.badge}
+                    </span>
+                  )}
                 </Link>
               </TooltipTrigger>
               <TooltipContent side="right">{item.label}</TooltipContent>

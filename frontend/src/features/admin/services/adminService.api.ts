@@ -7,6 +7,7 @@ import type {
   AdminPayout,
   AdminPayment,
   AdminService,
+  AdminPaymentStatus,
   AdminVendor,
   ApprovePayoutInput,
   AuditLogFilters,
@@ -19,10 +20,6 @@ import type {
   ResolveDisputeInput,
   VendorListFilters
 } from "@/features/admin/types";
-
-const throwNotImplemented = (methodName: string): never => {
-  throw new Error(`${methodName} is not implemented yet for the live admin API.`);
-};
 
 const withQuery = (path: string, params: Record<string, string | undefined>) => {
   const search = new URLSearchParams();
@@ -52,7 +49,7 @@ export const adminServiceApi: AdminService = {
     if (!vendorId) {
       return Promise.reject(new Error("vendorId is required"));
     }
-    return throwNotImplemented("approveVendor");
+    return request<AdminVendor>("POST", `/admin/vendors/${vendorId}/approve`, { auth: true });
   },
 
   needsChangesVendor(vendorId: string, note: string) {
@@ -62,14 +59,20 @@ export const adminServiceApi: AdminService = {
     if (!note.trim()) {
       return Promise.reject(new Error("note is required"));
     }
-    return throwNotImplemented("needsChangesVendor");
+    return request<AdminVendor>("POST", `/admin/vendors/${vendorId}/needs-changes`, {
+      auth: true,
+      body: { reason: note },
+    });
   },
 
-  disableVendorPayout(vendorId: string, _reason?: string) {
+  disableVendorPayout(vendorId: string, reason?: string) {
     if (!vendorId) {
       return Promise.reject(new Error("vendorId is required"));
     }
-    return throwNotImplemented("disableVendorPayout");
+    return request<AdminVendor>("POST", `/admin/vendors/${vendorId}/disable-payout`, {
+      auth: true,
+      body: { reason: reason ?? "" },
+    });
   },
 
   listBookings(filters?: BookingListFilters) {
@@ -107,21 +110,27 @@ export const adminServiceApi: AdminService = {
     if (!input.confirm) {
       return Promise.reject(new Error("confirm=true is required"));
     }
-    return throwNotImplemented("approvePayout");
+    return request<AdminPayout>("POST", `/admin/payouts/${payoutId}/approve`, { auth: true });
   },
 
-  holdPayout(payoutId: string, _reason?: string) {
+  holdPayout(payoutId: string, reason?: string) {
     if (!payoutId) {
       return Promise.reject(new Error("payoutId is required"));
     }
-    return throwNotImplemented("holdPayout");
+    return request<AdminPayout>("POST", `/admin/payouts/${payoutId}/hold`, {
+      auth: true,
+      body: { reason: reason ?? "" },
+    });
   },
 
-  reversePayout(payoutId: string, _reason?: string) {
+  reversePayout(payoutId: string, reason?: string) {
     if (!payoutId) {
       return Promise.reject(new Error("payoutId is required"));
     }
-    return throwNotImplemented("reversePayout");
+    return request<AdminPayout>("POST", `/admin/payouts/${payoutId}/reverse`, {
+      auth: true,
+      body: { reason: reason ?? "" },
+    });
   },
 
   getFinanceOverview() {
@@ -154,32 +163,45 @@ export const adminServiceApi: AdminService = {
     return request<AdminDispute>("GET", `/admin/disputes/${disputeId}`, { auth: true });
   },
 
-  updateDisputeStatus(disputeId: string, _status: AdminDisputeStatus) {
+  updateDisputeStatus(disputeId: string, status: AdminDisputeStatus) {
     if (!disputeId) {
       return Promise.reject(new Error("disputeId is required"));
     }
-    return throwNotImplemented("updateDisputeStatus");
+    return request<AdminDispute>("POST", `/admin/disputes/${disputeId}/status`, {
+      auth: true,
+      body: { status },
+    });
   },
 
-  holdPayoutsForBooking(bookingId: string, _reason?: string) {
+  holdPayoutsForBooking(bookingId: string, reason?: string) {
     if (!bookingId) {
       return Promise.reject(new Error("bookingId is required"));
     }
-    return throwNotImplemented("holdPayoutsForBooking");
+    return request<AdminPayout[]>("POST", `/admin/bookings/${bookingId}/hold-payouts`, {
+      auth: true,
+      body: { reason: reason ?? "" },
+    });
   },
 
   opsResetDummyData() {
-    return throwNotImplemented("opsResetDummyData");
+    return request<{ resetAt: string }>("POST", "/admin/ops/reset-dummy-data", { auth: true });
   },
 
   opsReconcileDummyPayments() {
-    return throwNotImplemented("opsReconcileDummyPayments");
+    return request<{ paymentId: string; status: AdminPaymentStatus }>(
+      "POST",
+      "/admin/ops/reconcile-dummy-payments",
+      { auth: true }
+    );
   },
 
   resolveDispute(input: ResolveDisputeInput) {
     if (!input.disputeId) {
       return Promise.reject(new Error("disputeId is required"));
     }
-    return throwNotImplemented("resolveDispute");
+    return request<AdminDispute>("POST", `/admin/disputes/${input.disputeId}/resolve`, {
+      auth: true,
+      body: { resolution: input.resolution, release_funds: input.resolution === "RESOLVED" },
+    });
   }
 };

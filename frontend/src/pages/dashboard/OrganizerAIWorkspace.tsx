@@ -1,13 +1,13 @@
 import React from "react";
 import {
   Coins,
-  ChevronDown,
-  CircleDot,
-  Loader2,
-  Mic,
+  CaretDown,
+  CircleDashed,
+  SpinnerGap,
+  Microphone,
   Paperclip,
-  Sparkles
-} from "lucide-react";
+  Sparkle
+} from "@phosphor-icons/react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -249,7 +249,7 @@ const MessageThread: React.FC<MessageThreadProps> = React.memo(({ messages, onQu
         className="animate-in fade-in-0 slide-in-from-bottom-1 flex items-start gap-3 duration-200 ease-out"
       >
         <div className="mt-1 flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-slate-200 bg-white">
-          <Sparkles className="h-4 w-4 text-brand-teal" />
+          <Sparkle className="h-4 w-4 text-brand-teal" />
         </div>
         <div
           className={`max-w-[85%] rounded-2xl border px-4 py-3 text-sm text-slate-700 ${
@@ -295,7 +295,7 @@ const MessageThread: React.FC<MessageThreadProps> = React.memo(({ messages, onQu
       <div className="space-y-6">
         <div className="flex items-start gap-3">
           <div className="mt-1 flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-slate-200 bg-white">
-            <Sparkles className="h-4 w-4 text-brand-teal" />
+            <Sparkle className="h-4 w-4 text-brand-teal" />
           </div>
           <div className="max-w-[85%] rounded-2xl border border-slate-200 bg-slate-100 px-4 py-3 text-sm text-slate-700">
             Hi! I&apos;m your AI event planner. Share your goals and constraints, and I&apos;ll
@@ -416,7 +416,7 @@ const ChatPanel: React.FC<ChatPanelProps> = ({
               variant="secondary"
               className="border border-emerald-200 bg-emerald-50 text-emerald-700"
             >
-              <CircleDot className="mr-1 h-3 w-3" />
+              <CircleDashed className="mr-1 h-3 w-3" />
               Ready
             </Badge>
           </div>
@@ -481,7 +481,7 @@ const ChatPanel: React.FC<ChatPanelProps> = ({
               className="h-8 rounded-lg border-slate-200 px-2 focus-visible:ring-brand-teal/35"
             >
               Styles
-              <ChevronDown className="ml-1 h-3.5 w-3.5" />
+              <CaretDown className="ml-1 h-3.5 w-3.5" />
             </Button>
             <div className="flex items-center gap-1">
               <Button
@@ -498,7 +498,7 @@ const ChatPanel: React.FC<ChatPanelProps> = ({
                 className="h-8 w-8 text-slate-500 focus-visible:ring-brand-teal/35"
                 aria-label="Voice input"
               >
-                <Mic className="h-4 w-4" />
+                <Microphone className="h-4 w-4" />
               </Button>
             </div>
           </div>
@@ -771,7 +771,7 @@ const OrganizerAIWorkspace: React.FC = () => {
   if (!isReady) {
     return (
       <div className="flex min-h-[60vh] items-center justify-center">
-        <Loader2 className="h-6 w-6 animate-spin text-brand-dark/50" />
+        <SpinnerGap className="h-6 w-6 animate-spin text-brand-dark/50" />
       </div>
     );
   }
@@ -800,7 +800,7 @@ const OrganizerAIWorkspace: React.FC = () => {
             <div className="mt-2 flex flex-wrap items-center justify-between gap-3">
               <h1 className="text-2xl font-semibold text-slate-900">Immersive Planner Workspace</h1>
               <Badge variant="secondary" className="border border-slate-200 bg-white text-slate-700">
-                <Sparkles className="mr-1 h-3.5 w-3.5 text-brand-teal" />
+                <Sparkle className="mr-1 h-3.5 w-3.5 text-brand-teal" />
                 {hasBlueprint ? "Co-pilot + Canvas shell active" : "Co-pilot shell active"}
               </Badge>
             </div>

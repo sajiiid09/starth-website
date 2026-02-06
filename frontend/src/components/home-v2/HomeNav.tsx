@@ -1,5 +1,5 @@
 import React from "react";
-import { ChevronDown, Menu, X } from "lucide-react";
+import { CaretDown, List, X } from "@phosphor-icons/react";
 import { Link } from "react-router-dom";
 import Container from "@/components/home-v2/primitives/Container";
 import PillButton from "@/components/home-v2/primitives/PillButton";
@@ -94,7 +94,7 @@ const HomeNav: React.FC = () => {
                 )}
               >
                 Solutions
-                <ChevronDown className="h-4 w-4" />
+                <CaretDown className="h-4 w-4" />
               </button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="center" className={dropdownContentClasses} side="bottom" asChild>
@@ -119,7 +119,7 @@ const HomeNav: React.FC = () => {
                 )}
               >
                 Explore
-                <ChevronDown className="h-4 w-4" />
+                <CaretDown className="h-4 w-4" />
               </button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="center" className={dropdownContentClasses} side="bottom" asChild>
@@ -174,7 +174,7 @@ const HomeNav: React.FC = () => {
             aria-expanded={isMobileMenuOpen}
             onClick={() => setIsMobileMenuOpen((open) => !open)}
           >
-            {isMobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+            {isMobileMenuOpen ? <X className="h-5 w-5" /> : <List className="h-5 w-5" />}
           </button>
         </div>
       </Container>

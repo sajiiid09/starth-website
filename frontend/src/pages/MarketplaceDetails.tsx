@@ -1,18 +1,61 @@
-import React from "react";
-import { Link, useParams } from "react-router-dom";
+import React, { useEffect, useState } from "react";
+import { Link, useParams, useLocation } from "react-router-dom";
 import { toast } from "sonner";
+import { SpinnerGap } from "@phosphor-icons/react";
 import Container from "@/components/home-v2/primitives/Container";
 import FadeIn from "@/components/animations/FadeIn";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { cn } from "@/lib/utils";
+import type { MarketplaceItem } from "@/data/dummyMarketplace";
 import { dummyMarketplaceItems } from "@/data/dummyMarketplace";
+import { fetchMarketplaceItemById } from "@/api/marketplace";
 
 const MarketplaceDetails: React.FC = () => {
   const { id } = useParams();
-  const item = dummyMarketplaceItems.find((entry) => entry.id === id);
+  const location = useLocation();
+  const [item, setItem] = useState<MarketplaceItem | null>(
+    (location.state as { item?: MarketplaceItem })?.item ?? null
+  );
+  const [loading, setLoading] = useState(!item);
+
+  useEffect(() => {
+    if (item || !id) return;
+
+    async function loadItem() {
+      try {
+        // Try API first
+        const fetched = await fetchMarketplaceItemById(id!);
+        if (fetched) {
+          setItem(fetched);
+          return;
+        }
+
+        // Fallback: check dummy data (for old-format IDs like "glasshouse-venue")
+        const dummyItem = dummyMarketplaceItems.find((entry) => entry.id === id);
+        setItem(dummyItem ?? null);
+      } catch {
+        // Last resort fallback to dummy data
+        const dummyItem = dummyMarketplaceItems.find((entry) => entry.id === id);
+        setItem(dummyItem ?? null);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    loadItem();
+  }, [id, item]);
+
   const galleryImages = item?.images ?? [];
+
+  if (loading) {
+    return (
+      <div className="flex h-64 items-center justify-center pt-24">
+        <SpinnerGap className="size-8 animate-spin text-brand-teal" />
+      </div>
+    );
+  }
 
   if (!item) {
     return (
@@ -182,7 +225,7 @@ const MarketplaceDetails: React.FC = () => {
                 <div className="rounded-2xl border border-white/40 bg-white/80 p-5">
                   <p className="text-sm font-semibold text-brand-dark">Can I customize the package?</p>
                   <p className="mt-2 text-sm text-brand-dark/70">
-                    Yes. We’ll tailor the proposal based on your guest count, style, and timeline.
+                    Yes. We'll tailor the proposal based on your guest count, style, and timeline.
                   </p>
                 </div>
               </div>

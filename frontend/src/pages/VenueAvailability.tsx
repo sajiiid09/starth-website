@@ -9,7 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Calendar, DollarSign, Clock, Save, Loader2 } from "lucide-react";
+import { Calendar, CurrencyDollar, Clock, FloppyDisk, SpinnerGap } from "@phosphor-icons/react";
 import RoleGuard from "../components/auth/RoleGuard";
 import VenuePortalLayout from "../components/venue/VenuePortalLayout";
 
@@ -173,7 +173,7 @@ export default function VenueAvailabilityPage() {
       <RoleGuard requiredRole="venue_owner">
         <VenuePortalLayout>
           <div className="flex items-center justify-center h-64">
-            <Loader2 className="w-8 h-8 animate-spin text-gray-500" />
+            <SpinnerGap className="w-8 h-8 animate-spin text-gray-500" />
           </div>
         </VenuePortalLayout>
       </RoleGuard>
@@ -190,7 +190,7 @@ export default function VenueAvailabilityPage() {
               <p className="text-gray-600">Manage your venue calendar and pricing structure</p>
             </div>
             <Button onClick={handleSave} disabled={saving || !selectedVenue} className="bg-blue-600 hover:bg-blue-700">
-              {saving ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Save className="w-4 h-4 mr-2" />}
+              {saving ? <SpinnerGap className="w-4 h-4 mr-2 animate-spin" /> : <FloppyDisk className="w-4 h-4 mr-2" />}
               Save Changes
             </Button>
           </div>
@@ -232,7 +232,7 @@ export default function VenueAvailabilityPage() {
                   <Card className="border-none shadow-lg">
                     <CardHeader>
                       <CardTitle className="flex items-center gap-2">
-                        <DollarSign className="w-5 h-5 text-green-600" />
+                        <CurrencyDollar className="w-5 h-5 text-green-600" />
                         Pricing Structure
                       </CardTitle>
                     </CardHeader>

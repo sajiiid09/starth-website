@@ -13,12 +13,12 @@ import {
   ArrowLeft, 
   MapPin, 
   Users, 
-  DollarSign,
+  CurrencyDollar,
   Calendar,
-  Loader2,
-  LayoutDashboard,
+  SpinnerGap,
+  SquaresFour,
   Megaphone
-} from "lucide-react";
+} from "@phosphor-icons/react";
 
 export default function EventDetailsPage() {
   const [event, setEvent] = useState(null);
@@ -38,7 +38,7 @@ export default function EventDetailsPage() {
       }
 
       try {
-        const events = await Event.list();
+        const events = await Event.filter();
         const foundEvent = events.find(e => e.id === id);
         setEvent(foundEvent);
 
@@ -66,7 +66,7 @@ export default function EventDetailsPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-screen">
-        <Loader2 className="w-8 h-8 animate-spin text-gray-500" />
+        <SpinnerGap className="w-8 h-8 animate-spin text-gray-500" />
       </div>
     );
   }
@@ -108,7 +108,7 @@ export default function EventDetailsPage() {
         
         <Tabs defaultValue="overview" className="w-full">
           <TabsList className="grid w-full grid-cols-3 max-w-lg mb-6">
-            <TabsTrigger value="overview"><LayoutDashboard className="w-4 h-4 mr-2"/>Overview</TabsTrigger>
+            <TabsTrigger value="overview"><SquaresFour className="w-4 h-4 mr-2"/>Overview</TabsTrigger>
             <TabsTrigger value="collaboration"><Users className="w-4 h-4 mr-2"/>Team</TabsTrigger> {/* Added Team tab */}
             <TabsTrigger value="marketing"><Megaphone className="w-4 h-4 mr-2"/>Marketing</TabsTrigger>
           </TabsList>
@@ -154,7 +154,7 @@ export default function EventDetailsPage() {
                       </div>
                     </div>
                     <div className="flex items-center gap-3">
-                      <DollarSign className="w-5 h-5 text-gray-500" />
+                      <CurrencyDollar className="w-5 h-5 text-gray-500" />
                       <div>
                         <p className="font-medium text-gray-900">Budget</p>
                         <p className="text-sm text-gray-600">${event.budget_target?.toLocaleString()}</p>

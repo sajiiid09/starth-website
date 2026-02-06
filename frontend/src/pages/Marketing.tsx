@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Event } from "@/api/entities";
 import { User } from "@/api/entities";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Loader2, Megaphone } from "lucide-react";
+import { SpinnerGap, Megaphone } from "@phosphor-icons/react";
 import EventMarketingDashboard from "./EventMarketingDashboard";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
@@ -45,7 +45,7 @@ export default function MarketingPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-screen">
-        <Loader2 className="w-8 h-8 animate-spin text-gray-500" />
+        <SpinnerGap className="w-8 h-8 animate-spin text-gray-500" />
       </div>
     );
   }

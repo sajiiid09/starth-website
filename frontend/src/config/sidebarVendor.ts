@@ -1,19 +1,19 @@
 import {
-  ClipboardList,
-  Home,
-  Inbox,
-  Settings,
-  Calendar,
+  ClipboardText,
+  House,
+  EnvelopeSimple,
+  Gear,
+  CalendarBlank,
   FileText,
-  Building2,
+  Buildings,
   Briefcase
-} from "lucide-react";
+} from "@phosphor-icons/react";
 import type { VendorOnboardingStatus, VendorType } from "@/utils/session";
 
 type VendorSidebarItem = {
   label: string;
   href: string;
-  icon: typeof Home;
+  icon: typeof House;
   badge?: string;
 };
 
@@ -35,7 +35,7 @@ export const getSidebarVendor = ({
     vendorType === "venue_owner" ? "My Venue / Profile" : "My Services / Profile";
 
   const baseItems: VendorSidebarItem[] = [
-    { label: "Overview", href: "/vendor", icon: Home },
+    { label: "Overview", href: "/vendor", icon: House },
     {
       label: isApproved
         ? vendorType === "venue_owner"
@@ -45,29 +45,29 @@ export const getSidebarVendor = ({
           ? "Venue Onboarding"
           : "Service Onboarding",
       href: onboardingPath,
-      icon: vendorType === "venue_owner" ? Building2 : Briefcase
+      icon: vendorType === "venue_owner" ? Buildings : Briefcase
     },
-    { label: profileLabel, href: "/vendor/profile", icon: ClipboardList },
+    { label: profileLabel, href: "/vendor/profile", icon: ClipboardText },
     { label: "Submission Status", href: "/vendor/submission", icon: FileText },
-    { label: "Settings", href: "/vendor/settings", icon: Settings }
+    { label: "Settings", href: "/vendor/settings", icon: Gear }
   ];
 
   if (isApproved) {
     baseItems.splice(1, 0, {
       label: vendorType === "venue_owner" ? "Listings" : "Services",
       href: "/vendor/listings",
-      icon: ClipboardList
+      icon: ClipboardText
     });
     baseItems.splice(2, 0, {
       label: "Inquiries",
       href: "/vendor/inquiries",
-      icon: Inbox,
+      icon: EnvelopeSimple,
       badge: "5"
     });
     baseItems.splice(3, 0, {
       label: "Calendar",
       href: "/vendor/calendar",
-      icon: Calendar
+      icon: CalendarBlank
     });
   }
 

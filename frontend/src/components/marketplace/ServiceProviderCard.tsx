@@ -6,13 +6,13 @@ import {
   Star, 
   MapPin, 
   Users, 
-  DollarSign, 
-  MessageSquare,
+  CurrencyDollar, 
+  ChatCircle,
   X,
-  ExternalLink,
-  Award,
+  ArrowSquareOut,
+  Medal,
   Clock
-} from "lucide-react";
+} from "@phosphor-icons/react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
 export default function ServiceProviderCard({ provider, onRequestQuote }) {
@@ -102,7 +102,7 @@ export default function ServiceProviderCard({ provider, onRequestQuote }) {
           {/* Pricing */}
           {provider.rate_card_json && (
             <div className="flex items-center gap-1 text-green-600 font-semibold">
-              <DollarSign className="w-4 h-4" />
+              <CurrencyDollar className="w-4 h-4" />
               <span>From ${provider.rate_card_json.base_price?.toLocaleString()}</span>
             </div>
           )}
@@ -179,7 +179,7 @@ export default function ServiceProviderCard({ provider, onRequestQuote }) {
               <h3 className="text-lg font-semibold">Starting Rates</h3>
               <div className="bg-green-50 rounded-lg p-4">
                 <div className="flex items-center gap-2">
-                  <DollarSign className="w-5 h-5 text-green-600" />
+                  <CurrencyDollar className="w-5 h-5 text-green-600" />
                   <span className="text-2xl font-bold text-green-600">
                     ${provider.rate_card_json.base_price?.toLocaleString()}
                   </span>
@@ -206,7 +206,7 @@ export default function ServiceProviderCard({ provider, onRequestQuote }) {
               onClick={handleWebsiteClick}
               className="flex-1 bg-purple-600 hover:bg-purple-700 text-white"
             >
-              <ExternalLink className="w-4 h-4 mr-2" />
+              <ArrowSquareOut className="w-4 h-4 mr-2" />
               Visit Website
             </Button>
             <Button 
@@ -214,7 +214,7 @@ export default function ServiceProviderCard({ provider, onRequestQuote }) {
               onClick={handleMessageClick}
               className="flex-1"
             >
-              <MessageSquare className="w-4 h-4 mr-2" />
+              <ChatCircle className="w-4 h-4 mr-2" />
               Message
             </Button>
             <Button 

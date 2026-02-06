@@ -12,7 +12,7 @@ import { Badge } from "@/components/ui/badge";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Loader2, Shield, Plus, CheckCircle, AlertCircle, Clock, Calendar as CalendarIcon, ArrowRight } from "lucide-react";
+import { SpinnerGap, Shield, Plus, CheckCircle, WarningCircle, Clock, Calendar as CalendarIcon, ArrowRight } from "@phosphor-icons/react";
 import { format } from "date-fns";
 import { toast } from "sonner";
 import RoleGuard from "../components/auth/RoleGuard";
@@ -74,7 +74,7 @@ export default function ProviderInsurancePage() {
     setIsUploading(true);
     try {
       // 1. Upload certificate file
-      const { file_uri } = await UploadPrivateFile({ file: formData.certificate });
+      const { file_url } = await UploadPrivateFile({ file: formData.certificate });
       
       // 2. Create document record
       const doc = await Document.create({
@@ -82,7 +82,7 @@ export default function ProviderInsurancePage() {
         entity_type: "organization",
         entity_id: organization.id,
         doc_type: "insurance_certificate",
-        storage_url: file_uri,
+        storage_url: file_url,
         uploaded_by: user.id,
         verified_status: "pending"
       });
@@ -137,7 +137,7 @@ export default function ProviderInsurancePage() {
         return <CheckCircle className="w-5 h-5 text-green-600" />;
       case "expired":
       case "rejected":
-        return <AlertCircle className="w-5 h-5 text-red-600" />;
+        return <WarningCircle className="w-5 h-5 text-red-600" />;
       default:
         return <Clock className="w-5 h-5 text-yellow-600" />;
     }
@@ -156,7 +156,7 @@ export default function ProviderInsurancePage() {
   const isExpiringSoon = (endDate) => {
     const today = new Date();
     const expiry = new Date(endDate);
-    const daysUntilExpiry = Math.ceil((expiry - today) / (1000 * 60 * 60 * 24));
+    const daysUntilExpiry = Math.ceil((Number(expiry) - Number(today)) / (1000 * 60 * 60 * 24));
     return daysUntilExpiry <= 30 && daysUntilExpiry > 0;
   };
 
@@ -165,7 +165,7 @@ export default function ProviderInsurancePage() {
       <RoleGuard requiredRole="service_provider">
         <ProviderPortalLayout>
           <div className="flex items-center justify-center h-64">
-            <Loader2 className="w-8 h-8 animate-spin text-gray-500" />
+            <SpinnerGap className="w-8 h-8 animate-spin text-gray-500" />
           </div>
         </ProviderPortalLayout>
       </RoleGuard>
@@ -257,8 +257,8 @@ export default function ProviderInsurancePage() {
                               {isExpiring && (
                                 <div className="mt-3 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
                                   <p className="text-yellow-800 text-sm">
-                                    <AlertCircle className="w-4 h-4 inline mr-1" />
-                                    This policy expires in {Math.ceil((new Date(policy.end_date) - new Date()) / (1000 * 60 * 60 * 24))} days
+                                    <WarningCircle className="w-4 h-4 inline mr-1" />
+                                    This policy expires in {Math.ceil((Number(new Date(policy.end_date)) - Number(new Date())) / (1000 * 60 * 60 * 24))} days
                                   </p>
                                 </div>
                               )}
@@ -389,7 +389,7 @@ export default function ProviderInsurancePage() {
                       Cancel
                     </Button>
                     <Button type="submit" disabled={isUploading || !formData.certificate}>
-                      {isUploading ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : null}
+                      {isUploading ? <SpinnerGap className="w-4 h-4 mr-2 animate-spin" /> : null}
                       Upload Policy
                     </Button>
                   </div>

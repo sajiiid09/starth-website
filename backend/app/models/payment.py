@@ -1,41 +1,33 @@
-from __future__ import annotations
+"""Payment model."""
 
+import uuid
 from datetime import datetime
-from uuid import uuid4
 
-from sqlalchemy import DateTime, Enum as SAEnum, ForeignKey, Integer, String, UniqueConstraint
+from sqlalchemy import DateTime, ForeignKey, Numeric, String
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column
 
-from app.db.base import Base, TimestampMixin
-from app.models.enums import PaymentProvider, PaymentStatus
+from app.db.base import Base, UUIDPrimaryKeyMixin
 
 
-class Payment(TimestampMixin, Base):
+class Payment(Base, UUIDPrimaryKeyMixin):
     __tablename__ = "payments"
-    __table_args__ = (
-        UniqueConstraint("idempotency_key", name="uq_payments_idempotency_key"),
-    )
 
-    id: Mapped[UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid4)
-    booking_id: Mapped[UUID] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("bookings.id"), nullable=False
+    event_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("events.id", ondelete="CASCADE"), nullable=False, index=True
     )
-    payer_user_id: Mapped[UUID] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("users.id"), nullable=False
+    payer_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True), ForeignKey("users.id"))
+    payee_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True), ForeignKey("users.id"))
+    amount: Mapped[float] = mapped_column(Numeric(10, 2), nullable=False)
+    platform_commission: Mapped[float | None] = mapped_column(Numeric(10, 2))
+    net_amount: Mapped[float | None] = mapped_column(Numeric(10, 2))
+    payment_type: Mapped[str | None] = mapped_column(String(50))  # event_total, venue_payment, service_payment, refund
+    stripe_payment_intent_id: Mapped[str | None] = mapped_column(String(255))
+    stripe_transfer_id: Mapped[str | None] = mapped_column(String(255))
+    status: Mapped[str] = mapped_column(
+        String(50), default="pending", server_default="pending", index=True
     )
-    provider: Mapped[PaymentProvider] = mapped_column(
-        SAEnum(PaymentProvider, name="payment_provider"), nullable=False
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default="now()", nullable=False
     )
-    provider_intent_id: Mapped[str | None] = mapped_column(String(255), nullable=True)
-    status: Mapped[PaymentStatus] = mapped_column(
-        SAEnum(PaymentStatus, name="payment_status"),
-        nullable=False,
-        default=PaymentStatus.PENDING,
-    )
-    amount_cents: Mapped[int] = mapped_column(Integer, nullable=False)
-    currency: Mapped[str] = mapped_column(String(10), nullable=False, default="usd")
-    idempotency_key: Mapped[str | None] = mapped_column(String(255), nullable=True)
-    payouts_created_at: Mapped[datetime | None] = mapped_column(
-        DateTime(timezone=True), nullable=True
-    )
+    released_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))

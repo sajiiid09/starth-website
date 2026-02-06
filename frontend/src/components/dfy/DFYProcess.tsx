@@ -1,6 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { Calendar, FileSearch, MessageSquare, Users, Sparkles } from "lucide-react";
+import { Calendar, FileMagnifyingGlass, ChatCircle, Users, Sparkle } from "@phosphor-icons/react";
 import { createPageUrl } from "@/utils";
 import { Card, CardContent } from "@/components/ui/card";
 import Container from "@/components/home-v2/primitives/Container";
@@ -41,12 +41,12 @@ const featureHighlights = [
 
 const steps = [
   {
-    icon: MessageSquare,
+    icon: ChatCircle,
     title: "Share your vision",
     description: "Complete the intake so we can understand goals, tone, and success criteria."
   },
   {
-    icon: FileSearch,
+    icon: FileMagnifyingGlass,
     title: "Receive a proposal",
     description: "Within 24 hours, get a curated plan with venue, vendor, and timeline options."
   },
@@ -164,7 +164,7 @@ export default function DFYProcess() {
               <div className="flex flex-col gap-8 lg:flex-row lg:items-center lg:justify-between">
                 <div className="space-y-4">
                   <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.3em] text-brand-dark/50">
-                    <Sparkles className="h-4 w-4 text-brand-teal" />
+                    <Sparkle className="h-4 w-4 text-brand-teal" />
                     Proof & outcomes
                   </div>
                   <h3 className="text-2xl font-semibold text-brand-dark">

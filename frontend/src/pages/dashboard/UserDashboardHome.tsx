@@ -2,10 +2,10 @@ import React from "react";
 import { Link } from "react-router-dom";
 import {
   Calendar,
-  ChevronRight,
+  CaretRight,
   ListChecks,
-  MessageSquare
-} from "lucide-react";
+  ChatCircle
+} from "@phosphor-icons/react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 
@@ -62,7 +62,7 @@ const UserDashboardHome: React.FC = () => {
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {[
           { label: "Events planned", value: "4", icon: Calendar },
-          { label: "Vendor requests", value: "6", icon: MessageSquare },
+          { label: "Vendor requests", value: "6", icon: ChatCircle },
           { label: "Budget in progress", value: "2", icon: ListChecks }
         ].map((stat) => {
           const Icon = stat.icon;
@@ -101,7 +101,7 @@ const UserDashboardHome: React.FC = () => {
                       {event.date} · {event.location}
                     </p>
                   </div>
-                  <ChevronRight className="h-4 w-4 text-gray-400" />
+                  <CaretRight className="h-4 w-4 text-gray-400" />
                 </div>
               ))}
               {upcomingEvents.length === 0 && (
@@ -120,19 +120,19 @@ const UserDashboardHome: React.FC = () => {
               <Button asChild className="w-full justify-between rounded-full bg-brand-teal text-brand-light hover:bg-brand-teal/90">
                 <Link to="/dashboard/ai-planner">
                   Open AI planner
-                  <ChevronRight className="h-4 w-4" />
+                  <CaretRight className="h-4 w-4" />
                 </Link>
               </Button>
               <Button asChild variant="outline" className="w-full justify-between rounded-full">
                 <Link to="/dashboard/events">
                   View events
-                  <ChevronRight className="h-4 w-4" />
+                  <CaretRight className="h-4 w-4" />
                 </Link>
               </Button>
               <Button asChild variant="outline" className="w-full justify-between rounded-full">
                 <Link to="/dashboard/create">
                   Create event
-                  <ChevronRight className="h-4 w-4" />
+                  <CaretRight className="h-4 w-4" />
                 </Link>
               </Button>
             </div>

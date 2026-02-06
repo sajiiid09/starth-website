@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Building, Users, ArrowRight, Loader2 } from "lucide-react";
+import { Buildings, Users, ArrowRight, SpinnerGap } from "@phosphor-icons/react";
 
 export default function ActivateRoleScreen({ user, requiredRole, onRoleActivated }) {
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -23,7 +23,7 @@ export default function ActivateRoleScreen({ user, requiredRole, onRoleActivated
     venue_owner: {
       title: "Activate Venue Owner Role",
       description: "List and manage your venues on our marketplace",
-      icon: Building,
+      icon: Buildings,
       organizationType: "venue_owner"
     },
     service_provider: {
@@ -154,7 +154,7 @@ export default function ActivateRoleScreen({ user, requiredRole, onRoleActivated
               disabled={isSubmitting || !formData.organizationName || !formData.city || !formData.country}
             >
               {isSubmitting ? (
-                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                <SpinnerGap className="w-4 h-4 mr-2 animate-spin" />
               ) : (
                 <ArrowRight className="w-4 h-4 mr-2" />
               )}

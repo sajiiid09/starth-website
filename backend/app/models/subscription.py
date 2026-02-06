@@ -1,33 +1,30 @@
-from __future__ import annotations
+"""Subscription model."""
 
-from datetime import datetime
-from uuid import uuid4
+import uuid
+from datetime import date, datetime
 
-from sqlalchemy import DateTime, Enum as SAEnum, ForeignKey, String, UniqueConstraint
+from sqlalchemy import Date, DateTime, ForeignKey, Integer, String, text
 from sqlalchemy.dialects.postgresql import UUID
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from app.db.base import Base, TimestampMixin
-from app.models.enums import SubscriptionProvider, SubscriptionStatus
+from app.db.base import Base, UUIDPrimaryKeyMixin
 
 
-class Subscription(TimestampMixin, Base):
+class Subscription(Base, UUIDPrimaryKeyMixin):
     __tablename__ = "subscriptions"
-    __table_args__ = (UniqueConstraint("user_id", name="uq_subscriptions_user_id"),)
 
-    id: Mapped[UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid4)
-    user_id: Mapped[UUID] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("users.id"), nullable=False
+    user_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True
     )
-    provider: Mapped[SubscriptionProvider] = mapped_column(
-        SAEnum(SubscriptionProvider, name="subscription_provider"),
-        nullable=False,
-        default=SubscriptionProvider.MANUAL,
+    plan_type: Mapped[str] = mapped_column(String(50), nullable=False)
+    iteration_limit: Mapped[int] = mapped_column(Integer, nullable=False)
+    iterations_remaining: Mapped[int] = mapped_column(Integer, nullable=False)
+    start_date: Mapped[date] = mapped_column(Date, nullable=False)
+    end_date: Mapped[date] = mapped_column(Date, nullable=False)
+    status: Mapped[str] = mapped_column(String(50), default="active", server_default="active")
+    stripe_subscription_id: Mapped[str | None] = mapped_column(String(255))
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=text("now()"), nullable=False
     )
-    provider_subscription_id: Mapped[str | None] = mapped_column(String(255), nullable=True)
-    status: Mapped[SubscriptionStatus] = mapped_column(
-        SAEnum(SubscriptionStatus, name="subscription_status"), nullable=False
-    )
-    current_period_end: Mapped[datetime | None] = mapped_column(
-        DateTime(timezone=True), nullable=True
-    )
+
+    user = relationship("User", back_populates="subscriptions")

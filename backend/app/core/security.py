@@ -1,15 +1,17 @@
-from __future__ import annotations
+"""JWT token handling, password hashing, and OTP generation."""
 
-import hashlib
-import hmac
 import secrets
+import string
 from datetime import datetime, timedelta, timezone
-from typing import Any
 
-from jose import jwt
+import jwt
 from passlib.context import CryptContext
 
-from app.core.config import get_settings
+from app.core.config import settings
+
+# ---------------------------------------------------------------------------
+# Password hashing (passlib + bcrypt==4.3.0 — pinned for compatibility)
+# ---------------------------------------------------------------------------
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
@@ -18,32 +20,44 @@ def hash_password(password: str) -> str:
     return pwd_context.hash(password)
 
 
-def verify_password(password: str, password_hash: str) -> bool:
-    return pwd_context.verify(password, password_hash)
+def verify_password(plain_password: str, hashed_password: str) -> bool:
+    return pwd_context.verify(plain_password, hashed_password)
 
 
-def create_access_token(*, subject: str, role: str) -> str:
-    settings = get_settings()
-    expire = datetime.now(timezone.utc) + timedelta(
-        minutes=settings.access_token_expire_minutes
-    )
-    payload = {"sub": subject, "role": role, "exp": expire}
-    return jwt.encode(payload, settings.jwt_secret, algorithm=settings.jwt_algorithm)
+# ---------------------------------------------------------------------------
+# JWT tokens
+# ---------------------------------------------------------------------------
 
 
-def create_refresh_token() -> str:
-    return secrets.token_urlsafe(48)
+def create_access_token(subject: str, extra_claims: dict | None = None) -> str:
+    expire = datetime.now(timezone.utc) + timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
+    payload = {"sub": subject, "exp": expire, "type": "access"}
+    if extra_claims:
+        payload.update(extra_claims)
+    return jwt.encode(payload, settings.SECRET_KEY, algorithm=settings.ALGORITHM)
 
 
-def hash_token(token: str) -> str:
-    return hashlib.sha256(token.encode("utf-8")).hexdigest()
+def create_refresh_token(subject: str) -> str:
+    expire = datetime.now(timezone.utc) + timedelta(days=settings.REFRESH_TOKEN_EXPIRE_DAYS)
+    payload = {"sub": subject, "exp": expire, "type": "refresh"}
+    return jwt.encode(payload, settings.SECRET_KEY, algorithm=settings.ALGORITHM)
 
 
-def verify_refresh_token(token: str, token_hash: str) -> bool:
-    candidate = hash_token(token)
-    return hmac.compare_digest(candidate, token_hash)
+def decode_token(token: str) -> dict:
+    """Decode and verify a JWT token. Raises jwt.PyJWTError on failure."""
+    return jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
 
 
-def decode_access_token(token: str) -> dict[str, Any]:
-    settings = get_settings()
-    return jwt.decode(token, settings.jwt_secret, algorithms=[settings.jwt_algorithm])
+# ---------------------------------------------------------------------------
+# OTP
+# ---------------------------------------------------------------------------
+
+
+def generate_otp(length: int = 6) -> str:
+    """Generate a cryptographically random numeric OTP code."""
+    return "".join(secrets.choice(string.digits) for _ in range(length))
+
+
+def otp_expiry(minutes: int = 10) -> datetime:
+    """Return a datetime `minutes` in the future (UTC)."""
+    return datetime.now(timezone.utc) + timedelta(minutes=minutes)

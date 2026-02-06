@@ -84,7 +84,7 @@ export const safeParsePlannerSessionsPayload = (input: unknown) =>
 export const assertValidPlannerState = (input: unknown): PlannerState => {
   const parsed = zPlannerState.safeParse(input);
   if (parsed.success) {
-    return parsed.data;
+    return parsed.data as unknown as PlannerState;
   }
 
   const issues = parsed.error.issues.map((issue) => {
@@ -97,7 +97,7 @@ export const assertValidPlannerState = (input: unknown): PlannerState => {
 export const assertValidPlannerSession = (input: unknown): PlannerSession => {
   const parsed = zPlannerSession.safeParse(input);
   if (parsed.success) {
-    return parsed.data;
+    return parsed.data as unknown as PlannerSession;
   }
 
   const issues = parsed.error.issues.map((issue) => {

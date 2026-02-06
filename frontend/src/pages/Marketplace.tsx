@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { Search } from "lucide-react";
+import { MagnifyingGlass, SpinnerGap } from "@phosphor-icons/react";
 import Container from "@/components/home-v2/primitives/Container";
 import FadeIn from "@/components/animations/FadeIn";
 import MarketplaceCard from "@/components/marketplace/MarketplaceCard";
@@ -15,6 +15,8 @@ import {
 import PillButton from "@/components/home-v2/primitives/PillButton";
 import { cn } from "@/lib/utils";
 import { dummyMarketplaceItems } from "@/data/dummyMarketplace";
+import type { MarketplaceItem } from "@/data/dummyMarketplace";
+import { fetchAllMarketplaceItems } from "@/api/marketplace";
 import {
   filterMarketplaceItems,
   getFeaturedMarketplaceItems,
@@ -23,6 +25,8 @@ import {
 } from "@/utils/marketplaceFilter";
 
 const MarketplacePage: React.FC = () => {
+  const [allItems, setAllItems] = useState<MarketplaceItem[]>([]);
+  const [loading, setLoading] = useState(true);
   const [searchValue, setSearchValue] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [filters, setFilters] = useState<MarketplaceFilterState>({
@@ -32,6 +36,21 @@ const MarketplacePage: React.FC = () => {
     eventType: ""
   });
   const [sortBy, setSortBy] = useState<MarketplaceSortOption>("relevance");
+
+  // Fetch marketplace items from API on mount
+  useEffect(() => {
+    async function loadItems() {
+      try {
+        const items = await fetchAllMarketplaceItems();
+        setAllItems(items.length > 0 ? items : dummyMarketplaceItems);
+      } catch {
+        setAllItems(dummyMarketplaceItems);
+      } finally {
+        setLoading(false);
+      }
+    }
+    loadItems();
+  }, []);
 
   useEffect(() => {
     const timeout = window.setTimeout(() => {
@@ -49,8 +68,8 @@ const MarketplacePage: React.FC = () => {
   }, [filters, searchValue]);
 
   const featuredItems = useMemo(
-    () => getFeaturedMarketplaceItems(dummyMarketplaceItems),
-    []
+    () => getFeaturedMarketplaceItems(allItems),
+    [allItems]
   );
 
   const marketplaceItems = useMemo(() => {
@@ -59,12 +78,12 @@ const MarketplacePage: React.FC = () => {
     }
 
     return filterMarketplaceItems({
-      items: dummyMarketplaceItems,
+      items: allItems,
       searchQuery: debouncedSearch,
       filters,
       sortBy
     });
-  }, [debouncedSearch, featuredItems, filters, hasActiveFilters, sortBy]);
+  }, [allItems, debouncedSearch, featuredItems, filters, hasActiveFilters, sortBy]);
 
   const handleClearFilters = () => {
     setSearchValue("");
@@ -78,7 +97,15 @@ const MarketplacePage: React.FC = () => {
     setSortBy("relevance");
   };
 
-  const showEmptyState = hasActiveFilters && marketplaceItems.length === 0;
+  const showEmptyState = !loading && hasActiveFilters && marketplaceItems.length === 0;
+
+  if (loading) {
+    return (
+      <div className="flex h-64 items-center justify-center pt-24">
+        <SpinnerGap className="size-8 animate-spin text-brand-teal" />
+      </div>
+    );
+  }
 
   return (
     <div className="pb-24 pt-10">
@@ -99,7 +126,7 @@ const MarketplacePage: React.FC = () => {
           <div className="rounded-3xl border border-white/40 bg-white/80 p-6 shadow-card backdrop-blur-xl">
             <div className="grid gap-4 lg:grid-cols-[1.4fr_0.8fr_0.6fr]">
               <div className="relative">
-                <Search className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-brand-dark/40" />
+                <MagnifyingGlass className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-brand-dark/40" />
                 <Input
                   value={searchValue}
                   onChange={(event) => setSearchValue(event.target.value)}

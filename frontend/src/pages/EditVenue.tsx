@@ -10,16 +10,16 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { 
   ArrowLeft, 
-  Save,
-  Loader2,
+  FloppyDisk,
+  SpinnerGap,
   X,
   Upload,
-  Building,
+  Buildings,
   MapPin,
   Users,
   Camera,
-  DollarSign
-} from "lucide-react";
+  CurrencyDollar
+} from "@phosphor-icons/react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import RoleGuard from "../components/auth/RoleGuard";
@@ -230,7 +230,7 @@ export default function EditVenuePage() {
       <RoleGuard requiredRole="venue_owner">
         <VenuePortalLayout>
           <div className="flex items-center justify-center h-64">
-            <Loader2 className="w-8 h-8 animate-spin text-gray-500" />
+            <SpinnerGap className="w-8 h-8 animate-spin text-gray-500" />
           </div>
         </VenuePortalLayout>
       </RoleGuard>
@@ -257,7 +257,7 @@ export default function EditVenuePage() {
           <Card className="border-none shadow-lg mb-6">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <Building className="w-5 h-5 text-blue-600" />
+                <Buildings className="w-5 h-5 text-blue-600" />
                 Basic Information
               </CardTitle>
             </CardHeader>
@@ -413,7 +413,7 @@ export default function EditVenuePage() {
           <Card className="border-none shadow-lg mb-6">
              <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <DollarSign className="w-5 h-5 text-red-600" />
+                <CurrencyDollar className="w-5 h-5 text-red-600" />
                 Pricing
               </CardTitle>
             </CardHeader>
@@ -451,7 +451,7 @@ export default function EditVenuePage() {
               disabled={saving}
               className="bg-blue-600 hover:bg-blue-700"
             >
-              {saving ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Save className="w-4 h-4 mr-2" />}
+              {saving ? <SpinnerGap className="w-4 h-4 animate-spin mr-2" /> : <FloppyDisk className="w-4 h-4 mr-2" />}
               Save Changes
             </Button>
           </div>

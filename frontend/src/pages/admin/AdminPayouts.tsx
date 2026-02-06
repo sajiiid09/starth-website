@@ -1,6 +1,6 @@
 import React from "react";
 import { toast } from "sonner";
-import { Search, AlertTriangle } from "lucide-react";
+import { MagnifyingGlass, Warning } from "@phosphor-icons/react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -205,7 +205,7 @@ const AdminPayouts: React.FC = () => {
             </Tabs>
 
             <div className="relative w-full lg:w-80">
-              <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+              <MagnifyingGlass className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-gray-400" />
               <Input
                 value={query}
                 onChange={(event) => setQuery(event.target.value)}
@@ -352,7 +352,7 @@ const AdminPayouts: React.FC = () => {
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle className="flex items-center gap-2">
-              <AlertTriangle className="h-4 w-4 text-red-600" />
+              <Warning className="size-4 text-red-600" />
               Reverse payout?
             </AlertDialogTitle>
             <AlertDialogDescription>

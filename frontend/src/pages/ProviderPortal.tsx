@@ -13,7 +13,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { CheckCircle, AlertCircle, ArrowRight, Loader2, Building, FileText, Shield, Briefcase, Settings, DollarSign, TrendingUp, Mail, Plus } from "lucide-react";
+import { CheckCircle, WarningCircle, ArrowRight, SpinnerGap, Buildings, FileText, Shield, Briefcase, Gear, CurrencyDollar, TrendUp, Envelope, Plus } from "@phosphor-icons/react";
 import RoleGuard from "../components/auth/RoleGuard";
 import ProviderPortalLayout from "../components/provider/ProviderPortalLayout";
 
@@ -59,8 +59,8 @@ export default function ProviderPortalPage() {
 
       // Documents completion (identity + business license required)
       const requiredDocs = ["identity", "business_license"];
-      const verifiedDocTypes = [...new Set(docsList.filter(doc => doc.verified_status === "verified").map(doc => doc.doc_type))];
-      const documentsScore = Math.round((verifiedDocTypes.filter(type => requiredDocs.includes(type)).length / requiredDocs.length) * 100);
+      const verifiedDocTypes = [...new Set(docsList.filter(doc => doc.verified_status === "verified").map(doc => doc.doc_type))] as string[];
+      const documentsScore = Math.round((verifiedDocTypes.filter((type: string) => requiredDocs.includes(type)).length / requiredDocs.length) * 100);
 
       // Insurance completion
       const validInsurance = insuranceList.find(policy => {
@@ -143,11 +143,38 @@ export default function ProviderPortalPage() {
         const activeServicesCount = servicesList.filter(s => s.status === "active").length + 
                              serviceProvidersList.filter(s => s.status === "approved").length;
 
-        // Mock data for demo - in real implementation, fetch from bookings where service_id is in serviceIds
-        const totalBookings = Math.floor(Math.random() * 50) + totalServices * 2;
-        const totalRevenue = Math.floor(Math.random() * 50000) + totalServices * 5000;
-        const monthlyRevenue = Math.floor(Math.random() * 10000) + totalServices * 1000;
-        const pendingLeads = Math.floor(Math.random() * 10);
+        // Fetch real booking stats for this provider
+        let totalBookings = 0;
+        let totalRevenue = 0;
+        let monthlyRevenue = 0;
+        let pendingLeads = 0;
+
+        try {
+          const bookings = await Booking.filter({ provider_id: currentUser.id });
+          const bookingList = Array.isArray(bookings) ? bookings : [];
+          totalBookings = bookingList.length;
+
+          const now = new Date();
+          const currentMonth = now.getMonth();
+          const currentYear = now.getFullYear();
+
+          for (const b of bookingList) {
+            const amount = Number(b.data?.total_amount ?? b.total_amount ?? b.data?.agreed_price ?? 0);
+            totalRevenue += amount;
+
+            const createdAt = b.created_at ? new Date(b.created_at) : null;
+            if (createdAt && createdAt.getMonth() === currentMonth && createdAt.getFullYear() === currentYear) {
+              monthlyRevenue += amount;
+            }
+
+            const status = String(b.data?.status ?? b.status ?? "");
+            if (status === "pending" || status === "requested") {
+              pendingLeads++;
+            }
+          }
+        } catch (err) {
+          console.error("ProviderPortal: Failed to load bookings:", err);
+        }
 
         setStats({
           services: totalServices,
@@ -174,14 +201,14 @@ export default function ProviderPortalPage() {
       <RoleGuard requiredRole="service_provider">
         <ProviderPortalLayout>
           <div className="flex items-center justify-center h-64">
-            <Loader2 className="w-8 h-8 animate-spin text-gray-500" />
+            <SpinnerGap className="w-8 h-8 animate-spin text-gray-500" />
           </div>
         </ProviderPortalLayout>
       </RoleGuard>
     );
   }
 
-  const StatCard = ({ title, value, icon, description, trend, color = "blue" }) => (
+  const StatCard = ({ title, value, icon, description, trend, color = "blue" }: { title: string; value: any; icon: React.ReactElement; description?: string; trend?: string; color?: string }) => (
     <Card className="border-none shadow-lg hover:shadow-xl transition-shadow">
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
         <CardTitle className="text-sm font-medium text-gray-600">{title}</CardTitle>
@@ -197,7 +224,7 @@ export default function ProviderPortalPage() {
           )}
           {trend && (
             <div className="flex items-center text-green-600 text-xs">
-              <TrendingUp className="w-3 h-3 mr-1" />
+              <TrendUp className="w-3 h-3 mr-1" />
               {trend}
             </div>
           )}
@@ -208,8 +235,8 @@ export default function ProviderPortalPage() {
 
   const getStepStatus = (score) => {
     if (score === 100) return { status: "complete", color: "text-green-600", icon: CheckCircle };
-    if (score > 0) return { status: "progress", color: "text-yellow-600", icon: AlertCircle };
-    return { status: "pending", color: "text-gray-400", icon: AlertCircle };
+    if (score > 0) return { status: "progress", color: "text-yellow-600", icon: WarningCircle };
+    return { status: "pending", color: "text-gray-400", icon: WarningCircle };
   };
 
   const steps = [
@@ -218,7 +245,7 @@ export default function ProviderPortalPage() {
       description: "Complete your business information",
       score: completionData.profile,
       link: "ProviderOrganization",
-      icon: Building
+      icon: Buildings
     },
     {
       title: "Services",
@@ -310,16 +337,15 @@ export default function ProviderPortalPage() {
               <StatCard
                 title="Total Revenue"
                 value={stats.revenue.toLocaleString('en-US', { style: 'currency', currency: 'USD' })}
-                icon={<DollarSign />}
+                icon={<CurrencyDollar />}
                 description="All-time earnings"
                 color="purple"
               />
               <StatCard
                 title="This Month"
                 value={stats.monthlyRevenue.toLocaleString('en-US', { style: 'currency', currency: 'USD' })}
-                icon={<TrendingUp />}
+                icon={<TrendUp />}
                 description="Current month revenue"
-                trend="+8%"
                 color="orange"
               />
             </div>

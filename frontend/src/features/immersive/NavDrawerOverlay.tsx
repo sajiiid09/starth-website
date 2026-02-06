@@ -1,7 +1,8 @@
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
-import { LogOut, Plus, X } from "lucide-react";
+import { SignOut, Plus, X } from "@phosphor-icons/react";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { NavItem, isNavItemActive } from "@/features/immersive/navItems";
 import { PlannerSession } from "@/features/planner/types";
 
@@ -137,7 +138,7 @@ const NavDrawerOverlay: React.FC<NavDrawerOverlayProps> = ({
               onClick={onClose}
               aria-label="Close navigation menu"
             >
-              <X className="h-4 w-4" />
+              <X weight="bold" className="h-4 w-4" />
             </Button>
           </header>
 
@@ -159,7 +160,12 @@ const NavDrawerOverlay: React.FC<NavDrawerOverlayProps> = ({
                     }`}
                   >
                     <Icon className="h-4 w-4" />
-                    <span>{item.label}</span>
+                    <span className="flex-1">{item.label}</span>
+                    {item.badge && (
+                      <Badge className="h-5 min-w-[20px] rounded-full bg-brand-coral px-1.5 text-[10px] font-semibold text-white">
+                        {item.badge}
+                      </Badge>
+                    )}
                   </Link>
                 );
               })}
@@ -179,7 +185,7 @@ const NavDrawerOverlay: React.FC<NavDrawerOverlayProps> = ({
                     onClose();
                   }}
                 >
-                  <Plus className="mr-1 h-3.5 w-3.5" />
+                  <Plus weight="bold" className="mr-1 h-3.5 w-3.5" />
                   New chat
                 </Button>
               </div>
@@ -227,7 +233,7 @@ const NavDrawerOverlay: React.FC<NavDrawerOverlayProps> = ({
                 onSignOut();
               }}
             >
-              <LogOut className="mr-2 h-4 w-4" />
+              <SignOut weight="bold" className="mr-2 h-4 w-4" />
               Sign Out
             </Button>
           </footer>

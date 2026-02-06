@@ -13,7 +13,7 @@ import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Loader2, Plus, Edit, Trash2, Briefcase, CheckCircle, Clock, AlertCircle, Search } from "lucide-react";
+import { SpinnerGap, Plus, Pencil, Trash, Briefcase, CheckCircle, Clock, WarningCircle, MagnifyingGlass } from "@phosphor-icons/react";
 import { toast } from "sonner";
 import RoleGuard from "../components/auth/RoleGuard";
 import ProviderPortalLayout from "../components/provider/ProviderPortalLayout";
@@ -99,10 +99,10 @@ export default function ProviderServicesPage() {
     description: "",
     city: "", // New field
     state: "", // New field
-    coverage_regions: [],
+    coverage_regions: [] as string[] | string,
     rate_card_json: { base_rate: "", hourly_rate: "", notes: "" },
     website: "",
-    event_types: [],
+    event_types: [] as string[],
     searchQuery: ""
   });
   const [isSaving, setIsSaving] = useState(false);
@@ -283,15 +283,15 @@ export default function ProviderServicesPage() {
   const getStatusInfo = (status) => {
     switch (status) {
       case "draft":
-        return { icon: Edit, color: "text-gray-500", label: "Draft" };
+        return { icon: Pencil, color: "text-gray-500", label: "Draft" };
       case "submitted":
         return { icon: Clock, color: "text-yellow-600", label: "Pending Approval" };
       case "active":
         return { icon: CheckCircle, color: "text-green-600", label: "Live" };
       case "hidden":
-        return { icon: AlertCircle, color: "text-red-600", label: "Hidden" };
+        return { icon: WarningCircle, color: "text-red-600", label: "Hidden" };
       default:
-        return { icon: Edit, color: "text-gray-500", label: "Unknown" };
+        return { icon: Pencil, color: "text-gray-500", label: "Unknown" };
     }
   };
 
@@ -322,7 +322,7 @@ export default function ProviderServicesPage() {
       <RoleGuard requiredRole="service_provider">
         <ProviderPortalLayout>
           <div className="flex items-center justify-center h-64">
-            <Loader2 className="w-8 h-8 animate-spin text-gray-500" />
+            <SpinnerGap className="w-8 h-8 animate-spin text-gray-500" />
           </div>
         </ProviderPortalLayout>
       </RoleGuard>
@@ -341,7 +341,7 @@ export default function ProviderServicesPage() {
               </div>
               <div className="flex gap-2">
                 <div className="relative">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-500" />
+                  <MagnifyingGlass className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-500" />
                   <Input
                     type="text"
                     placeholder="Search services..."
@@ -401,10 +401,10 @@ export default function ProviderServicesPage() {
 
                             <div className="flex items-center gap-2 mt-2">
                               <Button variant="outline" size="sm" onClick={() => handleEdit(service)}>
-                                <Edit className="w-3 h-3 mr-1" /> Edit
+                                <Pencil className="w-3 h-3 mr-1" /> Edit
                               </Button>
                               <Button variant="destructive" size="sm" onClick={() => handleDelete(service.id)}>
-                                <Trash2 className="w-3 h-3 mr-1" /> Delete
+                                <Trash className="w-3 h-3 mr-1" /> Delete
                               </Button>
                             </div>
                           </div>
@@ -595,7 +595,7 @@ export default function ProviderServicesPage() {
                       Cancel
                     </Button>
                     <Button type="submit" disabled={isSaving} className="bg-blue-600 hover:bg-blue-700">
-                      {isSaving ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : null}
+                      {isSaving ? <SpinnerGap className="w-4 h-4 mr-2 animate-spin" /> : null}
                       {editingService ? 'Update Service' : 'Add Service'}
                     </Button>
                   </div>

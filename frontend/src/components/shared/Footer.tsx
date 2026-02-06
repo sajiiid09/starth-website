@@ -1,6 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { ArrowUpRight } from "lucide-react";
+import { ArrowUpRight, MapPin } from "@phosphor-icons/react";
 import { createPageUrl } from "@/utils";
 import useGsapReveal from "@/components/utils/useGsapReveal";
 
@@ -33,7 +33,7 @@ const footerSections = [
     title: "Legals",
     links: [
       { label: "Privacy", to: createPageUrl("Privacy") },
-      { label: "Terms & Conditions", to: createPageUrl("Legals") }
+      { label: "Terms", to: createPageUrl("Legals") }
     ]
   }
 ];
@@ -46,42 +46,42 @@ export default function Footer() {
 
   const currentYear = new Date().getFullYear();
 
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
   return (
     <footer
       ref={footerRef}
-      className="relative mt-16 w-full overflow-hidden bg-[#027F83] text-[#FFFBF4] md:mt-20"
+      className="relative mt-12 w-full overflow-hidden bg-brand-teal text-[#FFFBF4] sm:mt-16 md:mt-20"
     >
       {/* Top Section: Meta & Links */}
       <div className="mx-auto flex max-w-[1400px] flex-col lg:flex-row">
         
-        {/* Left: Time/Location Indicators (Replicating reference top-left) */}
-        <div className="flex w-full flex-col gap-6 border-b border-[#FFFBF4]/20 p-6 sm:p-8 lg:w-1/3 lg:border-r lg:border-b-0">
-          <div className="flex items-start gap-6 text-xs font-medium uppercase tracking-widest opacity-80 sm:gap-12">
-              <div className="flex gap-3">
-                <div className="mt-1 h-3 w-3 animate-pulse rounded-full bg-[#FFFBF4]" />
-                <div className="flex flex-col gap-1">
-                  <span>2 Hawthorne Pl</span>
-                  <span>Boston, MA 02114</span>
-                </div>
-              </div>
+        {/* Left: Location Indicator */}
+        <div className="flex w-full flex-col gap-4 border-b border-[#FFFBF4]/20 p-5 sm:gap-6 sm:p-8 lg:w-1/3 lg:border-b-0 lg:border-r">
+          <div className="flex items-start gap-3 text-xs font-medium uppercase tracking-widest opacity-80">
+            <MapPin weight="fill" className="mt-0.5 h-4 w-4 flex-shrink-0" />
+            <div className="flex flex-col gap-0.5">
+              <span>2 Hawthorne Pl</span>
+              <span>Boston, MA 02114</span>
+            </div>
           </div>
           
-          <div className="mt-auto hidden lg:block">
-             <p className="max-w-[200px] text-sm opacity-60">
-               Orchestrating modern events with precision and style.
-             </p>
-          </div>
+          <p className="mt-auto hidden text-sm opacity-60 lg:block">
+            Orchestrating modern events with precision and style.
+          </p>
         </div>
 
         {/* Right: Navigation Grid */}
-        <div className="w-full border-b border-[#FFFBF4]/20 p-6 sm:p-8 lg:w-2/3 lg:border-b-0">
-          <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 md:grid-cols-4">
+        <div className="w-full border-b border-[#FFFBF4]/20 p-5 sm:p-8 lg:w-2/3 lg:border-b-0">
+          <div className="grid grid-cols-2 gap-6 sm:gap-8 md:grid-cols-4">
             {footerSections.map((section) => (
-              <div key={section.title} className="flex flex-col gap-4">
-                <h4 className="font-mono text-xs uppercase tracking-widest text-[#FFFBF4]/50">
+              <div key={section.title} className="flex flex-col gap-3 sm:gap-4">
+                <h4 className="text-[10px] font-semibold uppercase tracking-widest text-[#FFFBF4]/50 sm:text-xs">
                   {section.title}
                 </h4>
-                <ul className="flex flex-col gap-3">
+                <ul className="flex flex-col gap-2 sm:gap-3">
                   {section.links.map((link) => (
                     <li key={link.label}>
                       <Link
@@ -108,40 +108,26 @@ export default function Footer() {
       <div className="mx-auto w-full max-w-[1400px] border-t border-[#FFFBF4]/20" />
 
       {/* Main Bottom Section */}
-      <div className="mx-auto flex max-w-[1400px] flex-col justify-between px-6 py-12 sm:px-8 sm:py-16 lg:flex-row lg:items-end">
+      <div className="mx-auto flex max-w-[1400px] flex-col justify-between px-5 py-8 sm:px-8 sm:py-12 lg:flex-row lg:items-end lg:py-16">
         
-        {/* Big Branding Area */}
-        <div className="flex flex-col gap-6">
-          {/* Logo Graphic & Description */}
-            <div className="flex flex-col items-start gap-6 md:flex-row md:items-center">
-              {/* Abstract Logo Icon Box */}
-
-
-
-            </div>
-
-          {/* Tagline - MOVED BEFORE TEXT */}
-          <div className="max-w-xs text-xs font-light leading-snug tracking-wide opacity-90 sm:text-base">
-               Turning untapped spaces and services into unforgettable events with patented AI matching
-             </div>
-
-          {/* Massive Text - MOVED AFTER TAGLINE */}
-          <h1 className="mt-4 font-sans text-[14vw] font-bold leading-[0.85] tracking-tighter text-[#FFFBF4] sm:text-[10vw] lg:text-[10rem]">
+        {/* Big Branding Text */}
+        <div>
+          <h1 className="font-display text-[15vw] font-bold leading-[0.85] tracking-tighter text-[#FFFBF4] sm:text-[12vw] md:text-[10vw] lg:text-[8rem] xl:text-[10rem]">
             Strathwell
           </h1>
         </div>
 
         {/* Bottom Right: Copyright & Back to Top */}
-        <div className="mt-10 flex flex-col items-start gap-4 text-xs font-medium uppercase tracking-widest lg:items-end lg:text-right">
-          <Link
-            to={createPageUrl("Home")}
-            className="flex items-center gap-2 border-b border-transparent pb-1 transition-colors hover:border-[#FFFBF4]"
-          >
-            Back to top <ArrowUpRight className="h-4 w-4" />
-          </Link>
+        <div className="mt-8 flex flex-col-reverse items-start gap-3 text-xs font-medium uppercase tracking-widest sm:flex-row sm:items-center sm:gap-6 lg:mt-0 lg:flex-col lg:items-end lg:gap-4">
           <div className="opacity-60">
-            © {currentYear} Strathwell Inc. All rights reserved.
+            © {currentYear} Strathwell Inc.
           </div>
+          <button
+            onClick={scrollToTop}
+            className="flex items-center gap-2 border-b border-transparent pb-0.5 transition-colors hover:border-[#FFFBF4]"
+          >
+            Back to top <ArrowUpRight weight="bold" className="h-4 w-4" />
+          </button>
         </div>
       </div>
     </footer>

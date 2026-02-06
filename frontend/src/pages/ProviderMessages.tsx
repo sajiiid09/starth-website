@@ -3,7 +3,7 @@ import RoleGuard from '../components/auth/RoleGuard';
 import ProviderPortalLayout from '../components/provider/ProviderPortalLayout';
 import MessagingInterface from '../components/messages/MessagingInterface';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Mail } from 'lucide-react';
+import { Envelope } from '@phosphor-icons/react';
 
 export default function ProviderMessagesPage() {
   return (
@@ -13,7 +13,7 @@ export default function ProviderMessagesPage() {
           <Card className="border-none shadow-lg h-full flex flex-col">
             <CardHeader className="border-b">
               <CardTitle className="flex items-center gap-2">
-                <Mail className="w-5 h-5 text-green-600" />
+                <Envelope className="w-5 h-5 text-green-600" />
                 <span>Inbox</span>
               </CardTitle>
             </CardHeader>

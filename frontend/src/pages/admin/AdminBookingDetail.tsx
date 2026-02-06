@@ -1,6 +1,6 @@
 import React from "react";
 import { Link, useParams } from "react-router-dom";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft } from "@phosphor-icons/react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -111,7 +111,7 @@ const AdminBookingDetail: React.FC = () => {
       <div>
         <Button asChild variant="ghost" className="-ml-3 mb-2 w-fit">
           <Link to="/admin/bookings">
-            <ArrowLeft className="h-4 w-4" />
+            <ArrowLeft className="size-4" />
             Back to bookings
           </Link>
         </Button>

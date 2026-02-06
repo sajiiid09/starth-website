@@ -104,7 +104,7 @@ const normalizeLegacySession = (input: unknown): PlannerSession | null => {
   };
 
   const validated = safeParsePlannerSession(candidate);
-  return validated.success ? validated.data : null;
+  return validated.success ? (validated.data as unknown as PlannerSession) : null;
 };
 
 const migrateLegacyStorage = (
@@ -176,7 +176,7 @@ export const loadPlannerStorage = (): PlannerStoragePayload | null => {
         return {
           version: PLANNER_STORAGE_VERSION,
           activeSessionId: validated.data.activeSessionId,
-          sessions: sortSessionsByUpdatedAt(validated.data.sessions)
+          sessions: sortSessionsByUpdatedAt(validated.data.sessions as unknown as PlannerSession[])
         };
       }
     }

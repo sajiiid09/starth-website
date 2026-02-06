@@ -1,20 +1,21 @@
-import { Calendar, Home, MessageSquare, Settings, Sparkles, type LucideIcon } from "lucide-react";
+import { Calendar, Tray, SquaresFour, Gear, Sparkle, Storefront, type Icon } from "@phosphor-icons/react";
 
 export type NavItem = {
   id: string;
   label: string;
-  icon: LucideIcon;
+  icon: Icon;
   to: string;
   aliases?: string[];
+  badge?: string;
 };
 
 export const organizerNavItems: NavItem[] = [
   {
-    id: "dashboard-home",
-    label: "Dashboard Home",
-    icon: Home,
-    to: "/dashboard",
-    aliases: ["/dashboard/home"]
+    id: "ai-planner",
+    label: "AI Planner",
+    icon: Sparkle,
+    to: "/dashboard/ai-planner",
+    aliases: ["/dashboard/plan-with-ai", "/dashboard"]
   },
   {
     id: "events",
@@ -23,22 +24,28 @@ export const organizerNavItems: NavItem[] = [
     to: "/dashboard/events"
   },
   {
-    id: "ai-planner",
-    label: "AI Planner",
-    icon: Sparkles,
-    to: "/dashboard/ai-planner",
-    aliases: ["/dashboard/plan-with-ai"]
+    id: "templates",
+    label: "Templates",
+    icon: SquaresFour,
+    to: "/dashboard/templates"
   },
   {
-    id: "messages",
-    label: "Messages",
-    icon: MessageSquare,
-    to: "/dashboard/messages"
+    id: "marketplace",
+    label: "Marketplace",
+    icon: Storefront,
+    to: "/dashboard/marketplace"
+  },
+  {
+    id: "inbox",
+    label: "Inbox",
+    icon: Tray,
+    to: "/dashboard/messages",
+    badge: "3"
   },
   {
     id: "settings",
     label: "Settings",
-    icon: Settings,
+    icon: Gear,
     to: "/dashboard/settings"
   }
 ];

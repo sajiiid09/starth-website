@@ -1,5 +1,5 @@
 import * as React from "react"
-import { ChevronLeft, ChevronRight, MoreHorizontal } from "lucide-react"
+import { CaretLeft, CaretRight, DotsThreeOutline } from "@phosphor-icons/react"
 
 import { cn } from "@/lib/utils"
 import { buttonVariants } from "@/components/ui/button";
@@ -16,7 +16,7 @@ const Pagination = ({
 )
 Pagination.displayName = "Pagination"
 
-const PaginationContent = React.forwardRef(({ className, ...props }, ref) => (
+const PaginationContent = React.forwardRef<HTMLUListElement, React.HTMLAttributes<HTMLUListElement>>(({ className, ...props }, ref) => (
   <ul
     ref={ref}
     className={cn("flex flex-row items-center gap-1", className)}
@@ -24,7 +24,7 @@ const PaginationContent = React.forwardRef(({ className, ...props }, ref) => (
 ))
 PaginationContent.displayName = "PaginationContent"
 
-const PaginationItem = React.forwardRef(({ className, ...props }, ref) => (
+const PaginationItem = React.forwardRef<HTMLLIElement, React.LiHTMLAttributes<HTMLLIElement>>(({ className, ...props }, ref) => (
   <li ref={ref} className={cn("", className)} {...props} />
 ))
 PaginationItem.displayName = "PaginationItem"
@@ -32,8 +32,13 @@ PaginationItem.displayName = "PaginationItem"
 const PaginationLink = ({
   className,
   isActive,
-  size = "icon",
+  size = "icon" as const,
   ...props
+}: {
+  className?: string;
+  isActive?: boolean;
+  size?: "default" | "sm" | "lg" | "icon";
+  [x: string]: any;
 }) => (
   <a
     aria-current={isActive ? "page" : undefined}
@@ -54,7 +59,7 @@ const PaginationPrevious = ({
     size="default"
     className={cn("gap-1 pl-2.5", className)}
     {...props}>
-    <ChevronLeft className="h-4 w-4" />
+    <CaretLeft className="h-4 w-4" />
     <span>Previous</span>
   </PaginationLink>
 )
@@ -70,7 +75,7 @@ const PaginationNext = ({
     className={cn("gap-1 pr-2.5", className)}
     {...props}>
     <span>Next</span>
-    <ChevronRight className="h-4 w-4" />
+    <CaretRight className="h-4 w-4" />
   </PaginationLink>
 )
 PaginationNext.displayName = "PaginationNext"
@@ -83,7 +88,7 @@ const PaginationEllipsis = ({
     aria-hidden
     className={cn("flex h-9 w-9 items-center justify-center", className)}
     {...props}>
-    <MoreHorizontal className="h-4 w-4" />
+    <DotsThreeOutline className="h-4 w-4" />
     <span className="sr-only">More pages</span>
   </span>
 )

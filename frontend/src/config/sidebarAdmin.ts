@@ -1,31 +1,31 @@
 import {
   Users,
-  Home,
-  LayoutTemplate,
-  Settings,
-  Shield,
-  Landmark,
-  CalendarRange,
+  House,
+  SquaresFour,
+  Gear,
+  ShieldCheck,
+  Bank,
+  Calendar,
   CreditCard,
-  HandCoins,
-  ScrollText,
-  Scale,
+  Coins,
+  Scroll,
+  Scales,
   Wrench
-} from "lucide-react";
+} from "@phosphor-icons/react";
 import { hasAdminOpsTools } from "@/features/admin/config";
 
 const baseItems = [
-  { label: "Dashboard Home", href: "/admin", icon: Home },
-  { label: "Finance Overview", href: "/admin/finance", icon: Landmark },
-  { label: "Bookings", href: "/admin/bookings", icon: CalendarRange },
+  { label: "Dashboard Home", href: "/admin", icon: House },
+  { label: "Finance Overview", href: "/admin/finance", icon: Bank },
+  { label: "Bookings", href: "/admin/bookings", icon: Calendar },
   { label: "Payments", href: "/admin/payments", icon: CreditCard },
-  { label: "Payouts", href: "/admin/payouts", icon: HandCoins },
-  { label: "Disputes", href: "/admin/disputes", icon: Scale },
-  { label: "Audit Logs", href: "/admin/audit", icon: ScrollText },
+  { label: "Payouts", href: "/admin/payouts", icon: Coins },
+  { label: "Disputes", href: "/admin/disputes", icon: Scales },
+  { label: "Audit Logs", href: "/admin/audit", icon: Scroll },
   { label: "Users", href: "/admin/users", icon: Users },
-  { label: "Vendors", href: "/admin/vendors", icon: Shield },
-  { label: "Templates", href: "/admin/templates", icon: LayoutTemplate },
-  { label: "Settings", href: "/admin/settings", icon: Settings }
+  { label: "Vendors", href: "/admin/vendors", icon: ShieldCheck },
+  { label: "Templates", href: "/admin/templates", icon: SquaresFour },
+  { label: "Settings", href: "/admin/settings", icon: Gear }
 ];
 
 export const sidebarAdmin = hasAdminOpsTools

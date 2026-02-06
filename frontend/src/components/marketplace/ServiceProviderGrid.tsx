@@ -8,11 +8,11 @@ import {
   Users,
   Star,
   Shield,
-  ExternalLink,
+  ArrowSquareOut,
   MapPin,
-  MessageSquare,
-  Sparkles // Added Sparkles import
-} from "lucide-react";
+  ChatCircle,
+  Sparkle
+} from "@phosphor-icons/react";
 import SmartImage from "@/components/shared/SmartImage";
 import MessageServiceButton from "@/components/service/MessageServiceButton";
 
@@ -109,7 +109,7 @@ export default function ServiceProviderGrid({ services, onAskAI }) { // Added on
                   title="Ask AI about this service"
                   className="flex-shrink-0" // Added to prevent button from expanding too much
                 >
-                  <Sparkles className="w-4 h-4" />
+                  <Sparkle className="w-4 h-4" />
                 </Button>
               )}
               {/* Removed the original MessageServiceButton and wrapped it in a conditional statement or adjusted layout if onAskAI is present */}

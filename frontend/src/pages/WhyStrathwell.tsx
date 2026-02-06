@@ -4,11 +4,11 @@ import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { Check, ArrowRight, Sparkles, ShieldCheck, Zap } from 'lucide-react';
+import { Check, ArrowRight, Sparkle, ShieldCheck, Lightning } from '@phosphor-icons/react';
 
 const advantages = [
   {
-    icon: Sparkles,
+    icon: Sparkle,
     title: 'AI-Powered Orchestration',
     description: 'Our intelligent platform analyzes your needs to match you with perfect venues and vendors in seconds, saving you hundreds of hours of manual research and negotiation.',
     color: 'blue',
@@ -20,7 +20,7 @@ const advantages = [
     color: 'green',
   },
   {
-    icon: Zap,
+    icon: Lightning,
     title: 'Seamless End-to-End Execution',
     description: 'From initial concept to post-event analytics, manage every detail in one place. Handle booking, contracts, marketing, and checklists without ever leaving the platform.',
     color: 'purple',
@@ -137,7 +137,7 @@ export default function WhyStrathwellPage() {
         <div className="max-w-4xl mx-auto text-center">
           <Card className="bg-gradient-to-r from-gray-900 to-gray-800 border-none text-white">
             <CardContent className="p-12">
-              <Sparkles className="w-16 h-16 mx-auto mb-6 text-yellow-400" />
+              <Sparkle className="w-16 h-16 mx-auto mb-6 text-yellow-400" />
               <h3 className="text-3xl font-bold mb-4">
                 Ready to Experience the Future of Events?
               </h3>

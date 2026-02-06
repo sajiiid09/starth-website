@@ -10,7 +10,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Shield, Upload, FileText, CheckCircle, AlertCircle, Loader2, Plus, ArrowRight } from "lucide-react";
+import { Shield, Upload, FileText, CheckCircle, WarningCircle, SpinnerGap, Plus, ArrowRight } from "@phosphor-icons/react";
 import RoleGuard from "../components/auth/RoleGuard";
 import VenuePortalLayout from "../components/venue/VenuePortalLayout";
 
@@ -133,7 +133,7 @@ export default function VenueInsurancePage() {
       <RoleGuard requiredRole="venue_owner">
         <VenuePortalLayout>
           <div className="flex items-center justify-center h-64">
-            <Loader2 className="w-8 h-8 animate-spin text-gray-500" />
+            <SpinnerGap className="w-8 h-8 animate-spin text-gray-500" />
           </div>
         </VenuePortalLayout>
       </RoleGuard>
@@ -275,7 +275,7 @@ export default function VenueInsurancePage() {
                     </div>
                     <Badge className={getStatusColor(policy.status)}>
                       {policy.status === "verified" && <CheckCircle className="w-3 h-3 mr-1" />}
-                      {policy.status === "pending" && <AlertCircle className="w-3 h-3 mr-1" />}
+                      {policy.status === "pending" && <WarningCircle className="w-3 h-3 mr-1" />}
                       {policy.status.charAt(0).toUpperCase() + policy.status.slice(1)}
                     </Badge>
                   </div>
@@ -301,7 +301,7 @@ export default function VenueInsurancePage() {
                           disabled={uploading}
                         />
                         <Button variant="outline" size="sm" disabled={uploading}>
-                          {uploading ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Upload className="w-4 h-4 mr-2" />}
+                          {uploading ? <SpinnerGap className="w-4 h-4 mr-2 animate-spin" /> : <Upload className="w-4 h-4 mr-2" />}
                           Choose File
                         </Button>
                       </label>

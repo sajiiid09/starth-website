@@ -13,6 +13,7 @@ export type MarketplaceItem = {
   whatsIncluded?: string[];
 };
 
+/** Static fallback items — used only if the API is unreachable. */
 const defaultMarketplaceGallery = [
   "https://images.unsplash.com/photo-1521737604893-d14cc237f11d?auto=format&fit=crop&w=1600&q=80",
   "https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=1600&q=80",

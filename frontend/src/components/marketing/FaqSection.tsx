@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { ChevronDown, HelpCircle } from "lucide-react";
+import { CaretDown, Question } from "@phosphor-icons/react";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
 import Container from "@/components/home-v2/primitives/Container";
@@ -61,7 +61,7 @@ const FaqSection: React.FC<FaqSectionProps> = ({
         <div className="mx-auto max-w-3xl">
           <FadeIn direction="up" distance={30} className="text-center">
             <Badge className="mb-6 inline-flex items-center gap-2 rounded-full border border-brand-teal/20 bg-brand-teal/5 px-4 py-2 text-xs font-semibold uppercase tracking-[0.3em] text-brand-teal">
-              <HelpCircle className="h-4 w-4" />
+              <Question className="h-4 w-4" />
               Support
             </Badge>
             <h2 className="text-3xl font-bold tracking-tight text-brand-dark sm:text-4xl md:text-5xl">
@@ -112,7 +112,7 @@ const FaqSection: React.FC<FaqSectionProps> = ({
                             : "border-brand-dark/10 bg-transparent text-brand-dark/40 group-hover:border-brand-dark/20 group-hover:text-brand-dark/60"
                         )}
                       >
-                        <ChevronDown className="h-4 w-4" />
+                        <CaretDown className="h-4 w-4" />
                       </span>
                     </button>
 

@@ -8,7 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Building, Save, Loader2 } from "lucide-react";
+import { Buildings, FloppyDisk, SpinnerGap } from "@phosphor-icons/react";
 import RoleGuard from "../components/auth/RoleGuard";
 import VenuePortalLayout from "../components/venue/VenuePortalLayout";
 
@@ -92,7 +92,7 @@ export default function VenueOrganizationPage() {
       <RoleGuard requiredRole="venue_owner">
         <VenuePortalLayout>
           <div className="flex items-center justify-center h-64">
-            <Loader2 className="w-8 h-8 animate-spin text-gray-500" />
+            <SpinnerGap className="w-8 h-8 animate-spin text-gray-500" />
           </div>
         </VenuePortalLayout>
       </RoleGuard>
@@ -118,7 +118,7 @@ export default function VenueOrganizationPage() {
           <Card className="border-none shadow-lg">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <Building className="w-5 h-5 text-blue-600" />
+                <Buildings className="w-5 h-5 text-blue-600" />
                 Business Information
               </CardTitle>
             </CardHeader>
@@ -195,9 +195,9 @@ export default function VenueOrganizationPage() {
               <div className="flex justify-end">
                 <Button onClick={handleSave} disabled={saving || !formData.name || !formData.city || !formData.country}>
                   {saving ? (
-                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    <SpinnerGap className="w-4 h-4 mr-2 animate-spin" />
                   ) : (
-                    <Save className="w-4 h-4 mr-2" />
+                    <FloppyDisk className="w-4 h-4 mr-2" />
                   )}
                   Save Changes
                 </Button>

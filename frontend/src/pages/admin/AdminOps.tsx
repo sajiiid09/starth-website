@@ -1,6 +1,6 @@
 import React from "react";
 import { toast } from "sonner";
-import { AlertTriangle, Wrench } from "lucide-react";
+import { Warning, Wrench } from "@phosphor-icons/react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
@@ -69,7 +69,7 @@ const AdminOps: React.FC = () => {
       <div>
         <p className="text-xs font-semibold uppercase tracking-[0.3em] text-brand-teal">Control Plane</p>
         <h1 className="mt-3 flex items-center gap-2 text-3xl font-semibold text-gray-900">
-          <Wrench className="h-7 w-7" />
+          <Wrench className="size-7" />
           Ops tools
         </h1>
         <p className="mt-2 text-sm text-gray-600">Use with caution. These operations mutate in-memory dummy finance state.</p>
@@ -130,7 +130,7 @@ const AdminOps: React.FC = () => {
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle className="flex items-center gap-2">
-              <AlertTriangle className="h-4 w-4 text-red-600" />
+              <Warning className="size-4 text-red-600" />
               Reset all demo datasets?
             </AlertDialogTitle>
             <AlertDialogDescription>
@@ -148,7 +148,7 @@ const AdminOps: React.FC = () => {
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle className="flex items-center gap-2">
-              <AlertTriangle className="h-4 w-4 text-amber-600" />
+              <Warning className="size-4 text-amber-600" />
               Run reconciliation now?
             </AlertDialogTitle>
             <AlertDialogDescription>

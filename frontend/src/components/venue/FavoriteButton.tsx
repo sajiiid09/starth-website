@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
-import { Heart } from 'lucide-react';
+import { Heart } from '@phosphor-icons/react';
 import { User } from '@/api/entities';
 import { Favorite } from '@/api/entities';
 import { toast } from 'sonner';

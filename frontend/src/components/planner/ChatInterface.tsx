@@ -3,7 +3,7 @@ import React, { useEffect, useRef } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Sparkles, Send } from "lucide-react"; // Loader2 is removed from here as it's replaced by animated dots
+import { Sparkle, PaperPlaneTilt } from "@phosphor-icons/react"; // Loader2 is removed from here as it's replaced by animated dots
 import { cn } from "@/lib/utils";
 
 // Simple message bubble component for the chat
@@ -35,7 +35,7 @@ const MessageBubble = ({ message }: { message: ChatMessage }) => {
     <div className={`flex gap-3 mb-4 message-bubble ${isUser ? 'justify-end' : 'justify-start'}`}>
       {!isUser && (
         <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-brand-teal">
-          <Sparkles className="h-4 w-4 text-white" />
+                  <Sparkle weight="fill" className="h-4 w-4 text-white" />
         </div>
       )}
       <div className={`max-w-[80%] p-3 rounded-2xl ${
@@ -112,7 +112,7 @@ export default function ChatInterface({
         <CardHeader className="flex-shrink-0 border-b border-brand-dark/10 p-6">
           <CardTitle className="flex items-center gap-3">
             <div className="flex h-10 w-10 items-center justify-center rounded-full bg-brand-teal">
-              <Sparkles className="h-5 w-5 text-white" />
+              <Sparkle weight="fill" className="h-5 w-5 text-white" />
             </div>
             <div>
               <span className="text-lg font-semibold text-brand-dark">Strathwell AI</span>
@@ -133,7 +133,7 @@ export default function ChatInterface({
             <div className="flex justify-start message-bubble">
               <div className="flex items-center gap-3">
                 <div className="flex h-8 w-8 items-center justify-center rounded-full bg-brand-teal">
-                  <Sparkles className="h-4 w-4 text-white" />
+          <Sparkle weight="fill" className="h-4 w-4 text-white" />
                 </div>
                 <div className="flex items-center gap-1 rounded-2xl bg-brand-cream/60 p-3">
                   <div className="h-1.5 w-1.5 rounded-full bg-brand-dark/50 typing-dot"></div>
@@ -163,7 +163,7 @@ export default function ChatInterface({
                 size="icon"
                 className="h-12 w-12 bg-brand-teal text-white hover:bg-brand-dark"
               >
-                <Send className="w-5 h-5" />
+                <PaperPlaneTilt weight="fill" className="w-5 h-5" />
               </Button>
             </div>
           </div>

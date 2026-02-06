@@ -6,11 +6,11 @@ import { Input } from "@/components/ui/input";
 import {
   Upload,
   Brain,
-  Bot,
+  Robot,
   CheckCircle,
-  Loader2,
+  SpinnerGap,
   Play
-} from "lucide-react";
+} from "@phosphor-icons/react";
 import { UploadFile } from "@/api/integrations";
 import { toast } from "sonner";
 
@@ -107,7 +107,7 @@ export default function VirtualRoboticsPage() {
       <div className="max-w-7xl mx-auto">
         <div className="text-center mb-12">
           <Badge className="inline-flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-sm rounded-full text-sm font-medium mb-6">
-            <Bot className="w-4 h-4" />
+            <Robot className="w-4 h-4" />
             Powered by NVIDIA & Gemini Robotics
           </Badge>
           <h1 className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
@@ -174,7 +174,7 @@ export default function VirtualRoboticsPage() {
 
               {analyzing && (
                 <div className="bg-white/5 rounded-lg p-4 flex items-center gap-3">
-                  <Loader2 className="w-5 h-5 animate-spin" />
+                  <SpinnerGap className="w-5 h-5 animate-spin" />
                   <span>AI analyzing your space...</span>
                 </div>
               )}
@@ -191,7 +191,7 @@ export default function VirtualRoboticsPage() {
             <CardContent>
               {!analysis ? (
                 <div className="text-center py-12">
-                  <Bot className="w-16 h-16 mx-auto mb-4 text-gray-400" />
+                  <Robot className="w-16 h-16 mx-auto mb-4 text-gray-400" />
                   <p className="text-gray-300">Upload a floorplan to see AI-powered insights</p>
                 </div>
               ) : (

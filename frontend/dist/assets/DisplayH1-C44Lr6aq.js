@@ -1,0 +1,1 @@
+import{j as x,c as l,b7 as n}from"./index-KrjukJeb.js";const i=({theme:t,className:s,children:e})=>{const a=n(t);return x.jsx("h1",{className:l("font-display text-4xl font-semibold leading-[1.08] md:text-6xl lg:text-7xl text-balance",a.heading,s),children:e})};export{i as D};

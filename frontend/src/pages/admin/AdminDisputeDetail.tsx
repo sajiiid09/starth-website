@@ -1,7 +1,7 @@
 import React from "react";
 import { Link, useParams } from "react-router-dom";
 import { toast } from "sonner";
-import { AlertTriangle, ArrowLeft } from "lucide-react";
+import { Warning, ArrowLeft } from "@phosphor-icons/react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -188,7 +188,7 @@ const AdminDisputeDetail: React.FC = () => {
       <div>
         <Button asChild variant="ghost" className="-ml-3 mb-2 w-fit">
           <Link to="/admin/disputes">
-            <ArrowLeft className="h-4 w-4" />
+            <ArrowLeft className="size-4" />
             Back to disputes
           </Link>
         </Button>
@@ -304,7 +304,7 @@ const AdminDisputeDetail: React.FC = () => {
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle className="flex items-center gap-2">
-              <AlertTriangle className="h-4 w-4 text-red-600" />
+              <Warning className="size-4 text-red-600" />
               Hold all related payouts?
             </AlertDialogTitle>
             <AlertDialogDescription>

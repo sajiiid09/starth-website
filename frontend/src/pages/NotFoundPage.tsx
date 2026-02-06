@@ -1,5 +1,5 @@
 import { Link, useNavigate } from "react-router-dom";
-import { ArrowLeft, Compass, Home } from "lucide-react";
+import { ArrowLeft, Compass, House } from "@phosphor-icons/react";
 import { Button } from "@/components/ui/button";
 import { getCurrentRole, getRoleHomePath } from "@/utils/role";
 import { isAuthenticated } from "@/utils/authSession";
@@ -44,7 +44,7 @@ export default function NotFoundPage() {
           <div className="flex flex-wrap items-center gap-3">
             <Button asChild className="bg-brand-dark text-brand-light hover:bg-brand-dark/90">
               <Link to="/">
-                <Home className="h-4 w-4" />
+                <House className="h-4 w-4" />
                 Go Home
               </Link>
             </Button>

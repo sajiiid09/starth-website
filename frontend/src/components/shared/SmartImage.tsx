@@ -51,7 +51,7 @@ export default function SmartImage({
             location: location
           });
           
-          const photos = result?.data?.photos || result?.photos || [];
+          const photos = result?.data?.photos || (result as any)?.photos || [];
           
           if (photos.length > 0 && isMounted) {
             setCurrentSrc(photos[0]);

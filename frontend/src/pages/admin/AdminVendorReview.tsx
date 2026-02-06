@@ -1,7 +1,7 @@
 import React from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { toast } from "sonner";
-import { ArrowLeft, AlertTriangle } from "lucide-react";
+import { ArrowLeft, Warning } from "@phosphor-icons/react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -255,7 +255,7 @@ const AdminVendorReview: React.FC = () => {
         <div>
           <Button asChild variant="ghost" className="mb-2 -ml-3 w-fit">
             <Link to="/admin/vendors">
-              <ArrowLeft className="h-4 w-4" />
+              <ArrowLeft className="size-4" />
               Back to queue
             </Link>
           </Button>
@@ -407,7 +407,7 @@ const AdminVendorReview: React.FC = () => {
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle className="flex items-center gap-2">
-              <AlertTriangle className="h-4 w-4 text-red-600" />
+              <Warning className="size-4 text-red-600" />
               Disable payout eligibility?
             </AlertDialogTitle>
             <AlertDialogDescription>

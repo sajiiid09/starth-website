@@ -7,12 +7,12 @@ import { Button } from "@/components/ui/button";
 import {
   MapPin,
   Users,
-  DollarSign,
+  CurrencyDollar,
   Star,
   Heart,
-  MessageSquare,
-  ExternalLink
-} from "lucide-react";
+  ChatCircle,
+  ArrowSquareOut
+} from "@phosphor-icons/react";
 import SmartImage from "@/components/shared/SmartImage";
 
 export default function VenueCard({ venue, showActions = true }) {
@@ -94,17 +94,17 @@ export default function VenueCard({ venue, showActions = true }) {
         {showActions && (
           <div className="flex items-center justify-between mt-4 pt-4 border-t border-gray-100">
             <Button variant="ghost" size="sm" onClick={toggleFavorite}>
-              <Heart className={`w-4 h-4 mr-1 ${isFavorite ? "fill-red-500 text-red-500" : "text-gray-400"}`} />
+              <Heart className={`w-4 h-4 mr-1 ${isFavorite ? "fill-red-500 text-red-500" : "text-gray-400"}`} weight={isFavorite ? "fill" : "regular"} />
               Save
             </Button>
             <Button variant="ghost" size="sm" onClick={handleMessage}>
-              <MessageSquare className="w-4 h-4 mr-1" />
+              <ChatCircle className="w-4 h-4 mr-1" />
               Message
             </Button>
             {venue.website && (
               <Button variant="ghost" size="sm" asChild>
                 <a href={venue.website} target="_blank" rel="noopener noreferrer">
-                  <ExternalLink className="w-4 h-4 mr-1" />
+                  <ArrowSquareOut className="w-4 h-4 mr-1" />
                   Website
                 </a>
               </Button>

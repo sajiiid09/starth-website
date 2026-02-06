@@ -12,14 +12,14 @@ import {
   Plus, 
   MapPin, 
   Users, 
-  Search,
-  Edit,
+  MagnifyingGlass,
+  Pencil,
   Eye,
-  AlertCircle,
+  WarningCircle,
   CheckCircle,
   Clock,
-  Loader2
-} from "lucide-react";
+  SpinnerGap
+} from "@phosphor-icons/react";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import RoleGuard from "../components/auth/RoleGuard";
@@ -180,10 +180,10 @@ export default function VenueListingsPage() {
 
   const getStatusIcon = (status) => {
     const icons = {
-      draft: <Edit className="w-4 h-4" />,
+      draft: <Pencil className="w-4 h-4" />,
       submitted: <Clock className="w-4 h-4" />,
       active: <CheckCircle className="w-4 h-4" />,
-      hidden: <AlertCircle className="w-4 h-4" />
+      hidden: <WarningCircle className="w-4 h-4" />
     };
     return icons[status] || icons.draft;
   };
@@ -198,7 +198,7 @@ export default function VenueListingsPage() {
       <RoleGuard requiredRole="venue_owner">
         <VenuePortalLayout>
           <div className="flex items-center justify-center h-64">
-            <Loader2 className="w-8 h-8 animate-spin text-gray-500" />
+            <SpinnerGap className="w-8 h-8 animate-spin text-gray-500" />
           </div>
         </VenuePortalLayout>
       </RoleGuard>
@@ -225,7 +225,7 @@ export default function VenueListingsPage() {
           {/* Search */}
           <div className="mb-6">
             <div className="relative max-w-md">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+              <MagnifyingGlass className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
               <Input
                 placeholder="Search venues..."
                 value={searchQuery}
@@ -325,7 +325,7 @@ export default function VenueListingsPage() {
                             </Link>
                             <Link to={createPageUrl(`EditVenue?id=${venue.id}`)}>
                               <Button size="sm" className="bg-blue-600 hover:bg-blue-700 text-white">
-                                <Edit className="w-4 h-4 mr-1" />
+                                <Pencil className="w-4 h-4 mr-1" />
                                 Edit
                               </Button>
                             </Link>

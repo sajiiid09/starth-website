@@ -8,7 +8,7 @@ body {
 }
 
 body {
-  font-family: "Inter", system-ui, sans-serif;
+  font-family: "General Sans", system-ui, sans-serif;
   background-color: theme("colors.brand.light");
   color: theme("colors.brand.dark");
   line-height: 1.55;
@@ -224,8 +224,44 @@ button:focus-visible {
   }
 }
 
+/* Loading dot bounce animation */
+@keyframes loader-dot {
+  0%, 80%, 100% {
+    opacity: 0.3;
+    transform: scale(0.8);
+  }
+  40% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.animate-loader-dot {
+  animation: loader-dot 1.2s ease-in-out infinite;
+}
+
+/* Confetti animation for success page */
+@keyframes confetti-fall {
+  0% {
+    transform: translateY(-100vh) rotate(0deg);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(100vh) rotate(720deg);
+    opacity: 0;
+  }
+}
+
+.animate-confetti {
+  animation: confetti-fall 3s ease-out forwards;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .ticker-track {
     animation: none;
+  }
+  .animate-loader-dot {
+    animation: none;
+    opacity: 1;
   }
 }

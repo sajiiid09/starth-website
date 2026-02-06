@@ -1,5 +1,5 @@
 import React from "react";
-import { CircleDollarSign, Gauge, Lock, WalletCards } from "lucide-react";
+import { CurrencyCircleDollar, Gauge, Lock, Wallet } from "@phosphor-icons/react";
 import { PlannerState } from "@/features/planner/types";
 
 type PlanPreviewHighlightSection =
@@ -114,7 +114,7 @@ const PlanPreviewCanvas: React.FC<PlanPreviewCanvasProps> = ({
         >
           <article className="rounded-xl border border-slate-200 bg-slate-50/80 p-3">
             <div className="flex items-center gap-1 text-[11px] uppercase tracking-[0.12em] text-slate-500">
-              <WalletCards className="h-3.5 w-3.5" />
+              <Wallet className="h-3.5 w-3.5" />
               Total Cost
             </div>
             <p className="mt-2 text-sm font-semibold text-slate-900">
@@ -123,7 +123,7 @@ const PlanPreviewCanvas: React.FC<PlanPreviewCanvasProps> = ({
           </article>
           <article className="rounded-xl border border-slate-200 bg-slate-50/80 p-3">
             <div className="flex items-center gap-1 text-[11px] uppercase tracking-[0.12em] text-slate-500">
-              <CircleDollarSign className="h-3.5 w-3.5" />
+              <CurrencyCircleDollar className="h-3.5 w-3.5" />
               Cost / Attendee
             </div>
             <p className="mt-2 text-sm font-semibold text-slate-900">

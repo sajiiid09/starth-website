@@ -4,24 +4,23 @@ import RoleGate from "@/components/auth/RoleGate";
 import {
   PlanWithAI,
   UserCreateEvent,
-  UserDashboardHome,
   UserEvents,
+  UserMarketplace,
   UserMessages,
-  UserSettings
+  UserSettings,
+  UserTemplates,
+  SuccessPage
 } from "./lazyPages";
 
 const DashboardRoutes = (
   <>
+    {/* Redirect dashboard home to AI Planner */}
     <Route
       path={createPageUrl("Dashboard")}
-      element={
-        <RoleGate allowedRoles={["user"]}>
-          <UserDashboardHome />
-        </RoleGate>
-      }
+      element={<Navigate to="/dashboard/ai-planner" replace />}
     />
 
-    <Route path="/dashboard/home" element={<Navigate to={createPageUrl("Dashboard")} replace />} />
+    <Route path="/dashboard/home" element={<Navigate to="/dashboard/ai-planner" replace />} />
 
     <Route
       path="/dashboard/ai-planner"
@@ -39,6 +38,24 @@ const DashboardRoutes = (
       element={
         <RoleGate allowedRoles={["user"]}>
           <UserEvents />
+        </RoleGate>
+      }
+    />
+
+    <Route
+      path="/dashboard/templates"
+      element={
+        <RoleGate allowedRoles={["user"]}>
+          <UserTemplates />
+        </RoleGate>
+      }
+    />
+
+    <Route
+      path="/dashboard/marketplace"
+      element={
+        <RoleGate allowedRoles={["user"]}>
+          <UserMarketplace />
         </RoleGate>
       }
     />
@@ -66,6 +83,15 @@ const DashboardRoutes = (
       element={
         <RoleGate allowedRoles={["user"]}>
           <UserSettings />
+        </RoleGate>
+      }
+    />
+
+    <Route
+      path="/dashboard/success"
+      element={
+        <RoleGate allowedRoles={["user"]}>
+          <SuccessPage />
         </RoleGate>
       }
     />

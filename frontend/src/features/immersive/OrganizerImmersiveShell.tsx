@@ -24,10 +24,10 @@ const OrganizerImmersiveShell: React.FC<OrganizerImmersiveShellProps> = ({
     : "lg:grid-cols-1";
 
   return (
-    <div className="flex min-h-[calc(100vh-8rem)] flex-col gap-6 animate-in fade-in duration-700">
+    <div className="flex h-full min-h-0 flex-col gap-6 animate-in fade-in duration-700">
       {topBar}
 
-      <div className="min-h-0 flex-1">
+      <div className="min-h-0 flex-1 overflow-hidden">
         {/* Desktop Split View */}
         <div
           className={cn(

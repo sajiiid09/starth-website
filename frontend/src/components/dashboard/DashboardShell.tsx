@@ -33,6 +33,7 @@ import {
   updateVendorProfileDraft
 } from "@/utils/session";
 import { isAdminReadOnly } from "@/features/admin/config";
+import { cn } from "@/lib/utils";
 
 const AI_PLANNER_ROUTE = "/dashboard/ai-planner";
 const AI_PLANNER_ALIASES = [AI_PLANNER_ROUTE, "/dashboard/plan-with-ai"];
@@ -50,6 +51,7 @@ const DashboardShellContent: React.FC<DashboardShellContentProps> = ({ children,
   const navigate = useNavigate();
   const { sessions, activeSessionId, setActiveSession, createNewSession } = usePlannerSessions();
   const useImmersiveNav = role === "user";
+  const isOrganizerPlannerRoute = useImmersiveNav && AI_PLANNER_ALIASES.includes(location.pathname);
 
   const navItems = React.useMemo(() => {
     if (role === "admin") return sidebarAdmin;
@@ -85,7 +87,12 @@ const DashboardShellContent: React.FC<DashboardShellContentProps> = ({ children,
   };
 
   return (
-    <div className="min-h-screen flex w-full bg-gray-50">
+    <div
+      className={cn(
+        "flex w-full bg-gray-50",
+        isOrganizerPlannerRoute ? "h-screen overflow-hidden" : "min-h-screen"
+      )}
+    >
       {useImmersiveNav ? (
         <OrganizerSidebar
           plannerSessions={sessions}
@@ -145,8 +152,13 @@ const DashboardShellContent: React.FC<DashboardShellContentProps> = ({ children,
         </Sidebar>
       )}
 
-      <main className="flex-1 min-w-0">
-        <header className="flex items-center justify-between bg-white px-6 py-4">
+      <main
+        className={cn(
+          "flex-1 min-w-0",
+          isOrganizerPlannerRoute ? "flex h-screen flex-col overflow-hidden" : ""
+        )}
+      >
+        <header className="shrink-0 flex items-center justify-between bg-white px-6 py-4">
           <div className="flex items-center gap-2">
             <div className="text-sm font-semibold text-gray-700">
               {role ? `${role.charAt(0).toUpperCase()}${role.slice(1)} Dashboard` : "Dashboard"}
@@ -158,7 +170,16 @@ const DashboardShellContent: React.FC<DashboardShellContentProps> = ({ children,
             Admin read-only mode is enabled. Mutating actions are currently disabled.
           </div>
         )}
-        <div className="px-6 py-8">{children}</div>
+        <div
+          className={cn(
+            "px-6",
+            isOrganizerPlannerRoute
+              ? "flex-1 min-h-0 overflow-hidden py-6"
+              : "py-8"
+          )}
+        >
+          {children}
+        </div>
       </main>
     </div>
   );

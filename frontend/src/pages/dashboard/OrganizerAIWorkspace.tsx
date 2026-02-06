@@ -392,14 +392,23 @@ const ChatPanel: React.FC<ChatPanelProps> = ({
 }) => {
   const threadRef = React.useRef<HTMLDivElement>(null);
   const textareaRef = React.useRef<HTMLTextAreaElement>(null);
+  const shouldAutoScrollRef = React.useRef(true);
   const [upgradeDialogOpen, setUpgradeDialogOpen] = React.useState(false);
   const isOutOfCredits = isCreditsEnabled && credits < creditsPerMessage;
   const sendDisabled = disableSend || isOutOfCredits;
 
-  React.useEffect(() => {
+  const scrollThreadToBottom = React.useCallback((behavior: ScrollBehavior = "auto") => {
     if (!threadRef.current) return;
-    threadRef.current.scrollTop = threadRef.current.scrollHeight;
-  }, [messages]);
+    threadRef.current.scrollTo({
+      top: threadRef.current.scrollHeight,
+      behavior
+    });
+  }, []);
+
+  React.useEffect(() => {
+    if (!shouldAutoScrollRef.current) return;
+    scrollThreadToBottom("auto");
+  }, [messages, scrollThreadToBottom]);
 
   React.useEffect(() => {
     if (!textareaRef.current) return;
@@ -407,10 +416,25 @@ const ChatPanel: React.FC<ChatPanelProps> = ({
     textareaRef.current.style.height = `${Math.min(textareaRef.current.scrollHeight, 112)}px`;
   }, [draftMessage]);
 
+  const handleThreadScroll = React.useCallback(() => {
+    if (!threadRef.current) return;
+    const distanceFromBottom =
+      threadRef.current.scrollHeight - threadRef.current.scrollTop - threadRef.current.clientHeight;
+    shouldAutoScrollRef.current = distanceFromBottom < 72;
+  }, []);
+
+  const handleSend = React.useCallback(() => {
+    shouldAutoScrollRef.current = true;
+    onSend();
+    window.requestAnimationFrame(() => {
+      scrollThreadToBottom("smooth");
+    });
+  }, [onSend, scrollThreadToBottom]);
+
   const handleComposerKeyDown = (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (event.key === "Enter" && !event.shiftKey) {
       event.preventDefault();
-      onSend();
+      handleSend();
     }
   };
 
@@ -450,7 +474,11 @@ const ChatPanel: React.FC<ChatPanelProps> = ({
         </div>
       </header>
 
-      <div ref={threadRef} className="flex-1 overflow-y-auto overscroll-y-contain p-5">
+      <div
+        ref={threadRef}
+        onScroll={handleThreadScroll}
+        className="min-h-0 flex-1 overflow-y-auto overscroll-y-contain p-5"
+      >
         <MessageThread
           messages={messages}
           onQuickPrompt={onQuickPrompt}
@@ -545,7 +573,7 @@ const ChatPanel: React.FC<ChatPanelProps> = ({
               className="min-h-[44px] max-h-[112px] resize-none border-slate-200 text-sm focus-visible:ring-brand-teal/35"
             />
             <Button
-              onClick={onSend}
+              onClick={handleSend}
               disabled={sendDisabled}
               className="h-10 min-w-[112px] rounded-xl bg-brand-teal px-4 text-white transition-colors duration-200 hover:bg-brand-teal/90 disabled:cursor-not-allowed disabled:bg-slate-200 disabled:text-slate-400 disabled:opacity-100"
             >
@@ -897,7 +925,7 @@ const OrganizerAIWorkspace: React.FC = () => {
 
   if (isZeroState) {
     return (
-      <div className="mx-auto w-full max-w-[1600px]">
+      <div className="mx-auto h-full w-full max-w-[1600px] overflow-hidden">
         <ZeroStateLanding
           onSubmitPrompt={handleZeroStatePromptSubmit}
           templates={starterTemplates}
@@ -908,7 +936,7 @@ const OrganizerAIWorkspace: React.FC = () => {
   }
 
   return (
-    <div className="mx-auto w-full max-w-[1600px]">
+    <div className="mx-auto h-full w-full max-w-[1600px]">
       <OrganizerImmersiveShell
         showCanvas={showCanvas}
         topBar={

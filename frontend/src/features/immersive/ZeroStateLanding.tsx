@@ -35,7 +35,7 @@ const ZeroStateLanding: React.FC<ZeroStateLandingProps> = ({
   );
 
   return (
-    <div className="flex min-h-[calc(100vh-10rem)] w-full items-center justify-center px-4 py-10">
+    <div className="flex h-full min-h-0 w-full items-center justify-center px-4 py-10">
       <div className="w-full max-w-5xl">
         <div className="mx-auto w-full max-w-3xl rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
           <Textarea

@@ -58,7 +58,7 @@ const OrganizerSidebar: React.FC<OrganizerSidebarProps> = ({
     <TooltipProvider delayDuration={0}>
       <aside
         className={cn(
-          "relative hidden h-screen shrink-0 flex-col border-r border-slate-200 bg-white transition-all duration-300 ease-in-out md:flex",
+          "sticky top-0 self-start hidden h-screen shrink-0 flex-col border-r border-slate-200 bg-white transition-all duration-300 ease-in-out md:flex",
           isExpanded ? "w-64" : "w-16"
         )}
       >

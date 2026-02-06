@@ -63,7 +63,7 @@ Draft a response as the Venue Owner:`;
   return (
     <div className="w-2/3 h-full flex flex-col">
       <div className="border-b p-4">
-        <h3 className="text-lg font-bold">{conversation.otherParticipantName}</h3>
+        <h3 className="text-lg font-semibold">{conversation.otherParticipantName}</h3>
         {/* Can add more details here later, like event name */}
       </div>
       <ScrollArea className="flex-1 p-6">

@@ -141,7 +141,7 @@ ${formData.notes || 'None'}
           <div className="flex items-start justify-between">
             <div className="space-y-1">
               <div className="flex items-center gap-2">
-                <span className="inline-flex items-center rounded-full border border-brand-teal/20 bg-brand-teal/5 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-widest text-brand-teal">
+                <span className="inline-flex items-center rounded-full border border-brand-teal/20 bg-brand-teal/5 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-widest text-brand-teal">
                   Early Access
                 </span>
               </div>
@@ -162,7 +162,7 @@ ${formData.notes || 'None'}
           <form onSubmit={handleSubmit} className="space-y-5">
             <div className="grid gap-5 md:grid-cols-2">
               <div className="space-y-1.5">
-                <Label htmlFor="full_name" className="text-[11px] font-bold uppercase tracking-widest text-brand-dark/50">
+                <Label htmlFor="full_name" className="text-[11px] font-semibold uppercase tracking-widest text-brand-dark/50">
                   Full Name
                 </Label>
                 <Input
@@ -176,7 +176,7 @@ ${formData.notes || 'None'}
               </div>
 
               <div className="space-y-1.5">
-                <Label htmlFor="email" className="text-[11px] font-bold uppercase tracking-widest text-brand-dark/50">
+                <Label htmlFor="email" className="text-[11px] font-semibold uppercase tracking-widest text-brand-dark/50">
                   Work Email
                 </Label>
                 <Input
@@ -192,7 +192,7 @@ ${formData.notes || 'None'}
             </div>
 
             <div className="space-y-1.5">
-              <Label htmlFor="role" className="text-[11px] font-bold uppercase tracking-widest text-brand-dark/50">
+              <Label htmlFor="role" className="text-[11px] font-semibold uppercase tracking-widest text-brand-dark/50">
                 I am a...
               </Label>
               <Select
@@ -212,7 +212,7 @@ ${formData.notes || 'None'}
             </div>
 
             <div className="space-y-1.5">
-              <Label htmlFor="company" className="text-[11px] font-bold uppercase tracking-widest text-brand-dark/50">
+              <Label htmlFor="company" className="text-[11px] font-semibold uppercase tracking-widest text-brand-dark/50">
                 Company <span className="text-brand-dark/30 normal-case tracking-normal">(Optional)</span>
               </Label>
               <Input
@@ -225,7 +225,7 @@ ${formData.notes || 'None'}
             </div>
 
             <div className="space-y-1.5">
-              <Label htmlFor="notes" className="text-[11px] font-bold uppercase tracking-widest text-brand-dark/50">
+              <Label htmlFor="notes" className="text-[11px] font-semibold uppercase tracking-widest text-brand-dark/50">
                 Priorities / Questions
               </Label>
               <Textarea

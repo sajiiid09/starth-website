@@ -186,7 +186,7 @@ export default function VenueAvailabilityPage() {
         <div className="p-6 max-w-4xl mx-auto">
           <div className="flex items-center justify-between mb-6">
             <div>
-              <h1 className="text-2xl font-bold text-gray-900 mb-2">Availability & Pricing</h1>
+              <h1 className="text-2xl font-semibold text-gray-900 mb-2">Availability & Pricing</h1>
               <p className="text-gray-600">Manage your venue calendar and pricing structure</p>
             </div>
             <Button onClick={handleSave} disabled={saving || !selectedVenue} className="bg-blue-600 hover:bg-blue-700">

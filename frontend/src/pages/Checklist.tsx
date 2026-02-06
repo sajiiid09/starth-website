@@ -184,7 +184,7 @@ export default function ChecklistPage() {
         {/* Header */}
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">Event Planning Checklist</h1>
+            <h1 className="text-3xl font-semibold text-gray-900 mb-2">Event Planning Checklist</h1>
             <p className="text-lg text-gray-600">Track your progress across all event categories</p>
           </div>
           

@@ -1,6 +1,7 @@
 import React from "react";
-import { CurrencyCircleDollar, Gauge, Lock, Wallet } from "@phosphor-icons/react";
+import { CurrencyCircleDollar, Gauge, Lock, Wallet, Calendar, Package } from "@phosphor-icons/react";
 import { PlannerState } from "@/features/planner/types";
+import { cn } from "@/lib/utils";
 
 type PlanPreviewHighlightSection =
   | "overview"
@@ -21,53 +22,58 @@ const currencyFormatter = new Intl.NumberFormat("en-US", {
   maximumFractionDigits: 0
 });
 
-const donutColors = ["#0f766e", "#1d4ed8", "#ea580c", "#9333ea", "#475569"];
+const donutColors = ["#0f766e", "#14b8a6", "#3b82f6", "#8b5cf6", "#64748b"];
 
 const BudgetDonut: React.FC<{ breakdown: PlannerState["budget"]["breakdown"] }> = ({
   breakdown
 }) => {
-  const size = 144;
-  const strokeWidth = 16;
+  const size = 160;
+  const strokeWidth = 12;
   const radius = (size - strokeWidth) / 2;
   const circumference = 2 * Math.PI * radius;
-  const totalPct = Math.max(
-    1,
-    breakdown.reduce((sum, item) => sum + item.pct, 0)
-  );
+  const totalPct = Math.max(1, breakdown.reduce((sum, item) => sum + item.pct, 0));
 
   let accumulated = 0;
   return (
-    <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} className="-rotate-90">
-      <circle
-        cx={size / 2}
-        cy={size / 2}
-        r={radius}
-        fill="none"
-        stroke="#e2e8f0"
-        strokeWidth={strokeWidth}
-      />
-      {breakdown.map((entry, index) => {
-        const pctNormalized = entry.pct / totalPct;
-        const segmentLength = pctNormalized * circumference;
-        const dashOffset = circumference - accumulated;
-        accumulated += segmentLength;
+    <div className="relative flex items-center justify-center">
+      <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} className="-rotate-90">
+        <circle
+          cx={size / 2}
+          cy={size / 2}
+          r={radius}
+          fill="none"
+          stroke="#f1f5f9"
+          strokeWidth={strokeWidth}
+        />
+        {breakdown.map((entry, index) => {
+          const pctNormalized = entry.pct / totalPct;
+          const segmentLength = pctNormalized * circumference;
+          // Adding a small gap between segments for a modern look
+          const gap = 2; 
+          const dashOffset = circumference - accumulated;
+          accumulated += segmentLength;
 
-        return (
-          <circle
-            key={`${entry.label}-${index}`}
-            cx={size / 2}
-            cy={size / 2}
-            r={radius}
-            fill="none"
-            stroke={donutColors[index % donutColors.length]}
-            strokeWidth={strokeWidth}
-            strokeDasharray={`${segmentLength} ${circumference}`}
-            strokeDashoffset={dashOffset}
-            strokeLinecap="butt"
-          />
-        );
-      })}
-    </svg>
+          return (
+            <circle
+              key={`${entry.label}-${index}`}
+              cx={size / 2}
+              cy={size / 2}
+              r={radius}
+              fill="none"
+              stroke={donutColors[index % donutColors.length]}
+              strokeWidth={strokeWidth}
+              strokeDasharray={`${segmentLength - gap} ${circumference}`}
+              strokeDashoffset={dashOffset}
+              strokeLinecap="round"
+            />
+          );
+        })}
+      </svg>
+      <div className="absolute flex flex-col items-center justify-center text-center">
+        <span className="text-[10px] font-semibold uppercase tracking-tighter text-slate-400">Total</span>
+        <span className="text-sm font-semibold text-slate-900">Budget</span>
+      </div>
+    </div>
   );
 };
 
@@ -76,157 +82,171 @@ const PlanPreviewCanvas: React.FC<PlanPreviewCanvasProps> = ({
   highlightSection
 }) => {
   if (!planData) {
-    return <aside className="h-full min-h-0 bg-white" aria-label="Canvas preview panel" />;
+    return <aside className="h-full min-h-0 bg-slate-50/50" aria-label="Canvas preview panel" />;
   }
 
   const hasTimelineEntries = planData.timeline.length > 0;
   const hasBudgetBreakdown = planData.budget.breakdown.length > 0;
 
   return (
-    <aside className="h-full min-h-0 overflow-y-auto overscroll-y-contain bg-white" aria-label="Canvas preview panel">
+    <aside className="h-full min-h-0 overflow-y-auto overscroll-y-contain bg-slate-50/30 pb-10" aria-label="Canvas preview panel">
+      {/* Sticky Glass Header */}
       <header
         id="canvas-overview"
-        className={`sticky top-0 z-10 border-b border-slate-200 bg-white/95 px-5 py-4 backdrop-blur ${
-          highlightSection === "overview" ? "bg-brand-teal/5" : ""
-        }`}
+        className={cn(
+          "sticky top-0 z-20 border-b border-slate-200/60 bg-white/80 px-6 py-5 backdrop-blur-xl transition-colors duration-500",
+          highlightSection === "overview" && "bg-brand-teal/5"
+        )}
       >
-        <div className="flex items-start justify-between gap-3">
+        <div className="flex items-start justify-between gap-4">
           <div className="min-w-0">
-            <p className="text-xs font-semibold uppercase tracking-[0.24em] text-slate-500">
-              Canvas Preview
-            </p>
-            <h2 className="mt-1 truncate text-lg font-semibold text-slate-900">{planData.title}</h2>
-            <p className="mt-1 line-clamp-2 text-xs text-slate-600">{planData.summary}</p>
+            <div className="flex items-center gap-2">
+              <span className="h-1.5 w-1.5 rounded-full bg-brand-teal animate-pulse" />
+              <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-slate-400">
+                Live Blueprint
+              </p>
+            </div>
+            <h2 className="mt-1 truncate text-xl font-semibold tracking-tight text-slate-900">{planData.title}</h2>
+            <p className="mt-1 line-clamp-2 text-xs leading-relaxed text-slate-500">{planData.summary}</p>
           </div>
-          <div className="inline-flex items-center gap-1 rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1 text-[11px] text-slate-600">
-            <Lock className="h-3 w-3" />
-            Generated by AI - use chat to modify
+          <div className="inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-white px-3 py-1.5 text-[10px] font-semibold uppercase tracking-wide text-slate-500 shadow-sm">
+            <Lock weight="fill" className="h-3 w-3 text-brand-teal/60" />
+            AI Managed
           </div>
         </div>
       </header>
 
-      <div className="space-y-5 p-5">
+      <div className="space-y-6 p-6">
+        {/* KPI Grid - Glass Effect */}
         <section
           id="canvas-kpis"
-          className={`grid grid-cols-3 gap-2 rounded-2xl p-1 ${
-            highlightSection === "kpis" ? "bg-brand-teal/5" : ""
-          }`}
+          className={cn(
+            "grid grid-cols-3 gap-3 rounded-2xl transition-all duration-500",
+            highlightSection === "kpis" && "ring-2 ring-brand-teal/20 ring-offset-4"
+          )}
         >
-          <article className="rounded-xl border border-slate-200 bg-slate-50/80 p-3">
-            <div className="flex items-center gap-1 text-[11px] uppercase tracking-[0.12em] text-slate-500">
-              <Wallet className="h-3.5 w-3.5" />
-              Total Cost
-            </div>
-            <p className="mt-2 text-sm font-semibold text-slate-900">
-              {currencyFormatter.format(planData.kpis.totalCost)}
-            </p>
-          </article>
-          <article className="rounded-xl border border-slate-200 bg-slate-50/80 p-3">
-            <div className="flex items-center gap-1 text-[11px] uppercase tracking-[0.12em] text-slate-500">
-              <CurrencyCircleDollar className="h-3.5 w-3.5" />
-              Cost / Attendee
-            </div>
-            <p className="mt-2 text-sm font-semibold text-slate-900">
-              {currencyFormatter.format(planData.kpis.costPerAttendee)}
-            </p>
-          </article>
-          <article className="rounded-xl border border-slate-200 bg-slate-50/80 p-3">
-            <div className="flex items-center gap-1 text-[11px] uppercase tracking-[0.12em] text-slate-500">
-              <Gauge className="h-3.5 w-3.5" />
-              Confidence
-            </div>
-            <p className="mt-2 text-sm font-semibold text-slate-900">
-              {planData.kpis.confidencePct}%
-            </p>
-          </article>
+          {[
+            { label: "Total Cost", value: currencyFormatter.format(planData.kpis.totalCost), icon: Wallet },
+            { label: "Per Attendee", value: currencyFormatter.format(planData.kpis.costPerAttendee), icon: CurrencyCircleDollar },
+            { label: "Confidence", value: `${planData.kpis.confidencePct}%`, icon: Gauge },
+          ].map((kpi, i) => (
+            <article key={i} className="group relative overflow-hidden rounded-2xl border border-white bg-white/60 p-4 shadow-sm transition-all hover:shadow-md">
+              <div className="flex items-center gap-2 text-[10px] font-semibold uppercase tracking-widest text-slate-400 group-hover:text-brand-teal transition-colors">
+                <kpi.icon weight="duotone" className="h-4 w-4" />
+                {kpi.label}
+              </div>
+              <p className="mt-3 text-lg font-semibold tracking-tight text-slate-900">
+                {kpi.value}
+              </p>
+            </article>
+          ))}
         </section>
 
+        {/* Space & Inventory */}
         <section
           id="canvas-inventory"
-          className={`space-y-3 rounded-2xl border border-slate-200 p-4 ${
-            highlightSection === "inventory" ? "bg-brand-teal/5" : "bg-slate-50/60"
-          }`}
+          className={cn(
+            "space-y-4 rounded-[24px] border border-slate-200/60 bg-white p-6 shadow-sm transition-all duration-500",
+            highlightSection === "inventory" && "border-brand-teal/30 bg-brand-teal/5"
+          )}
         >
-          <h3 className="text-sm font-semibold text-slate-900">Space & Inventory</h3>
-          <div id="canvas-venue" className="grid grid-cols-2 gap-2">
-            <div className="rounded-xl border border-slate-200 bg-white p-3">
-              <p className="text-[11px] uppercase tracking-[0.12em] text-slate-500">Before</p>
-              <p className="mt-1 text-sm font-medium text-slate-900">{planData.spacePlan.beforeLabel}</p>
+          <div className="flex items-center gap-2">
+            <Package weight="duotone" className="h-5 w-5 text-brand-teal" />
+            <h3 className="text-sm font-semibold text-slate-900">Logistics & Inventory</h3>
+          </div>
+          
+          <div className="grid grid-cols-2 gap-3">
+            <div className="rounded-xl border border-slate-100 bg-slate-50/50 p-4">
+              <p className="text-[10px] font-semibold uppercase tracking-widest text-slate-400">Baseline State</p>
+              <p className="mt-1 text-sm font-semibold text-slate-700">{planData.spacePlan.beforeLabel}</p>
             </div>
-            <div className="rounded-xl border border-brand-teal/20 bg-white p-3">
-              <p className="text-[11px] uppercase tracking-[0.12em] text-brand-teal">After</p>
-              <p className="mt-1 text-sm font-medium text-slate-900">{planData.spacePlan.afterLabel}</p>
+            <div className="rounded-xl border border-brand-teal/10 bg-brand-teal/5 p-4">
+              <p className="text-[10px] font-semibold uppercase tracking-widest text-brand-teal/60">Optimized Layout</p>
+              <p className="mt-1 text-sm font-semibold text-slate-900">{planData.spacePlan.afterLabel}</p>
             </div>
           </div>
-          <div className="grid grid-cols-2 gap-2 text-xs">
+
+          <div className="grid grid-cols-2 gap-2">
             {Object.entries(planData.spacePlan.inventory).map(([key, value]) => (
-              <div
-                key={key}
-                className="flex items-center justify-between rounded-lg border border-slate-200 bg-white px-3 py-2"
-              >
-                <span className="capitalize text-slate-500">{key}</span>
+              <div key={key} className="flex items-center justify-between rounded-xl border border-slate-100 bg-white px-4 py-3 text-xs shadow-sm">
+                <span className="capitalize font-medium text-slate-500">{key}</span>
                 <span className="font-semibold text-slate-900">{value}</span>
               </div>
             ))}
           </div>
         </section>
 
+        {/* Timeline - Roadmap Style */}
         <section
           id="canvas-timeline"
-          className={`space-y-3 rounded-2xl border border-slate-200 p-4 ${
-            highlightSection === "timeline" ? "bg-brand-teal/5" : "bg-white"
-          }`}
+          className={cn(
+            "space-y-4 rounded-[24px] border border-slate-200/60 bg-white p-6 shadow-sm transition-all duration-500",
+            highlightSection === "timeline" && "border-brand-teal/30 bg-brand-teal/5"
+          )}
         >
-          <h3 className="text-sm font-semibold text-slate-900">Timeline & Dependencies</h3>
-          {hasTimelineEntries ? (
-            <div className="space-y-3 border-l border-slate-200 pl-3">
+          <div className="flex items-center gap-2">
+            <Calendar weight="duotone" className="h-5 w-5 text-brand-teal" />
+            <h3 className="text-sm font-semibold text-slate-900">Execution Timeline</h3>
+          </div>
+          
+          {hasTimelineEntries && (
+            <div className="relative ml-2 space-y-6 border-l-2 border-slate-100 pl-6">
               {planData.timeline.map((item, index) => (
-                <article key={`${item.time}-${index}`} className="relative">
-                  <span className="absolute -left-[1.01rem] top-1 h-2.5 w-2.5 rounded-full bg-brand-teal" />
+                <article key={index} className="relative">
+                  <span className="absolute -left-[1.95rem] top-1 h-4 w-4 rounded-full border-4 border-white bg-brand-teal shadow-sm" />
                   <p className="text-xs font-semibold text-slate-900">
-                    {item.time} - {item.title}
+                    {item.time} — <span className="text-brand-teal font-semibold">{item.title}</span>
                   </p>
-                  <p className="mt-1 text-xs text-slate-600">{item.notes}</p>
+                  <p className="mt-1 text-xs leading-relaxed text-slate-500">{item.notes}</p>
                 </article>
               ))}
             </div>
-          ) : null}
+          )}
         </section>
 
+        {/* Budget Simulation */}
         <section
           id="canvas-budget"
-          className={`space-y-3 rounded-2xl border border-slate-200 p-4 ${
-            highlightSection === "budget" ? "bg-brand-teal/5" : "bg-white"
-          }`}
+          className={cn(
+            "rounded-[24px] border border-slate-200/60 bg-white p-6 shadow-sm transition-all duration-500",
+            highlightSection === "budget" && "border-brand-teal/30 bg-brand-teal/5"
+          )}
         >
-          <h3 className="text-sm font-semibold text-slate-900">Budget Simulation</h3>
-          {hasBudgetBreakdown ? (
-            <div className="flex items-center gap-4">
+          <h3 className="mb-6 text-sm font-semibold text-slate-900">Financial Orchestration</h3>
+          {hasBudgetBreakdown && (
+            <div className="flex flex-col items-center gap-8 md:flex-row md:items-start">
               <BudgetDonut breakdown={planData.budget.breakdown} />
-              <div className="flex-1 space-y-2">
+              
+              <div className="w-full flex-1 space-y-3">
                 {planData.budget.breakdown.map((item, index) => (
-                  <div key={item.label} className="flex items-center justify-between text-xs">
-                    <div className="flex items-center gap-2 text-slate-600">
+                  <div key={item.label} className="group flex items-center justify-between text-xs">
+                    <div className="flex items-center gap-3">
                       <span
-                        className="h-2.5 w-2.5 rounded-full"
+                        className="h-2.5 w-2.5 rounded-full shadow-sm"
                         style={{ backgroundColor: donutColors[index % donutColors.length] }}
                       />
-                      {item.label}
+                      <span className="font-medium text-slate-600 group-hover:text-slate-900 transition-colors">{item.label}</span>
                     </div>
-                    <span className="font-semibold text-slate-900">{item.pct}%</span>
+                    <span className="font-semibold text-slate-900 bg-slate-50 px-2 py-0.5 rounded-md">{item.pct}%</span>
                   </div>
                 ))}
-                <p className="pt-2 text-xs text-slate-600">
-                  Total: {currencyFormatter.format(planData.budget.total)}
-                </p>
-                {planData.budget.tradeoffNote && (
-                  <p className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-xs text-slate-600">
-                    {planData.budget.tradeoffNote}
-                  </p>
-                )}
+                
+                <div className="mt-6 space-y-3 pt-4 border-t border-slate-50">
+                   <div className="flex justify-between items-center">
+                    <span className="text-xs font-semibold text-slate-400 uppercase tracking-widest">Calculated Total</span>
+                    <span className="text-sm font-semibold text-brand-teal">{currencyFormatter.format(planData.budget.total)}</span>
+                  </div>
+                  {planData.budget.tradeoffNote && (
+                    <div className="rounded-xl bg-amber-50/50 border border-amber-100/50 px-4 py-3">
+                      <p className="text-[11px] leading-relaxed text-amber-800 font-medium italic">
+                        &ldquo;{planData.budget.tradeoffNote}&rdquo;
+                      </p>
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
-          ) : null}
+          )}
         </section>
       </div>
     </aside>

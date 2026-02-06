@@ -296,7 +296,7 @@ const TemplateDetails: React.FC = () => {
                 <p className="text-xs font-semibold uppercase tracking-[0.3em] text-brand-teal mb-2">
                   Blueprint Detail
                 </p>
-                <h1 className="text-3xl font-bold text-brand-dark md:text-4xl">
+                <h1 className="text-3xl font-semibold text-brand-dark md:text-4xl">
                   {template.title}
                 </h1>
                 <p className="mt-4 text-base text-brand-dark/70 leading-relaxed">
@@ -330,11 +330,11 @@ const TemplateDetails: React.FC = () => {
                   >
                     <div className="flex items-center gap-2 mb-1">
                       <kpi.icon className="h-3.5 w-3.5 text-brand-dark/40" />
-                      <p className="text-[10px] font-bold uppercase tracking-wider text-brand-dark/40">
+                      <p className="text-[10px] font-semibold uppercase tracking-wider text-brand-dark/40">
                         {kpi.label}
                       </p>
                     </div>
-                    <p className={cn("text-lg font-bold", kpi.valueColor || "text-brand-dark")}>
+                    <p className={cn("text-lg font-semibold", kpi.valueColor || "text-brand-dark")}>
                       {kpi.value}
                     </p>
                   </div>
@@ -359,9 +359,9 @@ const TemplateDetails: React.FC = () => {
           <FadeIn delay={0.1}>
             <div className="flex flex-col gap-6">
               <div className="flex items-center justify-between">
-                <h3 className="text-lg font-bold text-brand-dark">Space Transformation</h3>
+                <h3 className="text-lg font-semibold text-brand-dark">Space Transformation</h3>
                 <div className="flex items-center gap-2">
-                  <span className="flex items-center gap-1.5 rounded-full bg-brand-teal/10 px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-brand-teal">
+                  <span className="flex items-center gap-1.5 rounded-full bg-brand-teal/10 px-3 py-1 text-[10px] font-semibold uppercase tracking-wider text-brand-teal">
                     <Sparkle className="h-3 w-3" />
                     Optimal Flow
                   </span>
@@ -373,7 +373,7 @@ const TemplateDetails: React.FC = () => {
                   <div className="grid gap-4 items-center mb-6 md:grid-cols-[1fr_auto_1fr]">
                     {/* Before View */}
                     <div className="flex flex-col gap-3">
-                       <p className="text-[10px] font-bold uppercase tracking-widest text-brand-dark/40">BEFORE: EMPTY SHELL</p>
+                       <p className="text-[10px] font-semibold uppercase tracking-widest text-brand-dark/40">BEFORE: EMPTY SHELL</p>
                        <div className="relative overflow-hidden rounded-xl bg-[#F8F7F4] p-2 border border-brand-dark/5">
                           <SpacePlannerSchematic
                             venue={featuredVenue}
@@ -393,7 +393,7 @@ const TemplateDetails: React.FC = () => {
 
                     {/* After View */}
                     <div className="flex flex-col gap-3">
-                       <p className="text-[10px] font-bold uppercase tracking-widest text-brand-teal">AFTER: STRUCTURED LAYOUT</p>
+                       <p className="text-[10px] font-semibold uppercase tracking-widest text-brand-teal">AFTER: STRUCTURED LAYOUT</p>
                        <div className="relative overflow-hidden rounded-xl bg-brand-teal/5 p-2 border border-brand-teal/20 shadow-sm">
                           <SpacePlannerSchematic
                             venue={featuredVenue}
@@ -413,7 +413,7 @@ const TemplateDetails: React.FC = () => {
                       high-noise catering zones from the main presentation area. Allows for 15% 
                       overflow capacity without compromising egress routes.
                     </p>
-                    <button className="w-full rounded-xl bg-brand-teal py-3 text-sm font-bold text-white shadow-md transition-transform hover:scale-[1.01] active:scale-[0.99]">
+                    <button className="w-full rounded-xl bg-brand-teal py-3 text-sm font-semibold text-white shadow-md transition-transform hover:scale-[1.01] active:scale-[0.99]">
                       Approve Layout
                     </button>
                   </div>
@@ -430,12 +430,12 @@ const TemplateDetails: React.FC = () => {
           <FadeIn delay={0.2}>
             <div className="flex flex-col gap-6">
               <div className="flex items-center justify-between">
-                <h3 className="text-lg font-bold text-brand-dark">Service Stack</h3>
+                <h3 className="text-lg font-semibold text-brand-dark">Service Stack</h3>
                 <div className="flex rounded-full bg-white p-1 shadow-sm border border-brand-dark/5">
                   <button
                     onClick={() => setServiceTier("standard")}
                     className={cn(
-                      "rounded-full px-3 py-1 text-[10px] font-bold uppercase tracking-wider transition-all",
+                      "rounded-full px-3 py-1 text-[10px] font-semibold uppercase tracking-wider transition-all",
                       serviceTier === "standard" ? "bg-brand-dark text-white" : "text-brand-dark/60 hover:text-brand-dark"
                     )}
                   >
@@ -444,7 +444,7 @@ const TemplateDetails: React.FC = () => {
                   <button
                     onClick={() => setServiceTier("premium")}
                     className={cn(
-                      "rounded-full px-3 py-1 text-[10px] font-bold uppercase tracking-wider transition-all",
+                      "rounded-full px-3 py-1 text-[10px] font-semibold uppercase tracking-wider transition-all",
                       serviceTier === "premium" ? "bg-brand-dark text-white" : "text-brand-dark/60 hover:text-brand-dark"
                     )}
                   >
@@ -465,7 +465,7 @@ const TemplateDetails: React.FC = () => {
                       </div>
                       <div className="flex-1">
                         <div className="flex items-center justify-between">
-                          <p className="text-sm font-bold text-brand-dark">{vendor.category}</p>
+                          <p className="text-sm font-semibold text-brand-dark">{vendor.category}</p>
                           <span className="text-xs font-semibold text-brand-dark/40">$$</span>
                         </div>
                         <p className="text-sm text-brand-dark/80">{vendor.name}</p>
@@ -479,7 +479,7 @@ const TemplateDetails: React.FC = () => {
                    <div className="mt-1 h-5 w-5 flex-shrink-0 rounded-full border border-brand-dark/20 flex items-center justify-center">
                    </div>
                    <div>
-                     <p className="text-sm font-bold text-brand-dark">Security</p>
+                     <p className="text-sm font-semibold text-brand-dark">Security</p>
                      <p className="text-xs text-brand-dark/50 mt-1">Optional but recommended for &gt;100 guests</p>
                    </div>
                 </div>
@@ -491,7 +491,7 @@ const TemplateDetails: React.FC = () => {
         {/* Risk & Compliance */}
         <FadeIn delay={0.3} className="mt-12">
           <div className="flex flex-col gap-6">
-            <h3 className="text-lg font-bold text-brand-dark">Risk & Compliance</h3>
+            <h3 className="text-lg font-semibold text-brand-dark">Risk & Compliance</h3>
             <div className="grid gap-4 md:grid-cols-3">
               {[
                 { title: "Insurance Required", desc: "Liability series pending upload.", icon: ShieldWarning, color: "bg-red-50 text-red-600 border-red-100" },
@@ -501,7 +501,7 @@ const TemplateDetails: React.FC = () => {
                 <div key={item.title} className={cn("flex items-start gap-3 rounded-2xl border p-4", item.color)}>
                   <item.icon className="h-5 w-5 flex-shrink-0" />
                   <div>
-                    <p className="text-sm font-bold">{item.title}</p>
+                    <p className="text-sm font-semibold">{item.title}</p>
                     <p className="text-xs opacity-80 mt-1">{item.desc}</p>
                   </div>
                 </div>
@@ -516,8 +516,8 @@ const TemplateDetails: React.FC = () => {
            <FadeIn delay={0.4}>
             <div className="flex flex-col gap-6">
               <div className="flex items-center justify-between">
-                <h3 className="text-lg font-bold text-brand-dark">Timeline & Dependencies</h3>
-                <span className="text-[10px] font-bold uppercase tracking-widest text-brand-dark/40">Execution Plan</span>
+                <h3 className="text-lg font-semibold text-brand-dark">Timeline & Dependencies</h3>
+                <span className="text-[10px] font-semibold uppercase tracking-widest text-brand-dark/40">Execution Plan</span>
               </div>
 
               <div className="rounded-3xl bg-white p-8 shadow-sm border border-brand-dark/5 relative">
@@ -528,10 +528,10 @@ const TemplateDetails: React.FC = () => {
                       <div className="w-2 h-2 rounded-full bg-brand-teal ring-4 ring-white mt-1.5 flex-shrink-0" />
                       <div>
                         <div className="flex items-baseline gap-2">
-                          <span className="text-xs font-bold text-brand-teal uppercase tracking-wider">{event.time}</span>
-                          {i === 0 && <span className="rounded-full bg-brand-teal/10 px-1.5 py-0.5 text-[9px] font-bold uppercase text-brand-teal">Start</span>}
+                          <span className="text-xs font-semibold text-brand-teal uppercase tracking-wider">{event.time}</span>
+                          {i === 0 && <span className="rounded-full bg-brand-teal/10 px-1.5 py-0.5 text-[9px] font-semibold uppercase text-brand-teal">Start</span>}
                         </div>
-                        <p className="font-bold text-brand-dark mt-1">{event.title}</p>
+                        <p className="font-semibold text-brand-dark mt-1">{event.title}</p>
                         <p className="text-sm text-brand-dark/60 mt-1">{event.description}</p>
                       </div>
                     </div>
@@ -545,10 +545,10 @@ const TemplateDetails: React.FC = () => {
           <FadeIn delay={0.5}>
             <div className="flex flex-col gap-6">
                <div className="flex items-center justify-between">
-                <h3 className="text-lg font-bold text-brand-dark">Budget Simulation</h3>
+                <h3 className="text-lg font-semibold text-brand-dark">Budget Simulation</h3>
                 <div className="text-right">
-                  <p className="text-[10px] font-bold uppercase tracking-widest text-brand-dark/40">Total Estimated</p>
-                  <p className="text-lg font-bold text-brand-dark">{budgetTotalLabel}</p>
+                  <p className="text-[10px] font-semibold uppercase tracking-widest text-brand-dark/40">Total Estimated</p>
+                  <p className="text-lg font-semibold text-brand-dark">{budgetTotalLabel}</p>
                 </div>
               </div>
 
@@ -560,8 +560,8 @@ const TemplateDetails: React.FC = () => {
                     style={{ background: `conic-gradient(${donutGradient})`, maskImage: "radial-gradient(transparent 55%, black 56%)", WebkitMaskImage: "radial-gradient(transparent 55%, black 56%)" }}
                   />
                   <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
-                    <span className="text-xs font-bold text-brand-teal">$</span>
-                    <span className="text-[9px] font-bold uppercase tracking-wider text-brand-dark/60">Optimal</span>
+                    <span className="text-xs font-semibold text-brand-teal">$</span>
+                    <span className="text-[9px] font-semibold uppercase tracking-wider text-brand-dark/60">Optimal</span>
                   </div>
                 </div>
 
@@ -573,12 +573,12 @@ const TemplateDetails: React.FC = () => {
                         <div className="h-2 w-2 rounded-full" style={{ backgroundColor: slice.color }} />
                         <span className="font-medium text-brand-dark">{slice.label}</span>
                       </div>
-                      <span className="font-bold text-brand-dark/60">{slice.percent}%</span>
+                      <span className="font-semibold text-brand-dark/60">{slice.percent}%</span>
                     </div>
                   ))}
 
                   <div className="mt-4 rounded-xl bg-yellow-50 p-3 border border-yellow-100">
-                    <p className="text-[10px] font-bold uppercase tracking-wider text-yellow-700 mb-1">Trade-off Available</p>
+                    <p className="text-[10px] font-semibold uppercase tracking-wider text-yellow-700 mb-1">Trade-off Available</p>
                     <p className="text-xs text-yellow-800 leading-snug">
                       Downgrade AV Package to save $4,000 for upgraded catering options.
                     </p>

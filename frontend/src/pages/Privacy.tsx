@@ -8,7 +8,7 @@ export default function PrivacyPage() {
     <div className="min-h-screen bg-gray-50">
       <section className="pt-24 pb-16 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-gray-50 to-white">
         <div className="max-w-4xl mx-auto">
-          <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
+          <h1 className="text-4xl md:text-5xl font-semibold text-gray-900 mb-4">
             Privacy Policy
           </h1>
           <p className="text-xl text-gray-600">
@@ -21,7 +21,7 @@ export default function PrivacyPage() {
         <Card className="border-none shadow-lg">
           <CardContent className="p-8 space-y-8">
             <section>
-              <CardTitle className="text-2xl font-bold text-gray-900 mb-4">
+              <CardTitle className="text-2xl font-semibold text-gray-900 mb-4">
                 Information We Collect
               </CardTitle>
               <p className="text-gray-700 leading-relaxed">
@@ -32,7 +32,7 @@ export default function PrivacyPage() {
             <Separator />
 
             <section>
-              <CardTitle className="text-2xl font-bold text-gray-900 mb-4">
+              <CardTitle className="text-2xl font-semibold text-gray-900 mb-4">
                 How We Use Your Information
               </CardTitle>
               <p className="text-gray-700 leading-relaxed">
@@ -43,7 +43,7 @@ export default function PrivacyPage() {
             <Separator />
 
             <section>
-              <CardTitle className="text-2xl font-bold text-gray-900 mb-4">
+              <CardTitle className="text-2xl font-semibold text-gray-900 mb-4">
                 Contact Us
               </CardTitle>
               <p className="text-gray-700 leading-relaxed">

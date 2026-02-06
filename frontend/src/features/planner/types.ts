@@ -1,3 +1,5 @@
+import { REQUIRED_BRIEF_FIELDS } from "@/features/planner/brief/briefFields";
+
 export type ChatRole = "user" | "assistant" | "system";
 
 export type ChatMessage = {
@@ -51,15 +53,22 @@ export type DraftBrief = {
   dateRange?: string;
 };
 
-export type DraftBriefField = keyof DraftBrief;
+export type DraftBriefField = (typeof REQUIRED_BRIEF_FIELDS)[number];
 
 export type PlannerMode = "scratch" | "template";
+export type PlannerViewMode = "chat_only" | "split";
 export type PlannerBriefStatus =
   | "collecting"
   | "ready_to_generate"
   | "generating"
-  | "generated";
-export type PlannerCanvasState = "hidden" | "visible";
+  | "artifact_ready"
+  | "canvas_open";
+
+export type PlannerArtifact = {
+  id: string;
+  title: string;
+  createdAt: number;
+};
 
 export type PlannerSession = {
   id: string;
@@ -67,9 +76,10 @@ export type PlannerSession = {
   createdAt: number;
   updatedAt: number;
   mode: PlannerMode;
+  viewMode: PlannerViewMode;
   briefStatus: PlannerBriefStatus;
-  canvasState: PlannerCanvasState;
   draftBrief?: DraftBrief;
+  artifact?: PlannerArtifact;
   lastAskedField?: DraftBriefField;
   plannerStateUpdatedAt?: number;
   messages: ChatMessage[];

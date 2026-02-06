@@ -21,7 +21,7 @@ export default function AuthModal({ isOpen, onClose }) {
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle className="text-2xl font-bold text-center">
+          <DialogTitle className="text-2xl font-semibold text-center">
             Welcome to Strathwell
           </DialogTitle>
         </DialogHeader>

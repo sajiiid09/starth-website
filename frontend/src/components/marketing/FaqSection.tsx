@@ -64,7 +64,7 @@ const FaqSection: React.FC<FaqSectionProps> = ({
               <Question className="h-4 w-4" />
               Support
             </Badge>
-            <h2 className="text-3xl font-bold tracking-tight text-brand-dark sm:text-4xl md:text-5xl">
+            <h2 className="text-3xl font-semibold tracking-tight text-brand-dark sm:text-4xl md:text-5xl">
               {title}
             </h2>
             {subtitle && (

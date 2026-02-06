@@ -183,7 +183,7 @@ const UserMessages: React.FC = () => {
               <ChatCircleDots weight="fill" className="h-5 w-5" />
               <span className="text-sm font-semibold uppercase tracking-widest">Inbox</span>
             </div>
-            <h1 className="mt-1 font-display text-2xl font-bold text-brand-dark">Messages</h1>
+            <h1 className="mt-1 font-display text-2xl font-semibold text-brand-dark">Messages</h1>
           </div>
         )}
       </div>
@@ -200,7 +200,7 @@ const UserMessages: React.FC = () => {
               <ChatCircleDots weight="fill" className="h-5 w-5" />
               <span className="text-sm font-semibold uppercase tracking-widest">Inbox</span>
             </div>
-            <h1 className="mt-1 font-display text-2xl font-bold text-brand-dark">Messages</h1>
+            <h1 className="mt-1 font-display text-2xl font-semibold text-brand-dark">Messages</h1>
           </div>
 
           {/* Search */}

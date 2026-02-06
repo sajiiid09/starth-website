@@ -214,7 +214,7 @@ export default function EventBuilderPage() {
             <ArrowLeft className="w-5 h-5" />
           </Button>
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Event Builder</h1>
+            <h1 className="text-3xl font-semibold text-gray-900">Event Builder</h1>
             <p className="text-gray-600">Finalize your event details and publish</p>
           </div>
         </div>
@@ -601,7 +601,7 @@ export default function EventBuilderPage() {
                   </div>
                   <div className="border-t pt-3 flex justify-between">
                     <span className="font-semibold text-lg">Total Estimated Cost</span>
-                    <span className="font-bold text-xl">${estimatedBudget.toLocaleString()}</span>
+                    <span className="font-semibold text-xl">${estimatedBudget.toLocaleString()}</span>
                   </div>
                   {eventData.budget_target && (
                     <div className={`p-3 rounded-lg ${budgetRemaining >= 0 ? 'bg-green-50' : 'bg-red-50'}`}>
@@ -609,7 +609,7 @@ export default function EventBuilderPage() {
                         <span className={`font-medium ${budgetRemaining >= 0 ? 'text-green-700' : 'text-red-700'}`}>
                           {budgetRemaining >= 0 ? 'Under Budget' : 'Over Budget'}
                         </span>
-                        <span className={`font-bold ${budgetRemaining >= 0 ? 'text-green-700' : 'text-red-700'}`}>
+                        <span className={`font-semibold ${budgetRemaining >= 0 ? 'text-green-700' : 'text-red-700'}`}>
                           ${Math.abs(budgetRemaining).toLocaleString()}
                         </span>
                       </div>

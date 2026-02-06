@@ -57,7 +57,7 @@ export default function ServiceProviderCard({ provider, onRequestQuote }) {
         <CardContent className="p-4">
           <div className="flex items-start justify-between mb-3">
             <div className="flex-1">
-              <h3 className="font-bold text-lg text-gray-900 mb-1 line-clamp-1">
+              <h3 className="font-semibold text-lg text-gray-900 mb-1 line-clamp-1">
                 {provider.name}
               </h3>
               <Badge className={categoryColors[provider.category] || "bg-gray-100 text-gray-800"}>
@@ -135,7 +135,7 @@ export default function ServiceProviderCard({ provider, onRequestQuote }) {
                 <span className="text-gray-500">({provider.google_reviews || '8'} reviews)</span>
               </div>
             </div>
-            <DialogTitle className="text-2xl font-bold text-gray-900">
+            <DialogTitle className="text-2xl font-semibold text-gray-900">
               {provider.name}
             </DialogTitle>
             <Badge className={categoryColors[provider.category] || "bg-gray-100 text-gray-800"}>
@@ -180,7 +180,7 @@ export default function ServiceProviderCard({ provider, onRequestQuote }) {
               <div className="bg-green-50 rounded-lg p-4">
                 <div className="flex items-center gap-2">
                   <CurrencyDollar className="w-5 h-5 text-green-600" />
-                  <span className="text-2xl font-bold text-green-600">
+                  <span className="text-2xl font-semibold text-green-600">
                     ${provider.rate_card_json.base_price?.toLocaleString()}
                   </span>
                   <span className="text-gray-600">

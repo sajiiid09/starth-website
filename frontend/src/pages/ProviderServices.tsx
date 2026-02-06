@@ -336,7 +336,7 @@ export default function ProviderServicesPage() {
           <div className="max-w-6xl mx-auto">
             <div className="flex flex-col sm:flex-row justify-between items-center mb-8 gap-4">
               <div>
-                <h1 className="text-3xl font-bold text-gray-900 mb-2">Services</h1>
+                <h1 className="text-3xl font-semibold text-gray-900 mb-2">Services</h1>
                 <p className="text-gray-600">Manage your service offerings</p>
               </div>
               <div className="flex gap-2">

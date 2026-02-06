@@ -49,7 +49,7 @@ export default function VenueCard({ venue, showActions = true }) {
       
       <CardContent className="p-4">
         <Link to={createPageUrl(`VenueDetails?id=${venue.id}`)}>
-          <h3 className="font-bold text-lg text-gray-900 mb-2 hover:text-blue-600 transition-colors">
+          <h3 className="font-semibold text-lg text-gray-900 mb-2 hover:text-blue-600 transition-colors">
             {venue.name}
           </h3>
         </Link>

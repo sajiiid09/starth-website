@@ -75,7 +75,7 @@ export default function EventDetailsPage() {
     return (
       <div className="min-h-screen bg-gray-50 p-4">
         <div className="max-w-2xl mx-auto text-center py-12">
-          <h2 className="text-2xl font-bold text-gray-900 mb-4">Event Not Found</h2>
+          <h2 className="text-2xl font-semibold text-gray-900 mb-4">Event Not Found</h2>
           <p className="text-gray-600 mb-6">The event you're looking for doesn't exist or has been removed.</p>
           <Link to={createPageUrl("Dashboard")}>
             <Button variant="outline">Back to Dashboard</Button>
@@ -97,7 +97,7 @@ export default function EventDetailsPage() {
               </Button>
             </Link>
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">{event.title}</h1>
+              <h1 className="text-3xl font-semibold text-gray-900">{event.title}</h1>
               <Badge className={getStatusColor(event.status)}>
                 {event.status.charAt(0).toUpperCase() + event.status.slice(1)}
               </Badge>

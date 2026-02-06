@@ -114,7 +114,7 @@ const UserMarketplace: React.FC = () => {
             <Storefront className="h-5 w-5" />
             <span className="text-sm font-semibold uppercase tracking-widest">Marketplace</span>
           </div>
-          <h1 className="mt-2 font-display text-3xl font-bold text-brand-dark md:text-4xl">
+          <h1 className="mt-2 font-display text-3xl font-semibold text-brand-dark md:text-4xl">
             Find Venues & Vendors
           </h1>
           <p className="mt-2 text-brand-dark/60">

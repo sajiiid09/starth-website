@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { REQUIRED_BRIEF_FIELDS } from "@/features/planner/brief/briefFields";
 import { PlannerSession, PlannerState } from "@/features/planner/types";
 
 export const zChatMessage = z.object({
@@ -62,17 +63,30 @@ export const zPlannerSession = z.object({
   createdAt: z.number(),
   updatedAt: z.number(),
   mode: z.enum(["scratch", "template"]),
-  briefStatus: z.enum(["collecting", "ready_to_generate", "generating", "generated"]),
-  canvasState: z.enum(["hidden", "visible"]),
+  viewMode: z.enum(["chat_only", "split"]),
+  briefStatus: z.enum([
+    "collecting",
+    "ready_to_generate",
+    "generating",
+    "artifact_ready",
+    "canvas_open"
+  ]),
   draftBrief: zDraftBrief.optional(),
-  lastAskedField: z.enum(["eventType", "guestCount", "budget", "city", "dateRange"]).optional(),
+  artifact: z
+    .object({
+      id: z.string().min(1),
+      title: z.string().min(1),
+      createdAt: z.number()
+    })
+    .optional(),
+  lastAskedField: z.enum(REQUIRED_BRIEF_FIELDS).optional(),
   plannerStateUpdatedAt: z.number().optional(),
   messages: z.array(zChatMessage),
   plannerState: zPlannerState.optional()
 });
 
 export const zPlannerSessionsPayload = z.object({
-  version: z.literal(4),
+  version: z.literal(5),
   activeSessionId: z.string().nullable(),
   sessions: z.array(zPlannerSession)
 });

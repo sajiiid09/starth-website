@@ -146,7 +146,7 @@ export default function VenueInsurancePage() {
         <div className="p-6 max-w-4xl mx-auto">
           <div className="flex items-center justify-between mb-6">
             <div>
-              <h1 className="text-2xl font-bold text-gray-900 mb-2">Insurance Policies</h1>
+              <h1 className="text-2xl font-semibold text-gray-900 mb-2">Insurance Policies</h1>
               <p className="text-gray-600">Manage your insurance coverage and certificates</p>
             </div>
             <Button onClick={() => setShowAddForm(true)} className="bg-blue-600 hover:bg-blue-700">
@@ -175,7 +175,7 @@ export default function VenueInsurancePage() {
                 />
                 <div className="flex-1">
                   <div className="flex items-center gap-2 mb-2">
-                    <h3 className="text-lg font-bold text-gray-900">NEXT Insurance</h3>
+                    <h3 className="text-lg font-semibold text-gray-900">NEXT Insurance</h3>
                     <Badge className="bg-blue-600 text-white">Partner</Badge>
                   </div>
                   <p className="text-gray-700 mb-4">

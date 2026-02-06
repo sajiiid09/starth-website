@@ -88,8 +88,8 @@ export const plannerServiceApi: PlannerService = {
       createdAt: now,
       updatedAt: now,
       mode: "scratch",
+      viewMode: "chat_only",
       briefStatus: "collecting",
-      canvasState: "hidden",
       messages: []
     };
   },

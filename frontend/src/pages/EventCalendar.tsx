@@ -107,7 +107,7 @@ export default function EventCalendarPage() {
         {/* Header */}
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">Event Calendar</h1>
+            <h1 className="text-3xl font-semibold text-gray-900 mb-2">Event Calendar</h1>
             <p className="text-lg text-gray-600">View all your events in calendar format</p>
           </div>
           
@@ -133,7 +133,7 @@ export default function EventCalendarPage() {
                 <Button variant="outline" size="icon" onClick={() => navigateMonth(-1)}>
                   <CaretLeft className="w-4 h-4" />
                 </Button>
-                <h2 className="text-2xl font-bold">
+                <h2 className="text-2xl font-semibold">
                   {format(currentDate, 'MMMM yyyy')}
                 </h2>
                 <Button variant="outline" size="icon" onClick={() => navigateMonth(1)}>

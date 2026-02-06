@@ -118,7 +118,7 @@ const SuccessPage: React.FC<SuccessPageProps> = ({
           "mt-8 text-center transition-all duration-500 delay-200",
           showConfetti ? "translate-y-0 opacity-100" : "translate-y-4 opacity-0"
         )}>
-          <h1 className="font-display text-3xl font-bold text-brand-dark">
+          <h1 className="font-display text-3xl font-semibold text-brand-dark">
             {displayTitle}
           </h1>
           <p className="mt-3 text-brand-dark/60">

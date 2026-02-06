@@ -251,7 +251,7 @@ const legalSections = [
         <p className="mb-2">For legal, compliance, or policy questions:</p>
         <a 
           href="mailto:info@strathwell.com" 
-          className="text-lg font-bold text-brand-teal hover:underline"
+          className="text-lg font-semibold text-brand-teal hover:underline"
         >
           info@strathwell.com
         </a>
@@ -306,7 +306,7 @@ const Legal: React.FC = () => {
               These terms outline the rules, regulations, and guidelines for using Strathwell's 
               AI-powered event orchestration platform.
             </Lead>
-            <p className="mt-6 text-xs font-bold uppercase tracking-widest text-brand-dark/40">
+            <p className="mt-6 text-xs font-semibold uppercase tracking-widest text-brand-dark/40">
               Last Updated: January 15, 2026
             </p>
           </FadeIn>
@@ -326,7 +326,7 @@ const Legal: React.FC = () => {
                 <nav 
                   className="max-h-[calc(100vh-140px)] overflow-y-auto rounded-3xl border border-white/60 bg-white/80 p-6 shadow-xl shadow-brand-dark/5 backdrop-blur-md"
                 >
-                  <p className="mb-4 text-xs font-bold uppercase tracking-[0.2em] text-brand-dark/40">
+                  <p className="mb-4 text-xs font-semibold uppercase tracking-[0.2em] text-brand-dark/40">
                     Table of Contents
                   </p>
                   <ul className="space-y-1 relative border-l border-brand-dark/5 ml-2 pl-2">
@@ -404,7 +404,7 @@ const Legal: React.FC = () => {
                          : "border-white/60 shadow-sm"
                     )}
                   >
-                    <h2 className="mb-6 font-display text-2xl font-bold text-brand-dark">
+                    <h2 className="mb-6 font-display text-2xl font-semibold text-brand-dark">
                       {section.title}
                     </h2>
                     <div className="text-base leading-relaxed text-brand-dark/80">

@@ -92,7 +92,7 @@ export default function MarketplacePreview({ isAuthenticated, onLoginClick, onDe
             Curated Marketplace
           </div>
           
-          <h1 className="text-4xl md:text-6xl font-bold text-gray-900 mb-6 leading-tight">
+          <h1 className="text-4xl md:text-6xl font-semibold text-gray-900 mb-6 leading-tight">
             Discover Perfect Venues &<br />
             <span className="bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
               Premium Services
@@ -120,7 +120,7 @@ export default function MarketplacePreview({ isAuthenticated, onLoginClick, onDe
       <section className="py-16 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+            <h2 className="text-3xl md:text-4xl font-semibold text-gray-900 mb-4">
               Premium Venues
             </h2>
             <p className="text-lg text-gray-600 max-w-2xl mx-auto">
@@ -154,7 +154,7 @@ export default function MarketplacePreview({ isAuthenticated, onLoginClick, onDe
                 
                 <CardContent className="p-6">
                   <div className="mb-3">
-                    <h3 className="font-bold text-lg text-gray-900 mb-1">{venue.name}</h3>
+                    <h3 className="font-semibold text-lg text-gray-900 mb-1">{venue.name}</h3>
                     <p className="text-sm text-gray-500 mb-2">{venue.category}</p>
                     <p className="text-sm text-gray-600 flex items-center gap-1">
                       <MapPin className="w-3 h-3" />
@@ -167,7 +167,7 @@ export default function MarketplacePreview({ isAuthenticated, onLoginClick, onDe
                       <Users className="w-3 h-3" />
                       {venue.capacity}
                     </div>
-                    <div className="font-bold text-gray-900">
+                    <div className="font-semibold text-gray-900">
                       {venue.price}
                     </div>
                   </div>
@@ -182,7 +182,7 @@ export default function MarketplacePreview({ isAuthenticated, onLoginClick, onDe
       <section className="py-16 px-4 sm:px-6 lg:px-8 bg-gray-50">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+            <h2 className="text-3xl md:text-4xl font-semibold text-gray-900 mb-4">
               Trusted Service Providers
             </h2>
             <p className="text-lg text-gray-600 max-w-2xl mx-auto">
@@ -214,7 +214,7 @@ export default function MarketplacePreview({ isAuthenticated, onLoginClick, onDe
                 
                 <CardContent className="p-6">
                   <div className="mb-3">
-                    <h3 className="font-bold text-lg text-gray-900 mb-1">{service.name}</h3>
+                    <h3 className="font-semibold text-lg text-gray-900 mb-1">{service.name}</h3>
                     <Badge className="mb-2 text-xs bg-gray-100 text-gray-700">
                       {service.category}
                     </Badge>
@@ -222,7 +222,7 @@ export default function MarketplacePreview({ isAuthenticated, onLoginClick, onDe
                   </div>
                   
                   <div className="flex items-center justify-between">
-                    <div className="font-bold text-gray-900">
+                    <div className="font-semibold text-gray-900">
                       {service.price}
                     </div>
                     <Button variant="ghost" size="sm" className="text-purple-600 hover:text-purple-700">
@@ -243,7 +243,7 @@ export default function MarketplacePreview({ isAuthenticated, onLoginClick, onDe
           <Card className="bg-gradient-to-r from-purple-600 to-pink-600 border-none text-white">
             <CardContent className="p-12">
               <Buildings className="w-16 h-16 mx-auto mb-6 text-pink-200" />
-              <h3 className="text-3xl font-bold mb-4">
+              <h3 className="text-3xl font-semibold mb-4">
                 Ready to Find Your Perfect Match?
               </h3>
               <p className="text-xl text-purple-100 mb-8 max-w-2xl mx-auto">

@@ -211,7 +211,7 @@ export default function VenueListingsPage() {
         <div className="p-6">
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
             <div>
-              <h1 className="text-2xl font-bold text-gray-900 mb-2">My Venues</h1>
+              <h1 className="text-2xl font-semibold text-gray-900 mb-2">My Venues</h1>
               <p className="text-gray-600">Manage your venue listings and track their status</p>
             </div>
             <Link to={createPageUrl("AddVenue")}>
@@ -254,7 +254,7 @@ export default function VenueListingsPage() {
                       <div className="flex-1">
                         <div className="flex flex-col md:flex-row md:items-start justify-between gap-4 mb-4">
                           <div>
-                            <h3 className="text-xl font-bold text-gray-900 mb-2">{venue.name}</h3>
+                            <h3 className="text-xl font-semibold text-gray-900 mb-2">{venue.name}</h3>
                             <div className="flex items-center gap-4 text-sm text-gray-600 mb-3">
                               <div className="flex items-center gap-1">
                                 <MapPin className="w-4 h-4" />

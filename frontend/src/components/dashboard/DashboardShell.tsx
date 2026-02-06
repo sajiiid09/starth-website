@@ -1,6 +1,5 @@
 import React from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { List } from "@phosphor-icons/react";
 import {
   Sidebar,
   SidebarContent,
@@ -21,9 +20,7 @@ import {
 import { clearAuthTokens } from "@/api/authStorage";
 import { getSidebarVendor } from "@/config/sidebarVendor";
 import { sidebarAdmin } from "@/config/sidebarAdmin";
-import RailNav from "@/features/immersive/RailNav";
-import NavDrawerOverlay from "@/features/immersive/NavDrawerOverlay";
-import { organizerNavItems } from "@/features/immersive/navItems";
+import OrganizerSidebar from "@/features/immersive/OrganizerSidebar";
 import {
   PlannerSessionsProvider,
   usePlannerSessions
@@ -51,10 +48,6 @@ type DashboardShellContentProps = DashboardShellProps & {
 const DashboardShellContent: React.FC<DashboardShellContentProps> = ({ children, role }) => {
   const location = useLocation();
   const navigate = useNavigate();
-  const [isImmersiveDrawerOpen, setIsImmersiveDrawerOpen] = React.useState(false);
-  const railMenuTriggerRef = React.useRef<HTMLButtonElement | null>(null);
-  const mobileMenuTriggerRef = React.useRef<HTMLButtonElement | null>(null);
-  const drawerReturnFocusRef = React.useRef<HTMLElement | null>(null);
   const { sessions, activeSessionId, setActiveSession, createNewSession } = usePlannerSessions();
   const useImmersiveNav = role === "user";
 
@@ -91,41 +84,16 @@ const DashboardShellContent: React.FC<DashboardShellContentProps> = ({ children,
     navigate(AI_PLANNER_ROUTE);
   };
 
-  const openImmersiveDrawer = React.useCallback((trigger?: HTMLElement | null) => {
-    drawerReturnFocusRef.current =
-      trigger ?? railMenuTriggerRef.current ?? mobileMenuTriggerRef.current;
-    setIsImmersiveDrawerOpen(true);
-  }, []);
-
-  const closeImmersiveDrawer = React.useCallback(() => {
-    setIsImmersiveDrawerOpen(false);
-  }, []);
-
-  React.useEffect(() => {
-    setIsImmersiveDrawerOpen(false);
-  }, [location.pathname]);
-
   return (
     <div className="min-h-screen flex w-full bg-gray-50">
       {useImmersiveNav ? (
-        <>
-          <RailNav
-            items={organizerNavItems}
-            menuButtonRef={railMenuTriggerRef}
-            onOpenDrawer={openImmersiveDrawer}
-          />
-          <NavDrawerOverlay
-            isOpen={isImmersiveDrawerOpen}
-            onClose={closeImmersiveDrawer}
-            items={organizerNavItems}
-            onSignOut={handleSignOut}
-            plannerSessions={sessions}
-            activeSessionId={activeSessionId}
-            onSelectPlannerSession={handleSelectPlannerSession}
-            onCreatePlannerSession={handleCreatePlannerSession}
-            returnFocusRef={drawerReturnFocusRef}
-          />
-        </>
+        <OrganizerSidebar
+          plannerSessions={sessions}
+          activeSessionId={activeSessionId}
+          onSelectPlannerSession={handleSelectPlannerSession}
+          onCreatePlannerSession={handleCreatePlannerSession}
+          onSignOut={handleSignOut}
+        />
       ) : (
         <Sidebar className="hidden md:flex flex-col bg-white">
           <SidebarHeader className="p-6">
@@ -180,18 +148,6 @@ const DashboardShellContent: React.FC<DashboardShellContentProps> = ({ children,
       <main className="flex-1 min-w-0">
         <header className="flex items-center justify-between bg-white px-6 py-4">
           <div className="flex items-center gap-2">
-            {useImmersiveNav && (
-              <Button
-                ref={mobileMenuTriggerRef}
-                variant="ghost"
-                size="icon"
-                className="h-9 w-9 rounded-xl md:hidden"
-                onClick={(event) => openImmersiveDrawer(event.currentTarget)}
-                aria-label="Open organizer navigation menu"
-              >
-                <List weight="bold" className="h-4 w-4" />
-              </Button>
-            )}
             <div className="text-sm font-semibold text-gray-700">
               {role ? `${role.charAt(0).toUpperCase()}${role.slice(1)} Dashboard` : "Dashboard"}
             </div>

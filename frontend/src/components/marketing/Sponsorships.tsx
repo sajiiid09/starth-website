@@ -142,7 +142,7 @@ export default function Sponsorships({ eventId, sponsors, onUpdate }) {
       <div className="flex justify-between items-start mb-4">
         <div>
           <p className="text-sm text-gray-600">Total Raised</p>
-          <p className="text-2xl font-bold">
+          <p className="text-2xl font-semibold">
             ${totalRaised.toLocaleString()}
           </p>
         </div>

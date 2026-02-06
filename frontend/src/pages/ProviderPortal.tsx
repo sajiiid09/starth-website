@@ -217,7 +217,7 @@ export default function ProviderPortalPage() {
         </div>
       </CardHeader>
       <CardContent>
-        <div className="text-2xl font-bold text-gray-900 mb-1">{value}</div>
+        <div className="text-2xl font-semibold text-gray-900 mb-1">{value}</div>
         <div className="flex items-center justify-between">
           {description && (
             <p className="text-xs text-gray-500">{description}</p>
@@ -278,7 +278,7 @@ export default function ProviderPortalPage() {
             <div className="mb-8">
               <div className="flex items-start justify-between mb-4">
                 <div className="flex-1">
-                  <h1 className="text-3xl font-bold text-gray-900 mb-2">Service Provider Dashboard</h1>
+                  <h1 className="text-3xl font-semibold text-gray-900 mb-2">Service Provider Dashboard</h1>
                   <p className="text-xl text-gray-600">
                     Welcome to your provider portal. Complete your setup to start receiving leads.
                   </p>
@@ -375,7 +375,7 @@ export default function ProviderPortalPage() {
                     <p className="text-gray-600">Complete all steps to appear in our marketplace</p>
                   </div>
                   <div className="text-right">
-                    <div className="text-2xl font-bold text-gray-900">{completionData.overall}%</div>
+                    <div className="text-2xl font-semibold text-gray-900">{completionData.overall}%</div>
                     <div className="text-sm text-gray-500">Complete</div>
                   </div>
                 </div>

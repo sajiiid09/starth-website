@@ -145,7 +145,7 @@ export default function VenueDocumentsPage() {
         <div className="p-6 max-w-4xl mx-auto">
           <div className="flex items-center justify-between mb-6">
             <div>
-              <h1 className="text-2xl font-bold text-gray-900 mb-2">Document Verification</h1>
+              <h1 className="text-2xl font-semibold text-gray-900 mb-2">Document Verification</h1>
               <p className="text-gray-600">Upload required documents for marketplace approval</p>
             </div>
             <Badge className={completed === total ? "bg-green-100 text-green-800" : "bg-yellow-100 text-yellow-800"}>

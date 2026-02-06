@@ -3,6 +3,7 @@ import { plannerService } from "@/features/planner/services/plannerService";
 import { PlannerSession } from "@/features/planner/types";
 import {
   loadPlannerStorage,
+  PLANNER_STORAGE_VERSION,
   savePlannerStorage,
   sortSessionsByUpdatedAt
 } from "@/features/planner/utils/storage";
@@ -71,7 +72,7 @@ export const PlannerSessionsProvider: React.FC<PlannerSessionsProviderProps> = (
 
     persistTimeoutRef.current = window.setTimeout(() => {
       savePlannerStorage({
-        version: 4,
+        version: PLANNER_STORAGE_VERSION,
         sessions,
         activeSessionId
       });

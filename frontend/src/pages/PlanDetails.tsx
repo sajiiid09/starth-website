@@ -136,7 +136,7 @@ export default function PlanDetailsPage() {
                   <Input
                     value={editedTitle}
                     onChange={(e) => setEditedTitle(e.target.value)}
-                    className="text-2xl font-bold h-12"
+                    className="text-2xl font-semibold h-12"
                     autoFocus
                     onKeyDown={(e) => {
                       if (e.key === 'Enter') handleSaveTitle();
@@ -152,7 +152,7 @@ export default function PlanDetailsPage() {
                 </div>
               ) : (
                 <div className="flex items-center gap-2 group">
-                  <h1 className="text-3xl font-bold text-gray-900">{plan.title}</h1>
+                  <h1 className="text-3xl font-semibold text-gray-900">{plan.title}</h1>
                   <Button 
                     size="icon" 
                     variant="ghost" 
@@ -237,7 +237,7 @@ export default function PlanDetailsPage() {
                   <div className="space-y-2 text-sm">
                     <div className="flex justify-between"><span>Venue Estimate:</span> <span className="font-medium">${plan.budget_json.venue?.toLocaleString()}</span></div>
                     <div className="flex justify-between"><span>Vendor Estimates:</span> <span className="font-medium">${plan.budget_json.vendors?.toLocaleString()}</span></div>
-                    <div className="flex justify-between font-bold border-t pt-2 mt-2"><span>Total Estimate:</span> <span>${plan.budget_json.total?.toLocaleString()}</span></div>
+                    <div className="flex justify-between font-semibold border-t pt-2 mt-2"><span>Total Estimate:</span> <span>${plan.budget_json.total?.toLocaleString()}</span></div>
                   </div>
                 </CardContent>
               </Card>

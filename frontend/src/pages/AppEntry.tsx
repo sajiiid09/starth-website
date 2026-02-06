@@ -276,7 +276,7 @@ function SignUpForm({
           className="overflow-hidden rounded-xl border border-brand-teal/20 bg-brand-teal/5 p-5"
         >
           <div className="mb-4">
-            <p className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-brand-teal">
+            <p className="flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-brand-teal">
               <SparklesIcon className="h-3 w-3" />
               Additional details
             </p>
@@ -680,10 +680,10 @@ export default function AppEntryPage() {
                   className="space-y-8"
                 >
                   <div className="space-y-3">
-                    <p className="text-xs font-bold uppercase tracking-[0.2em] text-brand-teal">
+                    <p className="text-xs font-semibold uppercase tracking-[0.2em] text-brand-teal">
                       Get Started
                     </p>
-                    <h2 className="text-4xl font-bold tracking-tight text-brand-dark">
+                    <h2 className="text-4xl font-semibold tracking-tight text-brand-dark">
                       Choose your path
                     </h2>
                     <p className="text-base text-brand-dark/60">
@@ -726,7 +726,7 @@ export default function AppEntryPage() {
                           </span>
                           <span className="flex-1 space-y-1">
                             <span className="flex items-center justify-between">
-                              <span className="block text-base font-bold text-brand-dark">
+                              <span className="block text-base font-semibold text-brand-dark">
                                 {option.title}
                               </span>
                               {isSelected && <CheckCircle className="h-5 w-5 text-brand-teal" />}
@@ -813,7 +813,7 @@ export default function AppEntryPage() {
                       <ArrowRight className="h-3 w-3 rotate-180 group-hover:-translate-x-1 transition-transform" />
                       Back
                     </button>
-                    <h2 className="text-3xl font-bold tracking-tight text-brand-dark">
+                    <h2 className="text-3xl font-semibold tracking-tight text-brand-dark">
                       {activeView === "login" ? "Welcome back" : "Create your account"}
                     </h2>
                     {activeView === "signup" && selectedRole && (

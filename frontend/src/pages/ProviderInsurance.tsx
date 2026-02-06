@@ -179,7 +179,7 @@ export default function ProviderInsurancePage() {
           <div className="max-w-4xl mx-auto">
             <div className="flex justify-between items-center mb-8">
               <div>
-                <h1 className="text-3xl font-bold text-gray-900 mb-2">Insurance</h1>
+                <h1 className="text-3xl font-semibold text-gray-900 mb-2">Insurance</h1>
                 <p className="text-gray-600">Manage your insurance policies</p>
               </div>
               <Button onClick={() => setIsDialogOpen(true)} className="bg-blue-600 hover:bg-blue-700">
@@ -199,7 +199,7 @@ export default function ProviderInsurancePage() {
                   />
                   <div className="flex-1">
                     <div className="flex items-center gap-2 mb-2">
-                      <h3 className="text-lg font-bold text-gray-900">NEXT Insurance</h3>
+                      <h3 className="text-lg font-semibold text-gray-900">NEXT Insurance</h3>
                       <Badge className="bg-blue-600 text-white">Partner</Badge>
                     </div>
                     <p className="text-gray-700 mb-4">
@@ -234,7 +234,7 @@ export default function ProviderInsurancePage() {
                           <div className="flex items-start gap-4">
                             <Shield className="w-8 h-8 text-blue-600 mt-1" />
                             <div className="flex-1">
-                              <h3 className="text-xl font-bold text-gray-900 mb-2">{policy.carrier}</h3>
+                              <h3 className="text-xl font-semibold text-gray-900 mb-2">{policy.carrier}</h3>
                               <p className="text-gray-600 mb-3">Policy #{policy.policy_number}</p>
                               
                               {policy.coverage_types && policy.coverage_types.length > 0 && (

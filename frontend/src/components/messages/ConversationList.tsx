@@ -9,7 +9,7 @@ export default function ConversationList({ conversations, selectedConversationId
     <div className="w-1/3 border-r h-full">
       <ScrollArea className="h-full">
         <div className="p-4">
-          <h2 className="text-xl font-bold mb-4">Conversations</h2>
+          <h2 className="text-xl font-semibold mb-4">Conversations</h2>
           <div className="space-y-2">
             {conversations.map(convo => (
               <button

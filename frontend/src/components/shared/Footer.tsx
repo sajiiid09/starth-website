@@ -112,7 +112,7 @@ export default function Footer() {
         
         {/* Big Branding Text */}
         <div>
-          <h1 className="font-display text-[15vw] font-bold leading-[0.85] tracking-tighter text-[#FFFBF4] sm:text-[12vw] md:text-[10vw] lg:text-[8rem] xl:text-[10rem]">
+          <h1 className="font-display text-[15vw] font-semibold leading-[0.85] tracking-tighter text-[#FFFBF4] sm:text-[12vw] md:text-[10vw] lg:text-[8rem] xl:text-[10rem]">
             Strathwell
           </h1>
         </div>

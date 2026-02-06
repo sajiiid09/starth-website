@@ -140,7 +140,7 @@ const ProviderDashboardPreview = () => (
         <h3 className="text-lg font-semibold text-gray-900">Setup Progress</h3>
         <p className="text-gray-600 mb-4">Complete all steps to get discovered.</p>
         <Progress value={75} className="h-3" />
-        <p className="text-right text-sm font-bold text-gray-900 mt-1">75% Complete</p>
+        <p className="text-right text-sm font-semibold text-gray-900 mt-1">75% Complete</p>
       </CardContent>
     </Card>
     <div className="grid md:grid-cols-2 gap-6">
@@ -160,7 +160,7 @@ const StatCard = ({ title, value, icon, color }) => (
         {React.cloneElement(icon, { className: `h-4 w-4 text-${color}-600` })}
       </div>
     </CardHeader>
-    <CardContent><div className="text-2xl font-bold text-gray-900">{value}</div></CardContent>
+    <CardContent><div className="text-2xl font-semibold text-gray-900">{value}</div></CardContent>
   </Card>
 );
 
@@ -188,7 +188,7 @@ export default function DashboardPreviewPage() {
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="text-center pt-20 pb-12 px-4">
-        <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">One Platform, Many Roles</h1>
+        <h1 className="text-4xl md:text-5xl font-semibold text-gray-900 mb-4">One Platform, Many Roles</h1>
         <p className="text-xl text-gray-600 max-w-3xl mx-auto">
           Explore how Strathwell's powerful dashboards adapt to your specific needs, whether you're planning an event, managing a venue, or providing a service.
         </p>
@@ -227,7 +227,7 @@ export default function DashboardPreviewPage() {
       </div>
 
       <div className="text-center pb-20 px-4">
-        <h2 className="text-3xl font-bold text-gray-900 mb-4">Ready to Get Started?</h2>
+        <h2 className="text-3xl font-semibold text-gray-900 mb-4">Ready to Get Started?</h2>
         <p className="text-lg text-gray-600 mb-8">Join thousands of professionals revolutionizing the event industry.</p>
         <Link to={createPageUrl('AppEntry')}>
           <Button size="lg" className="bg-blue-600 hover:bg-blue-700 text-white">

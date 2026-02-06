@@ -292,7 +292,7 @@ export default function AddVenuePage() {
               </Button>
             </Link>
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">Add New Venue</h1>
+              <h1 className="text-2xl font-semibold text-gray-900">Add New Venue</h1>
               <p className="text-gray-600">Step {step} of 5</p>
             </div>
           </div>

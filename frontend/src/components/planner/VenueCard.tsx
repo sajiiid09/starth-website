@@ -114,7 +114,7 @@ const PhotoCollage = ({ venue }) => {
     return (
       <div className="w-full h-48 bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 flex items-center justify-center p-6">
         <div className="text-center">
-          <div className="text-white text-2xl font-bold mb-2">
+          <div className="text-white text-2xl font-semibold mb-2">
             {venue.name}
           </div>
           <div className="text-white/80 text-sm">
@@ -261,7 +261,7 @@ export default function VenueCard({ venue, onRequestQuote }: { venue: any; onReq
         </div>
         
         <CardContent className="p-4">
-          <h3 className="font-bold text-lg text-gray-900 mb-2">
+          <h3 className="font-semibold text-lg text-gray-900 mb-2">
             {venue.name}
           </h3>
           
@@ -321,7 +321,7 @@ export default function VenueCard({ venue, onRequestQuote }: { venue: any; onReq
           
           {/* Header Info */}
           <div className="space-y-2">
-            <DialogTitle className="text-2xl font-bold text-gray-900">
+            <DialogTitle className="text-2xl font-semibold text-gray-900">
               {venue.name}
             </DialogTitle>
             <div className="flex items-center gap-2">
@@ -371,7 +371,7 @@ export default function VenueCard({ venue, onRequestQuote }: { venue: any; onReq
             <div className="flex justify-between items-center">
               <div>
                 <span className="text-sm text-gray-600">Base Rate</span>
-                <div className="text-2xl font-bold text-green-600">
+                <div className="text-2xl font-semibold text-green-600">
                   ${venue.price?.toLocaleString()}
                 </div>
               </div>

@@ -83,7 +83,7 @@ export default function EventsPage() {
         {/* Header */}
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8">
           <div>
-            <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">
+            <h1 className="text-3xl md:text-4xl font-semibold text-gray-900 mb-2">
               My Events
             </h1>
             <p className="text-lg text-gray-600">
@@ -107,7 +107,7 @@ export default function EventsPage() {
                     <div className="flex-1">
                       <div className="flex items-start justify-between mb-4">
                         <div className="max-w-md">
-                          <h3 className="text-xl font-bold text-gray-900 mb-2 truncate">
+                          <h3 className="text-xl font-semibold text-gray-900 mb-2 truncate">
                             {event.title}
                           </h3>
                           <Badge className={getStatusColor(event.status)}>

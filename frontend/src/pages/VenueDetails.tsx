@@ -80,7 +80,7 @@ export default function VenueDetailsPage() {
     return (
       <div className="min-h-screen bg-gray-50 p-4">
         <div className="max-w-2xl mx-auto text-center py-12">
-          <h2 className="text-2xl font-bold text-gray-900 mb-4">Venue Not Found</h2>
+          <h2 className="text-2xl font-semibold text-gray-900 mb-4">Venue Not Found</h2>
           <p className="text-gray-600 mb-6">The venue you're looking for doesn't exist or has been removed.</p>
           <Link to={createPageUrl("Marketplace")}>
             <Button variant="outline">Back to Marketplace</Button>
@@ -102,7 +102,7 @@ export default function VenueDetailsPage() {
             </Button>
           </Link>
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">{venue.name}</h1>
+            <h1 className="text-2xl font-semibold text-gray-900">{venue.name}</h1>
             <div className="flex items-center gap-2 text-gray-600">
               <MapPin className="w-4 h-4" />
               <span>{venue.city}, {venue.state}</span>
@@ -196,7 +196,7 @@ export default function VenueDetailsPage() {
                     <span className="text-sm text-gray-600">Starting at</span>
                   </div>
                   <div className="text-right">
-                    <div className="text-2xl font-bold text-gray-900">
+                    <div className="text-2xl font-semibold text-gray-900">
                       ${venue.rate_card_json?.base_rate?.toLocaleString() || 'N/A'}
                     </div>
                     <div className="text-sm text-gray-500">per day</div>

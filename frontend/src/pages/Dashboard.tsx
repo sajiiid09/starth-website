@@ -196,7 +196,7 @@ export default function DashboardPage() {
       <div className="max-w-7xl mx-auto">
         <div className="mb-8 flex items-start justify-between">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">
+            <h1 className="text-3xl font-semibold text-gray-900 mb-2">
               Welcome back, {user?.full_name || 'Organizer'}!
             </h1>
             <p className="text-gray-600">Here's what's happening with your events</p>
@@ -250,7 +250,7 @@ export default function DashboardPage() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-gray-600 mb-1">Active Events</p>
-                  <p className="text-3xl font-bold text-gray-900">{stats.activeEvents}</p>
+                  <p className="text-3xl font-semibold text-gray-900">{stats.activeEvents}</p>
                 </div>
                 <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
                   <Calendar className="w-6 h-6 text-blue-600" />
@@ -264,7 +264,7 @@ export default function DashboardPage() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-gray-600 mb-1">Saved Plans</p>
-                  <p className="text-3xl font-bold text-gray-900">{stats.savedPlans}</p>
+                  <p className="text-3xl font-semibold text-gray-900">{stats.savedPlans}</p>
                 </div>
                 <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center">
                   <ListBullets className="w-6 h-6 text-purple-600" />
@@ -278,7 +278,7 @@ export default function DashboardPage() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-gray-600 mb-1">Favorites</p>
-                  <p className="text-3xl font-bold text-gray-900">{stats.favoriteVenues}</p>
+                  <p className="text-3xl font-semibold text-gray-900">{stats.favoriteVenues}</p>
                 </div>
                 <div className="w-12 h-12 bg-pink-100 rounded-full flex items-center justify-center">
                   <Heart className="w-6 h-6 text-pink-600" />
@@ -292,7 +292,7 @@ export default function DashboardPage() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-gray-600 mb-1">Reminders</p>
-                  <p className="text-3xl font-bold text-gray-900">{stats.upcomingReminders}</p>
+                  <p className="text-3xl font-semibold text-gray-900">{stats.upcomingReminders}</p>
                 </div>
                 <div className="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center">
                   <Bell className="w-6 h-6 text-orange-600" />
@@ -506,7 +506,7 @@ export default function DashboardPage() {
               <CardContent className="p-8">
                 <div className="text-center">
                   <Sparkle className="w-16 h-16 mx-auto mb-4" />
-                  <h2 className="text-3xl font-bold mb-4">AI Event Planner</h2>
+                  <h2 className="text-3xl font-semibold mb-4">AI Event Planner</h2>
                   <p className="text-blue-100 mb-6 text-lg max-w-2xl mx-auto">
                     Let our AI find the perfect venues and vendors for your event in seconds. Just describe your event and we'll do the rest.
                   </p>

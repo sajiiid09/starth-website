@@ -121,7 +121,7 @@ export default function VendorCard({ vendor }) { // Removed onRequestQuote from 
         </div>
         
         <CardContent className="p-4">
-          <h3 className="font-bold text-lg text-gray-900 mb-2">
+          <h3 className="font-semibold text-lg text-gray-900 mb-2">
             {vendor.name}
           </h3>
           
@@ -171,7 +171,7 @@ export default function VendorCard({ vendor }) { // Removed onRequestQuote from 
           
           {/* Header Info */}
           <div className="space-y-2 p-4 pt-0">
-            <DialogTitle className="text-2xl font-bold text-gray-900">
+            <DialogTitle className="text-2xl font-semibold text-gray-900">
               {vendor.name}
             </DialogTitle>
             <div className="flex items-center gap-2">
@@ -436,7 +436,7 @@ const PhotoCollage = ({ vendor }) => { // Changed props to accept a single 'vend
     return (
       <div className="w-full h-48 bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 flex items-center justify-center p-6">
         <div className="text-center">
-          <div className="text-white text-2xl font-bold mb-2">
+          <div className="text-white text-2xl font-semibold mb-2">
             {vendor.name}
           </div>
           <div className="text-white/80 text-sm">

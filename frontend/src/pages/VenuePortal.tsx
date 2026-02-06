@@ -147,7 +147,7 @@ export default function VenuePortalPage() {
         </div>
       </CardHeader>
       <CardContent>
-        <div className="text-2xl font-bold text-gray-900 mb-1">{value}</div>
+        <div className="text-2xl font-semibold text-gray-900 mb-1">{value}</div>
         <div className="flex items-center justify-between">
           {title === "Total Bookings" ? (
             <Badge variant="outline" className="border-yellow-300 bg-yellow-50 text-yellow-800 text-xs font-medium">
@@ -176,7 +176,7 @@ export default function VenuePortalPage() {
             <div className="text-center mb-8">
               <div className="flex items-start justify-between mb-4">
                 <div className="flex-1">
-                  <h1 className="text-3xl font-bold text-gray-900 mb-2">
+                  <h1 className="text-3xl font-semibold text-gray-900 mb-2">
                     Welcome back, {user?.full_name?.split(' ')[0] || 'Partner'}!
                   </h1>
                   <p className="text-lg text-gray-600">

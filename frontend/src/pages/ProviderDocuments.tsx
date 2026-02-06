@@ -144,7 +144,7 @@ export default function ProviderDocumentsPage() {
           <div className="max-w-4xl mx-auto">
             <div className="flex justify-between items-center mb-8">
               <div>
-                <h1 className="text-3xl font-bold text-gray-900 mb-2">Documents</h1>
+                <h1 className="text-3xl font-semibold text-gray-900 mb-2">Documents</h1>
                 <p className="text-gray-600">Upload required verification documents</p>
               </div>
               <Button onClick={() => setIsDialogOpen(true)} className="bg-blue-600 hover:bg-blue-700">

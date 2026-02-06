@@ -93,7 +93,7 @@ export default function ForgotPasswordPage() {
                   <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-brand-teal/10">
                     <EnvelopeSimple className="h-7 w-7 text-brand-teal" />
                   </div>
-                  <h2 className="text-2xl font-bold tracking-tight text-brand-dark">
+                  <h2 className="text-2xl font-semibold tracking-tight text-brand-dark">
                     Forgot your password?
                   </h2>
                   <p className="text-sm text-brand-dark/60">
@@ -139,7 +139,7 @@ export default function ForgotPasswordPage() {
             {step === "reset" && (
               <form onSubmit={handleResetPassword} className="space-y-5">
                 <div className="space-y-2 text-center">
-                  <h2 className="text-2xl font-bold tracking-tight text-brand-dark">
+                  <h2 className="text-2xl font-semibold tracking-tight text-brand-dark">
                     Reset your password
                   </h2>
                   <p className="text-sm text-brand-dark/60">
@@ -164,7 +164,7 @@ export default function ForgotPasswordPage() {
                     required
                     minLength={6}
                     maxLength={6}
-                    className="h-12 border-brand-dark/10 bg-white/60 text-center text-xl font-bold tracking-[0.3em] focus:border-brand-teal focus:ring-brand-teal/20"
+                    className="h-12 border-brand-dark/10 bg-white/60 text-center text-xl font-semibold tracking-[0.3em] focus:border-brand-teal focus:ring-brand-teal/20"
                     value={otpCode}
                     onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, "").slice(0, 6))}
                   />

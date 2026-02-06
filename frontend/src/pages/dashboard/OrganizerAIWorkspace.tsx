@@ -10,6 +10,7 @@ import {
 } from "@phosphor-icons/react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 import {
   Dialog,
   DialogContent,
@@ -246,23 +247,20 @@ const MessageThread: React.FC<MessageThreadProps> = React.memo(({ messages, onQu
     return (
       <div
         key={message.id}
-        className="animate-in fade-in-0 slide-in-from-bottom-1 flex items-start gap-3 duration-200 ease-out"
+        className="animate-in fade-in-0 slide-in-from-bottom-2 flex items-start gap-3 duration-300 ease-out"
       >
-        <div className="mt-1 flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-slate-200 bg-white">
-          <Sparkle className="h-4 w-4 text-brand-teal" />
+        <div className="mt-1 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-brand-teal to-brand-blue shadow-sm">
+          <Sparkle weight="fill" className="h-4 w-4 text-white" />
         </div>
         <div
-          className={`max-w-[85%] rounded-2xl border px-4 py-3 text-sm text-slate-700 ${
+          className={cn(
+            "max-w-[88%] rounded-[20px] px-4 py-3 text-sm leading-relaxed",
             isTransient
-              ? "border-slate-300 bg-slate-100 italic text-slate-600"
-              : "border-slate-200 bg-slate-100"
-          }`}
+              ? "bg-slate-50 border border-slate-200 text-slate-500 italic"
+              : "bg-brand-light/40 border border-brand-teal/5 text-slate-700 shadow-sm"
+          )}
         >
-          <p
-            className={`whitespace-pre-wrap break-words [overflow-wrap:anywhere] ${
-              isTransient ? "animate-pulse" : ""
-            }`}
-          >
+          <p className={cn("whitespace-pre-wrap break-words", isTransient ? "animate-pulse" : "")}>
             {renderMessageText(message.text)}
           </p>
         </div>
@@ -274,14 +272,11 @@ const MessageThread: React.FC<MessageThreadProps> = React.memo(({ messages, onQu
     return (
       <div
         key={message.id}
-        className="animate-in fade-in-0 slide-in-from-bottom-1 flex justify-end duration-200 ease-out"
+        className="animate-in fade-in-0 slide-in-from-bottom-2 flex justify-end duration-300 ease-out"
       >
-        <div className="flex max-w-[85%] flex-col items-end gap-1.5">
-          <span className="rounded-full border border-brand-teal/20 bg-brand-teal/10 px-2 py-0.5 text-[11px] font-semibold text-brand-teal">
-            You
-          </span>
-          <div className="rounded-2xl bg-brand-teal px-4 py-3 text-sm text-white">
-            <p className="whitespace-pre-wrap break-words [overflow-wrap:anywhere]">
+        <div className="flex max-w-[88%] flex-col items-end gap-1.5">
+          <div className="rounded-[20px] bg-brand-teal px-4 py-3 text-sm text-white shadow-md shadow-brand-teal/10">
+            <p className="whitespace-pre-wrap break-words leading-relaxed">
               {renderMessageText(message.text, true)}
             </p>
           </div>
@@ -741,6 +736,7 @@ const OrganizerAIWorkspace: React.FC = () => {
       const sessionSnapshot = activeSession ?? createNewSession();
       const targetSessionId = sessionSnapshot.id;
       const now = Date.now();
+      const templatePlannerState = createTemplatePlannerState(template);
 
       const assistantMessage: ChatMessage = {
         id: createMessageId("assistant-template"),
@@ -754,12 +750,17 @@ const OrganizerAIWorkspace: React.FC = () => {
         ...session,
         title: template.title,
         mode: "template",
-        briefStatus: "generated",
-        canvasState: "visible",
+        viewMode: "split",
+        briefStatus: "canvas_open",
         draftBrief: undefined,
+        artifact: {
+          id: templatePlannerState.blueprintId,
+          title: templatePlannerState.title,
+          createdAt: now
+        },
         lastAskedField: undefined,
         messages: [...session.messages, assistantMessage],
-        plannerState: createTemplatePlannerState(template),
+        plannerState: templatePlannerState,
         plannerStateUpdatedAt: now
       }));
       setActiveSession(targetSessionId);

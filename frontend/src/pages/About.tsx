@@ -173,7 +173,7 @@ export default function AboutPage() {
                 About Strathwell
               </Badge>
 
-              <h1 className="text-4xl font-bold leading-[1.1] tracking-tight sm:text-5xl md:text-7xl">
+              <h1 className="text-4xl font-semibold leading-[1.1] tracking-tight sm:text-5xl md:text-7xl">
                 Transforming Events Through
                 <br />
                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-teal to-brand-dark">
@@ -216,7 +216,7 @@ export default function AboutPage() {
                       <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-brand-teal/5 text-brand-teal transition-colors group-hover:bg-brand-teal group-hover:text-white">
                         <Icon className="h-8 w-8" />
                       </div>
-                      <h3 className="text-xl font-bold text-brand-dark">{item.title}</h3>
+                      <h3 className="text-xl font-semibold text-brand-dark">{item.title}</h3>
                       <p className="mt-4 text-base leading-relaxed text-brand-dark/60">
                         {item.description}
                       </p>
@@ -236,7 +236,7 @@ export default function AboutPage() {
                 <Trophy className="h-4 w-4" />
                 Our Team
               </Badge>
-              <h2 className="text-3xl font-bold sm:text-4xl md:text-5xl">World-Class Experts</h2>
+              <h2 className="text-3xl font-semibold sm:text-4xl md:text-5xl">World-Class Experts</h2>
               <p className="mx-auto mt-4 max-w-2xl text-base text-brand-dark/60 sm:text-lg md:mt-6">
                 Meet the visionaries behind Strathwell's revolutionary approach to event orchestration.
               </p>
@@ -253,7 +253,7 @@ export default function AboutPage() {
                         <div className="flex h-10 w-10 items-center justify-center rounded-full bg-brand-teal text-white shadow-md">
                           <group.icon className="h-5 w-5" />
                         </div>
-                        <h3 className="text-xl font-bold uppercase tracking-widest text-brand-dark sm:text-2xl">
+                        <h3 className="text-xl font-semibold uppercase tracking-widest text-brand-dark sm:text-2xl">
                           {group.category}
                         </h3>
                       </div>
@@ -282,7 +282,7 @@ export default function AboutPage() {
                             ) : (
                               <div className="flex h-full w-full flex-col items-center justify-center bg-brand-cream/30 text-brand-dark/20">
                                 <Users className="h-24 w-24 mb-4" />
-                                <span className="text-xs font-bold uppercase tracking-widest">Image Coming Soon</span>
+                                <span className="text-xs font-semibold uppercase tracking-widest">Image Coming Soon</span>
                               </div>
                             )}
                             {/* Overlay Gradient for Text Contrast if needed, mostly for style */}
@@ -294,7 +294,7 @@ export default function AboutPage() {
                             index % 2 === 0 ? "md:order-2" : "md:order-1"
                           }`}>
                             <div>
-                              <h3 className="font-display text-3xl font-bold text-brand-dark sm:text-4xl md:text-5xl">
+                              <h3 className="font-display text-3xl font-semibold text-brand-dark sm:text-4xl md:text-5xl">
                                 {member.name}
                               </h3>
                               <p className="mt-2 text-lg font-medium text-brand-teal">
@@ -333,18 +333,18 @@ export default function AboutPage() {
                 
                 <CardContent className="relative z-10 p-8 text-center sm:p-12 md:p-16">
                   <Sparkle className="mx-auto mb-8 h-12 w-12 text-brand-teal" />
-                  <h3 className="text-3xl font-bold sm:text-4xl md:text-5xl">Ready to Transform Your Events?</h3>
+                  <h3 className="text-3xl font-semibold sm:text-4xl md:text-5xl">Ready to Transform Your Events?</h3>
                   <p className="mx-auto mt-4 max-w-2xl text-base text-white/80 sm:text-lg md:mt-6 md:text-xl">
                     Join thousands of event organizers who trust Strathwell to orchestrate their most important moments.
                   </p>
                   <div className="mt-12 flex flex-col justify-center gap-6 sm:flex-row">
                     <Link to={createPageUrl("AIPlanner")}>
-                      <button className="w-full min-w-[160px] rounded-full bg-white px-8 py-4 text-base font-bold text-brand-dark shadow-lg transition-all hover:bg-brand-cream hover:scale-105 sm:w-auto">
+                      <button className="w-full min-w-[160px] rounded-full bg-white px-8 py-4 text-base font-semibold text-brand-dark shadow-lg transition-all hover:bg-brand-cream hover:scale-105 sm:w-auto">
                         Plan with AI
                       </button>
                     </Link>
                     <Link to={createPageUrl("Contact")}>
-                      <button className="w-full min-w-[160px] rounded-full border border-white/30 px-8 py-4 text-base font-bold text-white transition-all hover:bg-white/10 sm:w-auto">
+                      <button className="w-full min-w-[160px] rounded-full border border-white/30 px-8 py-4 text-base font-semibold text-white transition-all hover:bg-white/10 sm:w-auto">
                         Contact Us
                       </button>
                     </Link>

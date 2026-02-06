@@ -3,6 +3,28 @@
 ## Overview
 The Organizer/User dashboard is being redesigned so the post-login landing experience is a dedicated AI workspace shell. This decouples dashboard planning UX from the public website AI planner and sets a clean foundation for phased feature delivery.
 
+## Claude-style Flow (New State Model)
+
+Phase 1 introduces session-model scaffolding for a Claude-style planner flow.
+
+- `PlannerSession` now includes:
+  - `mode: 'scratch' | 'template'`
+  - `viewMode: 'chat_only' | 'split'`
+  - `briefStatus: 'collecting' | 'ready_to_generate' | 'generating' | 'artifact_ready' | 'canvas_open'`
+  - `draftBrief?: { eventType?, guestCount?, budget?, city?, dateRange? }`
+  - `artifact?: { id: string; title: string; createdAt: number }`
+  - `plannerState?: PlannerState` (unchanged, still optional)
+- Required brief field list is centralized in:
+  - `frontend/src/features/planner/brief/briefFields.ts`
+  - export: `REQUIRED_BRIEF_FIELDS = ['eventType','guestCount','budget','city','dateRange'] as const`
+- Planner session storage key/version:
+  - new key: `strathwell_planner_sessions_v5`
+  - payload version: `5`
+  - migration loader reads legacy keys (`v4`, `v3`, `v2`) and safely defaults missing fields.
+- Migration defaults for missing/invalid fields:
+  - with `plannerState`: `mode='template'`, `viewMode='split'`, `briefStatus='canvas_open'`
+  - without `plannerState`: `mode='scratch'`, `viewMode='chat_only'`, `briefStatus='collecting'`
+
 ## Immersive AI Editor Redesign (Rail + Co-pilot + Canvas)
 
 ### Locked UX Rules
@@ -235,7 +257,7 @@ The Organizer/User dashboard is being redesigned so the post-login landing exper
   - Chat surface (internal `ChatPanel` + `MessageThread`) mounted as Co-pilot.
   - `PlanPreviewCanvas` mounted as the read-only Canvas preview within immersive shell.
   - Canvas receives one-way planner data via `planData={activeSession?.plannerState ?? null}`.
-  - Scratch flow uses session brief state machine; canvas stays blank until `briefStatus='generated'`.
+  - Scratch flow uses session brief state model; canvas reveal semantics are transitioning to artifact-driven behavior in Claude-style mode.
   - No `Matches` tabs/toggles rendered in organizer planner route.
   - Zero-state routing logic: show `ZeroStateLanding` when session has no messages and no planner state.
 - `frontend/src/components/planner/PlanPreviewCanvas.tsx`: organizer canvas renderer (read-only, passive, deterministic preview).
@@ -251,11 +273,11 @@ The Organizer/User dashboard is being redesigned so the post-login landing exper
   - `frontend/src/utils/role.ts` -> localStorage key `activeRole` (`AppRole` + role mapping helpers).
   - `frontend/src/utils/session.ts` -> localStorage key `starth_session_state` (`SessionState` with role/vendor onboarding state).
 - Planner sessions (dashboard AI workspace):
-  - `frontend/src/features/planner/utils/storage.ts` -> localStorage key `strathwell_planner_sessions_v4`.
-  - Payload schema (`version: 4`): `{ version, activeSessionId, sessions }`.
-  - Migration: reads legacy `strathwell_planner_sessions_v3` and `strathwell_planner_sessions_v2`, drops legacy `matches`, applies default scratch/template state-machine fields, validates, and rewrites to v4.
+  - `frontend/src/features/planner/utils/storage.ts` -> localStorage key `strathwell_planner_sessions_v5`.
+  - Payload schema (`version: 5`): `{ version, activeSessionId, sessions }`.
+  - Migration: reads legacy keys `strathwell_planner_sessions_v4`, `strathwell_planner_sessions_v3`, and `strathwell_planner_sessions_v2`; drops legacy `matches`; safely defaults Claude-style fields; validates; and rewrites to v5.
   - Types: `PlannerStoragePayload`, `PlannerSession`, `ChatMessage`, `PlannerState`, `DraftBrief` from `frontend/src/features/planner/types.ts`.
-  - `PlannerSession` scratch fields: `mode`, `briefStatus`, `canvasState`, optional `draftBrief`, optional `lastAskedField`.
+  - `PlannerSession` Claude-style fields: `mode`, `viewMode`, `briefStatus`, optional `draftBrief`, optional `artifact`, optional `lastAskedField`.
   - Validation: `zPlannerSessionsPayload`, `zPlannerSession`, `zPlannerState` in `frontend/src/features/planner/schemas.ts`.
 - Credits (planner gating, frontend-only):
   - `frontend/src/features/planner/credits/storage.ts` -> localStorage key `strathwell_credits_v1` (versioned credits payload).

@@ -146,7 +146,7 @@ export default function ProviderPortalLayout({ children }) {
                 <Sparkle className="w-5 h-5 text-white" />
               </div>
               <div>
-                <h2 className="font-bold text-gray-900 text-lg">Strathwell</h2>
+                <h2 className="font-semibold text-gray-900 text-lg">Strathwell</h2>
                 <p className="text-xs text-green-600 font-medium">
                   Provider Portal
                 </p>

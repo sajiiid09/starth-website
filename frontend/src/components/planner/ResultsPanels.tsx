@@ -195,7 +195,7 @@ export default function ResultsPanels({ plan, onSavePlan, user }) {
               {budget.user_budget && (
                 <div className="flex justify-between items-center p-3 bg-blue-50 rounded-lg">
                   <span className="text-gray-700 font-medium">Your Budget</span>
-                  <span className="font-bold text-xl text-blue-700">${budget.user_budget?.toLocaleString()}</span>
+                  <span className="font-semibold text-xl text-blue-700">${budget.user_budget?.toLocaleString()}</span>
                 </div>
               )}
 
@@ -242,7 +242,7 @@ export default function ResultsPanels({ plan, onSavePlan, user }) {
               
               <div className="border-t pt-3 flex justify-between items-center">
                 <span className="font-semibold text-lg">Total Estimate</span>
-                <span className="font-bold text-2xl text-gray-900">${budget.total?.toLocaleString()}</span>
+                <span className="font-semibold text-2xl text-gray-900">${budget.total?.toLocaleString()}</span>
               </div>
               
               {budget.user_budget && (

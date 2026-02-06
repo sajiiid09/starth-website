@@ -181,12 +181,12 @@ ${formData.message}
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-white via-brand-cream to-brand-cream opacity-50" />
         
         <Container className="relative z-10 text-center">
-          <div className="hero-text mx-auto mb-6 inline-flex items-center gap-2 rounded-full border border-brand-teal/20 bg-white/50 px-4 py-1.5 text-xs font-bold uppercase tracking-widest text-brand-teal backdrop-blur-sm">
+          <div className="hero-text mx-auto mb-6 inline-flex items-center gap-2 rounded-full border border-brand-teal/20 bg-white/50 px-4 py-1.5 text-xs font-semibold uppercase tracking-widest text-brand-teal backdrop-blur-sm">
             <Sparkle className="h-3 w-3" />
             Get in Touch
           </div>
 
-          <h1 className="hero-text mx-auto max-w-4xl font-display text-4xl font-bold leading-[1.1] tracking-tight text-brand-dark sm:text-5xl md:text-7xl">
+          <h1 className="hero-text mx-auto max-w-4xl font-display text-4xl font-semibold leading-[1.1] tracking-tight text-brand-dark sm:text-5xl md:text-7xl">
             Let's orchestrate <br />
             <span className="text-brand-teal">something extraordinary.</span>
           </h1>
@@ -214,7 +214,7 @@ ${formData.message}
                       <Envelope className="h-5 w-5" />
                     </div>
                     <div>
-                      <p className="text-xs font-bold uppercase tracking-widest text-brand-dark/40">Email</p>
+                      <p className="text-xs font-semibold uppercase tracking-widest text-brand-dark/40">Email</p>
                       <a href="mailto:info@strathwell.com" className="font-medium text-brand-dark transition hover:text-brand-teal">
                         info@strathwell.com
                       </a>
@@ -226,7 +226,7 @@ ${formData.message}
                       <MapPin className="h-5 w-5" />
                     </div>
                     <div>
-                      <p className="text-xs font-bold uppercase tracking-widest text-brand-dark/40">Address</p>
+                      <p className="text-xs font-semibold uppercase tracking-widest text-brand-dark/40">Address</p>
                       <p className="font-medium text-brand-dark">2 Hawthorne Pl, Boston, MA 02114</p>
                     </div>
                   </div>
@@ -236,7 +236,7 @@ ${formData.message}
                       <Clock className="h-5 w-5" />
                     </div>
                     <div>
-                      <p className="text-xs font-bold uppercase tracking-widest text-brand-dark/40">Response Time</p>
+                      <p className="text-xs font-semibold uppercase tracking-widest text-brand-dark/40">Response Time</p>
                       <p className="font-medium text-brand-dark">Within 24 hours</p>
                     </div>
                   </div>
@@ -257,7 +257,7 @@ ${formData.message}
                 <form ref={formRef} onSubmit={handleSubmit} className="space-y-6">
                   <div className="grid gap-6 md:grid-cols-2">
                     <div className="form-item space-y-1.5">
-                      <label className="text-[11px] font-bold uppercase tracking-widest text-brand-dark/50">Full Name *</label>
+                      <label className="text-[11px] font-semibold uppercase tracking-widest text-brand-dark/50">Full Name *</label>
                       <Input
                         value={formData.name}
                         onChange={(e) => handleInputChange("name", e.target.value)}
@@ -267,7 +267,7 @@ ${formData.message}
                       />
                     </div>
                     <div className="form-item space-y-1.5">
-                      <label className="text-[11px] font-bold uppercase tracking-widest text-brand-dark/50">Email Address *</label>
+                      <label className="text-[11px] font-semibold uppercase tracking-widest text-brand-dark/50">Email Address *</label>
                       <Input
                         type="email"
                         value={formData.email}
@@ -281,7 +281,7 @@ ${formData.message}
 
                   <div className="grid gap-6 md:grid-cols-2">
                     <div className="form-item space-y-1.5">
-                      <label className="text-[11px] font-bold uppercase tracking-widest text-brand-dark/50">Company</label>
+                      <label className="text-[11px] font-semibold uppercase tracking-widest text-brand-dark/50">Company</label>
                       <Input
                         value={formData.company}
                         onChange={(e) => handleInputChange("company", e.target.value)}
@@ -290,7 +290,7 @@ ${formData.message}
                       />
                     </div>
                     <div className="form-item space-y-1.5">
-                      <label className="text-[11px] font-bold uppercase tracking-widest text-brand-dark/50">Phone</label>
+                      <label className="text-[11px] font-semibold uppercase tracking-widest text-brand-dark/50">Phone</label>
                       <Input
                         type="tel"
                         value={formData.phone}
@@ -302,7 +302,7 @@ ${formData.message}
                   </div>
 
                   <div className="form-item space-y-1.5">
-                    <label className="text-[11px] font-bold uppercase tracking-widest text-brand-dark/50">Topic</label>
+                    <label className="text-[11px] font-semibold uppercase tracking-widest text-brand-dark/50">Topic</label>
                     <Select value={formData.inquiry_type} onValueChange={(value) => handleInputChange("inquiry_type", value)}>
                       <SelectTrigger className="h-12 rounded-xl border-brand-dark/10 bg-brand-light/50 transition-all focus:border-brand-teal focus:ring-1 focus:ring-brand-teal">
                         <SelectValue placeholder="Select topic" />
@@ -318,7 +318,7 @@ ${formData.message}
                   </div>
 
                   <div className="form-item space-y-1.5">
-                    <label className="text-[11px] font-bold uppercase tracking-widest text-brand-dark/50">Subject *</label>
+                    <label className="text-[11px] font-semibold uppercase tracking-widest text-brand-dark/50">Subject *</label>
                     <Input
                       value={formData.subject}
                       onChange={(e) => handleInputChange("subject", e.target.value)}
@@ -329,7 +329,7 @@ ${formData.message}
                   </div>
 
                   <div className="form-item space-y-1.5">
-                    <label className="text-[11px] font-bold uppercase tracking-widest text-brand-dark/50">Message *</label>
+                    <label className="text-[11px] font-semibold uppercase tracking-widest text-brand-dark/50">Message *</label>
                     <Textarea
                       value={formData.message}
                       onChange={(e) => handleInputChange("message", e.target.value)}

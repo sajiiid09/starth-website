@@ -249,7 +249,7 @@ export default function EditVenuePage() {
               </Button>
             </Link>
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">Edit Venue</h1>
+              <h1 className="text-2xl font-semibold text-gray-900">Edit Venue</h1>
               <p className="text-gray-600">Update details for {formData.name}</p>
             </div>
           </div>

@@ -20,9 +20,9 @@ const TemplateGallery: React.FC<TemplateGalleryProps> = ({
           <p className="text-xs font-semibold uppercase tracking-[0.3em] text-brand-teal">
             Visuals
           </p>
-          <h2 className="mt-2 text-lg font-bold text-brand-dark">{title}</h2>
+          <h2 className="mt-2 text-lg font-semibold text-brand-dark">{title}</h2>
         </div>
-        <span className="hidden rounded-full bg-brand-cream px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-brand-dark/60 md:inline-flex">
+        <span className="hidden rounded-full bg-brand-cream px-3 py-1 text-[10px] font-semibold uppercase tracking-wider text-brand-dark/60 md:inline-flex">
           Preview
         </span>
       </div>

@@ -66,6 +66,26 @@ Phase 3 wires organizer workspace rendering to `PlannerSession.viewMode`:
     - `briefStatus='canvas_open'`
     - immediate `plannerState`
 
+## Claude-style Flow (Phase 4 Blueprint Artifact Card)
+
+Phase 4 adds an explicit blueprint artifact surface inside chat and click-to-open behavior:
+
+- New reusable artifact component:
+  - `frontend/src/components/planner/BlueprintArtifactCard.tsx`
+  - props: `title`, `summary`, optional `kpis`, `onOpen()`
+  - rendered as a premium, fully-clickable read-only card with hover/focus states.
+- Artifact rendering rule in organizer chat feed:
+  - if `activeSession.briefStatus === 'artifact_ready'` and `activeSession.artifact` exists, show the artifact card as an assistant feed item.
+  - summary is sourced from `plannerState.summary` when available, otherwise derived from `draftBrief`.
+- Click behavior:
+  - artifact click updates session state to:
+    - `viewMode='split'`
+    - `briefStatus='canvas_open'`
+  - this only reveals existing read-only canvas content; no planner data is mutated.
+- Scratch UX rule:
+  - generation completion still leaves scratch sessions in chat-only mode.
+  - artifact card appears after the completion assistant message, and canvas is revealed only after artifact click.
+
 ## Immersive AI Editor Redesign (Rail + Co-pilot + Canvas)
 
 ### Locked UX Rules

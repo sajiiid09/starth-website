@@ -21,6 +21,7 @@ import {
   DialogTrigger
 } from "@/components/ui/dialog";
 import PlanPreviewCanvas from "@/components/planner/PlanPreviewCanvas";
+import BlueprintArtifactCard from "@/components/planner/BlueprintArtifactCard";
 import { Textarea } from "@/components/ui/textarea";
 import OrganizerImmersiveShell from "@/features/immersive/OrganizerImmersiveShell";
 import ZeroStateLanding from "@/features/immersive/ZeroStateLanding";
@@ -232,9 +233,20 @@ const renderMessageText = (text: string, isUserBubble = false) => {
 type MessageThreadProps = {
   messages: ChatMessage[];
   onQuickPrompt: (prompt: string) => void;
+  artifactCard?: {
+    title: string;
+    summary: string;
+    kpis?: {
+      totalCost: number;
+      costPerAttendee: number;
+      confidencePct: number;
+    };
+    onOpen: () => void;
+  };
 };
 
-const MessageThread: React.FC<MessageThreadProps> = React.memo(({ messages, onQuickPrompt }) => {
+const MessageThread: React.FC<MessageThreadProps> = React.memo(
+  ({ messages, onQuickPrompt, artifactCard }) => {
   const sortedMessages = React.useMemo(
     () => [...messages].sort((a, b) => a.createdAt - b.createdAt),
     [messages]
@@ -323,9 +335,25 @@ const MessageThread: React.FC<MessageThreadProps> = React.memo(({ messages, onQu
       {sortedMessages.map((message) =>
         message.role === "user" ? renderUserBubble(message) : renderAssistantBubble(message)
       )}
+      {artifactCard && (
+        <div className="animate-in fade-in-0 slide-in-from-bottom-2 flex items-start gap-3 duration-300 ease-out">
+          <div className="mt-1 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-brand-teal to-brand-blue shadow-sm">
+            <Sparkle weight="fill" className="h-4 w-4 text-white" />
+          </div>
+          <div className="max-w-[88%] flex-1">
+            <BlueprintArtifactCard
+              title={artifactCard.title}
+              summary={artifactCard.summary}
+              kpis={artifactCard.kpis}
+              onOpen={artifactCard.onOpen}
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
-});
+  }
+);
 
 MessageThread.displayName = "MessageThread";
 
@@ -342,6 +370,7 @@ type ChatPanelProps = {
   onAddDemoCredits: () => void;
   onResetCredits: () => void;
   heightClass?: string;
+  artifactCard?: MessageThreadProps["artifactCard"];
 };
 
 const ChatPanel: React.FC<ChatPanelProps> = ({
@@ -356,7 +385,8 @@ const ChatPanel: React.FC<ChatPanelProps> = ({
   creditsPerMessage,
   onAddDemoCredits,
   onResetCredits,
-  heightClass = "h-full min-h-0"
+  heightClass = "h-full min-h-0",
+  artifactCard
 }) => {
   const threadRef = React.useRef<HTMLDivElement>(null);
   const textareaRef = React.useRef<HTMLTextAreaElement>(null);
@@ -419,7 +449,11 @@ const ChatPanel: React.FC<ChatPanelProps> = ({
       </header>
 
       <div ref={threadRef} className="flex-1 overflow-y-auto overscroll-y-contain p-5">
-        <MessageThread messages={messages} onQuickPrompt={onQuickPrompt} />
+        <MessageThread
+          messages={messages}
+          onQuickPrompt={onQuickPrompt}
+          artifactCard={artifactCard}
+        />
       </div>
 
       <footer className="sticky bottom-0 z-10 border-t border-slate-200 bg-white/95 px-5 py-4 backdrop-blur">
@@ -543,6 +577,34 @@ const OrganizerAIWorkspace: React.FC = () => {
   const hasBlueprint = Boolean(activeSession?.plannerState);
   const showCanvas = activeSession?.viewMode === "split";
   const isZeroState = !activeSession || (messages.length === 0 && !hasBlueprint);
+  const artifactCardVisible =
+    activeSession?.briefStatus === "artifact_ready" && Boolean(activeSession.artifact);
+
+  const artifactSummary = React.useMemo(() => {
+    if (!activeSession) return "";
+    if (activeSession.plannerState?.summary) return activeSession.plannerState.summary;
+
+    const draft = activeSession.draftBrief;
+    const parts: string[] = [];
+    if (draft?.eventType) parts.push(draft.eventType);
+    if (draft?.guestCount) parts.push(`${draft.guestCount} guests`);
+    if (draft?.city) parts.push(`in ${draft.city}`);
+    if (draft?.dateRange) parts.push(`for ${draft.dateRange}`);
+    if (draft?.budget) parts.push(`budget ${`$${draft.budget.toLocaleString()}`}`);
+
+    return parts.length > 0
+      ? `Generated blueprint for ${parts.join(" ")}.`
+      : "Generated blueprint is ready to open.";
+  }, [activeSession]);
+
+  const handleOpenArtifact = React.useCallback(() => {
+    if (!activeSession) return;
+    updateSession(activeSession.id, (session) => ({
+      ...session,
+      viewMode: "split",
+      briefStatus: "canvas_open"
+    }));
+  }, [activeSession, updateSession]);
 
   const getNextViewMode = React.useCallback(
     (
@@ -848,6 +910,16 @@ const OrganizerAIWorkspace: React.FC = () => {
             onAddDemoCredits={() => add(50)}
             onResetCredits={resetToDefault}
             heightClass="h-full min-h-0 rounded-none border-0 shadow-none"
+            artifactCard={
+              artifactCardVisible && activeSession?.artifact
+                ? {
+                    title: activeSession.artifact.title,
+                    summary: artifactSummary,
+                    kpis: activeSession.plannerState?.kpis,
+                    onOpen: handleOpenArtifact
+                  }
+                : undefined
+            }
           />
         }
         canvas={renderCanvasPanel()}

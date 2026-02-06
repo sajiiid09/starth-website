@@ -25,6 +25,29 @@ Phase 1 introduces session-model scaffolding for a Claude-style planner flow.
   - with `plannerState`: `mode='template'`, `viewMode='split'`, `briefStatus='canvas_open'`
   - without `plannerState`: `mode='scratch'`, `viewMode='chat_only'`, `briefStatus='collecting'`
 
+## Claude-style Flow (Phase 2 Mock State Machine)
+
+Phase 2 implements planner mock orchestration for scratch mode brief collection and generation:
+
+- Active planner service wiring now uses `frontend/src/features/planner/services/plannerService.mock.ts`.
+- In `sendMessage(session, userText)`:
+  - If `session.mode === 'scratch'` and no existing planner state, the mock performs best-effort extraction into `draftBrief`:
+    - `guestCount` (e.g. `120 guests`)
+    - `budget` (e.g. `$50k`, `50000`, `50k`)
+    - `dateRange` (e.g. `March 2026`, `next month`)
+    - `city` (best-effort `in/at <city>` parsing)
+    - `eventType` (conference/retreat/wedding/launch/etc.)
+  - Missing required fields are asked one-at-a-time using the `REQUIRED_BRIEF_FIELDS` order.
+  - When all required fields are present:
+    - session moves to `briefStatus='generating'`
+    - assistant responds with `Generating blueprint...`
+    - deferred completion then sets:
+      - `plannerState`
+      - `artifact`
+      - `briefStatus='artifact_ready'`
+    - `viewMode` is intentionally not switched to `split` automatically.
+- Template mode or any session with existing `plannerState` continues chat-driven mock plan edits without changing canvas interactivity.
+
 ## Immersive AI Editor Redesign (Rail + Co-pilot + Canvas)
 
 ### Locked UX Rules

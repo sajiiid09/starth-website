@@ -48,6 +48,24 @@ Phase 2 implements planner mock orchestration for scratch mode brief collection 
     - `viewMode` is intentionally not switched to `split` automatically.
 - Template mode or any session with existing `plannerState` continues chat-driven mock plan edits without changing canvas interactivity.
 
+## Claude-style Flow (Phase 3 ViewMode Gating)
+
+Phase 3 wires organizer workspace rendering to `PlannerSession.viewMode`:
+
+- `viewMode='chat_only'`:
+  - only co-pilot/chat column is rendered
+  - chat fills workspace width
+  - canvas column is not rendered
+- `viewMode='split'`:
+  - co-pilot + read-only canvas split is rendered via `OrganizerImmersiveShell`
+- Scratch vs template behavior:
+  - scratch sessions remain `chat_only` when generation completes to `briefStatus='artifact_ready'`
+  - template selection from zero state sets:
+    - `mode='template'`
+    - `viewMode='split'`
+    - `briefStatus='canvas_open'`
+    - immediate `plannerState`
+
 ## Immersive AI Editor Redesign (Rail + Co-pilot + Canvas)
 
 ### Locked UX Rules

@@ -33,7 +33,7 @@ import { getCreditsConfig } from "@/features/planner/credits/storage";
 import { plannerService } from "@/features/planner/services/plannerService";
 import { usePlannerSessions } from "@/features/planner/PlannerSessionsContext";
 import { PLANNER_SESSIONS_STORAGE_KEY } from "@/features/planner/utils/storage";
-import { ChatMessage, PlannerState } from "@/features/planner/types";
+import { ChatMessage, PlannerSession, PlannerState } from "@/features/planner/types";
 
 const quickPrompts = [
   "Plan a 120-guest product launch in SF for March, budget $25k.",
@@ -541,7 +541,25 @@ const OrganizerAIWorkspace: React.FC = () => {
 
   const messages = activeSession?.messages ?? [];
   const hasBlueprint = Boolean(activeSession?.plannerState);
+  const showCanvas = activeSession?.viewMode === "split";
   const isZeroState = !activeSession || (messages.length === 0 && !hasBlueprint);
+
+  const getNextViewMode = React.useCallback(
+    (
+      currentSession: PlannerSession,
+      sessionPatch: Partial<PlannerSession> | undefined
+    ): PlannerSession["viewMode"] => {
+      const nextMode = sessionPatch?.mode ?? currentSession.mode;
+      const nextBriefStatus = sessionPatch?.briefStatus ?? currentSession.briefStatus;
+
+      if (nextMode === "scratch" && nextBriefStatus === "artifact_ready") {
+        return "chat_only";
+      }
+
+      return sessionPatch?.viewMode ?? currentSession.viewMode;
+    },
+    []
+  );
 
   React.useEffect(() => {
     return () => {
@@ -647,10 +665,12 @@ const OrganizerAIWorkspace: React.FC = () => {
             response.updatedPlannerState ?? sessionPatch.plannerState ?? session.plannerState;
           const plannerStateDidChange =
             response.updatedPlannerState !== undefined || sessionPatch.plannerState !== undefined;
+          const nextViewMode = getNextViewMode(session, sessionPatch);
 
           return {
             ...session,
             ...sessionPatch,
+            viewMode: nextViewMode,
             messages: hasReplaced ? replaced : [...replaced, response.assistantMessage],
             plannerState: nextPlannerState,
             plannerStateUpdatedAt: plannerStateDidChange
@@ -670,10 +690,12 @@ const OrganizerAIWorkspace: React.FC = () => {
                 createdAt: Date.now()
               };
               const generationPatch = response.deferredGeneration?.sessionUpdate ?? {};
+              const nextViewMode = getNextViewMode(session, generationPatch);
 
               return {
                 ...session,
                 ...generationPatch,
+                viewMode: nextViewMode,
                 plannerState: response.deferredGeneration?.plannerState ?? session.plannerState,
                 plannerStateUpdatedAt:
                   generationPatch.plannerStateUpdatedAt ?? Date.now(),
@@ -792,7 +814,7 @@ const OrganizerAIWorkspace: React.FC = () => {
   return (
     <div className="mx-auto w-full max-w-[1600px]">
       <OrganizerImmersiveShell
-        showCanvas
+        showCanvas={showCanvas}
         topBar={
           <section className="overflow-hidden rounded-2xl border border-slate-200 bg-gradient-to-br from-white via-slate-50 to-brand-light px-6 py-5 shadow-sm">
             <p className="text-xs font-semibold uppercase tracking-[0.3em] text-brand-teal">
@@ -802,13 +824,13 @@ const OrganizerAIWorkspace: React.FC = () => {
               <h1 className="text-2xl font-semibold text-slate-900">Immersive Planner Workspace</h1>
               <Badge variant="secondary" className="border border-slate-200 bg-white text-slate-700">
                 <Sparkle className="mr-1 h-3.5 w-3.5 text-brand-teal" />
-                {hasBlueprint ? "Co-pilot + Canvas shell active" : "Co-pilot shell active"}
+                {showCanvas ? "Co-pilot + Canvas shell active" : "Co-pilot shell active"}
               </Badge>
             </div>
             <p className="mt-2 max-w-3xl text-sm text-slate-600">
-              {hasBlueprint
+              {showCanvas
                 ? "Persistent co-pilot chat sits alongside a live canvas preview with independent scrolling regions."
-                : "The canvas viewport is mounted in read-only mode and remains blank until a generated plan is available."}
+                : "Chat-only mode keeps focus on the co-pilot until canvas reveal is requested."}
             </p>
           </section>
         }

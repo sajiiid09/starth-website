@@ -86,6 +86,25 @@ Phase 4 adds an explicit blueprint artifact surface inside chat and click-to-ope
   - generation completion still leaves scratch sessions in chat-only mode.
   - artifact card appears after the completion assistant message, and canvas is revealed only after artifact click.
 
+## Claude-style Flow (Phase 5 Fullscreen Read-only Preview)
+
+Phase 5 adds a fullscreen blueprint preview path for split view while preserving strict read-only behavior:
+
+- New fullscreen overlay component:
+  - `frontend/src/components/planner/CanvasFullscreenPreview.tsx`
+  - props: `open`, `onClose()`, `planData`
+  - implemented with shadcn `Dialog` and fullscreen `DialogContent`.
+- Split-view canvas header action:
+  - organizer split mode now injects a `Full screen` button into `PlanPreviewCanvas` header.
+  - button opens fullscreen preview without mutating planner data.
+- Fullscreen UX and accessibility:
+  - top bar includes explicit `Back` button to close and return to split view.
+  - `Esc` closes fullscreen via dialog behavior.
+  - focus is moved to the `Back` button on open.
+  - body scroll remains locked by dialog while open; plan content is scrollable within preview.
+- Read-only guarantee:
+  - fullscreen reuses `PlanPreviewCanvas` and does not add any editing controls.
+
 ## Immersive AI Editor Redesign (Rail + Co-pilot + Canvas)
 
 ### Locked UX Rules

@@ -6,7 +6,8 @@ import {
   SpinnerGap,
   Microphone,
   Paperclip,
-  Sparkle
+  Sparkle,
+  ArrowsOutSimple
 } from "@phosphor-icons/react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -22,6 +23,7 @@ import {
 } from "@/components/ui/dialog";
 import PlanPreviewCanvas from "@/components/planner/PlanPreviewCanvas";
 import BlueprintArtifactCard from "@/components/planner/BlueprintArtifactCard";
+import CanvasFullscreenPreview from "@/components/planner/CanvasFullscreenPreview";
 import { Textarea } from "@/components/ui/textarea";
 import OrganizerImmersiveShell from "@/features/immersive/OrganizerImmersiveShell";
 import ZeroStateLanding from "@/features/immersive/ZeroStateLanding";
@@ -566,6 +568,7 @@ const ChatPanel: React.FC<ChatPanelProps> = ({
 
 const OrganizerAIWorkspace: React.FC = () => {
   const [draftMessage, setDraftMessage] = React.useState("");
+  const [isCanvasFullscreenOpen, setIsCanvasFullscreenOpen] = React.useState(false);
   const creditsConfig = React.useMemo(() => getCreditsConfig(), []);
   const { credits, deduct, add, resetToDefault, isEnabled: isCreditsEnabled } = useCredits();
   const { isReady, activeSession, setActiveSession, createNewSession, updateSession } =
@@ -631,6 +634,12 @@ const OrganizerAIWorkspace: React.FC = () => {
   }, []);
 
   React.useEffect(() => {
+    if (!showCanvas && isCanvasFullscreenOpen) {
+      setIsCanvasFullscreenOpen(false);
+    }
+  }, [isCanvasFullscreenOpen, showCanvas]);
+
+  React.useEffect(() => {
     if (!isReady || hasBootstrappedFreshSessionRef.current) {
       return;
     }
@@ -649,9 +658,34 @@ const OrganizerAIWorkspace: React.FC = () => {
     hasBootstrappedFreshSessionRef.current = true;
   }, [activeSession, createNewSession, isReady]);
 
+  const openCanvasFullscreen = React.useCallback(() => {
+    setIsCanvasFullscreenOpen(true);
+  }, []);
+
+  const closeCanvasFullscreen = React.useCallback(() => {
+    setIsCanvasFullscreenOpen(false);
+  }, []);
+
   const renderCanvasPanel = React.useCallback(
-    () => <PlanPreviewCanvas planData={activeSession?.plannerState ?? null} />,
-    [activeSession?.plannerState]
+    () => (
+      <PlanPreviewCanvas
+        planData={activeSession?.plannerState ?? null}
+        headerActions={
+          showCanvas ? (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={openCanvasFullscreen}
+              className="h-8 rounded-lg border-slate-200"
+            >
+              <ArrowsOutSimple className="mr-1.5 h-4 w-4" />
+              Full screen
+            </Button>
+          ) : undefined
+        }
+      />
+    ),
+    [activeSession?.plannerState, openCanvasFullscreen, showCanvas]
   );
 
   const sendMessage = React.useCallback(
@@ -923,6 +957,11 @@ const OrganizerAIWorkspace: React.FC = () => {
           />
         }
         canvas={renderCanvasPanel()}
+      />
+      <CanvasFullscreenPreview
+        open={isCanvasFullscreenOpen}
+        onClose={closeCanvasFullscreen}
+        planData={activeSession?.plannerState ?? null}
       />
     </div>
   );

@@ -5,7 +5,8 @@
 - Phase 2: Complete.
 - Phase 3: Complete.
 - Phase 4: Complete.
-- Phase 5: Next.
+- Phase 5: Complete.
+- Phase 6: Next.
 
 ## Key Decisions
 - Scratch mode canvas reveal is gated by artifact click.

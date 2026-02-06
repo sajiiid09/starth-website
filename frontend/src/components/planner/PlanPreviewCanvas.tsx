@@ -14,6 +14,7 @@ type PlanPreviewHighlightSection =
 type PlanPreviewCanvasProps = {
   planData: PlannerState | null;
   highlightSection?: PlanPreviewHighlightSection;
+  headerActions?: React.ReactNode;
 };
 
 const currencyFormatter = new Intl.NumberFormat("en-US", {
@@ -79,7 +80,8 @@ const BudgetDonut: React.FC<{ breakdown: PlannerState["budget"]["breakdown"] }> 
 
 const PlanPreviewCanvas: React.FC<PlanPreviewCanvasProps> = ({
   planData,
-  highlightSection
+  highlightSection,
+  headerActions
 }) => {
   if (!planData) {
     return <aside className="h-full min-h-0 bg-slate-50/50" aria-label="Canvas preview panel" />;
@@ -109,9 +111,12 @@ const PlanPreviewCanvas: React.FC<PlanPreviewCanvasProps> = ({
             <h2 className="mt-1 truncate text-xl font-semibold tracking-tight text-slate-900">{planData.title}</h2>
             <p className="mt-1 line-clamp-2 text-xs leading-relaxed text-slate-500">{planData.summary}</p>
           </div>
-          <div className="inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-white px-3 py-1.5 text-[10px] font-semibold uppercase tracking-wide text-slate-500 shadow-sm">
-            <Lock weight="fill" className="h-3 w-3 text-brand-teal/60" />
-            AI Managed
+          <div className="flex shrink-0 items-center gap-2">
+            {headerActions}
+            <div className="inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-white px-3 py-1.5 text-[10px] font-semibold uppercase tracking-wide text-slate-500 shadow-sm">
+              <Lock weight="fill" className="h-3 w-3 text-brand-teal/60" />
+              AI Managed
+            </div>
           </div>
         </div>
       </header>

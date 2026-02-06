@@ -31,18 +31,18 @@ const OrganizerImmersiveShell: React.FC<OrganizerImmersiveShellProps> = ({
         {/* Desktop Split View */}
         <div
           className={cn(
-            "hidden h-full min-h-0 rounded-[24px] border border-slate-200/60 bg-white/50 shadow-xl backdrop-blur-sm lg:grid overflow-hidden",
+            "hidden h-full min-h-0 rounded-[24px] border border-slate-200/60 bg-white/50 shadow-xl backdrop-blur-sm lg:grid overflow-hidden transition-[grid-template-columns] duration-300 ease-out",
             desktopColumnsClass
           )}
         >
           <div className={cn(
-            "min-h-0 overflow-hidden flex flex-col bg-white",
+            "min-h-0 overflow-hidden flex flex-col bg-white transition-all duration-300 ease-out",
             showCanvas ? "border-r border-slate-100 shadow-[4px_0_24px_-12px_rgba(0,0,0,0.05)]" : ""
           )}>
             {copilot}
           </div>
           {showCanvas && (
-            <div className="min-h-0 overflow-hidden bg-slate-50/30">
+            <div className="min-h-0 overflow-hidden bg-slate-50/30 animate-in fade-in-0 slide-in-from-right-2 duration-300">
               {canvas}
             </div>
           )}
@@ -51,13 +51,13 @@ const OrganizerImmersiveShell: React.FC<OrganizerImmersiveShellProps> = ({
         {/* Tablet Stacking View */}
         <div className="hidden h-full min-h-0 flex-col gap-4 md:flex lg:hidden">
           <div className={cn(
-            "min-h-0 overflow-hidden rounded-[24px] border border-slate-200/60 bg-white shadow-lg",
+            "min-h-0 overflow-hidden rounded-[24px] border border-slate-200/60 bg-white shadow-lg transition-all duration-300 ease-out",
             showCanvas ? "basis-[50%]" : "flex-1"
           )}>
             {copilot}
           </div>
           {showCanvas && (
-            <div className="min-h-0 basis-[50%] overflow-hidden rounded-[24px] border border-slate-200/60 bg-white shadow-lg">
+            <div className="min-h-0 basis-[50%] overflow-hidden rounded-[24px] border border-slate-200/60 bg-white shadow-lg animate-in fade-in-0 slide-in-from-bottom-2 duration-300">
               {canvas}
             </div>
           )}

@@ -3,6 +3,20 @@
 ## Overview
 The Organizer/User dashboard is being redesigned so the post-login landing experience is a dedicated AI workspace shell. This decouples dashboard planning UX from the public website AI planner and sets a clean foundation for phased feature delivery.
 
+## Locked UX Rules (Final)
+
+- Zero state is minimal and contains only:
+  - centered prompt composer
+  - 3 starter template cards directly below
+- Scratch path stays chat-only until artifact reveal:
+  - collect brief -> generate -> `artifact_ready`
+  - canvas opens only after artifact card click
+- Template path opens split view immediately:
+  - sets `mode='template'`, `viewMode='split'`, and immediate `plannerState`
+- Canvas is read-only in all modes.
+- Fullscreen preview is available in split mode and remains read-only.
+- Matches functionality is not present anywhere in organizer planner surfaces.
+
 ## Claude-style Flow (New State Model)
 
 Phase 1 introduces session-model scaffolding for a Claude-style planner flow.
@@ -105,6 +119,31 @@ Phase 5 adds a fullscreen blueprint preview path for split view while preserving
 - Read-only guarantee:
   - fullscreen reuses `PlanPreviewCanvas` and does not add any editing controls.
 
+## Claude-style Flow (Phase 6 Zero-state Strictness + QA Finalization)
+
+Phase 6 enforces strict UX rules and final polish:
+
+- Zero-state strictness:
+  - `ZeroStateLanding` is reduced to only prompt + 3-card grid.
+  - no extra sections, banners, or secondary controls.
+  - canvas is not rendered in zero state.
+- Flow guarantees:
+  - scratch remains chat-only through `artifact_ready`.
+  - template cards create immediate split sessions with planner state.
+  - template assistant response is standardized to: `What do you want to change?`
+- Interaction polish:
+  - split-view transition from artifact click uses lightweight Tailwind transitions in immersive shell.
+  - fullscreen preview and read-only canvas behavior remain intact.
+- Persistence QA:
+  - planner session persistence is triggered by session updates (message send, generation completion, artifact click, template select).
+  - draft typing remains local UI state and does not trigger storage writes.
+- Final QA checklist:
+  - zero state: prompt + 3 cards only
+  - scratch: no canvas until artifact click
+  - template: split opens instantly
+  - fullscreen: open/close works with keyboard and back button
+  - no Matches UI or planner state paths
+
 ## Immersive AI Editor Redesign (Rail + Co-pilot + Canvas)
 
 ### Locked UX Rules
@@ -112,7 +151,7 @@ Phase 5 adds a fullscreen blueprint preview path for split view while preserving
 - Global nav behaves like overlay drawer (no layout shift).
 - No Matches tab.
 - Zero state = centered prompt + 3-card template grid only.
-- Canvas hidden during scratch flow until chain questions completed; template selection loads canvas immediately.
+- Scratch stays chat-only through artifact readiness and opens canvas only after artifact click; template selection opens split immediately.
 
 ### Locked Rules (Do Not Change)
 - Rail remains thin icon-first navigation (`~5%` visual footprint).
@@ -120,7 +159,7 @@ Phase 5 adds a fullscreen blueprint preview path for split view while preserving
 - Co-pilot chat is the only control surface for plan changes.
 - Canvas stays read-only with one-way `planData` input.
 - Zero state contains only centered prompt + 3 starter cards.
-- Scratch start delays canvas population until required brief fields are completed.
+- Scratch keeps canvas hidden until the artifact card is clicked.
 - Template start loads canvas immediately and asks what to change.
 
 ### Phase Checklist (1–8)

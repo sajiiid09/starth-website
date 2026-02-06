@@ -859,7 +859,7 @@ const OrganizerAIWorkspace: React.FC = () => {
       const assistantMessage: ChatMessage = {
         id: createMessageId("assistant-template"),
         role: "assistant",
-        text: `Loaded the ${template.title}. What would you like to change?`,
+        text: `Loaded the ${template.title}. What do you want to change?`,
         status: "final",
         createdAt: now
       };

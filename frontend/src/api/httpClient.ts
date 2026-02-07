@@ -1,6 +1,7 @@
-import { clearAuthTokens, getAccessToken } from "./authStorage";
+import { clearAuthTokens, getAccessToken, getCsrfToken } from "./authStorage";
 
 export type HttpMethod = "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
+const CSRF_PROTECTED_METHODS: HttpMethod[] = ["POST", "PUT", "PATCH", "DELETE"];
 
 export type NormalizedApiError = {
   message: string;
@@ -186,6 +187,12 @@ export const request = async <T>(method: HttpMethod, path: string, options: Requ
       const token = getAccessToken();
       if (token) {
         headers.Authorization = `Bearer ${token}`;
+        if (CSRF_PROTECTED_METHODS.includes(method)) {
+          const csrfToken = getCsrfToken();
+          if (csrfToken) {
+            headers["X-CSRF-Token"] = csrfToken;
+          }
+        }
       }
     }
 

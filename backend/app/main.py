@@ -1,5 +1,7 @@
 """FastAPI application factory — wires all routers, CORS, and health check."""
 
+import logging
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -15,6 +17,8 @@ from app.api.routes.plans import router as plans_router
 from app.api.routes.templates import router as templates_router
 from app.api.routes.webhooks import router as webhooks_router
 from app.core.config import settings
+from app.core.logging_config import setup_logging
+from app.core.request_logging import RequestLoggingMiddleware
 
 # Import all models so they are registered with Base.metadata
 import app.models  # noqa: F401
@@ -60,8 +64,12 @@ from app.models.extra import (
     WaitlistSubscriber,
 )
 
+logger = logging.getLogger(__name__)
+
 
 def create_app() -> FastAPI:
+    setup_logging()
+
     app = FastAPI(
         title="Strathwell API",
         version="0.1.0",
@@ -69,6 +77,7 @@ def create_app() -> FastAPI:
         redoc_url="/api/redoc",
         openapi_url="/api/openapi.json",
     )
+    app.add_middleware(RequestLoggingMiddleware)
 
     # ------------------------------------------------------------------
     # CORS
@@ -87,6 +96,14 @@ def create_app() -> FastAPI:
         allow_credentials=True,
         allow_methods=["*"],
         allow_headers=["*"],
+    )
+    logger.info(
+        "Application startup configuration loaded",
+        extra={
+            "environment": settings.ENVIRONMENT,
+            "frontend_url": settings.FRONTEND_URL,
+            "rate_limit_enabled": settings.RATE_LIMIT_ENABLED,
+        },
     )
 
     # ------------------------------------------------------------------

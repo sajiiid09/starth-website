@@ -3,6 +3,7 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.core.rate_limit import auth_rate_limit
 from app.core.deps import get_current_user
 from app.db.engine import get_db
 from app.models.user import User
@@ -11,6 +12,7 @@ from app.schemas.auth import (
     LoginRequest,
     LogoutResponse,
     RegisterRequest,
+    ResendVerificationRequest,
     ResetPasswordRequest,
     ResetPasswordResponse,
     TokenResponse,
@@ -22,6 +24,7 @@ from app.schemas.auth import (
 from app.services.auth_service import (
     login_user,
     register_user,
+    resend_verification_otp,
     reset_password,
     send_forgot_password_otp,
     verify_email_otp,
@@ -35,7 +38,7 @@ router = APIRouter(prefix="/api/auth", tags=["auth"])
 # ---------------------------------------------------------------------------
 
 
-@router.post("/signup", response_model=TokenResponse)
+@router.post("/signup", response_model=TokenResponse, dependencies=[Depends(auth_rate_limit)])
 async def signup(
     payload: RegisterRequest,
     db: AsyncSession = Depends(get_db),
@@ -43,7 +46,7 @@ async def signup(
     return await register_user(db, payload)
 
 
-@router.post("/register", response_model=TokenResponse)
+@router.post("/register", response_model=TokenResponse, dependencies=[Depends(auth_rate_limit)])
 async def register(
     payload: RegisterRequest,
     db: AsyncSession = Depends(get_db),
@@ -56,7 +59,7 @@ async def register(
 # ---------------------------------------------------------------------------
 
 
-@router.post("/login", response_model=TokenResponse)
+@router.post("/login", response_model=TokenResponse, dependencies=[Depends(auth_rate_limit)])
 async def login(
     payload: LoginRequest,
     db: AsyncSession = Depends(get_db),
@@ -118,7 +121,7 @@ async def update_me(
 # ---------------------------------------------------------------------------
 
 
-@router.post("/verify-email", response_model=VerifyEmailResponse)
+@router.post("/verify-email", response_model=VerifyEmailResponse, dependencies=[Depends(auth_rate_limit)])
 async def verify_email(
     payload: VerifyEmailRequest,
     db: AsyncSession = Depends(get_db),
@@ -126,7 +129,15 @@ async def verify_email(
     return await verify_email_otp(db, payload)
 
 
-@router.post("/forgot-password", response_model=ResetPasswordResponse)
+@router.post("/resend-verification", response_model=VerifyEmailResponse, dependencies=[Depends(auth_rate_limit)])
+async def resend_verification(
+    payload: ResendVerificationRequest,
+    db: AsyncSession = Depends(get_db),
+) -> VerifyEmailResponse:
+    return await resend_verification_otp(db, payload)
+
+
+@router.post("/forgot-password", response_model=ResetPasswordResponse, dependencies=[Depends(auth_rate_limit)])
 async def forgot_password(
     payload: ForgotPasswordRequest,
     db: AsyncSession = Depends(get_db),
@@ -137,7 +148,7 @@ async def forgot_password(
     return ResetPasswordResponse()
 
 
-@router.post("/reset-password", response_model=ResetPasswordResponse)
+@router.post("/reset-password", response_model=ResetPasswordResponse, dependencies=[Depends(auth_rate_limit)])
 async def reset_pwd(
     payload: ResetPasswordRequest,
     db: AsyncSession = Depends(get_db),

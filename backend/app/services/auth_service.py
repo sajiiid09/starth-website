@@ -1,5 +1,6 @@
 """Authentication business logic."""
 
+import logging
 from datetime import datetime, timezone
 
 from sqlalchemy import select
@@ -8,6 +9,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.security import (
     create_access_token,
     create_refresh_token,
+    generate_csrf_token,
     generate_otp,
     hash_password,
     otp_expiry,
@@ -17,6 +19,7 @@ from app.models.user import User
 from app.schemas.auth import (
     LoginRequest,
     RegisterRequest,
+    ResendVerificationRequest,
     ResetPasswordRequest,
     TokenResponse,
     UserRead,
@@ -29,6 +32,7 @@ from app.utils.exceptions import BadRequestError, ConflictError, UnauthorizedErr
 # Roles that users are allowed to self-assign during registration.
 # "admin" is intentionally excluded — admins must be created via seed or DB.
 ALLOWED_REGISTRATION_ROLES = {"user", "venue_owner", "service_provider"}
+logger = logging.getLogger(__name__)
 
 
 def _user_to_read(user: User) -> UserRead:
@@ -80,13 +84,16 @@ async def register_user(db: AsyncSession, payload: RegisterRequest) -> TokenResp
 
     # Send OTP email (non-blocking failure is OK in dev)
     await send_otp_email(user.email, otp)
+    logger.info("User registered and verification OTP sent", extra={"email": user.email})
 
-    access_token = create_access_token(str(user.id))
+    csrf_token = generate_csrf_token()
+    access_token = create_access_token(str(user.id), extra_claims={"csrf": csrf_token})
     refresh_token = create_refresh_token(str(user.id))
 
     return TokenResponse(
         access_token=access_token,
         refresh_token=refresh_token,
+        csrf_token=csrf_token,
         user=_user_to_read(user),
     )
 
@@ -97,14 +104,18 @@ async def login_user(db: AsyncSession, payload: LoginRequest) -> TokenResponse:
     user = result.scalar_one_or_none()
 
     if user is None or not verify_password(payload.password, user.password_hash):
+        logger.warning("Login failed due to invalid credentials", extra={"email": payload.email})
         raise UnauthorizedError("Invalid email or password")
 
-    access_token = create_access_token(str(user.id))
+    csrf_token = generate_csrf_token()
+    access_token = create_access_token(str(user.id), extra_claims={"csrf": csrf_token})
     refresh_token = create_refresh_token(str(user.id))
+    logger.info("User login successful", extra={"email": user.email})
 
     return TokenResponse(
         access_token=access_token,
         refresh_token=refresh_token,
+        csrf_token=csrf_token,
         user=_user_to_read(user),
     )
 
@@ -137,9 +148,48 @@ async def verify_email_otp(
     user.otp_code = None
     user.otp_expiry = None
     await db.flush()
+    logger.info("Email verification completed", extra={"email": user.email})
 
     return VerifyEmailResponse(
         message="Email verified successfully",
+        email=user.email,
+    )
+
+
+async def resend_verification_otp(
+    db: AsyncSession,
+    payload: ResendVerificationRequest,
+) -> VerifyEmailResponse:
+    """Generate and send a new verification OTP code."""
+    result = await db.execute(select(User).where(User.email == payload.email))
+    user = result.scalar_one_or_none()
+
+    if user is None:
+        # Avoid leaking account existence.
+        logger.info("Resend verification requested for unknown email")
+        return VerifyEmailResponse(
+            message="If an account exists, a verification code has been sent.",
+            email=payload.email,
+        )
+
+    if user.is_verified:
+        logger.info("Resend verification skipped for already verified email", extra={"email": user.email})
+        return VerifyEmailResponse(
+            already_verified=True,
+            message="Email is already verified",
+            email=user.email,
+        )
+
+    otp = generate_otp()
+    user.otp_code = otp
+    user.otp_expiry = otp_expiry()
+    await db.flush()
+
+    await send_otp_email(user.email, otp)
+    logger.info("Resent verification OTP", extra={"email": user.email})
+
+    return VerifyEmailResponse(
+        message="A new verification code has been sent.",
         email=user.email,
     )
 
@@ -151,6 +201,7 @@ async def send_forgot_password_otp(db: AsyncSession, email: str) -> None:
 
     if user is None:
         # Silently return to avoid leaking whether the email exists.
+        logger.info("Forgot-password requested for unknown email")
         return
 
     otp = generate_otp()
@@ -159,6 +210,7 @@ async def send_forgot_password_otp(db: AsyncSession, email: str) -> None:
     await db.flush()
 
     await send_password_reset_email(user.email, otp)
+    logger.info("Password-reset OTP sent", extra={"email": user.email})
 
 
 async def reset_password(
@@ -182,3 +234,4 @@ async def reset_password(
     user.otp_code = None
     user.otp_expiry = None
     await db.flush()
+    logger.info("Password reset completed", extra={"email": user.email})

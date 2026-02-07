@@ -1,6 +1,7 @@
 const ACCESS_TOKEN_KEY = "authToken";
 const LEGACY_ACCESS_TOKEN_KEY = "accessToken";
 const REFRESH_TOKEN_KEY = "refreshToken";
+const CSRF_TOKEN_KEY = "csrfToken";
 
 const canUseStorage = () => typeof window !== "undefined";
 
@@ -41,6 +42,22 @@ export const setRefreshToken = (token: string) => {
   window.localStorage.setItem(REFRESH_TOKEN_KEY, token);
 };
 
+export const getCsrfToken = (): string | null => {
+  if (!canUseStorage()) {
+    return null;
+  }
+
+  return window.localStorage.getItem(CSRF_TOKEN_KEY);
+};
+
+export const setCsrfToken = (token: string) => {
+  if (!canUseStorage()) {
+    return;
+  }
+
+  window.localStorage.setItem(CSRF_TOKEN_KEY, token);
+};
+
 export const clearAuthTokens = () => {
   if (!canUseStorage()) {
     return;
@@ -49,4 +66,5 @@ export const clearAuthTokens = () => {
   window.localStorage.removeItem(ACCESS_TOKEN_KEY);
   window.localStorage.removeItem(LEGACY_ACCESS_TOKEN_KEY);
   window.localStorage.removeItem(REFRESH_TOKEN_KEY);
+  window.localStorage.removeItem(CSRF_TOKEN_KEY);
 };

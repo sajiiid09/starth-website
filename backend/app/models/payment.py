@@ -16,6 +16,9 @@ class Payment(Base, UUIDPrimaryKeyMixin):
     event_id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True), ForeignKey("events.id", ondelete="CASCADE"), nullable=False, index=True
     )
+    event_service_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("event_services.id"), unique=True, index=True
+    )
     payer_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True), ForeignKey("users.id"))
     payee_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True), ForeignKey("users.id"))
     amount: Mapped[float] = mapped_column(Numeric(10, 2), nullable=False)

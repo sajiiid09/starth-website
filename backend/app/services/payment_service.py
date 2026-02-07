@@ -114,77 +114,116 @@ async def release_payment(
 
     Transfers 90% of the agreed price to the provider's connected account.
     """
-    result = await db.execute(
-        select(EventService).where(EventService.id == event_service_id)
-    )
-    es = result.scalar_one_or_none()
-    if es is None:
-        return {"success": False, "error": "Event service not found"}
+    idempotency_key = f"release_payment:{event_service_id}"
 
-    if es.status != "completed":
-        return {"success": False, "error": "Service must be completed before payment release"}
-
-    if not es.service_provider_id:
-        return {"success": False, "error": "No service provider assigned to this event service"}
-
-    provider_result = await db.execute(
-        select(ServiceProvider).where(ServiceProvider.id == es.service_provider_id)
-    )
-    provider = provider_result.scalar_one_or_none()
-    if provider is None:
-        return {"success": False, "error": "Service provider not found"}
-
-    agreed_price = float(es.agreed_price)
-    commission = round(agreed_price * settings.STRIPE_PLATFORM_COMMISSION, 2)
-    payout_amount = round(agreed_price - commission, 2)
-    payout_cents = int(payout_amount * 100)
-
-    transfer_id = None
-    if settings.STRIPE_SECRET_KEY:
-        if not provider.stripe_account_id:
-            return {
-                "success": False,
-                "error": "Provider onboarding required: missing Stripe account ID",
-                "onboarding_required": True,
-            }
-        try:
-            transfer = stripe.Transfer.create(
-                amount=payout_cents,
-                currency="usd",
-                destination=provider.stripe_account_id,
-                metadata={
-                    "event_service_id": str(event_service_id),
-                    "event_id": str(es.event_id),
-                },
+    try:
+        async with db.begin_nested():
+            result = await db.execute(
+                select(EventService)
+                .where(EventService.id == event_service_id)
+                .with_for_update()
             )
-            transfer_id = transfer.id
-        except stripe.StripeError as e:
-            logger.error("Stripe transfer failed: %s", e)
-            return {"success": False, "error": f"Payment transfer failed: {str(e)}"}
+            es = result.scalar_one_or_none()
+            if es is None:
+                return {"success": False, "error": "Event service not found"}
 
-    # Record the payout payment
-    payment = Payment(
-        event_id=es.event_id,
-        payee_id=provider.user_id,
-        amount=agreed_price,
-        platform_commission=commission,
-        net_amount=payout_amount,
-        payment_type="service_payment",
-        stripe_transfer_id=transfer_id,
-        status="released",
-        released_at=datetime.now(timezone.utc),
-    )
-    db.add(payment)
+            existing_payout_result = await db.execute(
+                select(Payment)
+                .where(
+                    Payment.event_service_id == event_service_id,
+                    Payment.payment_type == "service_payment",
+                )
+                .with_for_update()
+            )
+            existing_payout = existing_payout_result.scalar_one_or_none()
+            if existing_payout:
+                if existing_payout.status == "released":
+                    return {
+                        "success": True,
+                        "payout_amount": float(existing_payout.net_amount or 0),
+                        "commission": float(existing_payout.platform_commission or 0),
+                        "transfer_id": existing_payout.stripe_transfer_id,
+                        "already_released": True,
+                    }
+                return {
+                    "success": False,
+                    "error": "Payout is already being processed for this service",
+                    "already_processing": True,
+                }
 
-    es.approved_at = datetime.now(timezone.utc)
-    es.status = "paid"
+            if es.status != "completed":
+                return {"success": False, "error": "Service must be completed before payment release"}
 
-    return {
-        "success": True,
-        "payout_amount": payout_amount,
-        "commission": commission,
-        "transfer_id": transfer_id,
-    }
+            if not es.service_provider_id:
+                return {"success": False, "error": "No service provider assigned to this event service"}
+
+            provider_result = await db.execute(
+                select(ServiceProvider).where(ServiceProvider.id == es.service_provider_id)
+            )
+            provider = provider_result.scalar_one_or_none()
+            if provider is None:
+                return {"success": False, "error": "Service provider not found"}
+
+            if settings.STRIPE_SECRET_KEY and not provider.stripe_account_id:
+                return {
+                    "success": False,
+                    "error": "Provider onboarding required: missing Stripe account ID",
+                    "onboarding_required": True,
+                }
+
+            agreed_price = float(es.agreed_price)
+            commission = round(agreed_price * settings.STRIPE_PLATFORM_COMMISSION, 2)
+            payout_amount = round(agreed_price - commission, 2)
+            payout_cents = int(payout_amount * 100)
+            now = datetime.now(timezone.utc)
+
+            payout_payment = Payment(
+                event_id=es.event_id,
+                event_service_id=es.id,
+                payee_id=provider.user_id,
+                amount=agreed_price,
+                platform_commission=commission,
+                net_amount=payout_amount,
+                payment_type="service_payment",
+                status="payout_started",
+            )
+            db.add(payout_payment)
+            await db.flush()
+
+            transfer_id = None
+            if settings.STRIPE_SECRET_KEY:
+                transfer = stripe.Transfer.create(
+                    amount=payout_cents,
+                    currency="usd",
+                    destination=provider.stripe_account_id,
+                    metadata={
+                        "event_service_id": str(event_service_id),
+                        "event_id": str(es.event_id),
+                        "approver_id": str(approver_id),
+                    },
+                    idempotency_key=idempotency_key,
+                )
+                transfer_id = transfer.id
+
+            payout_payment.stripe_transfer_id = transfer_id
+            payout_payment.status = "released"
+            payout_payment.released_at = now
+
+            es.approved_at = now
+            es.status = "paid"
+
+            return {
+                "success": True,
+                "payout_amount": payout_amount,
+                "commission": commission,
+                "transfer_id": transfer_id,
+            }
+    except stripe.StripeError as e:
+        logger.error("Stripe transfer failed: %s", e)
+        return {"success": False, "error": f"Payment transfer failed: {str(e)}"}
+    except Exception as e:
+        logger.exception("Unexpected error during payment release")
+        return {"success": False, "error": f"Payment release failed: {str(e)}"}
 
 
 async def process_cancellation(

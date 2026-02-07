@@ -65,3 +65,49 @@ Date: 2026-02-07
    - Secret configured + missing signature header -> `403`.
    - Secret configured + invalid signature -> `403`.
    - Secret configured + valid signature -> webhook accepted and `payment_intent.succeeded` updates payment/event state.
+
+## Concurrency Fix: Payment Release Safety (Phase 3)
+
+Date: 2026-02-07
+
+### Issue
+
+Concurrent calls to `release_payment()` could race and trigger duplicate Stripe transfers or inconsistent DB state.
+
+### Fix Applied
+
+- Refactored `release_payment()` in `backend/app/services/payment_service.py`:
+  - Wrapped payout flow in `async with db.begin_nested()` for explicit transactional scope.
+  - Added row lock on `EventService` lookup via `with_for_update()` to serialize concurrent payout attempts for the same service.
+  - Added idempotency check using a dedicated payout record per event service:
+    - Query existing `Payment` where `event_service_id` + `payment_type="service_payment"`.
+    - If already `released`, return idempotent success (`already_released=True`) without calling Stripe again.
+    - If in progress (`payout_started`), reject duplicate concurrent processing.
+  - Added Stripe transfer idempotency key:
+    - `idempotency_key = f"release_payment:{event_service_id}"`
+  - Added `payout_started` intermediate status in the payment record before Stripe transfer, then transition to `released` only after transfer succeeds.
+  - Added `try/except` around transaction to ensure failures are returned cleanly and transactional changes roll back.
+
+- Schema updates:
+  - Added `event_service_id` to `Payment` model to tie payout records to one service.
+  - Added migration: `backend/alembic/versions/3c7b1eab42d1_add_event_service_id_to_payments.py`
+  - Enforced uniqueness on `payments.event_service_id` to prevent duplicate payout rows for the same service.
+
+### Why Context Manager + Idempotency Key
+
+1. `async with db.begin_nested()` provides explicit transactional boundaries and rollback behavior for failures in mixed DB + Stripe logic.
+2. Row-level locking (`FOR UPDATE`) ensures only one concurrent payout flow can proceed for a given service row at a time.
+3. `payout_started` records in DB make in-flight payouts visible and block duplicate attempts.
+4. Stripe idempotency key protects against duplicate external transfers if retries occur after partial failures.
+
+### Verification / Testing Steps
+
+1. Run unit tests:
+   - `cd backend`
+   - `../.venv/bin/python -m unittest discover -s tests -p 'test_*.py'`
+2. Covered Phase 3 test cases:
+   - Uses provider `stripe_account_id` and sends Stripe transfer with idempotency key.
+   - Missing `stripe_account_id` returns onboarding-required error.
+   - Already released payout returns idempotent success without second transfer.
+   - Concurrent release requests only create one Stripe transfer.
+   - Stripe transfer failure rolls back `payout_started` state and keeps service status unchanged.

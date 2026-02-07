@@ -1,5 +1,6 @@
 """Stripe webhook handler for real-time payment event processing."""
 
+import json
 import logging
 
 import stripe
@@ -33,25 +34,39 @@ async def stripe_webhook(
     """
     payload = await request.body()
 
-    if not settings.STRIPE_WEBHOOK_SECRET:
-        logger.warning("Stripe webhook secret not configured — skipping signature verification")
-        event = stripe.Event.construct_from(
-            values=stripe.util.json.loads(payload),
-            key=settings.STRIPE_SECRET_KEY or "",
+    is_production = settings.ENVIRONMENT.lower() == "production"
+    webhook_secret = settings.STRIPE_WEBHOOK_SECRET
+
+    if is_production and not webhook_secret:
+        logger.error("Stripe webhook secret missing in production; rejecting webhook")
+        raise HTTPException(
+            status_code=403,
+            detail="Stripe webhook secret is not configured in production",
         )
-    else:
+
+    if webhook_secret:
+        if not stripe_signature:
+            logger.error("Missing Stripe-Signature header")
+            raise HTTPException(status_code=403, detail="Missing Stripe-Signature header")
         try:
-            event = stripe.Webhook.construct_event(
+            stripe.WebhookSignature.verify_header(
                 payload=payload,
-                sig_header=stripe_signature or "",
-                secret=settings.STRIPE_WEBHOOK_SECRET,
+                header=stripe_signature,
+                secret=webhook_secret,
             )
         except stripe.SignatureVerificationError:
             logger.error("Stripe webhook signature verification failed")
-            raise HTTPException(status_code=400, detail="Invalid signature")
-        except ValueError:
-            logger.error("Stripe webhook payload invalid")
-            raise HTTPException(status_code=400, detail="Invalid payload")
+            raise HTTPException(status_code=403, detail="Invalid Stripe webhook signature")
+    else:
+        logger.warning(
+            "Stripe webhook secret not configured in non-production; signature verification skipped"
+        )
+
+    try:
+        event = json.loads(payload.decode("utf-8"))
+    except ValueError:
+        logger.error("Stripe webhook payload invalid")
+        raise HTTPException(status_code=400, detail="Invalid payload")
 
     event_type = event.get("type", "")
     data_object = event.get("data", {}).get("object", {})

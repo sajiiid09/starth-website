@@ -9,12 +9,12 @@ import { motion } from "framer-motion";
 import {
   Check,
   X,
-  Sparkles,
-  Zap,
-  Building2,
+  Sparkle,
+  Lightning,
+  Buildings,
   ArrowRight,
-  HelpCircle,
-} from "lucide-react";
+  Question,
+} from "@phosphor-icons/react";
 import { cn } from "@/lib/utils";
 
 import FaqSection from "@/components/marketing/FaqSection";
@@ -83,10 +83,10 @@ export default function PlansPage() {
         <Container>
           <FadeIn>
             <Badge className="mb-6 inline-flex items-center gap-2 rounded-full border border-brand-teal/20 bg-brand-teal/5 px-4 py-2 text-xs font-semibold uppercase tracking-[0.3em] text-brand-teal">
-              <Zap className="h-4 w-4" />
+              <Lightning className="h-4 w-4" />
               Plans & Pricing
             </Badge>
-            <h1 className="text-4xl font-bold tracking-tight text-brand-dark sm:text-5xl md:text-6xl">
+            <h1 className="text-4xl font-semibold tracking-tight text-brand-dark sm:text-5xl md:text-6xl">
               Simple, transparent pricing.
             </h1>
             <p className="mx-auto mt-6 max-w-2xl text-base text-brand-dark/60 sm:text-lg md:text-xl">
@@ -157,9 +157,9 @@ export default function PlansPage() {
                   >
                     <div className="mb-8">
                       <div className="mb-4 flex items-center justify-between">
-                        <h3 className="text-xl font-bold">{plan.name}</h3>
+                        <h3 className="text-xl font-semibold">{plan.name}</h3>
                         {plan.popular && (
-                          <span className="rounded-full bg-brand-teal px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-white">
+                          <span className="rounded-full bg-brand-teal px-3 py-1 text-[10px] font-semibold uppercase tracking-widest text-white">
                             Most Popular
                           </span>
                         )}
@@ -167,7 +167,7 @@ export default function PlansPage() {
                       <div className="flex items-baseline gap-1">
                         {typeof priceValue === "number" ? (
                           <>
-                            <span className="text-5xl font-bold tracking-tight">
+                            <span className="text-5xl font-semibold tracking-tight">
                               ${priceValue}
                             </span>
                             <span
@@ -180,7 +180,7 @@ export default function PlansPage() {
                             </span>
                           </>
                         ) : (
-                          <span className="text-4xl font-bold tracking-tight">Custom</span>
+                          <span className="text-4xl font-semibold tracking-tight">Custom</span>
                         )}
                       </div>
                       <p
@@ -237,7 +237,7 @@ export default function PlansPage() {
                     >
                       <Button
                         className={cn(
-                          "w-full rounded-full py-6 text-base font-bold shadow-lg transition-all hover:scale-[1.02]",
+                          "w-full rounded-full py-6 text-base font-semibold shadow-lg transition-all hover:scale-[1.02]",
                           isDark
                             ? "bg-brand-teal text-white hover:bg-brand-teal/90"
                             : "bg-brand-dark text-white hover:bg-brand-dark/90"
@@ -263,26 +263,26 @@ export default function PlansPage() {
 
               <div className="relative z-10 mx-auto max-w-3xl">
                 <Badge className="mb-6 inline-flex items-center gap-2 rounded-full bg-white px-4 py-2 text-xs font-semibold uppercase tracking-[0.3em] text-brand-dark shadow-sm">
-                  <Building2 className="h-4 w-4 text-brand-teal" />
+                  <Buildings className="h-4 w-4 text-brand-teal" />
                   For Vendors & Venues
                 </Badge>
 
-                <h2 className="mb-6 text-3xl font-bold text-brand-dark md:text-4xl">
+                <h2 className="mb-6 text-3xl font-semibold text-brand-dark md:text-4xl">
                   Are you a Venue Owner or Service Provider?
                 </h2>
 
                 <p className="mb-10 text-base leading-relaxed text-brand-dark/70 sm:text-lg">
                   Join our marketplace with{" "}
-                  <span className="font-bold text-brand-dark">zero upfront cost</span>.
+                  <span className="font-semibold text-brand-dark">zero upfront cost</span>.
                   Our business model is designed to align with your success.
                 </p>
 
                 <div className="grid gap-6 text-left md:grid-cols-2">
                   <div className="rounded-2xl border border-white/50 bg-white p-6 shadow-sm">
                     <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-xl bg-brand-dark text-white">
-                      <Sparkles className="h-5 w-5" />
+                      <Sparkle className="h-5 w-5" />
                     </div>
-                    <h3 className="mb-2 text-lg font-bold text-brand-dark">
+                    <h3 className="mb-2 text-lg font-semibold text-brand-dark">
                       No Subscription Fees
                     </h3>
                     <p className="text-sm text-brand-dark/60">
@@ -295,7 +295,7 @@ export default function PlansPage() {
                     <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-xl bg-brand-teal text-white">
                       <Check className="h-5 w-5" />
                     </div>
-                    <h3 className="mb-2 text-lg font-bold text-brand-dark">10% Success Fee</h3>
+                    <h3 className="mb-2 text-lg font-semibold text-brand-dark">10% Success Fee</h3>
                     <p className="text-sm text-brand-dark/60">
                       We only earn when you get paid. A standard 10% commission applies to
                       confirmed bookings.
@@ -323,14 +323,14 @@ export default function PlansPage() {
         <Container>
           <FadeIn>
         <div className="mb-6 inline-flex h-12 w-12 items-center justify-center rounded-full bg-brand-dark/5 text-brand-dark">
-          <HelpCircle className="h-6 w-6" />
+          <Question className="h-6 w-6" />
         </div>
-        <h3 className="text-2xl font-bold text-brand-dark">Still have questions?</h3>
+        <h3 className="text-2xl font-semibold text-brand-dark">Still have questions?</h3>
         <p className="mt-4 text-brand-dark/60">
           Our team is here to help you find the right plan for your organization.
         </p>
         <Link to={createPageUrl("Contact")}>
-          <Button variant="link" className="mt-4 font-bold text-brand-teal">
+          <Button variant="link" className="mt-4 font-semibold text-brand-teal">
             Contact Support &rarr;
           </Button>
         </Link>

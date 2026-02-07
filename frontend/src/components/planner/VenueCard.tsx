@@ -6,10 +6,10 @@ import {
   Star, 
   MapPin, 
   Users,
-  ExternalLink,
-  MessageSquare,
+  ArrowSquareOut,
+  ChatCircle,
   X
-} from "lucide-react";
+} from "@phosphor-icons/react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { getGooglePlacePhotos } from "@/api/functions";
 import { convertGoogleDriveUrl } from "@/components/utils/imageUtils";
@@ -70,8 +70,8 @@ const PhotoCollage = ({ venue }) => {
           if (result?.data?.photos) {
             photos = result.data.photos;
             console.log(`   Found via result.data.photos`);
-          } else if (result?.photos) {
-            photos = result.photos;
+          } else if ((result as any)?.photos) {
+            photos = (result as any).photos;
             console.log(`   Found via result.photos`);
           } else if (Array.isArray(result)) {
             photos = result;
@@ -114,7 +114,7 @@ const PhotoCollage = ({ venue }) => {
     return (
       <div className="w-full h-48 bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 flex items-center justify-center p-6">
         <div className="text-center">
-          <div className="text-white text-2xl font-bold mb-2">
+          <div className="text-white text-2xl font-semibold mb-2">
             {venue.name}
           </div>
           <div className="text-white/80 text-sm">
@@ -183,7 +183,7 @@ const PhotoCollage = ({ venue }) => {
   );
 };
 
-export default function VenueCard({ venue, onRequestQuote }) {
+export default function VenueCard({ venue, onRequestQuote }: { venue: any; onRequestQuote?: any }) {
   const [showDetails, setShowDetails] = useState(false);
 
   const handleRequestQuote = async () => {
@@ -237,7 +237,7 @@ export default function VenueCard({ venue, onRequestQuote }) {
     } catch (error) {
       console.error("Error creating message:", error);
       if (error.message.includes('Unauthorized')) {
-        await User.loginWithRedirect(window.location.href);
+        window.location.href = '/login';
       }
     }
   };
@@ -261,7 +261,7 @@ export default function VenueCard({ venue, onRequestQuote }) {
         </div>
         
         <CardContent className="p-4">
-          <h3 className="font-bold text-lg text-gray-900 mb-2">
+          <h3 className="font-semibold text-lg text-gray-900 mb-2">
             {venue.name}
           </h3>
           
@@ -321,7 +321,7 @@ export default function VenueCard({ venue, onRequestQuote }) {
           
           {/* Header Info */}
           <div className="space-y-2">
-            <DialogTitle className="text-2xl font-bold text-gray-900">
+            <DialogTitle className="text-2xl font-semibold text-gray-900">
               {venue.name}
             </DialogTitle>
             <div className="flex items-center gap-2">
@@ -371,7 +371,7 @@ export default function VenueCard({ venue, onRequestQuote }) {
             <div className="flex justify-between items-center">
               <div>
                 <span className="text-sm text-gray-600">Base Rate</span>
-                <div className="text-2xl font-bold text-green-600">
+                <div className="text-2xl font-semibold text-green-600">
                   ${venue.price?.toLocaleString()}
                 </div>
               </div>
@@ -384,13 +384,13 @@ export default function VenueCard({ venue, onRequestQuote }) {
               onClick={handleRequestQuote}
               className="flex-1 bg-blue-600 hover:bg-blue-700 text-white"
             >
-              <MessageSquare className="w-4 h-4 mr-2" />
+              <ChatCircle className="w-4 h-4 mr-2" />
               Message {venue.name} Admin
             </Button>
             {venue.website && (
               <a href={venue.website} target="_blank" rel="noopener noreferrer" className="flex-1">
                 <Button variant="outline" className="w-full">
-                  <ExternalLink className="w-4 h-4 mr-2" />
+                  <ArrowSquareOut className="w-4 h-4 mr-2" />
                   Visit Website
                 </Button>
               </a>

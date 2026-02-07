@@ -15,17 +15,17 @@ import {
   Upload, 
   Calendar as CalendarIcon, 
   Users, 
-  Mail,
-  Video,
+  Envelope,
+  VideoCamera,
   FileText,
   Download,
   Plus,
-  Settings,
+  Gear,
   Megaphone,
-  DollarSign,
+  CurrencyDollar,
   Image as ImageIcon,
-  ExternalLink
-} from "lucide-react";
+  ArrowSquareOut
+} from "@phosphor-icons/react";
 
 import PreEventCampaigns from "../components/marketing/PreEventCampaigns";
 import PostEventCampaigns from "../components/marketing/PostEventCampaigns";
@@ -34,7 +34,8 @@ import CaptionMaker from "../components/marketing/CaptionMaker";
 import MarketingAssets from "../components/marketing/MarketingAssets";
 import TeamCoordination from "../components/marketing/TeamCoordination";
 
-export default function EventMarketingDashboard({ eventId }) {
+export default function EventMarketingDashboard({ eventId }: { eventId?: string }) {
+  const resolvedEventId = eventId || new URLSearchParams(window.location.search).get('id');
   const [event, setEvent] = useState(null);
   const [campaigns, setCampaigns] = useState([]);
   const [sponsors, setSponsors] = useState([]);
@@ -53,11 +54,11 @@ export default function EventMarketingDashboard({ eventId }) {
         captionsResult, 
         collabResult
       ] = await Promise.allSettled([
-        Event.get(eventId),
-        MarketingCampaign.filter({ event_id: eventId }),
-        Sponsor.filter({ event_id: eventId }),
-        GeneratedCaption.filter({ event_id: eventId }),
-        EventCollaborator.filter({ event_id: eventId })
+        Event.get(resolvedEventId),
+        MarketingCampaign.filter({ event_id: resolvedEventId }),
+        Sponsor.filter({ event_id: resolvedEventId }),
+        GeneratedCaption.filter({ event_id: resolvedEventId }),
+        EventCollaborator.filter({ event_id: resolvedEventId })
       ]);
 
       if (eventResult.status === 'fulfilled') {
@@ -94,15 +95,15 @@ export default function EventMarketingDashboard({ eventId }) {
       console.error("An unexpected error occurred while loading marketing data:", error);
     }
     setLoading(false);
-  }, [eventId]);
+  }, [resolvedEventId]);
 
   useEffect(() => {
-    if (eventId) {
+    if (resolvedEventId) {
       loadEventData();
     }
-  }, [eventId, loadEventData]);
+  }, [resolvedEventId, loadEventData]);
 
-  if (!eventId) {
+  if (!resolvedEventId) {
     return (
       <div className="text-center py-12">
         <Megaphone className="w-16 h-16 text-gray-400 mx-auto mb-4" />
@@ -155,7 +156,7 @@ export default function EventMarketingDashboard({ eventId }) {
             Captions
           </TabsTrigger>
           <TabsTrigger value="sponsors" className="flex items-center gap-2">
-            <DollarSign className="w-4 h-4" />
+            <CurrencyDollar className="w-4 h-4" />
             Sponsors
           </TabsTrigger>
           <TabsTrigger value="coordination" className="flex items-center gap-2">
@@ -169,30 +170,30 @@ export default function EventMarketingDashboard({ eventId }) {
         </TabsList>
 
         <TabsContent value="assets">
-          <MarketingAssets eventId={eventId} event={event} onRefresh={loadEventData} />
+          <MarketingAssets eventId={resolvedEventId} event={event} onRefresh={loadEventData} />
         </TabsContent>
 
         <TabsContent value="campaigns">
           <div className="grid gap-6">
             <PreEventCampaigns 
               campaigns={campaigns.filter(c => c.campaign_type === 'pre_event')} 
-              eventId={eventId}
-              onRefresh={loadEventData}
+              eventId={resolvedEventId}
+              onUpdate={loadEventData}
             />
             <PostEventCampaigns 
               campaigns={campaigns.filter(c => c.campaign_type === 'post_event')} 
-              eventId={eventId}
-              onRefresh={loadEventData}
+              eventId={resolvedEventId}
+              onUpdate={loadEventData}
             />
           </div>
         </TabsContent>
 
         <TabsContent value="captions">
-          <CaptionMaker eventId={eventId} captions={captions} onRefresh={loadEventData} />
+          <CaptionMaker eventId={resolvedEventId} onUpdate={loadEventData} />
         </TabsContent>
 
         <TabsContent value="sponsors">
-          <Sponsorships sponsors={sponsors} eventId={eventId} onRefresh={loadEventData} />
+          <Sponsorships sponsors={sponsors} eventId={resolvedEventId} onUpdate={loadEventData} />
         </TabsContent>
 
         <TabsContent value="coordination">
@@ -225,7 +226,7 @@ export default function EventMarketingDashboard({ eventId }) {
                     View Calendar
                   </Button>
                   <Button variant="outline">
-                    <ExternalLink className="w-4 h-4 mr-2" />
+                    <ArrowSquareOut className="w-4 h-4 mr-2" />
                     Export to Google
                   </Button>
                 </div>

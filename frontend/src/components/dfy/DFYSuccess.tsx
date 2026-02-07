@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { CheckCircle, Mail, Phone, ArrowLeft } from "lucide-react";
+import { CheckCircle, Envelope, Phone, ArrowLeft } from "@phosphor-icons/react";
 import Container from "@/components/home-v2/primitives/Container";
 import Section from "@/components/home-v2/primitives/Section";
 import FadeIn from "@/components/animations/FadeIn";
@@ -46,7 +46,7 @@ export default function DFYSuccess({ data }) {
                   </h3>
                   <div className="mt-4 grid gap-3 text-sm text-brand-dark/70 md:grid-cols-2">
                     <div className="flex items-center gap-2">
-                      <Mail className="h-4 w-4 text-brand-teal" />
+                      <Envelope className="h-4 w-4 text-brand-teal" />
                       <span>dfy@strathwell.com</span>
                     </div>
                     <div className="flex items-center gap-2">

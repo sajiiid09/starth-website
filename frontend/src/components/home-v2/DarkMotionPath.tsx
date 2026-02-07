@@ -213,14 +213,14 @@ const DarkMotionPath: React.FC = () => {
             <div className="flex flex-col items-center gap-2">
               <span 
                 ref={line1Ref}
-                className="text-3xl font-bold leading-tight tracking-tight sm:text-4xl md:text-7xl lg:text-[5.5rem]"
+                className="text-3xl font-semibold leading-tight tracking-tight sm:text-4xl md:text-7xl lg:text-[5.5rem]"
                 style={gradientTextStyle}
               >
                 From chaos to
               </span>
               <span 
                 ref={line2Ref}
-                className="text-3xl font-bold leading-tight tracking-tight sm:text-4xl md:text-7xl lg:text-[5.5rem]"
+                className="text-3xl font-semibold leading-tight tracking-tight sm:text-4xl md:text-7xl lg:text-[5.5rem]"
                 style={gradientTextStyle}
               >
                 coordinated flow.
@@ -263,7 +263,7 @@ const DarkMotionPath: React.FC = () => {
               }}
               className="absolute top-0 left-0 flex aspect-[4/3] w-[72vw] min-w-[240px] max-w-[360px] flex-col justify-between rounded-3xl border p-6 shadow-2xl backdrop-blur-sm sm:w-[45vw] sm:min-w-[280px] sm:max-w-[400px] sm:p-8 md:w-[28vw] md:min-w-[320px] md:max-w-[440px] md:p-10"
             >
-              <h3 className="text-xl font-bold leading-snug tracking-tight sm:text-2xl md:text-4xl">
+              <h3 className="text-xl font-semibold leading-snug tracking-tight sm:text-2xl md:text-4xl">
                 {card.title}
               </h3>
               <div className="flex items-center justify-between opacity-50">

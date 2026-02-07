@@ -10,12 +10,12 @@ import {
   Calendar, 
   MapPin, 
   Users as UsersIcon, 
-  DollarSign, 
-  MoreVertical,
-  Edit,
-  Trash2,
-  Loader2
-} from "lucide-react";
+  CurrencyDollar, 
+  DotsThreeVertical,
+  Pencil,
+  Trash,
+  SpinnerGap
+} from "@phosphor-icons/react";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { 
@@ -72,7 +72,7 @@ export default function EventsPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-screen">
-        <Loader2 className="w-8 h-8 animate-spin text-gray-500" />
+        <SpinnerGap className="w-8 h-8 animate-spin text-gray-500" />
       </div>
     );
   }
@@ -83,7 +83,7 @@ export default function EventsPage() {
         {/* Header */}
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8">
           <div>
-            <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">
+            <h1 className="text-3xl md:text-4xl font-semibold text-gray-900 mb-2">
               My Events
             </h1>
             <p className="text-lg text-gray-600">
@@ -107,7 +107,7 @@ export default function EventsPage() {
                     <div className="flex-1">
                       <div className="flex items-start justify-between mb-4">
                         <div className="max-w-md">
-                          <h3 className="text-xl font-bold text-gray-900 mb-2 truncate">
+                          <h3 className="text-xl font-semibold text-gray-900 mb-2 truncate">
                             {event.title}
                           </h3>
                           <Badge className={getStatusColor(event.status)}>
@@ -117,14 +117,14 @@ export default function EventsPage() {
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
                             <Button variant="ghost" size="icon" className="flex-shrink-0">
-                              <MoreVertical className="w-4 h-4" />
+                              <DotsThreeVertical className="w-4 h-4" />
                             </Button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent>
                             {/* FIX: Use asChild prop for DropdownMenuItem to properly integrate with Link */}
                             <DropdownMenuItem asChild>
                               <Link to={createPageUrl(`EditEvent?id=${event.id}`)}>
-                                <Edit className="w-4 h-4 mr-2" />
+                                <Pencil className="w-4 h-4 mr-2" />
                                 Edit Event
                               </Link>
                             </DropdownMenuItem>
@@ -132,7 +132,7 @@ export default function EventsPage() {
                               className="text-red-600"
                               onClick={() => deleteEvent(event.id)}
                             >
-                              <Trash2 className="w-4 h-4 mr-2" />
+                              <Trash className="w-4 h-4 mr-2" />
                               Delete Event
                             </DropdownMenuItem>
                           </DropdownMenuContent>
@@ -160,7 +160,7 @@ export default function EventsPage() {
                         )}
                         {event.budget_target && (
                           <div className="flex items-center gap-2">
-                            <DollarSign className="w-4 h-4" />
+                            <CurrencyDollar className="w-4 h-4" />
                             <span>${event.budget_target.toLocaleString()}</span>
                           </div>
                         )}

@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Plus, Mail, Zap, ArrowLeft, Upload, Copy } from "lucide-react";
+import { Plus, Envelope, Lightning, ArrowLeft, Upload, Copy } from "@phosphor-icons/react";
 import { MarketingCampaign } from "@/api/entities";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -52,6 +52,7 @@ const CampaignEditor = ({ eventId, template, onSave, onCancel }) => {
     cta_text: template.defaultCTA,
     cta_url: "",
     status: "draft",
+    social_captions_json: null as any,
   });
   const [isGenerating, setIsGenerating] = useState(false);
   const [showCaptions, setShowCaptions] = useState(false);
@@ -174,7 +175,7 @@ const CampaignEditor = ({ eventId, template, onSave, onCancel }) => {
             onClick={handleGenerateCaptions} 
             disabled={isGenerating}
           >
-            <Zap className="w-4 h-4 mr-2"/> 
+            <Lightning className="w-4 h-4 mr-2"/> 
             {isGenerating ? "Generating..." : "Generate with AI"}
           </Button>
         </div>
@@ -292,7 +293,7 @@ export default function PostEventCampaigns({ eventId, campaigns, onUpdate }) {
                 onClick={() => handleSelectTemplate(template)}
               >
                 <div className="flex items-start gap-2">
-                  <Mail className="w-4 h-4 text-gray-500 mt-1 flex-shrink-0" />
+                  <Envelope className="w-4 h-4 text-gray-500 mt-1 flex-shrink-0" />
                   <h3 className="text-md font-semibold text-gray-900">
                     {template.title}
                   </h3>

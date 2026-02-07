@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { MessageSquare, Loader2 } from 'lucide-react';
+import { ChatCircle, SpinnerGap } from '@phosphor-icons/react';
 import { User } from '@/api/entities';
 import { Conversation } from '@/api/entities';
 import { ConversationParticipant } from '@/api/entities';
@@ -92,9 +92,9 @@ export default function MessageVenueButton({ venue, className = "", children }) 
       disabled={loading}
     >
       {loading ? (
-        <Loader2 className="w-4 h-4 animate-spin" />
+        <SpinnerGap className="w-4 h-4 animate-spin" />
       ) : (
-        children || <MessageSquare className="w-4 h-4" />
+        children || <ChatCircle className="w-4 h-4" />
       )}
     </Button>
   );

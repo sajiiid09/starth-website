@@ -51,7 +51,7 @@ export default function SmartImage({
             location: location
           });
           
-          const photos = result?.data?.photos || result?.photos || [];
+          const photos = result?.data?.photos || (result as any)?.photos || [];
           
           if (photos.length > 0 && isMounted) {
             setCurrentSrc(photos[0]);
@@ -99,7 +99,7 @@ export default function SmartImage({
       ) : (
         <div className="w-full h-full flex items-center justify-center p-6">
           <div className="text-center">
-            <div className="text-white text-2xl font-bold mb-2">
+            <div className="text-white text-2xl font-semibold mb-2">
               {item?.name || 'Business'}
             </div>
             {item?.city && (

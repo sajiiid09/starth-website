@@ -1,27 +1,33 @@
-from __future__ import annotations
+"""User model — authentication and profile."""
 
-from uuid import uuid4
+import uuid
+from datetime import datetime
 
-from sqlalchemy import Boolean, Enum as SAEnum, String
+from sqlalchemy import Boolean, DateTime, String, text
 from sqlalchemy.dialects.postgresql import UUID
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from app.db.base import Base, TimestampMixin
-from app.models.enums import SubscriptionStatus, UserRole
+from app.db.base import Base, TimestampMixin, UUIDPrimaryKeyMixin
 
 
-class User(TimestampMixin, Base):
+class User(Base, UUIDPrimaryKeyMixin, TimestampMixin):
     __tablename__ = "users"
 
-    id: Mapped[UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid4)
-    email: Mapped[str] = mapped_column(String(255), unique=True, index=True, nullable=False)
+    email: Mapped[str] = mapped_column(String(255), unique=True, nullable=False, index=True)
     password_hash: Mapped[str] = mapped_column(String(255), nullable=False)
-    role: Mapped[UserRole] = mapped_column(
-        SAEnum(UserRole, name="user_role"), nullable=False, default=UserRole.ORGANIZER
-    )
-    subscription_status: Mapped[SubscriptionStatus] = mapped_column(
-        SAEnum(SubscriptionStatus, name="subscription_status"),
+    first_name: Mapped[str | None] = mapped_column(String(100))
+    last_name: Mapped[str | None] = mapped_column(String(100))
+    role: Mapped[str] = mapped_column(
+        String(50),
         nullable=False,
-        default=SubscriptionStatus.TRIAL,
+        default="user",
+        server_default="user",
     )
-    is_active: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
+    is_verified: Mapped[bool] = mapped_column(Boolean, default=False, server_default="false")
+    otp_code: Mapped[str | None] = mapped_column(String(6))
+    otp_expiry: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+
+    # Relationships (lazy loaded by default)
+    venues = relationship("Venue", back_populates="owner", lazy="selectin")
+    service_provider_profile = relationship("ServiceProvider", back_populates="user", uselist=False, lazy="selectin")
+    subscriptions = relationship("Subscription", back_populates="user", lazy="selectin")

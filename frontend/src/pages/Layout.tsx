@@ -7,30 +7,41 @@ type LayoutProps = {
   children: React.ReactNode;
 };
 
-const dashboardRoutePatterns = [/^\/dashboard(\/|$)/, /^\/vendor(\/|$)/, /^\/admin(\/|$)/];
-const authRoutePatterns = [/^\/app-entry(\/|$)/, /^\/appentry(\/|$)/, /^\/signin(\/|$)/];
-const footerDenyPatterns = [...dashboardRoutePatterns, ...authRoutePatterns];
+// Routes that use DashboardShell (sidebar navigation)
+const dashboardRoutePatterns = [
+  /^\/dashboard(\/|$)/,
+  /^\/vendor(\/|$)/,
+  /^\/admin(\/|$)/
+];
+
+// Routes that should NOT have header/footer (auth flows)
+const authRoutePatterns = [
+  /^\/app-entry(\/|$)/,
+  /^\/appentry(\/|$)/,
+  /^\/signin(\/|$)/,
+  /^\/verifyemail(\/|$)/,
+  /^\/resetpassword(\/|$)/,
+  /^\/forgotpassword(\/|$)/
+];
 
 export default function Layout({ children }: LayoutProps) {
   const location = useLocation();
+  const pathname = location.pathname.toLowerCase();
+
+  // Check route type in priority order
   const isDashboardRoute = dashboardRoutePatterns.some((pattern) =>
-    pattern.test(location.pathname)
+    pattern.test(pathname)
   );
   const isAuthRoute = authRoutePatterns.some((pattern) =>
-    pattern.test(location.pathname)
-  );
-  const shouldUsePublicLayout = !footerDenyPatterns.some((pattern) =>
-    pattern.test(location.pathname)
+    pattern.test(pathname)
   );
 
+  // Dashboard routes get the DashboardShell
   if (isDashboardRoute) {
     return <DashboardShell>{children}</DashboardShell>;
   }
 
-  if (shouldUsePublicLayout) {
-    return <PublicLayout>{children}</PublicLayout>;
-  }
-
+  // Auth routes get minimal layout (no header/footer)
   if (isAuthRoute) {
     return (
       <div className="min-h-screen bg-brand-light text-brand-dark font-sans antialiased">
@@ -39,5 +50,6 @@ export default function Layout({ children }: LayoutProps) {
     );
   }
 
+  // All other routes get PublicLayout with header and footer
   return <PublicLayout>{children}</PublicLayout>;
 }

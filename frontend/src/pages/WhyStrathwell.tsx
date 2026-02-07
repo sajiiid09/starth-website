@@ -4,11 +4,11 @@ import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { Check, ArrowRight, Sparkles, ShieldCheck, Zap } from 'lucide-react';
+import { Check, ArrowRight, Sparkle, ShieldCheck, Lightning } from '@phosphor-icons/react';
 
 const advantages = [
   {
-    icon: Sparkles,
+    icon: Sparkle,
     title: 'AI-Powered Orchestration',
     description: 'Our intelligent platform analyzes your needs to match you with perfect venues and vendors in seconds, saving you hundreds of hours of manual research and negotiation.',
     color: 'blue',
@@ -20,7 +20,7 @@ const advantages = [
     color: 'green',
   },
   {
-    icon: Zap,
+    icon: Lightning,
     title: 'Seamless End-to-End Execution',
     description: 'From initial concept to post-event analytics, manage every detail in one place. Handle booking, contracts, marketing, and checklists without ever leaving the platform.',
     color: 'purple',
@@ -49,7 +49,7 @@ export default function WhyStrathwellPage() {
             <Check className="w-4 h-4" />
             The Strathwell Advantage
           </div>
-          <h1 className="text-4xl md:text-6xl font-bold text-gray-900 mb-6 leading-tight">
+          <h1 className="text-4xl md:text-6xl font-semibold text-gray-900 mb-6 leading-tight">
             An Unfairly Good
             <br />
             <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
@@ -78,7 +78,7 @@ export default function WhyStrathwellPage() {
                     <div className={`w-16 h-16 mx-auto mb-6 ${colors[advantage.color].bg} rounded-full flex items-center justify-center`}>
                       <advantage.icon className={`w-8 h-8 ${colors[advantage.color].text}`} />
                     </div>
-                    <h3 className="text-xl font-bold text-gray-900 mb-4">{advantage.title}</h3>
+                    <h3 className="text-xl font-semibold text-gray-900 mb-4">{advantage.title}</h3>
                     <p className="text-gray-600 leading-relaxed">{advantage.description}</p>
                   </CardContent>
                 </Card>
@@ -92,7 +92,7 @@ export default function WhyStrathwellPage() {
       <section className="py-20 px-4 sm:px-6 lg:px-8 bg-gray-50">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+            <h2 className="text-3xl md:text-4xl font-semibold text-gray-900 mb-4">
               How We Compare
             </h2>
             <p className="text-xl text-gray-600 max-w-2xl mx-auto">
@@ -137,8 +137,8 @@ export default function WhyStrathwellPage() {
         <div className="max-w-4xl mx-auto text-center">
           <Card className="bg-gradient-to-r from-gray-900 to-gray-800 border-none text-white">
             <CardContent className="p-12">
-              <Sparkles className="w-16 h-16 mx-auto mb-6 text-yellow-400" />
-              <h3 className="text-3xl font-bold mb-4">
+              <Sparkle className="w-16 h-16 mx-auto mb-6 text-yellow-400" />
+              <h3 className="text-3xl font-semibold mb-4">
                 Ready to Experience the Future of Events?
               </h3>
               <p className="text-xl text-gray-300 mb-8 max-w-2xl mx-auto">

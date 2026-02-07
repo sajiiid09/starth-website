@@ -12,12 +12,12 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { 
   User as UserIcon, 
   Camera, 
-  Save, 
+  FloppyDisk, 
   Bell, 
   Shield,
-  Loader2,
+  SpinnerGap,
   Upload
-} from "lucide-react";
+} from "@phosphor-icons/react";
 import { toast } from "sonner";
 
 export default function ProfileSettingsPage() {
@@ -139,7 +139,7 @@ export default function ProfileSettingsPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-screen">
-        <Loader2 className="w-8 h-8 animate-spin text-gray-500" />
+        <SpinnerGap className="w-8 h-8 animate-spin text-gray-500" />
       </div>
     );
   }
@@ -148,7 +148,7 @@ export default function ProfileSettingsPage() {
     <div className="min-h-screen bg-gray-50 p-4 md:p-8">
       <div className="max-w-4xl mx-auto">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Profile Settings</h1>
+          <h1 className="text-3xl font-semibold text-gray-900 mb-2">Profile Settings</h1>
           <p className="text-gray-600">Manage your account information and preferences</p>
         </div>
 
@@ -176,7 +176,7 @@ export default function ProfileSettingsPage() {
                       <span>
                         {uploading ? (
                           <>
-                            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                            <SpinnerGap className="w-4 h-4 mr-2 animate-spin" />
                             Uploading...
                           </>
                         ) : (
@@ -360,12 +360,12 @@ export default function ProfileSettingsPage() {
             <Button onClick={handleSaveProfile} disabled={saving || uploading} className="bg-blue-600 hover:bg-blue-700">
               {saving ? (
                 <>
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  <SpinnerGap className="w-4 h-4 mr-2 animate-spin" />
                   Saving...
                 </>
               ) : (
                 <>
-                  <Save className="w-4 h-4 mr-2" />
+                  <FloppyDisk className="w-4 h-4 mr-2" />
                   Save Changes
                 </>
               )}

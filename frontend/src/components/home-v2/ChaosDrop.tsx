@@ -74,7 +74,7 @@ const ChaosDrop: React.FC = () => {
           
           {/* The Top "Eyebrow" Text */}
           <FadeIn direction="up" delay={0.1} duration={0.8} ease="power2.out" className="mb-12 text-center">
-            <p className="font-mono text-[10px] font-bold uppercase tracking-[0.2em] text-brand-dark/40">
+            <p className="font-mono text-[10px] font-semibold uppercase tracking-[0.2em] text-brand-dark/40">
               Event logistics have no way to coordinate these complex arrivals
             </p>
           </FadeIn>
@@ -116,14 +116,14 @@ const ChaosDrop: React.FC = () => {
             {/* Main Headline (Centered & Large) */}
             <div ref={textContainerRef} className="relative z-10 text-center flex flex-col gap-6">
               <FadeIn delay={0.2} duration={1} ease="power3.out" direction="up" distance={60}>
-                <h2 className="font-display text-5xl font-bold leading-[1.1] tracking-tight text-brand-dark/40 md:text-7xl lg:text-8xl">
+                <h2 className="font-display text-5xl font-semibold leading-[1.1] tracking-tight text-brand-dark/40 md:text-7xl lg:text-8xl">
                   Without a blueprint, <br />
                   it's chaos.
                 </h2>
               </FadeIn>
               
               <FadeIn delay={0.5} duration={1} ease="power3.out" direction="up" distance={60}>
-                <h2 className="font-display text-5xl font-bold leading-[1.1] tracking-tight text-brand-dark md:text-7xl lg:text-8xl">
+                <h2 className="font-display text-5xl font-semibold leading-[1.1] tracking-tight text-brand-dark md:text-7xl lg:text-8xl">
                   With Strathwell, <br />
                   it’s orchestration.
                 </h2>

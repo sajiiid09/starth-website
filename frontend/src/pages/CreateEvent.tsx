@@ -9,7 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { ArrowLeft, Calendar as CalendarIcon, MapPin, Users, DollarSign, Sparkles } from "lucide-react";
+import { ArrowLeft, Calendar as CalendarIcon, MapPin, Users, CurrencyDollar, Sparkle } from "@phosphor-icons/react";
 import { format } from "date-fns";
 import { Link, useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
@@ -107,7 +107,7 @@ export default function CreateEventPage() {
               <ArrowLeft className="w-5 h-5" />
             </Button>
           </Link>
-          <h1 className="text-2xl font-bold text-gray-900">
+          <h1 className="text-2xl font-semibold text-gray-900">
             Create Event
           </h1>
         </div>
@@ -115,7 +115,7 @@ export default function CreateEventPage() {
         <Card className="border-none shadow-lg">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Sparkles className="w-5 h-5 text-blue-600" />
+              <Sparkle className="w-5 h-5 text-blue-600" />
               Describe what you want to do:
             </CardTitle>
           </CardHeader>
@@ -237,7 +237,7 @@ export default function CreateEventPage() {
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">Budget Target</label>
                 <div className="relative">
-                  <DollarSign className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                  <CurrencyDollar className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
                   <Input
                     type="number"
                     placeholder="Total budget"

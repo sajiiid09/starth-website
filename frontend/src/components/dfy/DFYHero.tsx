@@ -1,6 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { Clock, Award, CheckCircle } from "lucide-react";
+import { Clock, Trophy, CheckCircle } from "@phosphor-icons/react";
 import { createPageUrl } from "@/utils";
 import Container from "@/components/home-v2/primitives/Container";
 import Section from "@/components/home-v2/primitives/Section";
@@ -21,7 +21,7 @@ const highlights = [
   {
     title: "Expert curation",
     description: "Hand-picked venues and vendors aligned to your vision.",
-    icon: Award
+    icon: Trophy
   },
   {
     title: "Full execution",

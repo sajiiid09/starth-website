@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
-import { Loader2, Users, Briefcase, ArrowRight, CheckCircle2 } from "lucide-react";
+import { SpinnerGap, Users, Briefcase, ArrowRight, CheckCircle, Eye, EyeSlash } from "@phosphor-icons/react";
 import { toast } from "sonner";
 import { createPageUrl } from "@/utils";
 import { AppRole, getRoleHomePath, setCurrentRole } from "@/utils/role";
@@ -14,7 +14,7 @@ import {
   updateVendorProfileDraft,
   type VendorType
 } from "@/utils/session";
-import { base44 } from "@/api/base44Client";
+import { User } from "@/api/entities";
 import { authLogin, authRegister } from "@/api/functions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -47,6 +47,12 @@ const roleOptions = [
 
 type RoleOptionId = (typeof roleOptions)[number]["id"];
 type AuthView = "role" | "signup" | "login";
+const ORGANIZER_AI_PLANNER_ROUTE = "/dashboard/ai-planner";
+
+function getPostAuthRedirectPath(role: AppRole): string {
+  if (role === "user") return ORGANIZER_AI_PLANNER_ROUTE;
+  return getRoleHomePath(role);
+}
 
 // --- Components ---
 
@@ -56,12 +62,13 @@ type SignUpFormProps = {
   onSignUpSuccess: () => void;
 };
 
-const SignUpForm: React.FC<SignUpFormProps> = ({
+function SignUpForm({
   selectedRole,
   vendorType,
   onSignUpSuccess
-}) => {
+}: SignUpFormProps): React.ReactElement {
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const roleValue =
     selectedRole === "vendor" ? vendorType ?? "service_provider" : "organizer";
@@ -228,21 +235,32 @@ const SignUpForm: React.FC<SignUpFormProps> = ({
         </div>
         <div className="space-y-1.5">
           <Label htmlFor="signupPassword" className="text-xs font-semibold uppercase tracking-wider text-brand-dark/60">Password</Label>
-          <Input
-            id="signupPassword"
-            type="password"
-            placeholder="At least 8 characters"
-            required
-            className="h-12 border-brand-dark/10 bg-white/60 text-base focus:border-brand-teal focus:ring-brand-teal/20"
-            value={formData.password}
-            onChange={(e) => handleInputChange("password", e.target.value)}
-          />
+          <div className="relative">
+            <Input
+              id="signupPassword"
+              type={showPassword ? "text" : "password"}
+              required
+              minLength={8}
+              className="h-12 border-brand-dark/10 bg-white/60 text-base focus:border-brand-teal focus:ring-brand-teal/20 pr-10"
+              value={formData.password}
+              onChange={(e) => handleInputChange("password", e.target.value)}
+            />
+            <button
+              type="button"
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-brand-dark/40 hover:text-brand-dark transition-colors"
+              onClick={() => setShowPassword((prev) => !prev)}
+              aria-label={showPassword ? "Hide password" : "Show password"}
+            >
+              {showPassword ? <EyeSlash className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+            </button>
+          </div>
         </div>
         <div className="space-y-1.5">
-          <Label htmlFor="phone" className="text-xs font-semibold uppercase tracking-wider text-brand-dark/60">Phone (Optional)</Label>
+          <Label htmlFor="phone" className="text-xs font-semibold uppercase tracking-wider text-brand-dark/60">Phone</Label>
           <Input
             id="phone"
             type="tel"
+            required
             placeholder="+1 (555) 000-0000"
             className="h-12 border-brand-dark/10 bg-white/60 text-base focus:border-brand-teal focus:ring-brand-teal/20"
             value={formData.phone}
@@ -258,7 +276,7 @@ const SignUpForm: React.FC<SignUpFormProps> = ({
           className="overflow-hidden rounded-xl border border-brand-teal/20 bg-brand-teal/5 p-5"
         >
           <div className="mb-4">
-            <p className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-brand-teal">
+            <p className="flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-brand-teal">
               <SparklesIcon className="h-3 w-3" />
               Additional details
             </p>
@@ -372,7 +390,7 @@ const SignUpForm: React.FC<SignUpFormProps> = ({
         disabled={loading || (selectedRole === "vendor" && !vendorFieldsValid)}
       >
         {loading ? (
-          <Loader2 className="h-5 w-5 animate-spin" />
+          <SpinnerGap className="h-5 w-5 animate-spin" />
         ) : (
           <span className="flex items-center gap-2">
             Create Account <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
@@ -381,15 +399,17 @@ const SignUpForm: React.FC<SignUpFormProps> = ({
       </Button>
     </form>
   );
-};
+}
 
 type LoginFormProps = {
   onLoginSuccess: (role: AppRole) => void;
 };
 
-const LoginForm: React.FC<LoginFormProps> = ({ onLoginSuccess }) => {
+function LoginForm({ onLoginSuccess }: LoginFormProps): React.ReactElement {
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({ email: "", password: "" });
+  const navigate = useNavigate();
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -404,11 +424,12 @@ const LoginForm: React.FC<LoginFormProps> = ({ onLoginSuccess }) => {
       if (data?.user) {
         sessionStorage.setItem("currentUser", JSON.stringify(data.user));
         const userRoles = data.user.roles || ["organizer"];
-        const nextRole: AppRole = userRoles.includes("admin")
-          ? "admin"
-          : userRoles.includes("service_provider") || userRoles.includes("venue_owner")
-            ? "vendor"
-            : "user";
+        let nextRole: AppRole = "user";
+        if (userRoles.includes("admin")) {
+          nextRole = "admin";
+        } else if (userRoles.includes("service_provider") || userRoles.includes("venue_owner")) {
+          nextRole = "vendor";
+        }
         setCurrentRole(nextRole);
         if (nextRole === "vendor") {
           const derivedVendorType = userRoles.includes("venue_owner")
@@ -456,17 +477,33 @@ const LoginForm: React.FC<LoginFormProps> = ({ onLoginSuccess }) => {
       <div className="space-y-1.5">
         <div className="flex items-center justify-between">
           <Label htmlFor="loginPassword" className="text-xs font-semibold uppercase tracking-wider text-brand-dark/60">Password</Label>
-          <button type="button" className="text-xs font-medium text-brand-teal hover:text-brand-dark transition-colors">Forgot?</button>
+          <button
+            type="button"
+            className="text-xs font-medium text-brand-teal hover:text-brand-dark transition-colors"
+            onClick={() => navigate("/forgotpassword")}
+          >
+            Forgot?
+          </button>
         </div>
-        <Input
-          id="loginPassword"
-          type="password"
-          placeholder="••••••••"
-          required
-          className="h-12 border-brand-dark/10 bg-white/60 text-base focus:border-brand-teal focus:ring-brand-teal/20"
-          value={formData.password}
-          onChange={(e) => setFormData((prev) => ({ ...prev, password: e.target.value }))}
-        />
+        <div className="relative">
+          <Input
+            id="loginPassword"
+            type={showPassword ? "text" : "password"}
+            placeholder="Enter your password"
+            required
+            className="h-12 border-brand-dark/10 bg-white/60 text-base focus:border-brand-teal focus:ring-brand-teal/20 pr-10"
+            value={formData.password}
+            onChange={(e) => setFormData((prev) => ({ ...prev, password: e.target.value }))}
+          />
+          <button
+            type="button"
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-brand-dark/40 hover:text-brand-dark transition-colors"
+            onClick={() => setShowPassword((prev) => !prev)}
+            aria-label={showPassword ? "Hide password" : "Show password"}
+          >
+            {showPassword ? <EyeSlash className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+          </button>
+        </div>
       </div>
       <Button
         type="submit"
@@ -474,7 +511,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onLoginSuccess }) => {
         disabled={loading}
       >
         {loading ? (
-          <Loader2 className="h-5 w-5 animate-spin" />
+          <SpinnerGap className="h-5 w-5 animate-spin" />
         ) : (
           <span className="flex items-center gap-2">
             Log In <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
@@ -483,7 +520,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onLoginSuccess }) => {
       </Button>
     </form>
   );
-};
+}
 
 // Simple Icon for decoration
 function SparklesIcon(props: React.SVGProps<SVGSVGElement>) {
@@ -510,7 +547,6 @@ export default function AppEntryPage() {
   const [activeView, setActiveView] = useState<AuthView>("role");
   const [selectedRole, setSelectedRole] = useState<RoleOptionId | null>(null);
   const [vendorType, setVendorTypeState] = useState<VendorType | null>(null);
-  const location = useLocation();
   const navigate = useNavigate();
 
   const roleLabel = useMemo(() => {
@@ -536,15 +572,16 @@ export default function AppEntryPage() {
   useEffect(() => {
     const checkSession = async () => {
       try {
-        const user = await base44.auth.me();
+        const user = await User.me() as { roles?: string[]; [key: string]: unknown } | null;
         if (user) {
           sessionStorage.setItem("currentUser", JSON.stringify(user));
           const userRoles = user.roles || ["organizer"];
-          const nextRole: AppRole = userRoles.includes("admin")
-            ? "admin"
-            : userRoles.includes("service_provider") || userRoles.includes("venue_owner")
-              ? "vendor"
-              : "user";
+          let nextRole: AppRole = "user";
+          if (userRoles.includes("admin")) {
+            nextRole = "admin";
+          } else if (userRoles.includes("service_provider") || userRoles.includes("venue_owner")) {
+            nextRole = "vendor";
+          }
           setCurrentRole(nextRole);
           if (nextRole === "vendor") {
             const derivedVendorType = userRoles.includes("venue_owner")
@@ -563,7 +600,7 @@ export default function AppEntryPage() {
             return;
           }
           if (!handlePendingPlannerRedirect(nextRole)) {
-            navigate(getRoleHomePath(nextRole), { replace: true });
+            navigate(getPostAuthRedirectPath(nextRole), { replace: true });
           }
           return;
         }
@@ -575,19 +612,10 @@ export default function AppEntryPage() {
     checkSession();
   }, []);
 
-  useEffect(() => {
-    const params = new URLSearchParams(location.search);
-    const devRole = params.get("as");
-    if (import.meta.env.MODE !== "production" && devRole === "admin") {
-      setCurrentRole("admin");
-      navigate("/admin", { replace: true });
-    }
-  }, [location.search, navigate]);
-
   if (loading) {
     return (
       <div className="min-h-screen w-full flex items-center justify-center bg-brand-light">
-        <Loader2 className="w-8 h-8 text-brand-dark/40 animate-spin" />
+        <SpinnerGap className="w-8 h-8 text-brand-dark/40 animate-spin" />
       </div>
     );
   }
@@ -603,7 +631,7 @@ export default function AppEntryPage() {
             className="h-16 w-auto sm:h-20 md:h-[72px]"
           />
         </Link>
-        <div className="flex items-center gap-3">
+        <div className="hidden sm:flex items-center gap-3">
           <Button
             variant="ghost"
             className="rounded-full text-sm font-medium text-brand-dark/70 hover:text-brand-dark hover:bg-brand-dark/5"
@@ -631,47 +659,16 @@ export default function AppEntryPage() {
       </header>
 
       {/* Main Layout */}
-      <div className="grid min-h-screen grid-cols-1 lg:grid-cols-[1fr_600px] xl:grid-cols-[1fr_700px]">
+      {/* Main Layout */}
+      <div className="relative min-h-screen flex items-center justify-center overflow-hidden bg-[#F8F7F4] pt-32 pb-12 px-4 sm:px-6 lg:px-8">
         
-        {/* Left Column: Cinematic Video */}
-        <div className="relative hidden lg:block sticky top-0 h-screen overflow-hidden">
-          {/* Enhanced Overlay for Text Readability */}
-          <div className="absolute inset-0 bg-gradient-to-t from-brand-dark via-brand-dark/40 to-transparent opacity-90 z-10" />
-          <div className="absolute inset-0 bg-brand-teal/20 mix-blend-multiply z-10" />
-          
-          <video
-            className="h-full w-full object-cover scale-105"
-            autoPlay
-            muted
-            loop
-            playsInline
-            poster="/images/solutions/launch.svg"
-          >
-            <source src="/herovid.mp4" type="video/mp4" />
-          </video>
-          
-          <div className="absolute z-20 bottom-0 left-0 w-full p-16 text-brand-light">
-            <div className="max-w-xl space-y-6">
-              <div className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 py-1.5 backdrop-blur-md">
-                <SparklesIcon className="w-3 h-3 text-brand-teal" />
-                <span className="text-xs font-bold uppercase tracking-widest">Platform Access</span>
-              </div>
-              <h1 className="text-5xl font-semibold leading-[1.1] tracking-tight">
-                Orchestration, <br/>
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-teal via-white to-white">
-                  beautifully streamlined.
-                </span>
-              </h1>
-              <p className="text-lg text-brand-light/80 leading-relaxed max-w-md">
-                Join the ecosystem where AI-powered planning meets a curated marketplace of world-class vendors.
-              </p>
-            </div>
-          </div>
+        {/* Background "Strathwell" Text */}
+        <div className="absolute inset-0 flex items-center justify-center pointer-events-none select-none overflow-hidden">
+          <h1 className="font-serif text-[18vw] leading-none text-brand-teal opacity-[0.06] tracking-tighter whitespace-nowrap">Strathwell</h1>
         </div>
 
-        {/* Right Column: Form Container */}
-        <div className="flex min-h-screen flex-col items-center justify-center bg-[#F8F7F4] px-6 py-24 lg:px-12">
-          <div className="w-full max-w-[420px]">
+        {/* Form Container */}
+        <div className="relative z-10 w-full max-w-[440px]">
             <AnimatePresence mode="wait">
               {activeView === "role" && (
                 <motion.div
@@ -683,10 +680,10 @@ export default function AppEntryPage() {
                   className="space-y-8"
                 >
                   <div className="space-y-3">
-                    <p className="text-xs font-bold uppercase tracking-[0.2em] text-brand-teal">
+                    <p className="text-xs font-semibold uppercase tracking-[0.2em] text-brand-teal">
                       Get Started
                     </p>
-                    <h2 className="text-4xl font-bold tracking-tight text-brand-dark">
+                    <h2 className="text-4xl font-semibold tracking-tight text-brand-dark">
                       Choose your path
                     </h2>
                     <p className="text-base text-brand-dark/60">
@@ -729,10 +726,10 @@ export default function AppEntryPage() {
                           </span>
                           <span className="flex-1 space-y-1">
                             <span className="flex items-center justify-between">
-                              <span className="block text-base font-bold text-brand-dark">
+                              <span className="block text-base font-semibold text-brand-dark">
                                 {option.title}
                               </span>
-                              {isSelected && <CheckCircle2 className="h-5 w-5 text-brand-teal" />}
+                              {isSelected && <CheckCircle className="h-5 w-5 text-brand-teal" />}
                             </span>
                             <span className="block text-sm text-brand-dark/60 leading-relaxed">
                               {option.description}
@@ -816,7 +813,7 @@ export default function AppEntryPage() {
                       <ArrowRight className="h-3 w-3 rotate-180 group-hover:-translate-x-1 transition-transform" />
                       Back
                     </button>
-                    <h2 className="text-3xl font-bold tracking-tight text-brand-dark">
+                    <h2 className="text-3xl font-semibold tracking-tight text-brand-dark">
                       {activeView === "login" ? "Welcome back" : "Create your account"}
                     </h2>
                     {activeView === "signup" && selectedRole && (
@@ -843,7 +840,7 @@ export default function AppEntryPage() {
                               return;
                             }
                             if (!handlePendingPlannerRedirect("user")) {
-                              navigate(getRoleHomePath("user"));
+                              navigate(getPostAuthRedirectPath("user"));
                             }
                           }}
                         />
@@ -851,7 +848,7 @@ export default function AppEntryPage() {
                         <LoginForm
                           onLoginSuccess={(role) => {
                             if (!handlePendingPlannerRedirect(role)) {
-                              navigate(getRoleHomePath(role));
+                              navigate(getPostAuthRedirectPath(role));
                             }
                           }}
                         />
@@ -887,7 +884,6 @@ export default function AppEntryPage() {
                 </Link>.
               </p>
             </div>
-          </div>
         </div>
       </div>
     </div>

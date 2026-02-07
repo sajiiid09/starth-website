@@ -1,138 +1,169 @@
-from __future__ import annotations
+"""Stripe webhook handler for real-time payment event processing."""
 
-from datetime import datetime
-from typing import Any
+import json
+import logging
 
-from fastapi import APIRouter, Depends, Request, status
+import stripe
+from fastapi import APIRouter, Depends, Header, HTTPException, Request
 from sqlalchemy import select
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.api.deps import get_db
-from app.core.errors import APIError
-from app.models.enums import PaymentStatus, WebhookEventStatus, WebhookProvider
+from app.core.config import settings
+from app.db.engine import get_db
+from app.models.event import Event
 from app.models.payment import Payment
-from app.models.webhook_event import WebhookEvent
-from app.services.payments.stripe import StripePaymentService
-from app.services.payments.stripe_sync import (
-    PaymentSyncNotReadyError,
-    apply_payment_success_side_effects,
-)
 
-router = APIRouter(tags=["webhooks"])
+logger = logging.getLogger(__name__)
+
+router = APIRouter(prefix="/api/webhooks", tags=["webhooks"])
 
 
-def _store_webhook_event(
-    db: Session,
-    event_id: str,
-    event_type: str,
-    payload: dict[str, Any],
-) -> WebhookEvent:
-    webhook_event = db.execute(
-        select(WebhookEvent).where(WebhookEvent.id == event_id)
-    ).scalar_one_or_none()
-    if webhook_event is None:
-        webhook_event = WebhookEvent(
-            id=event_id,
-            provider=WebhookProvider.STRIPE,
-            event_type=event_type,
-            payload_json=payload,
-            status=WebhookEventStatus.RECEIVED,
-        )
-        db.add(webhook_event)
-    else:
-        if webhook_event.status != WebhookEventStatus.PROCESSED:
-            webhook_event.event_type = event_type
-            webhook_event.payload_json = payload
-            webhook_event.status = WebhookEventStatus.RECEIVED
-            webhook_event.error = None
-            webhook_event.processed_at = None
-            db.add(webhook_event)
-    return webhook_event
-
-
-def _process_stripe_event(db: Session, event: dict[str, Any]) -> None:
-    event_type = event.get("type")
-    intent = event.get("data", {}).get("object", {})
-    intent_id = intent.get("id")
-    if not intent_id:
-        raise PaymentSyncNotReadyError("missing_intent_id")
-
-    payment = db.execute(
-        select(Payment).where(Payment.provider_intent_id == intent_id)
-    ).scalar_one_or_none()
-    if not payment:
-        raise PaymentSyncNotReadyError("payment_not_found")
-
-    if event_type == "payment_intent.succeeded":
-        apply_payment_success_side_effects(db, payment)
-    elif event_type in {"payment_intent.payment_failed", "payment_intent.canceled"}:
-        payment.status = PaymentStatus.FAILED
-
-    db.add(payment)
-
-
-@router.post("/webhooks/stripe")
-async def handle_stripe_webhook(
+@router.post("/stripe")
+async def stripe_webhook(
     request: Request,
-    db: Session = Depends(get_db),
-) -> dict[str, str]:
+    db: AsyncSession = Depends(get_db),
+    stripe_signature: str | None = Header(None, alias="Stripe-Signature"),
+) -> dict:
+    """Handle Stripe webhook events.
+
+    Processes:
+    - payment_intent.succeeded — marks payment as completed, upgrades event status
+    - payment_intent.payment_failed — marks payment as failed
+    - charge.refunded — marks payment as refunded
+    - transfer.created — logs transfer confirmation
+    """
     payload = await request.body()
-    sig_header = request.headers.get("stripe-signature")
-    if not sig_header:
-        raise APIError(
-            error_code="missing_signature",
-            message="Missing signature",
-            status_code=status.HTTP_400_BAD_REQUEST,
+
+    is_production = settings.ENVIRONMENT.lower() == "production"
+    webhook_secret = settings.STRIPE_WEBHOOK_SECRET
+
+    if is_production and not webhook_secret:
+        logger.error("Stripe webhook secret missing in production; rejecting webhook")
+        raise HTTPException(
+            status_code=403,
+            detail="Stripe webhook secret is not configured in production",
         )
 
-    stripe_service = StripePaymentService()
-    if not stripe_service.verify_webhook_signature(payload, sig_header):
-        raise APIError(
-            error_code="invalid_signature",
-            message="Invalid signature",
-            status_code=status.HTTP_400_BAD_REQUEST,
+    if webhook_secret:
+        if not stripe_signature:
+            logger.error("Missing Stripe-Signature header")
+            raise HTTPException(status_code=403, detail="Missing Stripe-Signature header")
+        try:
+            stripe.WebhookSignature.verify_header(
+                payload=payload,
+                header=stripe_signature,
+                secret=webhook_secret,
+            )
+        except stripe.SignatureVerificationError:
+            logger.error("Stripe webhook signature verification failed")
+            raise HTTPException(status_code=403, detail="Invalid Stripe webhook signature")
+    else:
+        logger.warning(
+            "Stripe webhook secret not configured in non-production; signature verification skipped"
         )
-
-    event = stripe_service.parse_webhook(payload, sig_header)
-    event_id = event.get("id")
-    event_type = event.get("type")
-    if not event_id or not event_type:
-        raise APIError(
-            error_code="invalid_event",
-            message="Invalid event",
-            status_code=status.HTTP_400_BAD_REQUEST,
-        )
-
-    webhook_event = db.execute(
-        select(WebhookEvent).where(WebhookEvent.id == event_id)
-    ).scalar_one_or_none()
-    if webhook_event and webhook_event.status == WebhookEventStatus.PROCESSED:
-        return {"status": "ignored"}
 
     try:
-        with db.begin():
-            webhook_event = _store_webhook_event(db, event_id, event_type, event)
-            _process_stripe_event(db, event)
-            webhook_event.status = WebhookEventStatus.PROCESSED
-            webhook_event.processed_at = datetime.utcnow()
-            db.add(webhook_event)
-    except PaymentSyncNotReadyError as exc:
-        with db.begin():
-            webhook_event = _store_webhook_event(db, event_id, event_type, event)
-            webhook_event.status = WebhookEventStatus.FAILED
-            webhook_event.error = str(exc)
-            db.add(webhook_event)
-        return {"status": "ignored"}
-    except Exception as exc:
-        with db.begin():
-            webhook_event = _store_webhook_event(db, event_id, event_type, event)
-            webhook_event.status = WebhookEventStatus.FAILED
-            webhook_event.error = "processing_failed"
-            db.add(webhook_event)
-        raise APIError(
-            error_code="webhook_processing_failed",
-            message="Webhook processing failed.",
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-        ) from exc
+        event = json.loads(payload.decode("utf-8"))
+    except ValueError:
+        logger.error("Stripe webhook payload invalid")
+        raise HTTPException(status_code=400, detail="Invalid payload")
 
-    return {"status": "ok"}
+    event_type = event.get("type", "")
+    data_object = event.get("data", {}).get("object", {})
+
+    logger.info("Stripe webhook received: %s", event_type)
+
+    if event_type == "payment_intent.succeeded":
+        await _handle_payment_succeeded(db, data_object)
+    elif event_type == "payment_intent.payment_failed":
+        await _handle_payment_failed(db, data_object)
+    elif event_type == "charge.refunded":
+        await _handle_charge_refunded(db, data_object)
+    elif event_type == "transfer.created":
+        await _handle_transfer_created(db, data_object)
+    else:
+        logger.info("Unhandled Stripe event type: %s", event_type)
+
+    return {"received": True}
+
+
+async def _handle_payment_succeeded(db: AsyncSession, data: dict) -> None:
+    """PaymentIntent succeeded — mark payment completed, update event status."""
+    payment_intent_id = data.get("id", "")
+
+    result = await db.execute(
+        select(Payment).where(Payment.stripe_payment_intent_id == payment_intent_id)
+    )
+    payment = result.scalar_one_or_none()
+
+    if payment is None:
+        logger.warning("Payment not found for intent %s", payment_intent_id)
+        return
+
+    payment.status = "completed"
+
+    # If this is the event total payment, upgrade event from planning to confirmed
+    if payment.payment_type == "event_total":
+        event_result = await db.execute(
+            select(Event).where(Event.id == payment.event_id)
+        )
+        event = event_result.scalar_one_or_none()
+        if event and event.status == "planning":
+            event.status = "confirmed"
+            logger.info("Event %s confirmed via payment %s", event.id, payment_intent_id)
+
+    logger.info("Payment %s marked as completed", payment_intent_id)
+
+
+async def _handle_payment_failed(db: AsyncSession, data: dict) -> None:
+    """PaymentIntent failed — mark payment as failed."""
+    payment_intent_id = data.get("id", "")
+
+    result = await db.execute(
+        select(Payment).where(Payment.stripe_payment_intent_id == payment_intent_id)
+    )
+    payment = result.scalar_one_or_none()
+
+    if payment is None:
+        logger.warning("Payment not found for failed intent %s", payment_intent_id)
+        return
+
+    payment.status = "failed"
+
+    failure_message = data.get("last_payment_error", {}).get("message", "Unknown error")
+    logger.info("Payment %s failed: %s", payment_intent_id, failure_message)
+
+
+async def _handle_charge_refunded(db: AsyncSession, data: dict) -> None:
+    """Charge refunded — update payment status if a full refund."""
+    payment_intent_id = data.get("payment_intent", "")
+    if not payment_intent_id:
+        return
+
+    result = await db.execute(
+        select(Payment).where(Payment.stripe_payment_intent_id == payment_intent_id)
+    )
+    payment = result.scalar_one_or_none()
+
+    if payment is None:
+        logger.warning("Payment not found for refunded charge (intent %s)", payment_intent_id)
+        return
+
+    refunded = data.get("refunded", False)
+    if refunded:
+        payment.status = "refunded"
+        logger.info("Payment %s fully refunded", payment_intent_id)
+
+
+async def _handle_transfer_created(db: AsyncSession, data: dict) -> None:
+    """Transfer created — log for audit purposes."""
+    transfer_id = data.get("id", "")
+    amount = data.get("amount", 0) / 100  # cents → dollars
+    destination = data.get("destination", "")
+
+    logger.info(
+        "Transfer %s created: $%.2f to %s",
+        transfer_id,
+        amount,
+        destination,
+    )

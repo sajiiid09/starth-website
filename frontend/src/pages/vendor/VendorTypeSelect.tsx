@@ -1,6 +1,6 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import { Briefcase, Users } from "lucide-react";
+import { Briefcase, Users } from "@phosphor-icons/react";
 import { cn } from "@/lib/utils";
 import {
   getVendorOnboardingPath,

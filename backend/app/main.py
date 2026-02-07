@@ -1,102 +1,215 @@
-import logging
+"""FastAPI application factory — wires all routers, CORS, and health check."""
 
-from fastapi import FastAPI, Request
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
-from fastapi.exceptions import RequestValidationError
-from starlette.exceptions import HTTPException as StarletteHTTPException
 
-from app.api.router import router as api_router
-from app.core.config import get_settings
-from app.core.errors import APIError
-from app.core.logging import configure_logging
-from app.core.middleware.request_context import RequestContextMiddleware
-from app.core.middleware.rate_limit import RateLimitMiddleware, default_rate_limit_rules
-from app.core.middleware.read_only import ReadOnlyModeMiddleware
-from app.core.middleware.security_headers import SecurityHeadersMiddleware
-from app.core.monitoring import init_sentry
+from app.api.crud_factory import create_crud_router
+from app.api.routes.admin import router as admin_router
+from app.api.routes.auth import router as auth_router
+from app.api.routes.chat import router as chat_router
+from app.api.routes.integrations import router as integrations_router
+from app.api.routes.marketplace import router as marketplace_router
+from app.api.routes.payments import router as payments_router
+from app.api.routes.planner import router as planner_router
+from app.api.routes.plans import router as plans_router
+from app.api.routes.templates import router as templates_router
+from app.api.routes.webhooks import router as webhooks_router
+from app.core.config import settings
 
-settings = get_settings()
-configure_logging(settings.log_level)
-init_sentry(settings)
-settings.validate()
+# Import all models so they are registered with Base.metadata
+import app.models  # noqa: F401
 
-cors_origins = settings.cors_origins_list
-if settings.app_env != "prod" and not cors_origins:
-    cors_origins = ["http://localhost:3000", "http://localhost:5173"]
+# ---------------------------------------------------------------------------
+# Core domain model imports (for typed CRUD routers)
+# ---------------------------------------------------------------------------
+from app.models.availability import Availability
+from app.models.chat import ChatGroup, ChatMessage
+from app.models.document import Document
+from app.models.event import Event, EventService
+from app.models.payment import Payment
+from app.models.review import Review
+from app.models.service import Service
+from app.models.service_provider import ServiceProvider, ServiceProviderService
+from app.models.subscription import Subscription
+from app.models.template import Template
+from app.models.user import User
+from app.models.venue import Venue
 
-app = FastAPI(title="Strathwell API", debug=settings.app_env != "prod")
-
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=cors_origins,
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+# Extra JSONB-backed models
+from app.models.extra import (
+    Booking,
+    ContactSubmission,
+    Conversation,
+    ConversationParticipant,
+    DemoRequest,
+    DfyLead,
+    EventbriteSync,
+    EventChecklist,
+    EventCollaborator,
+    Favorite,
+    FeaturedPlacement,
+    GeneratedCaption,
+    InsurancePolicy,
+    MarketingCampaign,
+    Message,
+    Organization,
+    OtpVerification,
+    Plan,
+    Reminder,
+    Sponsor,
+    WaitlistSubscriber,
 )
-app.add_middleware(ReadOnlyModeMiddleware, enabled=settings.read_only_mode)
-app.add_middleware(SecurityHeadersMiddleware)
-app.add_middleware(RateLimitMiddleware, rules=default_rate_limit_rules())
-app.add_middleware(RequestContextMiddleware)
 
 
-@app.exception_handler(APIError)
-async def handle_api_error(_: Request, exc: APIError) -> JSONResponse:
-    return JSONResponse(
-        status_code=exc.status_code,
-        content={
-            "error": exc.error_code,
-            "message": exc.message,
-            "details": exc.details,
-        },
+def create_app() -> FastAPI:
+    app = FastAPI(
+        title="Strathwell API",
+        version="0.1.0",
+        docs_url="/api/docs",
+        redoc_url="/api/redoc",
+        openapi_url="/api/openapi.json",
     )
 
+    # ------------------------------------------------------------------
+    # CORS
+    # ------------------------------------------------------------------
+    allowed_origins = [settings.FRONTEND_URL]
+    # In development, also allow common dev ports
+    if settings.ENVIRONMENT == "development":
+        for port in ["3000", "5173", "5174"]:
+            origin = f"http://localhost:{port}"
+            if origin not in allowed_origins:
+                allowed_origins.append(origin)
 
-@app.exception_handler(RequestValidationError)
-async def handle_validation_error(_: Request, exc: RequestValidationError) -> JSONResponse:
-    return JSONResponse(
-        status_code=422,
-        content={
-            "error": "validation_error",
-            "message": "Validation error.",
-            "details": {"errors": exc.errors()},
-        },
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=allowed_origins,
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
     )
 
+    # ------------------------------------------------------------------
+    # Health check
+    # ------------------------------------------------------------------
+    @app.get("/api/health")
+    async def health() -> dict:
+        return {"status": "ok", "version": "0.1.0"}
 
-@app.exception_handler(StarletteHTTPException)
-async def handle_http_exception(_: Request, exc: StarletteHTTPException) -> JSONResponse:
-    if isinstance(exc.detail, dict):
-        error_code = exc.detail.get("error", "http_error")
-        message = exc.detail.get("message", "Request failed.")
-        details = {k: v for k, v in exc.detail.items() if k not in {"error", "message"}}
-    else:
-        error_code = "http_error"
-        message = str(exc.detail)
-        details = {}
-    return JSONResponse(
-        status_code=exc.status_code,
-        content={"error": error_code, "message": message, "details": details},
-    )
+    # ------------------------------------------------------------------
+    # Hand-written routers
+    # ------------------------------------------------------------------
+    app.include_router(auth_router)
+    app.include_router(planner_router)
+    app.include_router(integrations_router)
+    app.include_router(plans_router)
+    app.include_router(payments_router)
+    app.include_router(chat_router)
+    app.include_router(admin_router)
+    app.include_router(marketplace_router)
+    app.include_router(templates_router)
+    app.include_router(webhooks_router)
+
+    # ------------------------------------------------------------------
+    # Core domain CRUD routers
+    # ------------------------------------------------------------------
+    core_entities: list[tuple] = [
+        # (Model, resource_path, require_auth, owner_field)
+        (Venue, "venues", True, "owner_id"),
+        (ServiceProvider, "service-providers", True, "user_id"),
+        (ServiceProviderService, "service-provider-services", True, None),
+        (Service, "services", False, None),
+        (Availability, "availability", True, None),
+        (Event, "events", True, "user_id"),
+        (EventService, "event-services", True, None),
+        (Payment, "payments", True, "payer_id"),
+        (Template, "templates", False, None),
+        (ChatGroup, "chat-groups", True, None),  # TODO: add event-level access control
+        (ChatMessage, "chat-messages", True, "sender_id"),
+        (Review, "reviews", True, "reviewer_id"),
+        (Subscription, "subscriptions", True, "user_id"),
+        (Document, "documents", True, None),
+        # NOTE: User is intentionally excluded from generic CRUD.
+        # The auth router (/api/auth/me) handles user read/update safely
+        # without exposing password_hash, otp_code, etc.
+    ]
+
+    for model, resource, auth, owner in core_entities:
+        app.include_router(
+            create_crud_router(
+                model=model,
+                resource=resource,
+                require_auth=auth,
+                owner_field=owner,
+            )
+        )
+
+    # ------------------------------------------------------------------
+    # Extra JSONB CRUD routers
+    # ------------------------------------------------------------------
+    extra_with_user: list[tuple] = [
+        # (Model, resource_path)
+        (Plan, "plans"),
+        (Conversation, "conversations"),
+        (ConversationParticipant, "conversation-participants"),
+        (Message, "messages"),
+        (Booking, "bookings"),
+        (Favorite, "favorites"),
+        (Reminder, "reminders"),
+        (EventChecklist, "event-checklists"),
+        (MarketingCampaign, "marketing-campaigns"),
+        (EventCollaborator, "event-collaborators"),
+        (InsurancePolicy, "insurance-policies"),
+        (Organization, "organizations"),
+    ]
+
+    for model, resource in extra_with_user:
+        app.include_router(
+            create_crud_router(
+                model=model,
+                resource=resource,
+                require_auth=True,
+                owner_field="user_id",
+            )
+        )
+
+    extra_optional_user: list[tuple] = [
+        (FeaturedPlacement, "featured-placements"),
+        (EventbriteSync, "eventbrite-syncs"),
+        (Sponsor, "sponsors"),
+        (GeneratedCaption, "generated-captions"),
+    ]
+
+    for model, resource in extra_optional_user:
+        app.include_router(
+            create_crud_router(
+                model=model,
+                resource=resource,
+                require_auth=False,
+                owner_field="user_id",
+            )
+        )
+
+    # Public / anonymous entities — no auth, no owner
+    extra_public: list[tuple] = [
+        (ContactSubmission, "contact-submissions"),
+        (DfyLead, "dfy-leads"),
+        (WaitlistSubscriber, "waitlist-subscribers"),
+        (DemoRequest, "demo-requests"),
+        (OtpVerification, "otp-verifications"),
+    ]
+
+    for model, resource in extra_public:
+        app.include_router(
+            create_crud_router(
+                model=model,
+                resource=resource,
+                require_auth=False,
+                owner_field=None,
+            )
+        )
+
+    return app
 
 
-@app.exception_handler(Exception)
-async def handle_unexpected_error(request: Request, exc: Exception) -> JSONResponse:
-    logger = logging.getLogger("app.error")
-    logger.exception("Unhandled exception", extra={"path": request.url.path})
-    return JSONResponse(
-        status_code=500,
-        content={
-            "error": "internal_error",
-            "message": "Something went wrong.",
-            "details": {},
-        },
-    )
-
-
-@app.get("/health")
-def health_check() -> dict[str, str]:
-    return {"status": "ok"}
-
-
-app.include_router(api_router)
+app = create_app()

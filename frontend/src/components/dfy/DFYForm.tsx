@@ -12,7 +12,7 @@ import {
   SelectValue
 } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Loader2, Send, Sparkles } from "lucide-react";
+import { SpinnerGap, PaperPlaneTilt, Sparkle } from "@phosphor-icons/react";
 import { SendEmail } from "@/api/integrations";
 import Container from "@/components/home-v2/primitives/Container";
 import Section from "@/components/home-v2/primitives/Section";
@@ -118,7 +118,7 @@ Please respond within 24 hours as promised on the website.
               <div className="rounded-3xl border border-white/50 bg-white/80 p-6 shadow-card">
                 <div className="flex items-start gap-4">
                   <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-brand-teal/10">
-                    <Sparkles className="h-6 w-6 text-brand-teal" />
+                    <Sparkle className="h-6 w-6 text-brand-teal" />
                   </span>
                   <div>
                     <p className="text-sm font-semibold text-brand-dark">
@@ -310,12 +310,12 @@ Please respond within 24 hours as promised on the website.
                   >
                     {isSubmitting ? (
                       <>
-                        <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                        <SpinnerGap className="mr-2 h-5 w-5 animate-spin" />
                         Submitting Request...
                       </>
                     ) : (
                       <>
-                        <Send className="mr-2 h-5 w-5" />
+                        <PaperPlaneTilt className="mr-2 h-5 w-5" />
                         Request Plan with Us Service
                       </>
                     )}

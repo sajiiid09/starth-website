@@ -8,13 +8,13 @@ import {
   MapPin, 
   Users, 
   Calendar, 
-  Award,
+  Trophy,
   ArrowRight,
-  ExternalLink,
-  Bot,
-  TrendingUp,
-  Scale
-} from "lucide-react";
+  ArrowSquareOut,
+  Robot,
+  TrendUp,
+  Scales
+} from "@phosphor-icons/react";
 import Container from "@/components/home-v2/primitives/Container";
 import FadeIn from "@/components/animations/FadeIn";
 
@@ -52,7 +52,7 @@ const additionalCases = [
     location: "Massachusetts",
     title: "Massachusetts Law Firm",
     subtitle: "Unlocking New Revenue",
-    icon: Scale,
+    icon: Scales,
     challenge: "Premium office space sat unused on evenings/weekends, but partners feared compliance risks and administrative overhead involved in renting it out.",
     solution: "Piloted an AI-driven orchestration engine to identify low-risk, compliant event categories (like CLE sessions) without disrupting legal ops.",
     outcome: "Validated a new, low-risk revenue stream while maintaining strict professional and compliance standards.",
@@ -69,10 +69,10 @@ export default function FeaturedCase() {
         {/* --- Section Header --- */}
         <FadeIn className="text-center mb-10 md:mb-16">
           <Badge variant="outline" className="mb-6 inline-flex items-center gap-2 rounded-full border border-brand-teal/20 bg-brand-teal/5 px-4 py-2 text-xs font-semibold uppercase tracking-[0.3em] text-brand-teal">
-            <Award className="h-4 w-4" />
+            <Trophy className="h-4 w-4" />
             Case Studies
           </Badge>
-          <h2 className="text-3xl font-bold text-brand-dark sm:text-4xl md:text-5xl leading-tight">
+          <h2 className="text-3xl font-semibold text-brand-dark sm:text-4xl md:text-5xl leading-tight">
             Real-World Impact
           </h2>
           <p className="mx-auto mt-4 max-w-2xl text-base text-brand-dark/60 sm:text-lg md:mt-6 md:text-xl">
@@ -93,7 +93,7 @@ export default function FeaturedCase() {
                     alt="Limitless Women in Tech Summit 2025"
                     className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
                   />
-                  <Badge variant="outline" className="absolute left-6 top-6 z-20 rounded-full bg-white/90 text-xs font-bold tracking-widest text-brand-dark backdrop-blur-md">
+                  <Badge variant="outline" className="absolute left-6 top-6 z-20 rounded-full bg-white/90 text-xs font-semibold tracking-widest text-brand-dark backdrop-blur-md">
                     FEATURED PARTNERSHIP
                   </Badge>
                 </div>
@@ -103,7 +103,7 @@ export default function FeaturedCase() {
                   <div>
                     <div className="mb-8 flex items-start justify-between">
                       <div>
-                        <h3 className="text-3xl font-bold text-brand-dark mb-2">
+                        <h3 className="text-3xl font-semibold text-brand-dark mb-2">
                           Limitless Women in Tech
                         </h3>
                         <p className="text-brand-teal font-medium flex items-center gap-2">
@@ -112,7 +112,7 @@ export default function FeaturedCase() {
                       </div>
                       <Link to={createPageUrl("AIPlanner")}>
                         <Button size="sm" variant="outline" className="hidden sm:flex border-brand-teal/30 text-brand-teal hover:bg-brand-teal/5">
-                          <Bot className="mr-2 h-4 w-4" />
+                          <Robot className="mr-2 h-4 w-4" />
                           Try AI Planner
                         </Button>
                       </Link>
@@ -125,26 +125,26 @@ export default function FeaturedCase() {
                     {/* Stats Grid */}
                     <div className="grid grid-cols-2 gap-y-6 gap-x-12 border-t border-brand-dark/5 pt-8">
                       <div>
-                        <div className="mb-1 flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-brand-dark/40">
+                        <div className="mb-1 flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-brand-dark/40">
                           <Users className="h-4 w-4" /> Attendees
                         </div>
                         <p className="text-xl font-semibold text-brand-dark">194 Registered</p>
                       </div>
                       <div>
-                        <div className="mb-1 flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-brand-dark/40">
+                        <div className="mb-1 flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-brand-dark/40">
                           <Calendar className="h-4 w-4" /> Date
                         </div>
                         <p className="text-xl font-semibold text-brand-dark">Sept 18, 2025</p>
                       </div>
                       <div>
-                        <div className="mb-1 flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-brand-dark/40">
-                          <Award className="h-4 w-4" /> Impact
+                        <div className="mb-1 flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-brand-dark/40">
+                          <Trophy className="h-4 w-4" /> Impact
                         </div>
                         <p className="text-xl font-semibold text-brand-dark">Flagship Success</p>
                       </div>
                       <div>
-                        <div className="mb-1 flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-brand-dark/40">
-                          <Bot className="h-4 w-4" /> Tech
+                        <div className="mb-1 flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-brand-dark/40">
+                          <Robot className="h-4 w-4" /> Tech
                         </div>
                         <p className="text-xl font-semibold text-brand-dark">AI Orchestrated</p>
                       </div>
@@ -161,7 +161,7 @@ export default function FeaturedCase() {
                     >
                       <Button className="w-full rounded-full bg-brand-teal py-6 text-base hover:bg-brand-teal/90 shadow-lg hover:shadow-xl transition-all hover:-translate-y-0.5">
                         View Official Event
-                        <ExternalLink className="ml-2 h-4 w-4" />
+                        <ArrowSquareOut className="ml-2 h-4 w-4" />
                       </Button>
                     </a>
                   </div>
@@ -186,7 +186,7 @@ export default function FeaturedCase() {
                       <study.icon className="h-8 w-8 text-brand-dark/60" />
                     )}
                   </div>
-                  <Badge variant="outline" className={`border-0 ${study.color} px-3 py-1 text-[10px] font-bold uppercase tracking-wider`}>
+                  <Badge variant="outline" className={`border-0 ${study.color} px-3 py-1 text-[10px] font-semibold uppercase tracking-wider`}>
                     {study.clientType}
                   </Badge>
                 </div>
@@ -194,7 +194,7 @@ export default function FeaturedCase() {
                 <div className="flex flex-1 flex-col px-8 pb-8">
                   {/* Title & Location */}
                   <div className="mb-6">
-                    <h3 className="text-2xl font-bold text-brand-dark leading-tight">
+                    <h3 className="text-2xl font-semibold text-brand-dark leading-tight">
                       {study.title}
                     </h3>
                     <p className="text-sm font-medium text-brand-dark/60 mt-1">
@@ -211,7 +211,7 @@ export default function FeaturedCase() {
                   {/* Content Blocks */}
                   <div className="flex-1 space-y-5">
                     <div>
-                      <h4 className="mb-2 text-xs font-bold uppercase tracking-widest text-brand-dark/40 flex items-center gap-2">
+                      <h4 className="mb-2 text-xs font-semibold uppercase tracking-widest text-brand-dark/40 flex items-center gap-2">
                         <span className="w-1.5 h-1.5 rounded-full bg-red-400" /> Challenge
                       </h4>
                       <p className="text-sm leading-relaxed text-brand-dark/70">
@@ -219,7 +219,7 @@ export default function FeaturedCase() {
                       </p>
                     </div>
                     <div>
-                      <h4 className="mb-2 text-xs font-bold uppercase tracking-widest text-brand-dark/40 flex items-center gap-2">
+                      <h4 className="mb-2 text-xs font-semibold uppercase tracking-widest text-brand-dark/40 flex items-center gap-2">
                         <span className="w-1.5 h-1.5 rounded-full bg-brand-teal" /> Strathwell Solution
                       </h4>
                       <p className="text-sm leading-relaxed text-brand-dark/70">
@@ -230,7 +230,7 @@ export default function FeaturedCase() {
 
                   {/* Outcome Box */}
                   <div className="mt-8 rounded-xl bg-brand-dark/5 p-5 border border-brand-dark/5 group-hover:border-brand-teal/10 group-hover:bg-brand-teal/5 transition-colors">
-                    <h4 className="mb-2 text-xs font-bold uppercase tracking-widest text-brand-dark/50 group-hover:text-brand-teal">
+                    <h4 className="mb-2 text-xs font-semibold uppercase tracking-widest text-brand-dark/50 group-hover:text-brand-teal">
                       Business Outcome
                     </h4>
                     <p className="text-sm font-medium text-brand-dark leading-relaxed">
@@ -239,8 +239,8 @@ export default function FeaturedCase() {
                     
                     {/* Metric Tag */}
                     <div className="mt-4 inline-flex items-center gap-2 rounded-lg bg-white px-3 py-1.5 shadow-sm">
-                      <TrendingUp className="h-3.5 w-3.5 text-brand-teal" />
-                      <span className="text-xs font-bold text-brand-dark">{study.metric}</span>
+                      <TrendUp className="h-3.5 w-3.5 text-brand-teal" />
+                      <span className="text-xs font-semibold text-brand-dark">{study.metric}</span>
                     </div>
                   </div>
                 </div>

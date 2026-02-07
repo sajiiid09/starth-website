@@ -7,12 +7,12 @@ import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { 
   Calendar as CalendarIcon, 
-  ChevronLeft, 
-  ChevronRight,
+  CaretLeft, 
+  CaretRight,
   Plus,
-  ExternalLink,
-  Filter
-} from "lucide-react";
+  ArrowSquareOut,
+  Funnel
+} from "@phosphor-icons/react";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isSameDay, isToday } from "date-fns";
@@ -107,13 +107,13 @@ export default function EventCalendarPage() {
         {/* Header */}
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">Event Calendar</h1>
+            <h1 className="text-3xl font-semibold text-gray-900 mb-2">Event Calendar</h1>
             <p className="text-lg text-gray-600">View all your events in calendar format</p>
           </div>
           
           <div className="flex gap-2 mt-4 md:mt-0">
             <Button onClick={exportToGoogleCalendar} variant="outline">
-              <ExternalLink className="w-4 h-4 mr-2" />
+              <ArrowSquareOut className="w-4 h-4 mr-2" />
               Export to Google
             </Button>
             <Link to={createPageUrl("CreateEvent")}>
@@ -131,13 +131,13 @@ export default function EventCalendarPage() {
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-4">
                 <Button variant="outline" size="icon" onClick={() => navigateMonth(-1)}>
-                  <ChevronLeft className="w-4 h-4" />
+                  <CaretLeft className="w-4 h-4" />
                 </Button>
-                <h2 className="text-2xl font-bold">
+                <h2 className="text-2xl font-semibold">
                   {format(currentDate, 'MMMM yyyy')}
                 </h2>
                 <Button variant="outline" size="icon" onClick={() => navigateMonth(1)}>
-                  <ChevronRight className="w-4 h-4" />
+                  <CaretRight className="w-4 h-4" />
                 </Button>
               </div>
               
@@ -153,7 +153,7 @@ export default function EventCalendarPage() {
                   </SelectContent>
                 </Select>
                 <Button variant="outline">
-                  <Filter className="w-4 h-4 mr-2" />
+                  <Funnel className="w-4 h-4 mr-2" />
                   Filter
                 </Button>
               </div>

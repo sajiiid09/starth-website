@@ -3,7 +3,7 @@ import { User } from "@/api/entities";
 import { createPageUrl } from "@/utils";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Calendar, MapPin, Users, ArrowRight, Loader2 } from "lucide-react";
+import { Calendar, MapPin, Users, ArrowRight, SpinnerGap } from "@phosphor-icons/react";
 
 export default function AppStrathwellPage() {
   const [user, setUser] = useState(null);
@@ -40,7 +40,7 @@ export default function AppStrathwellPage() {
     return (
       <div className="flex items-center justify-center h-screen bg-gray-50">
         <div className="text-center">
-          <Loader2 className="w-12 h-12 text-blue-600 animate-spin mx-auto mb-4" />
+          <SpinnerGap className="w-12 h-12 text-blue-600 animate-spin mx-auto mb-4" />
           <p className="text-gray-600">Loading your dashboard...</p>
         </div>
       </div>
@@ -56,7 +56,7 @@ export default function AppStrathwellPage() {
             alt="Strathwell" 
             className="h-32 mx-auto mb-6"
           />
-          <h1 className="text-4xl font-bold text-gray-900 mb-4">
+          <h1 className="text-4xl font-semibold text-gray-900 mb-4">
             Welcome to Strathwell
           </h1>
           <p className="text-xl text-gray-600 max-w-2xl mx-auto">
@@ -70,7 +70,7 @@ export default function AppStrathwellPage() {
               <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center mx-auto mb-4">
                 <Calendar className="w-6 h-6 text-blue-600" />
               </div>
-              <h3 className="font-bold text-gray-900 mb-2">Event Organizers</h3>
+              <h3 className="font-semibold text-gray-900 mb-2">Event Organizers</h3>
               <p className="text-sm text-gray-600">
                 Plan events with AI-powered venue and vendor matching
               </p>
@@ -82,7 +82,7 @@ export default function AppStrathwellPage() {
               <div className="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center mx-auto mb-4">
                 <MapPin className="w-6 h-6 text-green-600" />
               </div>
-              <h3 className="font-bold text-gray-900 mb-2">Venue Owners</h3>
+              <h3 className="font-semibold text-gray-900 mb-2">Venue Owners</h3>
               <p className="text-sm text-gray-600">
                 Manage listings, bookings, and connect with organizers
               </p>
@@ -94,7 +94,7 @@ export default function AppStrathwellPage() {
               <div className="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center mx-auto mb-4">
                 <Users className="w-6 h-6 text-purple-600" />
               </div>
-              <h3 className="font-bold text-gray-900 mb-2">Service Providers</h3>
+              <h3 className="font-semibold text-gray-900 mb-2">Service Providers</h3>
               <p className="text-sm text-gray-600">
                 Showcase services and receive curated event opportunities
               </p>
@@ -104,7 +104,7 @@ export default function AppStrathwellPage() {
 
         <Card className="border-none shadow-xl">
           <CardContent className="p-8 text-center">
-            <h2 className="text-2xl font-bold text-gray-900 mb-6">
+            <h2 className="text-2xl font-semibold text-gray-900 mb-6">
               Sign In to Your Dashboard
             </h2>
             

@@ -1,7 +1,7 @@
 import React from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
-import { Loader2 } from "lucide-react";
+import { SpinnerGap } from "@phosphor-icons/react";
 import { AppRole, getCurrentRole, getRoleHomePath, setCurrentRole } from "@/utils/role";
 import { getSessionState, getVendorOnboardingPath } from "@/utils/session";
 
@@ -68,7 +68,7 @@ const RoleGate: React.FC<RoleGateProps> = ({ allowedRoles, children }) => {
   if (!isReady) {
     return (
       <div className="flex min-h-[60vh] items-center justify-center">
-        <Loader2 className="h-6 w-6 animate-spin text-brand-dark/50" />
+        <SpinnerGap className="h-6 w-6 animate-spin text-brand-dark/50" />
       </div>
     );
   }

@@ -1,6 +1,7 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
+import { Review } from "@/api/entities";
 import Container from "@/components/home-v2/primitives/Container";
 import Section from "@/components/home-v2/primitives/Section";
 import Eyebrow from "@/components/home-v2/primitives/Eyebrow";
@@ -10,108 +11,64 @@ import PillButton from "@/components/home-v2/primitives/PillButton";
 import FadeIn from "@/components/animations/FadeIn";
 import ReviewCard from "@/components/reviews/ReviewCard";
 import { cn } from "@/lib/utils";
+import { SpinnerGap } from "@phosphor-icons/react";
 
-const reviews = [
-  {
-    name: "Lena Torres",
-    role: "Organizer",
-    company: "Helios Ventures",
-    city: "San Francisco, CA",
-    rating: 5,
-    quote:
-      "The concierge team kept every stakeholder aligned. We delivered on-time and under budget with zero last-minute chaos."
-  },
-  {
-    name: "Marcus Lee",
-    role: "Venue Owner",
-    company: "Harborline Loft",
-    city: "Boston, MA",
-    rating: 5,
-    quote:
-      "Strathwell brings qualified leads and makes it effortless to coordinate walkthroughs, contracts, and production timelines."
-  },
-  {
-    name: "Priya Rao",
-    role: "Service Provider",
-    company: "Lumina Catering",
-    city: "Chicago, IL",
-    rating: 5,
-    quote:
-      "We receive fully scoped requests and clear run-of-show notes, so our team can execute flawlessly."
-  },
-  {
-    name: "Jordan Wells",
-    role: "Organizer",
-    company: "Northwind Summit",
-    city: "Seattle, WA",
-    rating: 5,
-    quote:
-      "I loved the level of detail in the proposal. Every vendor option had context and cost tradeoffs."
-  },
-  {
-    name: "Camila Duarte",
-    role: "Organizer",
-    company: "Studio Eleven",
-    city: "Austin, TX",
-    rating: 5,
-    quote:
-      "We moved from kickoff to confirmed venue in 36 hours. The team orchestrated the entire pipeline."
-  },
-  {
-    name: "Noah Kim",
-    role: "Service Provider",
-    company: "Signal AV",
-    city: "New York, NY",
-    rating: 5,
-    quote:
-      "The intake notes and on-site comms are clean and actionable. It feels like working with an in-house team."
-  },
-  {
-    name: "Ariella Patel",
-    role: "Venue Owner",
-    company: "Grandview Hall",
-    city: "Toronto, ON",
-    rating: 5,
-    quote:
-      "We get well-qualified bookings and better alignment on load-in and staffing requirements."
-  },
-  {
-    name: "Diego Morales",
-    role: "Organizer",
-    company: "Elevate Labs",
-    city: "Denver, CO",
-    rating: 5,
-    quote:
-      "Every milestone felt managed. The team handled vendor negotiations and kept our execs calm."
-  },
-  {
-    name: "Samantha Zhou",
-    role: "Service Provider",
-    company: "Flora & Co.",
-    city: "Miami, FL",
-    rating: 5,
-    quote:
-      "We receive a clear style guide and execution timeline. It makes it easy to deliver premium installs."
-  },
-  {
-    name: "Oliver Grant",
-    role: "Venue Owner",
-    company: "Summit Studios",
-    city: "London, UK",
-    rating: 5,
-    quote:
-      "The coordination is exceptional. We can staff confidently knowing the agenda has been verified."
-  }
-];
+type ReviewItem = {
+  id: string;
+  name: string;
+  role: string;
+  company: string;
+  city: string;
+  rating: number;
+  quote: string;
+};
 
-const filters = [
-  { label: "All", active: true },
-  { label: "Organizers", active: false },
-  { label: "Venue Owners", active: false },
-  { label: "Service Providers", active: false }
-];
+const FILTER_OPTIONS = [
+  { label: "All", value: "" },
+  { label: "Organizers", value: "Organizer" },
+  { label: "Venue Owners", value: "Venue Owner" },
+  { label: "Service Providers", value: "Service Provider" }
+] as const;
+
+function normalizeReview(raw: Record<string, unknown>): ReviewItem {
+  const data = (raw.data ?? raw) as Record<string, unknown>;
+  return {
+    id: String(raw.id ?? ""),
+    name: String(data.reviewer_name ?? data.name ?? "Anonymous"),
+    role: String(data.reviewer_role ?? data.role ?? ""),
+    company: String(data.company ?? ""),
+    city: String(data.city ?? ""),
+    rating: Number(data.rating ?? 5),
+    quote: String(data.comment ?? data.quote ?? ""),
+  };
+}
 
 const Reviews: React.FC = () => {
+  const [reviews, setReviews] = useState<ReviewItem[]>([]);
+  const [activeFilter, setActiveFilter] = useState("");
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchReviews = async () => {
+      try {
+        setLoading(true);
+        const filters: Record<string, string> = {};
+        if (activeFilter) {
+          filters.role = activeFilter;
+        }
+        const result = await Review.filter(filters);
+        const items = Array.isArray(result) ? result : [];
+        setReviews(items.map(normalizeReview));
+      } catch (error) {
+        console.error("Failed to load reviews:", error);
+        setReviews([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchReviews();
+  }, [activeFilter]);
+
   return (
     <div className="min-h-screen bg-brand-light text-brand-dark">
       <Section theme="cream">
@@ -131,13 +88,14 @@ const Reviews: React.FC = () => {
         <Container>
           <div className="flex flex-col gap-10">
             <FadeIn className="flex flex-wrap justify-center gap-3">
-              {filters.map((filter) => (
+              {FILTER_OPTIONS.map((filter) => (
                 <button
                   key={filter.label}
                   type="button"
+                  onClick={() => setActiveFilter(filter.value)}
                   className={cn(
                     "rounded-full border px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] transition",
-                    filter.active
+                    activeFilter === filter.value
                       ? "border-brand-dark bg-brand-dark text-brand-light"
                       : "border-brand-dark/20 bg-white text-brand-dark/70 hover:border-brand-dark/40"
                   )}
@@ -147,15 +105,25 @@ const Reviews: React.FC = () => {
               ))}
             </FadeIn>
 
-            <FadeIn
-              className="grid gap-6 md:grid-cols-2 lg:grid-cols-3"
-              staggerChildren={0.08}
-              childSelector=".review-card"
-            >
-              {reviews.map((review) => (
-                <ReviewCard key={review.name} {...review} className="review-card" />
-              ))}
-            </FadeIn>
+            {loading ? (
+              <div className="flex items-center justify-center py-20">
+                <SpinnerGap className="h-8 w-8 animate-spin text-brand-dark/40" />
+              </div>
+            ) : reviews.length === 0 ? (
+              <div className="text-center py-20">
+                <p className="text-brand-dark/50">No reviews found.</p>
+              </div>
+            ) : (
+              <FadeIn
+                className="grid gap-6 md:grid-cols-2 lg:grid-cols-3"
+                staggerChildren={0.08}
+                childSelector=".review-card"
+              >
+                {reviews.map((review) => (
+                  <ReviewCard key={review.id} {...review} className="review-card" />
+                ))}
+              </FadeIn>
+            )}
           </div>
         </Container>
       </Section>

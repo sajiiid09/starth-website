@@ -5,7 +5,8 @@ module.exports = {
   theme: {
   	extend: {
   		fontFamily: {
-  			display: ['"Inter Tight"', 'Inter', 'system-ui', 'sans-serif']
+  			sans: ['"General Sans"', 'system-ui', 'sans-serif'],
+  			display: ['"Satoshi"', '"General Sans"', 'system-ui', 'sans-serif']
   		},
   		borderRadius: {
   			xl: '16px',

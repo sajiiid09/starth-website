@@ -1,5 +1,5 @@
 import React from "react";
-import { ChevronDown, Mic, Paperclip, Sparkles } from "lucide-react";
+import { CaretDown, Microphone, Paperclip, Sparkle } from "@phosphor-icons/react";
 import gsap from "gsap";
 import PillButton from "@/components/home-v2/primitives/PillButton";
 import useGsapReveal from "@/components/utils/useGsapReveal";
@@ -89,7 +89,7 @@ const PromptBox: React.FC = () => {
           <div className="flex flex-wrap items-center justify-between gap-3 text-xs text-brand-dark/60">
             <span className="inline-flex items-center gap-2 font-medium">
               <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-brand-blue/40 text-brand-teal">
-                <Sparkles className="h-4 w-4" />
+                <Sparkle className="h-4 w-4" />
               </span>
               Daily more than 10,000+ event plans generated
             </span>
@@ -111,7 +111,7 @@ const PromptBox: React.FC = () => {
                   onClick={() => handleFeatureAction("Style presets")}
                   className="inline-flex items-center gap-2 rounded-full border border-brand-dark/10 bg-white px-3 py-1 text-xs font-medium text-brand-dark/70 transition duration-250 ease-smooth hover:border-brand-dark/20 hover:text-brand-dark"
                 >
-                  Styles <ChevronDown className="h-3 w-3" />
+                  Styles <CaretDown className="h-3 w-3" />
                 </button>
                 <button
                   type="button"
@@ -130,7 +130,7 @@ const PromptBox: React.FC = () => {
                   onClick={() => handleFeatureAction("Voice input")}
                   className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-brand-dark/10 bg-white text-brand-dark/60 transition duration-250 ease-smooth hover:text-brand-dark"
                 >
-                  <Mic className="h-4 w-4" />
+                  <Microphone className="h-4 w-4" />
                 </button>
                 <PillButton
                   variant="primary"

@@ -15,7 +15,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { DemoRequest } from "@/api/entities";
 import { SendEmail } from "@/api/integrations";
-import { Loader2, Calendar, CheckCircle2, Sparkles, X, ArrowRight } from "lucide-react";
+import { SpinnerGap, Calendar, CheckCircle, Sparkle, X, ArrowRight } from "@phosphor-icons/react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 
@@ -108,7 +108,7 @@ ${formData.notes || 'None'}
         <DialogContent className="overflow-hidden border-none bg-brand-cream p-0 shadow-2xl sm:max-w-md sm:rounded-3xl">
           <div className="flex flex-col items-center justify-center space-y-6 px-8 py-12 text-center">
             <div className="relative flex h-20 w-20 items-center justify-center rounded-full bg-brand-teal/10 ring-1 ring-brand-teal/20">
-              <CheckCircle2 className="h-10 w-10 text-brand-teal" />
+              <CheckCircle className="h-10 w-10 text-brand-teal" />
               <div className="absolute inset-0 animate-ping rounded-full bg-brand-teal/5 duration-1000" />
             </div>
             <div className="space-y-2">
@@ -141,7 +141,7 @@ ${formData.notes || 'None'}
           <div className="flex items-start justify-between">
             <div className="space-y-1">
               <div className="flex items-center gap-2">
-                <span className="inline-flex items-center rounded-full border border-brand-teal/20 bg-brand-teal/5 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-widest text-brand-teal">
+                <span className="inline-flex items-center rounded-full border border-brand-teal/20 bg-brand-teal/5 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-widest text-brand-teal">
                   Early Access
                 </span>
               </div>
@@ -162,7 +162,7 @@ ${formData.notes || 'None'}
           <form onSubmit={handleSubmit} className="space-y-5">
             <div className="grid gap-5 md:grid-cols-2">
               <div className="space-y-1.5">
-                <Label htmlFor="full_name" className="text-[11px] font-bold uppercase tracking-widest text-brand-dark/50">
+                <Label htmlFor="full_name" className="text-[11px] font-semibold uppercase tracking-widest text-brand-dark/50">
                   Full Name
                 </Label>
                 <Input
@@ -176,7 +176,7 @@ ${formData.notes || 'None'}
               </div>
 
               <div className="space-y-1.5">
-                <Label htmlFor="email" className="text-[11px] font-bold uppercase tracking-widest text-brand-dark/50">
+                <Label htmlFor="email" className="text-[11px] font-semibold uppercase tracking-widest text-brand-dark/50">
                   Work Email
                 </Label>
                 <Input
@@ -192,7 +192,7 @@ ${formData.notes || 'None'}
             </div>
 
             <div className="space-y-1.5">
-              <Label htmlFor="role" className="text-[11px] font-bold uppercase tracking-widest text-brand-dark/50">
+              <Label htmlFor="role" className="text-[11px] font-semibold uppercase tracking-widest text-brand-dark/50">
                 I am a...
               </Label>
               <Select
@@ -212,7 +212,7 @@ ${formData.notes || 'None'}
             </div>
 
             <div className="space-y-1.5">
-              <Label htmlFor="company" className="text-[11px] font-bold uppercase tracking-widest text-brand-dark/50">
+              <Label htmlFor="company" className="text-[11px] font-semibold uppercase tracking-widest text-brand-dark/50">
                 Company <span className="text-brand-dark/30 normal-case tracking-normal">(Optional)</span>
               </Label>
               <Input
@@ -225,7 +225,7 @@ ${formData.notes || 'None'}
             </div>
 
             <div className="space-y-1.5">
-              <Label htmlFor="notes" className="text-[11px] font-bold uppercase tracking-widest text-brand-dark/50">
+              <Label htmlFor="notes" className="text-[11px] font-semibold uppercase tracking-widest text-brand-dark/50">
                 Priorities / Questions
               </Label>
               <Textarea
@@ -245,7 +245,7 @@ ${formData.notes || 'None'}
               >
                 {loading ? (
                   <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    <SpinnerGap className="mr-2 h-4 w-4 animate-spin" />
                     Processing...
                   </>
                 ) : (
@@ -264,7 +264,7 @@ ${formData.notes || 'None'}
         <div className="bg-brand-blue/30 px-8 py-5">
           <div className="flex items-start gap-3">
             <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-brand-light shadow-sm">
-              <Sparkles className="h-4 w-4 text-brand-teal" />
+              <Sparkle className="h-4 w-4 text-brand-teal" />
             </div>
             <div>
               <p className="text-sm font-semibold text-brand-dark">

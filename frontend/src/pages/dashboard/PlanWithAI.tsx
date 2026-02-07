@@ -1,8 +1,8 @@
 import React from "react";
-import AIPlannerPage from "@/pages/AIPlanner";
+import OrganizerAIWorkspace from "@/pages/dashboard/OrganizerAIWorkspace";
 
 const PlanWithAI: React.FC = () => {
-  return <AIPlannerPage />;
+  return <OrganizerAIWorkspace />;
 };
 
 export default PlanWithAI;

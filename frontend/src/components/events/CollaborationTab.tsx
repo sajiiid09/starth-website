@@ -8,7 +8,7 @@ import { User } from '@/api/entities';
 import { EventCollaborator } from '@/api/entities';
 import { SendEmail } from '@/api/integrations';
 import { createPageUrl } from '@/utils';
-import { Plus, Mail, UserPlus, Trash2 } from 'lucide-react';
+import { Plus, Envelope, UserPlus, Trash } from '@phosphor-icons/react';
 import { toast } from 'sonner';
 
 export default function CollaborationTab({ eventId, eventTitle }) {
@@ -147,7 +147,7 @@ The Strathwell Team
                 </div>
               ) : (
                 <>
-                  <Mail className="w-4 h-4 mr-2" />
+                  <Envelope className="w-4 h-4 mr-2" />
                   Send Invitation
                 </>
               )}

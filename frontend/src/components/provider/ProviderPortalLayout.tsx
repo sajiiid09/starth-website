@@ -3,6 +3,7 @@ import React, { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { User } from "@/api/entities";
+import { clearAuthTokens } from "@/api/authStorage";
 import { Button } from "@/components/ui/button";
 import {
   Sidebar,
@@ -18,34 +19,33 @@ import {
   SidebarProvider,
 } from "@/components/ui/sidebar";
 import {
-  LayoutDashboard,
+  SquaresFour,
   Briefcase,
-  Building,
+  Buildings,
   Shield,
   FileText,
-  Settings,
-  Sparkles,
-  Mail,
-} from "lucide-react";
-import RoleSwitcher from "../shared/RoleSwitcher";
+  Gear,
+  Sparkle,
+  Envelope,
+} from "@phosphor-icons/react";
 
 const navigationItems = [
   {
     title: "Overview",
     url: createPageUrl("ProviderPortal"),
-    icon: LayoutDashboard,
+    icon: SquaresFour,
     description: "Dashboard & key metrics",
   },
   {
     title: "Messages",
     url: createPageUrl("ProviderMessages"),
-    icon: Mail,
+    icon: Envelope,
     description: "View & reply to leads",
   },
   {
     title: "Organization",
     url: createPageUrl("ProviderOrganization"),
-    icon: Building,
+    icon: Buildings,
     description: "Your business details",
   },
   {
@@ -69,7 +69,7 @@ const navigationItems = [
   {
     title: "Settings",
     url: createPageUrl("ProviderSettings"),
-    icon: Settings,
+    icon: Gear,
     description: "Account & notifications",
   },
 ];
@@ -77,7 +77,6 @@ const navigationItems = [
 export default function ProviderPortalLayout({ children }) {
   const location = useLocation();
   const [user, setUser] = useState(null);
-  const [activeRole, setActiveRole] = useState("service_provider");
 
   useEffect(() => {
     fetchUser();
@@ -106,63 +105,31 @@ export default function ProviderPortalLayout({ children }) {
 
   const fetchUser = async () => {
     try {
-      // Check for cached user data first
       const cachedUser = sessionStorage.getItem('currentUser');
       if (cachedUser) {
-        const parsedUser = JSON.parse(cachedUser);
-        setUser(parsedUser);
-        
-        const savedRole = localStorage.getItem("activeRole");
-        const userRoles = parsedUser.roles || ["service_provider"];
-        if (savedRole && userRoles.includes(savedRole)) {
-          setActiveRole(savedRole);
-        } else {
-          setActiveRole("service_provider");
-          localStorage.setItem("activeRole", "service_provider");
-        }
+        setUser(JSON.parse(cachedUser));
         return;
       }
 
-      // Fetch from server only if no cached data
       const currentUser = await User.me();
       setUser(currentUser);
       sessionStorage.setItem('currentUser', JSON.stringify(currentUser));
-      
-      const savedRole = localStorage.getItem("activeRole");
-      const userRoles = currentUser.roles || ["service_provider"];
-      if (savedRole && userRoles.includes(savedRole)) {
-        setActiveRole(savedRole);
-      } else {
-        setActiveRole("service_provider");
-        localStorage.setItem("activeRole", "service_provider");
-      }
     } catch (error) {
       console.error("Error fetching user:", error);
       sessionStorage.removeItem('currentUser');
     }
   };
 
-  const handleRoleChange = (newRole) => {
-    sessionStorage.removeItem('currentUser'); // Clear cached data when switching roles
-    localStorage.setItem("activeRole", newRole);
-    setActiveRole(newRole);
-    let destinationUrl = createPageUrl("Dashboard");
-    if (newRole === "venue_owner") {
-      destinationUrl = createPageUrl("VenuePortal");
-    } else if (newRole === "service_provider") {
-      destinationUrl = createPageUrl("ProviderPortal");
-    }
-    window.location.href = destinationUrl;
-  };
-
   const handleLogout = async () => {
     try {
       await User.logout();
+    } catch (error) {
+      console.error("Logout error:", error);
+    } finally {
+      clearAuthTokens();
       sessionStorage.removeItem('currentUser');
       localStorage.removeItem("activeRole");
       window.location.href = createPageUrl("Home");
-    } catch (error) {
-      console.error("Logout error:", error);
     }
   };
 
@@ -176,10 +143,10 @@ export default function ProviderPortalLayout({ children }) {
               className="flex items-center gap-3 group"
             >
               <div className="w-10 h-10 bg-green-600 rounded-xl flex items-center justify-center">
-                <Sparkles className="w-5 h-5 text-white" />
+                <Sparkle className="w-5 h-5 text-white" />
               </div>
               <div>
-                <h2 className="font-bold text-gray-900 text-lg">Strathwell</h2>
+                <h2 className="font-semibold text-gray-900 text-lg">Strathwell</h2>
                 <p className="text-xs text-green-600 font-medium">
                   Provider Portal
                 </p>
@@ -220,11 +187,6 @@ export default function ProviderPortalLayout({ children }) {
           </SidebarContent>
 
           <SidebarFooter className="border-t border-gray-200 p-4 space-y-3">
-            <RoleSwitcher
-              userRoles={user?.roles}
-              activeRole={activeRole}
-              onRoleChange={handleRoleChange}
-            />
             {user && (
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center overflow-hidden">

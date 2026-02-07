@@ -7,23 +7,23 @@ import { Badge } from "@/components/ui/badge";
 import { 
   MapPin, 
   Users, 
-  DollarSign, 
+  CurrencyDollar, 
   Star, 
   Clock,
-  Save, 
-  ExternalLink,
+  FloppyDisk, 
+  ArrowSquareOut,
   Calendar,
   CheckCircle,
-  MessageSquare,
+  ChatCircle,
   PlusCircle,
-  AlertCircle,
-  Sparkles,
+  WarningCircle,
+  Sparkle,
   Palette,
-  Music,
+  MusicNotes,
   Layout,
-  TrendingDown,
-  TrendingUp
-} from "lucide-react";
+  TrendDown,
+  TrendUp
+} from "@phosphor-icons/react";
 import VenueCard from "./VenueCard";
 import VendorCard from "./VendorCard";
 import { Plan } from "@/api/entities";
@@ -81,7 +81,7 @@ export default function ResultsPanels({ plan, onSavePlan, user }) {
         <Card className="border-none shadow-lg bg-gradient-to-br from-purple-50 to-blue-50">
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-xl">
-              <Sparkles className="w-6 h-6 text-purple-600" />
+              <Sparkle className="w-6 h-6 text-purple-600" />
               Creative Event Concepts
             </CardTitle>
           </CardHeader>
@@ -144,7 +144,7 @@ export default function ResultsPanels({ plan, onSavePlan, user }) {
             {plan.creative_concepts.entertainment_ideas?.length > 0 && (
               <div className="space-y-3">
                 <h3 className="font-semibold flex items-center gap-2 text-lg">
-                  <Music className="w-5 h-5 text-green-600" />
+                  <MusicNotes className="w-5 h-5 text-green-600" />
                   Entertainment Ideas
                 </h3>
                 <div className="grid gap-3">
@@ -164,7 +164,7 @@ export default function ResultsPanels({ plan, onSavePlan, user }) {
             {plan.creative_concepts.unique_experiences?.length > 0 && (
               <div className="space-y-3">
                 <h3 className="font-semibold flex items-center gap-2 text-lg">
-                  <Sparkles className="w-5 h-5 text-orange-600" />
+                  <Sparkle className="w-5 h-5 text-orange-600" />
                   Unique Experiences
                 </h3>
                 <div className="grid gap-3">
@@ -186,7 +186,7 @@ export default function ResultsPanels({ plan, onSavePlan, user }) {
         <Card className="border-none shadow-lg">
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-lg">
-              <DollarSign className="w-5 h-5 text-purple-600" />
+              <CurrencyDollar className="w-5 h-5 text-purple-600" />
               Dynamic Budget Analysis
             </CardTitle>
           </CardHeader>
@@ -195,7 +195,7 @@ export default function ResultsPanels({ plan, onSavePlan, user }) {
               {budget.user_budget && (
                 <div className="flex justify-between items-center p-3 bg-blue-50 rounded-lg">
                   <span className="text-gray-700 font-medium">Your Budget</span>
-                  <span className="font-bold text-xl text-blue-700">${budget.user_budget?.toLocaleString()}</span>
+                  <span className="font-semibold text-xl text-blue-700">${budget.user_budget?.toLocaleString()}</span>
                 </div>
               )}
 
@@ -220,7 +220,7 @@ export default function ResultsPanels({ plan, onSavePlan, user }) {
                 
                 {budget.vendor_breakdown && Object.keys(budget.vendor_breakdown).length > 0 ? (
                   <div className="pl-4 space-y-2 border-l-2 border-gray-200">
-                    {Object.entries(budget.vendor_breakdown).map(([category, details]) => (
+                     {Object.entries(budget.vendor_breakdown).map(([category, details]: [string, any]) => (
                       <div key={category} className="space-y-1">
                         <div className="flex justify-between items-center text-sm">
                           <span className="text-gray-600 font-medium">{details.vendor || category}</span>
@@ -242,14 +242,14 @@ export default function ResultsPanels({ plan, onSavePlan, user }) {
               
               <div className="border-t pt-3 flex justify-between items-center">
                 <span className="font-semibold text-lg">Total Estimate</span>
-                <span className="font-bold text-2xl text-gray-900">${budget.total?.toLocaleString()}</span>
+                <span className="font-semibold text-2xl text-gray-900">${budget.total?.toLocaleString()}</span>
               </div>
               
               {budget.user_budget && (
                 <div className="text-center pt-2">
                   {budget.over_budget ? (
                     <Badge className="bg-red-50 text-red-700 border-red-200">
-                      <AlertCircle className="w-3 h-3 mr-1" />
+                      <WarningCircle className="w-3 h-3 mr-1" />
                       Over budget by ${(budget.total - budget.user_budget)?.toLocaleString()}
                     </Badge>
                   ) : budget.remaining > 0 ? (
@@ -271,7 +271,7 @@ export default function ResultsPanels({ plan, onSavePlan, user }) {
                   {budget.cost_optimization.save_money_by?.length > 0 && (
                     <div className="p-3 bg-green-50 rounded-lg">
                       <div className="font-semibold text-green-800 mb-2 flex items-center gap-2">
-                        <TrendingDown className="w-4 h-4" />
+                        <TrendDown className="w-4 h-4" />
                         Save Money:
                       </div>
                       <ul className="space-y-1 text-sm text-green-700">
@@ -285,7 +285,7 @@ export default function ResultsPanels({ plan, onSavePlan, user }) {
                   {budget.cost_optimization.upgrade_options?.length > 0 && (
                     <div className="p-3 bg-blue-50 rounded-lg">
                       <div className="font-semibold text-blue-800 mb-2 flex items-center gap-2">
-                        <TrendingUp className="w-4 h-4" />
+                        <TrendUp className="w-4 h-4" />
                         Upgrade Options:
                       </div>
                       <ul className="space-y-1 text-sm text-blue-700">
@@ -317,7 +317,6 @@ export default function ResultsPanels({ plan, onSavePlan, user }) {
                 <VenueCard
                   key={index}
                   venue={venue}
-                  onRequestQuote={handleRequestQuote}
                 />
               ))}
             </div>
@@ -340,7 +339,6 @@ export default function ResultsPanels({ plan, onSavePlan, user }) {
                 <VendorCard
                   key={index}
                   vendor={vendor}
-                  onRequestQuote={handleRequestQuote}
                 />
               ))}
             </div>
@@ -353,7 +351,7 @@ export default function ResultsPanels({ plan, onSavePlan, user }) {
         <Card className="border-none shadow-lg">
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-lg">
-              <Sparkles className="w-5 h-5 text-yellow-500" />
+              <Sparkle className="w-5 h-5 text-yellow-500" />
               You Might Also Need
             </CardTitle>
           </CardHeader>

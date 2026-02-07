@@ -6,11 +6,11 @@ import { Input } from "@/components/ui/input";
 import {
   Upload,
   Brain,
-  Bot,
+  Robot,
   CheckCircle,
-  Loader2,
+  SpinnerGap,
   Play
-} from "lucide-react";
+} from "@phosphor-icons/react";
 import { UploadFile } from "@/api/integrations";
 import { toast } from "sonner";
 
@@ -107,10 +107,10 @@ export default function VirtualRoboticsPage() {
       <div className="max-w-7xl mx-auto">
         <div className="text-center mb-12">
           <Badge className="inline-flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-sm rounded-full text-sm font-medium mb-6">
-            <Bot className="w-4 h-4" />
+            <Robot className="w-4 h-4" />
             Powered by NVIDIA & Gemini Robotics
           </Badge>
-          <h1 className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
+          <h1 className="text-4xl md:text-5xl font-semibold mb-4 bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
             Virtual Robotics Planning
           </h1>
           <p className="text-xl text-gray-300 max-w-3xl mx-auto">
@@ -174,7 +174,7 @@ export default function VirtualRoboticsPage() {
 
               {analyzing && (
                 <div className="bg-white/5 rounded-lg p-4 flex items-center gap-3">
-                  <Loader2 className="w-5 h-5 animate-spin" />
+                  <SpinnerGap className="w-5 h-5 animate-spin" />
                   <span>AI analyzing your space...</span>
                 </div>
               )}
@@ -191,13 +191,13 @@ export default function VirtualRoboticsPage() {
             <CardContent>
               {!analysis ? (
                 <div className="text-center py-12">
-                  <Bot className="w-16 h-16 mx-auto mb-4 text-gray-400" />
+                  <Robot className="w-16 h-16 mx-auto mb-4 text-gray-400" />
                   <p className="text-gray-300">Upload a floorplan to see AI-powered insights</p>
                 </div>
               ) : (
                 <div className="space-y-6">
                   <div className="bg-white/5 rounded-lg p-4">
-                    <h3 className="font-bold mb-3">Space Analysis</h3>
+                    <h3 className="font-semibold mb-3">Space Analysis</h3>
                     <div className="grid grid-cols-2 gap-3 text-sm">
                       <div>
                         <p className="text-gray-400">Square Footage</p>
@@ -211,7 +211,7 @@ export default function VirtualRoboticsPage() {
                   </div>
 
                   <div className="bg-white/5 rounded-lg p-4">
-                    <h3 className="font-bold mb-3">Capacity & Setup</h3>
+                    <h3 className="font-semibold mb-3">Capacity & Setup</h3>
                     <div className="space-y-2 text-sm">
                       <div className="flex justify-between">
                         <span className="text-gray-400">Seated Capacity</span>
@@ -229,7 +229,7 @@ export default function VirtualRoboticsPage() {
                   </div>
 
                   <div className="bg-white/5 rounded-lg p-4">
-                    <h3 className="font-bold mb-3">Cost Breakdown</h3>
+                    <h3 className="font-semibold mb-3">Cost Breakdown</h3>
                     <div className="space-y-2 text-sm">
                       <div className="flex justify-between">
                         <span className="text-gray-400">Labor</span>
@@ -240,14 +240,14 @@ export default function VirtualRoboticsPage() {
                         <span className="font-semibold">${analysis.resource_planning?.cost_breakdown?.rental_cost?.toLocaleString()}</span>
                       </div>
                       <div className="flex justify-between pt-2 border-t border-white/20">
-                        <span className="font-bold">Total Estimate</span>
-                        <span className="font-bold text-green-400">${analysis.resource_planning?.cost_breakdown?.total_estimated_cost?.toLocaleString()}</span>
+                        <span className="font-semibold">Total Estimate</span>
+                        <span className="font-semibold text-green-400">${analysis.resource_planning?.cost_breakdown?.total_estimated_cost?.toLocaleString()}</span>
                       </div>
                     </div>
                   </div>
 
                   <div className="bg-white/5 rounded-lg p-4">
-                    <h3 className="font-bold mb-3">Task Sequence ({analysis.task_list?.length} tasks)</h3>
+                    <h3 className="font-semibold mb-3">Task Sequence ({analysis.task_list?.length} tasks)</h3>
                     <div className="space-y-2 max-h-48 overflow-y-auto">
                       {analysis.task_list?.map((task, i) => (
                         <div key={i} className="flex items-start gap-3 text-sm">

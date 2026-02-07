@@ -10,7 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Loader2, Upload, FileText, CheckCircle, AlertCircle, Clock } from "lucide-react";
+import { SpinnerGap, Upload, FileText, CheckCircle, WarningCircle, Clock } from "@phosphor-icons/react";
 import { toast } from "sonner";
 import RoleGuard from "../components/auth/RoleGuard";
 import ProviderPortalLayout from "../components/provider/ProviderPortalLayout";
@@ -63,14 +63,14 @@ export default function ProviderDocumentsPage() {
     
     setIsUploading(true);
     try {
-      const { file_uri } = await UploadPrivateFile({ file: formData.file });
+      const { file_url } = await UploadPrivateFile({ file: formData.file });
       
       const doc = await Document.create({
         org_id: organization.id,
         entity_type: "organization",
         entity_id: organization.id,
         doc_type: formData.doc_type,
-        storage_url: file_uri,
+        storage_url: file_url,
         uploaded_by: user.id,
         verified_status: "pending",
         notes: formData.notes
@@ -110,7 +110,7 @@ export default function ProviderDocumentsPage() {
       case "verified":
         return <CheckCircle className="w-5 h-5 text-green-600" />;
       case "rejected":
-        return <AlertCircle className="w-5 h-5 text-red-600" />;
+        return <WarningCircle className="w-5 h-5 text-red-600" />;
       default:
         return <Clock className="w-5 h-5 text-yellow-600" />;
     }
@@ -130,7 +130,7 @@ export default function ProviderDocumentsPage() {
       <RoleGuard requiredRole="service_provider">
         <ProviderPortalLayout>
           <div className="flex items-center justify-center h-64">
-            <Loader2 className="w-8 h-8 animate-spin text-gray-500" />
+            <SpinnerGap className="w-8 h-8 animate-spin text-gray-500" />
           </div>
         </ProviderPortalLayout>
       </RoleGuard>
@@ -144,7 +144,7 @@ export default function ProviderDocumentsPage() {
           <div className="max-w-4xl mx-auto">
             <div className="flex justify-between items-center mb-8">
               <div>
-                <h1 className="text-3xl font-bold text-gray-900 mb-2">Documents</h1>
+                <h1 className="text-3xl font-semibold text-gray-900 mb-2">Documents</h1>
                 <p className="text-gray-600">Upload required verification documents</p>
               </div>
               <Button onClick={() => setIsDialogOpen(true)} className="bg-blue-600 hover:bg-blue-700">
@@ -294,7 +294,7 @@ export default function ProviderDocumentsPage() {
                       Cancel
                     </Button>
                     <Button type="submit" disabled={isUploading || !formData.doc_type || !formData.file}>
-                      {isUploading ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : null}
+                      {isUploading ? <SpinnerGap className="w-4 h-4 mr-2 animate-spin" /> : null}
                       Upload Document
                     </Button>
                   </div>

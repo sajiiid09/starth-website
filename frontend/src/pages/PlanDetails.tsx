@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { ArrowLeft, Loader2, MapPin, Users, DollarSign, Clock, Sparkles, FolderOpen, Save, Edit2, Check, X } from "lucide-react";
+import { ArrowLeft, SpinnerGap, MapPin, Users, CurrencyDollar, Clock, Sparkle, FolderOpen, FloppyDisk, PencilSimple, Check, X } from "@phosphor-icons/react";
 import VenueCard from "../components/planner/VenueCard";
 import VendorCard from "../components/planner/VendorCard";
 import { createPageUrl } from "@/utils";
@@ -113,7 +113,7 @@ export default function PlanDetailsPage() {
   };
 
   if (loading) {
-    return <div className="flex items-center justify-center h-screen"><Loader2 className="w-8 h-8 animate-spin" /></div>;
+    return <div className="flex items-center justify-center h-screen"><SpinnerGap className="w-8 h-8 animate-spin" /></div>;
   }
 
   if (!plan) {
@@ -136,7 +136,7 @@ export default function PlanDetailsPage() {
                   <Input
                     value={editedTitle}
                     onChange={(e) => setEditedTitle(e.target.value)}
-                    className="text-2xl font-bold h-12"
+                    className="text-2xl font-semibold h-12"
                     autoFocus
                     onKeyDown={(e) => {
                       if (e.key === 'Enter') handleSaveTitle();
@@ -152,14 +152,14 @@ export default function PlanDetailsPage() {
                 </div>
               ) : (
                 <div className="flex items-center gap-2 group">
-                  <h1 className="text-3xl font-bold text-gray-900">{plan.title}</h1>
+                  <h1 className="text-3xl font-semibold text-gray-900">{plan.title}</h1>
                   <Button 
                     size="icon" 
                     variant="ghost" 
                     onClick={() => setIsEditingTitle(true)}
                     className="opacity-0 group-hover:opacity-100 transition-opacity"
                   >
-                    <Edit2 className="w-4 h-4 text-gray-500" />
+                    <PencilSimple className="w-4 h-4 text-gray-500" />
                   </Button>
                 </div>
               )}
@@ -170,12 +170,12 @@ export default function PlanDetailsPage() {
           </div>
           <div className="flex gap-2">
             <Button onClick={handleSavePlan} disabled={isSaving} variant="outline">
-              {isSaving ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Save className="w-4 h-4 mr-2" />}
+              {isSaving ? <SpinnerGap className="w-4 h-4 mr-2 animate-spin" /> : <FloppyDisk className="w-4 h-4 mr-2" />}
               Save Changes
             </Button>
             <Link to={createPageUrl("EventBuilder") + `?planId=${plan.id}`}>
               <Button className="bg-blue-600 hover:bg-blue-700">
-                <Sparkles className="w-4 h-4 mr-2" />
+                <Sparkle className="w-4 h-4 mr-2" />
                 Create Event from Plan
               </Button>
             </Link>
@@ -205,7 +205,7 @@ export default function PlanDetailsPage() {
               <CardContent className="grid gap-4">
                 {vendors.length > 0 ? vendors.map((vendor, index) => (
                   <div key={index}>
-                    <VendorCard vendor={vendor} onRequestQuote={handleRequestQuote} />
+                    <VendorCard vendor={vendor} />
                      <div className="flex justify-end -mt-4 mr-4">
                        <StatusSelector value={vendor.status} onChange={(status) => handleStatusChange('vendors', index, status)} />
                     </div>
@@ -218,7 +218,7 @@ export default function PlanDetailsPage() {
           <div className="space-y-8">
             {/* Suggested Categories */}
             <Card className="border-none shadow-lg">
-              <CardHeader><CardTitle className="flex items-center gap-2"><Sparkles className="w-5 h-5 text-yellow-500" /> AI Suggestions</CardTitle></CardHeader>
+              <CardHeader><CardTitle className="flex items-center gap-2"><Sparkle className="w-5 h-5 text-yellow-500" /> AI Suggestions</CardTitle></CardHeader>
               <CardContent>
                 <h4 className="font-semibold text-sm mb-2">Suggested Categories</h4>
                 <div className="flex flex-wrap gap-2">
@@ -232,12 +232,12 @@ export default function PlanDetailsPage() {
             {/* Budget */}
             {plan.budget_json && (
               <Card className="border-none shadow-lg">
-                <CardHeader><CardTitle className="flex items-center gap-2"><DollarSign className="w-5 h-5 text-purple-600" /> Budget Summary</CardTitle></CardHeader>
+                <CardHeader><CardTitle className="flex items-center gap-2"><CurrencyDollar className="w-5 h-5 text-purple-600" /> Budget Summary</CardTitle></CardHeader>
                 <CardContent>
                   <div className="space-y-2 text-sm">
                     <div className="flex justify-between"><span>Venue Estimate:</span> <span className="font-medium">${plan.budget_json.venue?.toLocaleString()}</span></div>
                     <div className="flex justify-between"><span>Vendor Estimates:</span> <span className="font-medium">${plan.budget_json.vendors?.toLocaleString()}</span></div>
-                    <div className="flex justify-between font-bold border-t pt-2 mt-2"><span>Total Estimate:</span> <span>${plan.budget_json.total?.toLocaleString()}</span></div>
+                    <div className="flex justify-between font-semibold border-t pt-2 mt-2"><span>Total Estimate:</span> <span>${plan.budget_json.total?.toLocaleString()}</span></div>
                   </div>
                 </CardContent>
               </Card>

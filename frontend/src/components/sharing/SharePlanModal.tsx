@@ -3,23 +3,29 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Di
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { Loader2, Send } from 'lucide-react';
+import { SpinnerGap, PaperPlaneTilt } from '@phosphor-icons/react';
 import { toast } from 'sonner';
-import { base44 } from '@/api/base44Client';
+import { sharePlan } from '@/api/functions';
 
-export default function SharePlanModal({ isOpen, onClose, analysisData }) {
+type SharePlanModalProps = {
+  isOpen: boolean;
+  onClose: () => void;
+  analysisData: Record<string, unknown>;
+};
+
+export default function SharePlanModal({ isOpen, onClose, analysisData }: SharePlanModalProps) {
     const [email, setEmail] = useState('');
     const [message, setMessage] = useState('');
     const [loading, setLoading] = useState(false);
 
-    const handleShare = async () => {
+    async function handleShare(): Promise<void> {
         if (!email) {
             toast.error('Please enter a valid email address.');
             return;
         }
         setLoading(true);
         try {
-            await base44.functions.invoke('sharePlan', {
+            await sharePlan({
                 to_email: email,
                 planDetails: analysisData,
                 customMessage: message,
@@ -63,9 +69,9 @@ export default function SharePlanModal({ isOpen, onClose, analysisData }) {
                 <DialogFooter>
                     <Button onClick={handleShare} disabled={loading}>
                         {loading ? (
-                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                            <SpinnerGap className="mr-2 h-4 w-4 animate-spin" />
                         ) : (
-                            <Send className="mr-2 h-4 w-4" />
+                            <PaperPlaneTilt className="mr-2 h-4 w-4" />
                         )}
                         Send Plan
                     </Button>

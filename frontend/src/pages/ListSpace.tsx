@@ -13,11 +13,11 @@ import {
   Upload, 
   MapPin, 
   Users, 
-  DollarSign, 
+  CurrencyDollar, 
   Camera,
   CheckCircle,
   ArrowLeft
-} from "lucide-react";
+} from "@phosphor-icons/react";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 
@@ -58,7 +58,7 @@ export default function ListSpacePage() {
   };
 
   const handleFileUpload = async (event) => {
-    const files = Array.from(event.target.files);
+    const files = Array.from(event.target.files) as File[];
     setUploading(true);
     
     try {
@@ -109,7 +109,7 @@ export default function ListSpacePage() {
         <Card className="max-w-md w-full text-center">
           <CardContent className="p-8">
             <CheckCircle className="w-16 h-16 text-green-600 mx-auto mb-4" />
-            <h2 className="text-2xl font-bold text-gray-900 mb-2">
+            <h2 className="text-2xl font-semibold text-gray-900 mb-2">
               Space Listed!
             </h2>
             <p className="text-gray-600 mb-6">
@@ -135,7 +135,7 @@ export default function ListSpacePage() {
               <ArrowLeft className="w-5 h-5" />
             </Button>
           </Link>
-          <h1 className="text-3xl font-bold text-gray-900">List Your Space</h1>
+          <h1 className="text-3xl font-semibold text-gray-900">List Your Space</h1>
         </div>
 
         <Card className="border-none shadow-lg">
@@ -206,7 +206,7 @@ export default function ListSpacePage() {
               <div>
                 <Label htmlFor="rate">Rate</Label>
                 <div className="relative">
-                  <DollarSign className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                  <CurrencyDollar className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
                   <Input
                     id="rate"
                     type="number"

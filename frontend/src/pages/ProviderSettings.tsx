@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Settings, Bell, CreditCard, Save, Loader2, Camera } from "lucide-react";
+import { Gear, Bell, CreditCard, FloppyDisk, SpinnerGap, Camera } from "@phosphor-icons/react";
 import RoleGuard from "../components/auth/RoleGuard";
 import ProviderPortalLayout from "../components/provider/ProviderPortalLayout";
 import { toast } from "sonner";
@@ -170,7 +170,7 @@ export default function ProviderSettingsPage() {
       <RoleGuard requiredRole="service_provider">
         <ProviderPortalLayout>
           <div className="flex items-center justify-center h-64">
-            <Loader2 className="w-8 h-8 animate-spin text-gray-500" />
+            <SpinnerGap className="w-8 h-8 animate-spin text-gray-500" />
           </div>
         </ProviderPortalLayout>
       </RoleGuard>
@@ -182,7 +182,7 @@ export default function ProviderSettingsPage() {
       <ProviderPortalLayout>
         <div className="p-6 max-w-4xl mx-auto">
           <div className="mb-6">
-            <h1 className="text-2xl font-bold text-gray-900 mb-2">Account Settings</h1>
+            <h1 className="text-2xl font-semibold text-gray-900 mb-2">Account Settings</h1>
             <p className="text-gray-600">Manage your account preferences and settings</p>
           </div>
 
@@ -191,7 +191,7 @@ export default function ProviderSettingsPage() {
             <Card className="border-none shadow-lg">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <Settings className="w-5 h-5 text-blue-600" />
+                  <Gear className="w-5 h-5 text-blue-600" />
                   Profile Information
                 </CardTitle>
               </CardHeader>
@@ -210,7 +210,7 @@ export default function ProviderSettingsPage() {
                         <span>
                           {uploading ? (
                             <>
-                              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                              <SpinnerGap className="w-4 h-4 mr-2 animate-spin" />
                               Uploading...
                             </>
                           ) : (
@@ -266,7 +266,7 @@ export default function ProviderSettingsPage() {
                 </div>
                 <div className="flex justify-end">
                   <Button onClick={handleSaveUserSettings} disabled={saving || uploading}>
-                    {saving ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Save className="w-4 h-4 mr-2" />}
+                    {saving ? <SpinnerGap className="w-4 h-4 mr-2 animate-spin" /> : <FloppyDisk className="w-4 h-4 mr-2" />}
                     Save Profile
                   </Button>
                 </div>
@@ -351,7 +351,7 @@ export default function ProviderSettingsPage() {
 
                 <div className="flex justify-end">
                   <Button onClick={handleSaveNotifications} disabled={saving}>
-                    {saving ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Save className="w-4 h-4 mr-2" />}
+                    {saving ? <SpinnerGap className="w-4 h-4 mr-2 animate-spin" /> : <FloppyDisk className="w-4 h-4 mr-2" />}
                     Save Notifications
                   </Button>
                 </div>
@@ -429,7 +429,7 @@ export default function ProviderSettingsPage() {
 
                 <div className="flex justify-end">
                   <Button onClick={handleSavePayout} disabled={saving}>
-                    {saving ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Save className="w-4 h-4 mr-2" />}
+                    {saving ? <SpinnerGap className="w-4 h-4 mr-2 animate-spin" /> : <FloppyDisk className="w-4 h-4 mr-2" />}
                     Save Payout Info
                   </Button>
                 </div>

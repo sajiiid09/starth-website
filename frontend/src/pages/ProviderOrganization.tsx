@@ -8,7 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Building, Save, Loader2 } from "lucide-react";
+import { Buildings, FloppyDisk, SpinnerGap } from "@phosphor-icons/react";
 import { toast } from "sonner";
 import RoleGuard from "../components/auth/RoleGuard";
 import ProviderPortalLayout from "../components/provider/ProviderPortalLayout";
@@ -96,7 +96,7 @@ export default function ProviderOrganizationPage() {
       <RoleGuard requiredRole="service_provider">
         <ProviderPortalLayout>
           <div className="flex items-center justify-center h-64">
-            <Loader2 className="w-8 h-8 animate-spin text-gray-500" />
+            <SpinnerGap className="w-8 h-8 animate-spin text-gray-500" />
           </div>
         </ProviderPortalLayout>
       </RoleGuard>
@@ -109,7 +109,7 @@ export default function ProviderOrganizationPage() {
         <div className="p-6 max-w-4xl mx-auto">
           <div className="flex items-center justify-between mb-6">
             <div>
-              <h1 className="text-2xl font-bold text-gray-900 mb-2">Organization Profile</h1>
+              <h1 className="text-2xl font-semibold text-gray-900 mb-2">Organization Profile</h1>
               <p className="text-gray-600">Manage your business details and information</p>
             </div>
             {organization && (
@@ -122,7 +122,7 @@ export default function ProviderOrganizationPage() {
           <Card className="border-none shadow-lg">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <Building className="w-5 h-5 text-green-600" />
+                <Buildings className="w-5 h-5 text-green-600" />
                 Business Information
               </CardTitle>
             </CardHeader>
@@ -199,9 +199,9 @@ export default function ProviderOrganizationPage() {
               <div className="flex justify-end">
                 <Button onClick={handleSave} disabled={saving || !formData.name || !formData.city || !formData.country}>
                   {saving ? (
-                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    <SpinnerGap className="w-4 h-4 mr-2 animate-spin" />
                   ) : (
-                    <Save className="w-4 h-4 mr-2" />
+                    <FloppyDisk className="w-4 h-4 mr-2" />
                   )}
                   Save Changes
                 </Button>

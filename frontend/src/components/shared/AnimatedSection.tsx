@@ -1,49 +1,66 @@
 import React, { useEffect, useRef } from "react";
-import anime from "animejs";
 
-export default function AnimatedSection({ children, animation = "fadeInUp", delay = 0, className = "" }) {
-  const elementRef = useRef(null);
+type AnimationType = "fadeInUp" | "fadeIn" | "slideInLeft" | "slideInRight" | "scaleIn";
+
+interface AnimatedSectionProps {
+  children: React.ReactNode;
+  animation?: AnimationType;
+  delay?: number;
+  className?: string;
+}
+
+const animationKeyframes: Record<AnimationType, Keyframe[]> = {
+  fadeInUp: [
+    { transform: "translateY(50px)", opacity: 0 },
+    { transform: "translateY(0)", opacity: 1 },
+  ],
+  fadeIn: [
+    { opacity: 0 },
+    { opacity: 1 },
+  ],
+  slideInLeft: [
+    { transform: "translateX(-50px)", opacity: 0 },
+    { transform: "translateX(0)", opacity: 1 },
+  ],
+  slideInRight: [
+    { transform: "translateX(50px)", opacity: 0 },
+    { transform: "translateX(0)", opacity: 1 },
+  ],
+  scaleIn: [
+    { transform: "scale(0.8)", opacity: 0 },
+    { transform: "scale(1)", opacity: 1 },
+  ],
+};
+
+const animationDurations: Record<AnimationType, number> = {
+  fadeInUp: 800,
+  fadeIn: 600,
+  slideInLeft: 700,
+  slideInRight: 700,
+  scaleIn: 600,
+};
+
+export default function AnimatedSection({
+  children,
+  animation = "fadeInUp",
+  delay = 0,
+  className = "",
+}: AnimatedSectionProps) {
+  const elementRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!elementRef.current) return;
 
-    const animations = {
-      fadeInUp: {
-        translateY: [50, 0],
-        opacity: [0, 1],
-        duration: 800,
-        easing: 'easeOutCubic'
-      },
-      fadeIn: {
-        opacity: [0, 1],
-        duration: 600,
-        easing: 'easeOutQuad'
-      },
-      slideInLeft: {
-        translateX: [-50, 0],
-        opacity: [0, 1],
-        duration: 700,
-        easing: 'easeOutExpo'
-      },
-      slideInRight: {
-        translateX: [50, 0],
-        opacity: [0, 1],
-        duration: 700,
-        easing: 'easeOutExpo'
-      },
-      scaleIn: {
-        scale: [0.8, 1],
-        opacity: [0, 1],
-        duration: 600,
-        easing: 'easeOutBack'
-      }
-    };
+    const el = elementRef.current;
+    const timeout = setTimeout(() => {
+      el.animate(animationKeyframes[animation], {
+        duration: animationDurations[animation],
+        easing: "ease-out",
+        fill: "forwards",
+      });
+    }, delay);
 
-    anime({
-      targets: elementRef.current,
-      ...animations[animation],
-      delay
-    });
+    return () => clearTimeout(timeout);
   }, [animation, delay]);
 
   return (

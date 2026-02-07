@@ -9,18 +9,18 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Card, CardContent } from "@/components/ui/card";
 import { toast } from "sonner";
 import {
-  Mail,
+  Envelope,
   MapPin,
   Clock,
-  Send,
-  CheckCircle2,
-  Loader2,
-  Building,
+  PaperPlaneTilt,
+  CheckCircle,
+  SpinnerGap,
+  Buildings,
   Users,
-  Sparkles,
+  Sparkle,
   ArrowRight,
   Phone
-} from "lucide-react";
+} from "@phosphor-icons/react";
 import gsap from "gsap";
 import Container from "@/components/home-v2/primitives/Container";
 import FadeIn from "@/components/animations/FadeIn";
@@ -145,7 +145,7 @@ ${formData.message}
         <Card className="w-full max-w-lg border-none bg-white shadow-2xl">
           <CardContent className="flex flex-col items-center p-12 text-center">
             <div className="relative mb-8 flex h-24 w-24 items-center justify-center rounded-full bg-brand-teal/10 ring-1 ring-brand-teal/20">
-              <CheckCircle2 className="h-12 w-12 text-brand-teal" />
+              <CheckCircle className="h-12 w-12 text-brand-teal" />
               <div className="absolute inset-0 animate-ping rounded-full bg-brand-teal/5 duration-1000" />
             </div>
             <h1 className="font-display text-3xl font-semibold text-brand-dark">
@@ -181,12 +181,12 @@ ${formData.message}
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-white via-brand-cream to-brand-cream opacity-50" />
         
         <Container className="relative z-10 text-center">
-          <div className="hero-text mx-auto mb-6 inline-flex items-center gap-2 rounded-full border border-brand-teal/20 bg-white/50 px-4 py-1.5 text-xs font-bold uppercase tracking-widest text-brand-teal backdrop-blur-sm">
-            <Sparkles className="h-3 w-3" />
+          <div className="hero-text mx-auto mb-6 inline-flex items-center gap-2 rounded-full border border-brand-teal/20 bg-white/50 px-4 py-1.5 text-xs font-semibold uppercase tracking-widest text-brand-teal backdrop-blur-sm">
+            <Sparkle className="h-3 w-3" />
             Get in Touch
           </div>
 
-          <h1 className="hero-text mx-auto max-w-4xl font-display text-4xl font-bold leading-[1.1] tracking-tight text-brand-dark sm:text-5xl md:text-7xl">
+          <h1 className="hero-text mx-auto max-w-4xl font-display text-4xl font-semibold leading-[1.1] tracking-tight text-brand-dark sm:text-5xl md:text-7xl">
             Let's orchestrate <br />
             <span className="text-brand-teal">something extraordinary.</span>
           </h1>
@@ -211,10 +211,10 @@ ${formData.message}
                 <div className="space-y-6">
                   <div className="group flex items-start gap-4 transition-colors hover:text-brand-teal">
                     <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-brand-blue/30 text-brand-teal transition-transform group-hover:scale-110">
-                      <Mail className="h-5 w-5" />
+                      <Envelope className="h-5 w-5" />
                     </div>
                     <div>
-                      <p className="text-xs font-bold uppercase tracking-widest text-brand-dark/40">Email</p>
+                      <p className="text-xs font-semibold uppercase tracking-widest text-brand-dark/40">Email</p>
                       <a href="mailto:info@strathwell.com" className="font-medium text-brand-dark transition hover:text-brand-teal">
                         info@strathwell.com
                       </a>
@@ -226,7 +226,7 @@ ${formData.message}
                       <MapPin className="h-5 w-5" />
                     </div>
                     <div>
-                      <p className="text-xs font-bold uppercase tracking-widest text-brand-dark/40">Address</p>
+                      <p className="text-xs font-semibold uppercase tracking-widest text-brand-dark/40">Address</p>
                       <p className="font-medium text-brand-dark">2 Hawthorne Pl, Boston, MA 02114</p>
                     </div>
                   </div>
@@ -236,7 +236,7 @@ ${formData.message}
                       <Clock className="h-5 w-5" />
                     </div>
                     <div>
-                      <p className="text-xs font-bold uppercase tracking-widest text-brand-dark/40">Response Time</p>
+                      <p className="text-xs font-semibold uppercase tracking-widest text-brand-dark/40">Response Time</p>
                       <p className="font-medium text-brand-dark">Within 24 hours</p>
                     </div>
                   </div>
@@ -257,7 +257,7 @@ ${formData.message}
                 <form ref={formRef} onSubmit={handleSubmit} className="space-y-6">
                   <div className="grid gap-6 md:grid-cols-2">
                     <div className="form-item space-y-1.5">
-                      <label className="text-[11px] font-bold uppercase tracking-widest text-brand-dark/50">Full Name *</label>
+                      <label className="text-[11px] font-semibold uppercase tracking-widest text-brand-dark/50">Full Name *</label>
                       <Input
                         value={formData.name}
                         onChange={(e) => handleInputChange("name", e.target.value)}
@@ -267,7 +267,7 @@ ${formData.message}
                       />
                     </div>
                     <div className="form-item space-y-1.5">
-                      <label className="text-[11px] font-bold uppercase tracking-widest text-brand-dark/50">Email Address *</label>
+                      <label className="text-[11px] font-semibold uppercase tracking-widest text-brand-dark/50">Email Address *</label>
                       <Input
                         type="email"
                         value={formData.email}
@@ -281,7 +281,7 @@ ${formData.message}
 
                   <div className="grid gap-6 md:grid-cols-2">
                     <div className="form-item space-y-1.5">
-                      <label className="text-[11px] font-bold uppercase tracking-widest text-brand-dark/50">Company</label>
+                      <label className="text-[11px] font-semibold uppercase tracking-widest text-brand-dark/50">Company</label>
                       <Input
                         value={formData.company}
                         onChange={(e) => handleInputChange("company", e.target.value)}
@@ -290,7 +290,7 @@ ${formData.message}
                       />
                     </div>
                     <div className="form-item space-y-1.5">
-                      <label className="text-[11px] font-bold uppercase tracking-widest text-brand-dark/50">Phone</label>
+                      <label className="text-[11px] font-semibold uppercase tracking-widest text-brand-dark/50">Phone</label>
                       <Input
                         type="tel"
                         value={formData.phone}
@@ -302,7 +302,7 @@ ${formData.message}
                   </div>
 
                   <div className="form-item space-y-1.5">
-                    <label className="text-[11px] font-bold uppercase tracking-widest text-brand-dark/50">Topic</label>
+                    <label className="text-[11px] font-semibold uppercase tracking-widest text-brand-dark/50">Topic</label>
                     <Select value={formData.inquiry_type} onValueChange={(value) => handleInputChange("inquiry_type", value)}>
                       <SelectTrigger className="h-12 rounded-xl border-brand-dark/10 bg-brand-light/50 transition-all focus:border-brand-teal focus:ring-1 focus:ring-brand-teal">
                         <SelectValue placeholder="Select topic" />
@@ -318,7 +318,7 @@ ${formData.message}
                   </div>
 
                   <div className="form-item space-y-1.5">
-                    <label className="text-[11px] font-bold uppercase tracking-widest text-brand-dark/50">Subject *</label>
+                    <label className="text-[11px] font-semibold uppercase tracking-widest text-brand-dark/50">Subject *</label>
                     <Input
                       value={formData.subject}
                       onChange={(e) => handleInputChange("subject", e.target.value)}
@@ -329,7 +329,7 @@ ${formData.message}
                   </div>
 
                   <div className="form-item space-y-1.5">
-                    <label className="text-[11px] font-bold uppercase tracking-widest text-brand-dark/50">Message *</label>
+                    <label className="text-[11px] font-semibold uppercase tracking-widest text-brand-dark/50">Message *</label>
                     <Textarea
                       value={formData.message}
                       onChange={(e) => handleInputChange("message", e.target.value)}
@@ -347,12 +347,12 @@ ${formData.message}
                     >
                       {loading ? (
                         <>
-                          <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                          <SpinnerGap className="mr-2 h-5 w-5 animate-spin" />
                           Sending...
                         </>
                       ) : (
                         <div className="flex items-center justify-center gap-2">
-                          <Send className="h-5 w-5 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
+                          <PaperPlaneTilt className="h-5 w-5 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
                           <span>Send Message</span>
                         </div>
                       )}

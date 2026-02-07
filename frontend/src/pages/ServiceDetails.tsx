@@ -12,20 +12,20 @@ import {
   ArrowLeft, 
   MapPin, 
   Users, 
-  DollarSign, 
+  CurrencyDollar, 
   Star, 
   Shield,
-  ExternalLink,
+  ArrowSquareOut,
   Globe,
   Calendar,
-  Loader2,
+  SpinnerGap,
   Heart,
-  MessageSquare,
+  ChatCircle,
   Camera,
-  Music,
+  MusicNotes,
   Truck,
   Palette
-} from "lucide-react";
+} from "@phosphor-icons/react";
 import { getGooglePlacePhotos } from "@/api/functions";
 import { convertGoogleDriveUrl } from "@/components/utils/imageUtils";
 
@@ -33,8 +33,8 @@ import { convertGoogleDriveUrl } from "@/components/utils/imageUtils";
 const categoryIcons = {
   "Photography & Videography": Camera,
   "Catering": Users,
-  "Entertainment & Media": Music,
-  "Audio & DJ Services": Music,
+  "Entertainment & Media": MusicNotes,
+  "Audio & DJ Services": MusicNotes,
   "Transportation": Truck,
   "Decor": Palette,
   "default": Star
@@ -118,7 +118,7 @@ export default function ServiceDetailsPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-screen">
-        <Loader2 className="w-8 h-8 animate-spin text-gray-500" />
+        <SpinnerGap className="w-8 h-8 animate-spin text-gray-500" />
       </div>
     );
   }
@@ -127,7 +127,7 @@ export default function ServiceDetailsPage() {
     return (
       <div className="min-h-screen bg-gray-50 p-4">
         <div className="max-w-2xl mx-auto text-center py-12">
-          <h2 className="text-2xl font-bold text-gray-900 mb-4">Service Provider Not Found</h2>
+          <h2 className="text-2xl font-semibold text-gray-900 mb-4">Service Provider Not Found</h2>
           <p className="text-gray-600 mb-6">The provider you're looking for doesn't exist or has been removed.</p>
           <Link to={createPageUrl("Marketplace")}>
             <Button variant="outline">Back to Marketplace</Button>
@@ -151,7 +151,7 @@ export default function ServiceDetailsPage() {
             </Button>
           </Link>
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">{service.name}</h1>
+            <h1 className="text-2xl font-semibold text-gray-900">{service.name}</h1>
             <div className="flex items-center gap-2 text-gray-600">
               <CategoryIcon className="w-4 h-4" />
               <span>{service.category}</span>
@@ -206,9 +206,9 @@ export default function ServiceDetailsPage() {
             <CardContent className="p-6">
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2"><DollarSign className="w-5 h-5 text-green-600" /><span className="text-sm text-gray-600">Starting at</span></div>
+                  <div className="flex items-center gap-2"><CurrencyDollar className="w-5 h-5 text-green-600" /><span className="text-sm text-gray-600">Starting at</span></div>
                   <div className="text-right">
-                    <div className="text-2xl font-bold text-gray-900">${service.rate_card_json?.base_rate?.toLocaleString() || 'N/A'}</div>
+                    <div className="text-2xl font-semibold text-gray-900">${service.rate_card_json?.base_rate?.toLocaleString() || 'N/A'}</div>
                     <div className="text-sm text-gray-500">per event</div>
                   </div>
                 </div>

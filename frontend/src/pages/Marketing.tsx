@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Event } from "@/api/entities";
 import { User } from "@/api/entities";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Loader2, Megaphone } from "lucide-react";
+import { SpinnerGap, Megaphone } from "@phosphor-icons/react";
 import EventMarketingDashboard from "./EventMarketingDashboard";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
@@ -45,7 +45,7 @@ export default function MarketingPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-screen">
-        <Loader2 className="w-8 h-8 animate-spin text-gray-500" />
+        <SpinnerGap className="w-8 h-8 animate-spin text-gray-500" />
       </div>
     );
   }
@@ -56,7 +56,7 @@ export default function MarketingPage() {
         {/* Header */}
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">Event Marketing</h1>
+            <h1 className="text-3xl font-semibold text-gray-900 mb-2">Event Marketing</h1>
             <p className="text-lg text-gray-600">Manage campaigns, sponsorships, and outreach for your events.</p>
           </div>
           

@@ -1,6 +1,6 @@
 import React from "react";
 import { Badge } from "@/components/ui/badge";
-import { Award, Users, TrendingUp } from "lucide-react";
+import { Trophy, Users, TrendUp } from "@phosphor-icons/react";
 import Container from "@/components/home-v2/primitives/Container";
 import FadeIn from "@/components/animations/FadeIn";
 
@@ -10,7 +10,7 @@ export default function CaseStudyHero() {
       <Container>
         <FadeIn className="text-center">
           <Badge className="mb-6 inline-flex items-center gap-2 rounded-full border border-white/60 bg-white/70 px-4 py-2 text-xs font-semibold uppercase tracking-[0.3em] text-brand-teal">
-            <Award className="h-4 w-4" />
+            <Trophy className="h-4 w-4" />
             Success Stories
           </Badge>
 
@@ -31,7 +31,7 @@ export default function CaseStudyHero() {
         <FadeIn className="mt-12 grid gap-6 md:grid-cols-2" staggerChildren={0.1} childSelector=".stat-card">
           {[
             { value: "194", label: "Summit Attendees", icon: Users },
-            { value: "$10K+", label: "Business Value", icon: TrendingUp }
+            { value: "$10K+", label: "Business Value", icon: TrendUp }
           ].map((stat) => {
             const Icon = stat.icon;
             return (

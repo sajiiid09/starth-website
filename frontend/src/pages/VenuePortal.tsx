@@ -13,16 +13,16 @@ import { Progress } from "@/components/ui/progress";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { 
-  Building, 
+  Buildings, 
   CalendarCheck, 
-  DollarSign, 
-  Mail, 
-  Loader2,
+  CurrencyDollar, 
+  Envelope, 
+  SpinnerGap,
   ArrowRight,
-  TrendingUp,
+  TrendUp,
   Eye,
   Clock
-} from "lucide-react";
+} from "@phosphor-icons/react";
 
 export default function VenuePortalPage() {
   const [loading, setLoading] = useState(true);
@@ -77,7 +77,7 @@ export default function VenuePortalPage() {
 
         bookingsData = allBookings
           .filter(b => ["confirmed", "paid", "completed"].includes(b.status))
-          .sort((a, b) => new Date(b.created_date) - new Date(a.created_date));
+          .sort((a, b) => Number(new Date(b.created_date)) - Number(new Date(a.created_date)));
 
         const currentMonth = new Date().getMonth();
         const currentYear = new Date().getFullYear();
@@ -131,14 +131,14 @@ export default function VenuePortalPage() {
       <RoleGuard requiredRole="venue_owner">
         <VenuePortalLayout>
           <div className="flex items-center justify-center h-screen">
-            <Loader2 className="w-8 h-8 animate-spin text-gray-500" />
+            <SpinnerGap className="w-8 h-8 animate-spin text-gray-500" />
           </div>
         </VenuePortalLayout>
       </RoleGuard>
     );
   }
 
-  const StatCard = ({ title, value, icon, description, trend, color = "blue" }) => (
+  const StatCard = ({ title, value, icon, description, trend, color = "blue" }: { title: string; value: any; icon: React.ReactElement; description?: string; trend?: string; color?: string }) => (
     <Card className="border-none shadow-lg hover:shadow-xl transition-shadow">
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
         <CardTitle className="text-sm font-medium text-gray-600">{title}</CardTitle>
@@ -147,7 +147,7 @@ export default function VenuePortalPage() {
         </div>
       </CardHeader>
       <CardContent>
-        <div className="text-2xl font-bold text-gray-900 mb-1">{value}</div>
+        <div className="text-2xl font-semibold text-gray-900 mb-1">{value}</div>
         <div className="flex items-center justify-between">
           {title === "Total Bookings" ? (
             <Badge variant="outline" className="border-yellow-300 bg-yellow-50 text-yellow-800 text-xs font-medium">
@@ -158,7 +158,7 @@ export default function VenuePortalPage() {
           )}
           {trend && (
             <div className="flex items-center text-green-600 text-xs">
-              <TrendingUp className="w-3 h-3 mr-1" />
+              <TrendUp className="w-3 h-3 mr-1" />
               {trend}
             </div>
           )}
@@ -176,7 +176,7 @@ export default function VenuePortalPage() {
             <div className="text-center mb-8">
               <div className="flex items-start justify-between mb-4">
                 <div className="flex-1">
-                  <h1 className="text-3xl font-bold text-gray-900 mb-2">
+                  <h1 className="text-3xl font-semibold text-gray-900 mb-2">
                     Welcome back, {user?.full_name?.split(' ')[0] || 'Partner'}!
                   </h1>
                   <p className="text-lg text-gray-600">
@@ -223,7 +223,7 @@ export default function VenuePortalPage() {
               <StatCard
                 title="Total Venues"
                 value={stats.venues}
-                icon={<Building />}
+                icon={<Buildings />}
                 description={`${stats.activeVenues} active listings`}
                 color="blue"
               />
@@ -237,14 +237,14 @@ export default function VenuePortalPage() {
               <StatCard
                 title="Total Revenue"
                 value={stats.revenue.toLocaleString('en-US', { style: 'currency', currency: 'USD' })}
-                icon={<DollarSign />}
+                icon={<CurrencyDollar />}
                 description="All-time earnings"
                 color="purple"
               />
               <StatCard
                 title="This Month"
                 value={stats.monthlyRevenue.toLocaleString('en-US', { style: 'currency', currency: 'USD' })}
-                icon={<TrendingUp />}
+                icon={<TrendUp />}
                 description="Current month revenue"
                 trend="+12%"
                 color="orange"
@@ -310,7 +310,7 @@ export default function VenuePortalPage() {
               <Card className="border-none shadow-lg">
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
-                    <Building className="w-5 h-5 text-blue-600" />
+                    <Buildings className="w-5 h-5 text-blue-600" />
                     Top Venues
                   </CardTitle>
                 </CardHeader>
@@ -345,7 +345,7 @@ export default function VenuePortalPage() {
                     </div>
                   ) : (
                     <div className="text-center py-8">
-                      <Building className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                      <Buildings className="w-12 h-12 text-gray-400 mx-auto mb-4" />
                       <p className="text-gray-500 text-sm">No venue data yet</p>
                     </div>
                   )}

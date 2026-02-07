@@ -1,5 +1,5 @@
 import React from "react";
-import { Star } from "lucide-react";
+import { Star } from "@phosphor-icons/react";
 import { cn } from "@/lib/utils";
 import TagPill from "@/components/home-v2/primitives/TagPill";
 

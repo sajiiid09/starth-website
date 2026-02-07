@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { MessageSquare, Send, Loader2 } from 'lucide-react';
+import { ChatCircle, PaperPlaneTilt, SpinnerGap } from '@phosphor-icons/react';
 import { formatDistanceToNow } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
@@ -61,7 +61,7 @@ export default function MessagesPage() {
             lastMessage: lastMessage?.text || "No messages yet",
             lastMessageDate: lastMessage?.created_date
           };
-        }).sort((a,b) => new Date(b.lastMessageDate) - new Date(a.lastMessageDate));
+        }).sort((a,b) => Number(new Date(b.lastMessageDate)) - Number(new Date(a.lastMessageDate)));
 
         setConversations(populatedConversations);
       }
@@ -101,7 +101,7 @@ export default function MessagesPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-screen">
-        <Loader2 className="w-8 h-8 animate-spin text-gray-500" />
+        <SpinnerGap className="w-8 h-8 animate-spin text-gray-500" />
       </div>
     );
   }
@@ -110,7 +110,7 @@ export default function MessagesPage() {
     <div className="min-h-screen bg-gray-50 p-4 md:p-8">
       <div className="max-w-6xl mx-auto">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Messages</h1>
+          <h1 className="text-3xl font-semibold text-gray-900 mb-2">Messages</h1>
           <p className="text-gray-600">Communicate with venues and service providers</p>
         </div>
 
@@ -119,7 +119,7 @@ export default function MessagesPage() {
           <div className="w-1/3 border-r">
             <CardHeader className="border-b">
               <CardTitle className="flex items-center gap-2">
-                <MessageSquare className="w-5 h-5" />
+                <ChatCircle className="w-5 h-5" />
                 Conversations ({conversations.length})
               </CardTitle>
             </CardHeader>
@@ -154,7 +154,7 @@ export default function MessagesPage() {
                 ))}
                 {conversations.length === 0 && (
                   <div className="text-center py-8 text-gray-500">
-                    <MessageSquare className="w-12 h-12 text-gray-300 mx-auto mb-4" />
+                    <ChatCircle className="w-12 h-12 text-gray-300 mx-auto mb-4" />
                     <p>No conversations yet</p>
                     <p className="text-sm">Start messaging venues and services to see conversations here</p>
                   </div>
@@ -221,9 +221,9 @@ export default function MessagesPage() {
                       />
                       <Button type="submit" disabled={sending || !newMessage.trim()}>
                         {sending ? (
-                          <Loader2 className="w-4 h-4 animate-spin" />
+                          <SpinnerGap className="w-4 h-4 animate-spin" />
                         ) : (
-                          <Send className="w-4 h-4" />
+                          <PaperPlaneTilt className="w-4 h-4" />
                         )}
                       </Button>
                     </form>
@@ -233,7 +233,7 @@ export default function MessagesPage() {
             ) : (
               <div className="flex-1 flex items-center justify-center text-gray-500">
                 <div className="text-center">
-                  <MessageSquare className="w-12 h-12 text-gray-300 mx-auto mb-4" />
+                  <ChatCircle className="w-12 h-12 text-gray-300 mx-auto mb-4" />
                   <p>Select a conversation to start messaging</p>
                 </div>
               </div>

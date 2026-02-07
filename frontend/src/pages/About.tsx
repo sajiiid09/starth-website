@@ -8,14 +8,14 @@ import FadeIn from "@/components/animations/FadeIn";
 import { 
   Users, 
   Target, 
-  Award,
+  Trophy,
   Lightbulb,
   Heart,
-  Sparkles,
+  Sparkle,
   Megaphone,
   Cpu,
-  BarChart3
-} from "lucide-react";
+  ChartBar
+} from "@phosphor-icons/react";
 
 // --- Background SVG Pattern ---
 // A subtle architectural contour map style to match "Blueprints" theme
@@ -39,7 +39,7 @@ const BackgroundPattern = () => (
 const teamGroups = [
   {
     category: "EXEC TEAM",
-    icon: Award,
+    icon: Trophy,
     description: "Vision & Strategy",
     members: [
       {
@@ -47,7 +47,7 @@ const teamGroups = [
         title: "COO & Head of Global Innovation",
         role: "STRATHWELL INC.",
         image: " /public/team/reen.png",
-        description: " Reen is an AI executive and innovator who forged her own path beyond family privilege in the transportation and mobility sector. Educated by prestigious universities across Asia, the UK, and the US, she brings a global perspective to leadership, strategy, and innovation. She received scholarships from the French, UK, and Spanish governments and institutions, but ultimately chose to go to the United States. There, she used her savings and secured the largest share of support — around $100,000 in funding from the USA, including a Women in Business scholarship valued at $20,000.",
+        description: "Reen is an AI executive and innovator who forged her own path beyond family privilege in the transportation and mobility sector. Educated by prestigious universities across Asia, the UK, and the US, she brings a global perspective to leadership, strategy, and innovation. She received scholarships from the French, UK, and Spanish governments and institutions, but ultimately chose to go to the United States. There, she used her savings and secured the largest share of support — around $100,000 in funding from the USA, including a Women in Business scholarship valued at $20,000.",
         additionalInfo: "She invented the world's first AI-powered event orchestration system and launched a pioneering monochrome fashion brand. Her career spans big tech, global consulting, hospitality, real estate, and law."
       },
       {
@@ -55,7 +55,7 @@ const teamGroups = [
         title: "CEO",
         role: "STRATHWELL INC.",
         image: "https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/68d4e38c341adad3b24950ed/e47401580_Screenshot2025-07-10at000114.png",
-        description: " MZ is a rare blend of engineer, strategist, and innovator whose journey reflects the DNA of Stanford. The only member of his class to enter with a perfect SAT score, he went on to earn three Stanford degrees—B.S. in Electrical Engineering with distinction (recognized as a Terman Scholar, awarded to the top 5% of engineering seniors), M.S. in Computer Science (AI track), and M.D.—building systems that bridged human and machine intelligence, from predictive AI models to breakthroughs in optimization, signal processing, and telemedicine.",
+        description: "MZ is a rare blend of engineer, strategist, and innovator whose journey reflects the DNA of Stanford. The only member of his class to enter with a perfect SAT score, he went on to earn three Stanford degrees—B.S. in Electrical Engineering with distinction (recognized as a Terman Scholar, awarded to the top 5% of engineering seniors), M.S. in Computer Science (AI track), and M.D.—building systems that bridged human and machine intelligence, from predictive AI models to breakthroughs in optimization, signal processing, and telemedicine.",
         additionalInfo: "A gifted educator, Moosa taught across Stanford’s Medicine, Computer Science, and Engineering departments, covering everything from physiology to convex optimization and probabilistic models—simplifying complexity while inspiring future innovators. He also led multi-stakeholder projects, published in top journals, and advanced global tech-for-good initiatives that combined technical mastery with social purpose."
       }
     ]
@@ -93,7 +93,7 @@ const teamGroups = [
   },
   {
     category: "ANALYTICS TEAM",
-    icon: BarChart3,
+    icon: ChartBar,
     description: "Data & Insights",
     members: [
       {
@@ -110,8 +110,8 @@ const teamGroups = [
         title: "Analytics Specialist",
         role: "STRATHWELL INC.",
         image: " /public/team/athul.png", // Placeholder
-        description: " Athul focuses on marketing analytics, growth strategy, and business consulting.",
-        additionalInfo: " With dual master’s degrees in Business Analytics and International Marketing and prior experience in business analysis and product strategy at Amazon, Athul brings a unique blend of analytical rigor and creative problem-solving to our team."
+        description: "Athul focuses on marketing analytics, growth strategy, and business consulting.",
+        additionalInfo: "With dual master’s degrees in Business Analytics and International Marketing and prior experience in business analysis and product strategy at Amazon, Athul brings a unique blend of analytical rigor and creative problem-solving to our team."
       }
     ]
   },
@@ -141,15 +141,15 @@ const teamGroups = [
         role: "STRATHWELL INC.",
         image: " /public/team/mehmet.png", // Placeholder
         description: "Mehmet Topal is a senior at Brown University pursuing a double major in Computer Engineering and Economics. Mehmet brings a unique perspective shaped by his multilingual background and hands-on engineering experience across research, product development, and competitive design.",
-        additionalInfo: " ead for Brown Formula Racing (helping the team climb from 81st to 18th nationally), and worked on 3D vision systems at the Interactive 3D Vision & Learning Lab. "
+        additionalInfo: "Lead for Brown Formula Racing (helping the team climb from 81st to 18th nationally), and worked on 3D vision systems at the Interactive 3D Vision & Learning Lab. "
       },
       {
         name: "ABER",
         title: "AI Engineer",
         role: "STRATHWELL INC.",
         image: "/public/team/aber.jpeg",
-        description: "Aber is an AI Engineer with a strong academic foundation and hands-on industry experience in applied artificial intelligence. He graduated from BRAC University, where he developed a solid grounding in machine learning, data science, and intelligent systems. Since then, he has contributed to multiple AI-driven organizations including a2i (Aspire to Innovate), Join Venture AI, RACO AI, and other technology-focused companies, working on real-world AI solutions that bridge research and production.",
-        additionalInfo: "His professional experience spans building and deploying machine learning models, developing AI-powered applications. With a strong interest in scalable AI systems and innovation, Aber combines technical rigor with practical impact, continuously exploring new advancements in artificial intelligence to drive meaningful outcomes."
+        description: "Aber is an AI Engineer with a strong academic foundation and hands-on industry experience in applied artificial intelligence. He graduated from BRAC University, where he developed a solid grounding in machine learning, data science, and intelligent systems. Since then, he has contributed to multiple AI-driven organizations, working on real-world AI solutions that bridge research and production.",
+        additionalInfo: "Aber combines technical rigor with practical impact, continuously exploring new advancements in artificial intelligence to drive meaningful outcomes."
       }
     ]
   }
@@ -173,7 +173,7 @@ export default function AboutPage() {
                 About Strathwell
               </Badge>
 
-              <h1 className="text-4xl font-bold leading-[1.1] tracking-tight sm:text-5xl md:text-7xl">
+              <h1 className="text-4xl font-semibold leading-[1.1] tracking-tight sm:text-5xl md:text-7xl">
                 Transforming Events Through
                 <br />
                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-teal to-brand-dark">
@@ -216,7 +216,7 @@ export default function AboutPage() {
                       <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-brand-teal/5 text-brand-teal transition-colors group-hover:bg-brand-teal group-hover:text-white">
                         <Icon className="h-8 w-8" />
                       </div>
-                      <h3 className="text-xl font-bold text-brand-dark">{item.title}</h3>
+                      <h3 className="text-xl font-semibold text-brand-dark">{item.title}</h3>
                       <p className="mt-4 text-base leading-relaxed text-brand-dark/60">
                         {item.description}
                       </p>
@@ -233,10 +233,10 @@ export default function AboutPage() {
           <Container>
             <FadeIn className="text-center mb-12 md:mb-24">
               <Badge className="mb-6 inline-flex items-center gap-2 rounded-full border border-brand-dark/10 bg-white px-4 py-2 text-xs font-semibold uppercase tracking-[0.3em] text-brand-dark">
-                <Award className="h-4 w-4" />
+                <Trophy className="h-4 w-4" />
                 Our Team
               </Badge>
-              <h2 className="text-3xl font-bold sm:text-4xl md:text-5xl">World-Class Experts</h2>
+              <h2 className="text-3xl font-semibold sm:text-4xl md:text-5xl">World-Class Experts</h2>
               <p className="mx-auto mt-4 max-w-2xl text-base text-brand-dark/60 sm:text-lg md:mt-6">
                 Meet the visionaries behind Strathwell's revolutionary approach to event orchestration.
               </p>
@@ -253,7 +253,7 @@ export default function AboutPage() {
                         <div className="flex h-10 w-10 items-center justify-center rounded-full bg-brand-teal text-white shadow-md">
                           <group.icon className="h-5 w-5" />
                         </div>
-                        <h3 className="text-xl font-bold uppercase tracking-widest text-brand-dark sm:text-2xl">
+                        <h3 className="text-xl font-semibold uppercase tracking-widest text-brand-dark sm:text-2xl">
                           {group.category}
                         </h3>
                       </div>
@@ -282,7 +282,7 @@ export default function AboutPage() {
                             ) : (
                               <div className="flex h-full w-full flex-col items-center justify-center bg-brand-cream/30 text-brand-dark/20">
                                 <Users className="h-24 w-24 mb-4" />
-                                <span className="text-xs font-bold uppercase tracking-widest">Image Coming Soon</span>
+                                <span className="text-xs font-semibold uppercase tracking-widest">Image Coming Soon</span>
                               </div>
                             )}
                             {/* Overlay Gradient for Text Contrast if needed, mostly for style */}
@@ -294,7 +294,7 @@ export default function AboutPage() {
                             index % 2 === 0 ? "md:order-2" : "md:order-1"
                           }`}>
                             <div>
-                              <h3 className="font-display text-3xl font-bold text-brand-dark sm:text-4xl md:text-5xl">
+                              <h3 className="font-display text-3xl font-semibold text-brand-dark sm:text-4xl md:text-5xl">
                                 {member.name}
                               </h3>
                               <p className="mt-2 text-lg font-medium text-brand-teal">
@@ -332,19 +332,19 @@ export default function AboutPage() {
                 <div className="absolute -left-20 -bottom-20 h-96 w-96 rounded-full bg-brand-cream/10 blur-3xl" />
                 
                 <CardContent className="relative z-10 p-8 text-center sm:p-12 md:p-16">
-                  <Sparkles className="mx-auto mb-8 h-12 w-12 text-brand-teal" />
-                  <h3 className="text-3xl font-bold sm:text-4xl md:text-5xl">Ready to Transform Your Events?</h3>
+                  <Sparkle className="mx-auto mb-8 h-12 w-12 text-brand-teal" />
+                  <h3 className="text-3xl font-semibold sm:text-4xl md:text-5xl">Ready to Transform Your Events?</h3>
                   <p className="mx-auto mt-4 max-w-2xl text-base text-white/80 sm:text-lg md:mt-6 md:text-xl">
                     Join thousands of event organizers who trust Strathwell to orchestrate their most important moments.
                   </p>
                   <div className="mt-12 flex flex-col justify-center gap-6 sm:flex-row">
                     <Link to={createPageUrl("AIPlanner")}>
-                      <button className="w-full min-w-[160px] rounded-full bg-white px-8 py-4 text-base font-bold text-brand-dark shadow-lg transition-all hover:bg-brand-cream hover:scale-105 sm:w-auto">
+                      <button className="w-full min-w-[160px] rounded-full bg-white px-8 py-4 text-base font-semibold text-brand-dark shadow-lg transition-all hover:bg-brand-cream hover:scale-105 sm:w-auto">
                         Plan with AI
                       </button>
                     </Link>
                     <Link to={createPageUrl("Contact")}>
-                      <button className="w-full min-w-[160px] rounded-full border border-white/30 px-8 py-4 text-base font-bold text-white transition-all hover:bg-white/10 sm:w-auto">
+                      <button className="w-full min-w-[160px] rounded-full border border-white/30 px-8 py-4 text-base font-semibold text-white transition-all hover:bg-white/10 sm:w-auto">
                         Contact Us
                       </button>
                     </Link>

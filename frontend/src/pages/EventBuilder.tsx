@@ -16,16 +16,16 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { 
   Calendar as CalendarIcon, 
   Users, 
-  DollarSign, 
+  CurrencyDollar, 
   MapPin,
   Clock,
   Check,
   ArrowLeft,
   Plus,
   X,
-  Sparkles,
-  Save
-} from "lucide-react";
+  Sparkle,
+  FloppyDisk
+} from "@phosphor-icons/react";
 import { format } from "date-fns";
 import { createPageUrl } from "@/utils";
 import { toast } from "sonner";
@@ -214,7 +214,7 @@ export default function EventBuilderPage() {
             <ArrowLeft className="w-5 h-5" />
           </Button>
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Event Builder</h1>
+            <h1 className="text-3xl font-semibold text-gray-900">Event Builder</h1>
             <p className="text-gray-600">Finalize your event details and publish</p>
           </div>
         </div>
@@ -231,7 +231,7 @@ export default function EventBuilderPage() {
             <Card className="border-none shadow-lg">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <Sparkles className="w-5 h-5 text-blue-600" />
+                  <Sparkle className="w-5 h-5 text-blue-600" />
                   Basic Information
                 </CardTitle>
               </CardHeader>
@@ -567,7 +567,7 @@ export default function EventBuilderPage() {
             <Card className="border-none shadow-lg">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <DollarSign className="w-5 h-5 text-green-600" />
+                  <CurrencyDollar className="w-5 h-5 text-green-600" />
                   Budget Overview
                 </CardTitle>
               </CardHeader>
@@ -575,7 +575,7 @@ export default function EventBuilderPage() {
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">Target Budget</label>
                   <div className="relative">
-                    <DollarSign className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                    <CurrencyDollar className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
                     <Input
                       type="number"
                       placeholder="Enter total budget"
@@ -601,7 +601,7 @@ export default function EventBuilderPage() {
                   </div>
                   <div className="border-t pt-3 flex justify-between">
                     <span className="font-semibold text-lg">Total Estimated Cost</span>
-                    <span className="font-bold text-xl">${estimatedBudget.toLocaleString()}</span>
+                    <span className="font-semibold text-xl">${estimatedBudget.toLocaleString()}</span>
                   </div>
                   {eventData.budget_target && (
                     <div className={`p-3 rounded-lg ${budgetRemaining >= 0 ? 'bg-green-50' : 'bg-red-50'}`}>
@@ -609,7 +609,7 @@ export default function EventBuilderPage() {
                         <span className={`font-medium ${budgetRemaining >= 0 ? 'text-green-700' : 'text-red-700'}`}>
                           {budgetRemaining >= 0 ? 'Under Budget' : 'Over Budget'}
                         </span>
-                        <span className={`font-bold ${budgetRemaining >= 0 ? 'text-green-700' : 'text-red-700'}`}>
+                        <span className={`font-semibold ${budgetRemaining >= 0 ? 'text-green-700' : 'text-red-700'}`}>
                           ${Math.abs(budgetRemaining).toLocaleString()}
                         </span>
                       </div>
@@ -638,7 +638,7 @@ export default function EventBuilderPage() {
               <>Saving...</>
             ) : (
               <>
-                <Save className="w-4 h-4 mr-2" />
+                <FloppyDisk className="w-4 h-4 mr-2" />
                 Save & Publish Event
               </>
             )}

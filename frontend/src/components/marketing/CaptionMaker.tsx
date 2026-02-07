@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { Zap, Loader2, Wand2 } from "lucide-react";
+import { Lightning, SpinnerGap, MagicWand } from "@phosphor-icons/react";
 import { InvokeLLM } from "@/api/integrations";
 import { GeneratedCaption } from "@/api/entities";
 
@@ -59,7 +59,7 @@ For each caption, provide the caption text and 3-5 relevant hashtags.`;
     <Card>
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
-          <Wand2 className="w-5 h-5 text-purple-600" />
+          <MagicWand className="w-5 h-5 text-purple-600" />
           AI Caption Maker
         </CardTitle>
       </CardHeader>
@@ -84,7 +84,7 @@ For each caption, provide the caption text and 3-5 relevant hashtags.`;
           </Select>
         </div>
         <Button onClick={handleGenerate} disabled={isLoading || !goal} className="w-full">
-          {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Zap className="w-4 h-4 mr-2" />}
+          {isLoading ? <SpinnerGap className="w-4 h-4 animate-spin" /> : <Lightning className="w-4 h-4 mr-2" />}
           Generate Captions
         </Button>
         <div className="space-y-3 pt-4">

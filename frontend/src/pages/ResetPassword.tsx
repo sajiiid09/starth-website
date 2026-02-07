@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { CheckCircle, XCircle, Loader2, Lock } from "lucide-react";
+import { CheckCircle, XCircle, SpinnerGap, Lock } from "@phosphor-icons/react";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { resetPassword } from "@/api/functions";
@@ -100,7 +100,7 @@ export default function ResetPasswordPage() {
                 className="w-full"
                 disabled={loading}
               >
-                {loading ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Lock className="w-4 h-4 mr-2" />}
+                {loading ? <SpinnerGap className="w-4 h-4 animate-spin mr-2" /> : <Lock className="w-4 h-4 mr-2" />}
                 Reset Password
               </Button>
             </form>

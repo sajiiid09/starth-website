@@ -1,7 +1,7 @@
 
 import React from "react";
 import { Card, CardContent } from "@/components/ui/card";
-import { Clock } from "lucide-react";
+import { Clock } from "@phosphor-icons/react";
 import Container from "@/components/home-v2/primitives/Container";
 import FadeIn from "@/components/animations/FadeIn";
 

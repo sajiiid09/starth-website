@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { FileText, Upload, CheckCircle, AlertCircle, Loader2, X } from "lucide-react";
+import { FileText, Upload, CheckCircle, WarningCircle, SpinnerGap, X } from "@phosphor-icons/react";
 import RoleGuard from "../components/auth/RoleGuard";
 import VenuePortalLayout from "../components/venue/VenuePortalLayout";
 
@@ -69,7 +69,7 @@ export default function VenueDocumentsPage() {
   };
 
   const handleFileUpload = async (event, docType) => {
-    const files = Array.from(event.target.files);
+    const files = Array.from(event.target.files) as File[];
     if (!files.length || !organization) return;
 
     setUploading(prev => ({ ...prev, [docType]: true }));
@@ -130,7 +130,7 @@ export default function VenueDocumentsPage() {
       <RoleGuard requiredRole="venue_owner">
         <VenuePortalLayout>
           <div className="flex items-center justify-center h-64">
-            <Loader2 className="w-8 h-8 animate-spin text-gray-500" />
+            <SpinnerGap className="w-8 h-8 animate-spin text-gray-500" />
           </div>
         </VenuePortalLayout>
       </RoleGuard>
@@ -145,7 +145,7 @@ export default function VenueDocumentsPage() {
         <div className="p-6 max-w-4xl mx-auto">
           <div className="flex items-center justify-between mb-6">
             <div>
-              <h1 className="text-2xl font-bold text-gray-900 mb-2">Document Verification</h1>
+              <h1 className="text-2xl font-semibold text-gray-900 mb-2">Document Verification</h1>
               <p className="text-gray-600">Upload required documents for marketplace approval</p>
             </div>
             <Badge className={completed === total ? "bg-green-100 text-green-800" : "bg-yellow-100 text-yellow-800"}>
@@ -204,7 +204,7 @@ export default function VenueDocumentsPage() {
                             <div className="flex items-center gap-2">
                               <Badge className={getStatusColor(doc.verified_status)}>
                                 {doc.verified_status === "verified" && <CheckCircle className="w-3 h-3 mr-1" />}
-                                {doc.verified_status === "rejected" && <AlertCircle className="w-3 h-3 mr-1" />}
+                                {doc.verified_status === "rejected" && <WarningCircle className="w-3 h-3 mr-1" />}
                                 {doc.verified_status.charAt(0).toUpperCase() + doc.verified_status.slice(1)}
                               </Badge>
                               <Button
@@ -239,7 +239,7 @@ export default function VenueDocumentsPage() {
                           />
                           <Button variant="outline" size="sm" disabled={isUploading}>
                             {isUploading ? (
-                              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                              <SpinnerGap className="w-4 h-4 mr-2 animate-spin" />
                             ) : (
                               <Upload className="w-4 h-4 mr-2" />
                             )}

@@ -1,7 +1,7 @@
 import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { ExternalLink } from "lucide-react";
+import { ArrowSquareOut } from "@phosphor-icons/react";
 
 const vendorPartners = [
   { name: "1st Phorm", url: "https://1stphorm.sjv.io/c/5980041/3062647/37436", category: "Sports Apparel" },
@@ -204,7 +204,7 @@ export default function VendorPartners() {
                   <h3 className="font-semibold text-gray-900 text-sm group-hover:text-indigo-600 transition-colors">
                     {vendor.name}
                   </h3>
-                  <ExternalLink className="w-3 h-3 text-gray-400 group-hover:text-indigo-600 flex-shrink-0" />
+                  <ArrowSquareOut className="w-3 h-3 text-gray-400 group-hover:text-indigo-600 flex-shrink-0" />
                 </div>
                 <Badge variant="secondary" className="text-xs">
                   {vendor.category}

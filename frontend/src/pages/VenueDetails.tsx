@@ -11,31 +11,31 @@ import {
   ArrowLeft,
   MapPin,
   Users,
-  DollarSign,
+  CurrencyDollar,
   Star,
   Shield,
-  ExternalLink,
+  ArrowSquareOut,
   Phone,
-  Mail,
+  Envelope,
   Globe,
   Calendar,
-  Wifi,
+  WifiHigh,
   Car,
   Camera,
-  Utensils,
-  Loader2,
+  ForkKnife,
+  SpinnerGap,
   Heart
-} from "lucide-react";
+} from "@phosphor-icons/react";
 import MessageVenueButton from "../components/venue/MessageVenueButton"; // Added import
 
 const amenityIcons = {
-  "WiFi": Wifi,
+  "WiFi": WifiHigh,
   "Parking": Car,
   "AV Equipment": Camera,
-  "Catering Kitchen": Utensils,
-  "High-speed WiFi": Wifi,
+  "Catering Kitchen": ForkKnife,
+  "High-speed WiFi": WifiHigh,
   "Audio Visual": Camera,
-  "Catering": Utensils
+  "Catering": ForkKnife
 };
 
 export default function VenueDetailsPage() {
@@ -71,7 +71,7 @@ export default function VenueDetailsPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-screen">
-        <Loader2 className="w-8 h-8 animate-spin text-gray-500" />
+        <SpinnerGap className="w-8 h-8 animate-spin text-gray-500" />
       </div>
     );
   }
@@ -80,7 +80,7 @@ export default function VenueDetailsPage() {
     return (
       <div className="min-h-screen bg-gray-50 p-4">
         <div className="max-w-2xl mx-auto text-center py-12">
-          <h2 className="text-2xl font-bold text-gray-900 mb-4">Venue Not Found</h2>
+          <h2 className="text-2xl font-semibold text-gray-900 mb-4">Venue Not Found</h2>
           <p className="text-gray-600 mb-6">The venue you're looking for doesn't exist or has been removed.</p>
           <Link to={createPageUrl("Marketplace")}>
             <Button variant="outline">Back to Marketplace</Button>
@@ -102,7 +102,7 @@ export default function VenueDetailsPage() {
             </Button>
           </Link>
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">{venue.name}</h1>
+            <h1 className="text-2xl font-semibold text-gray-900">{venue.name}</h1>
             <div className="flex items-center gap-2 text-gray-600">
               <MapPin className="w-4 h-4" />
               <span>{venue.city}, {venue.state}</span>
@@ -175,7 +175,7 @@ export default function VenueDetailsPage() {
                 {venue.maps_url && (
                   <a href={venue.maps_url} target="_blank" rel="noopener noreferrer">
                     <Button variant="outline" className="w-full">
-                      <ExternalLink className="w-4 h-4 mr-2" />
+                      <ArrowSquareOut className="w-4 h-4 mr-2" />
                       View on Google Maps
                     </Button>
                   </a>
@@ -192,11 +192,11 @@ export default function VenueDetailsPage() {
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <DollarSign className="w-5 h-5 text-green-600" />
+                    <CurrencyDollar className="w-5 h-5 text-green-600" />
                     <span className="text-sm text-gray-600">Starting at</span>
                   </div>
                   <div className="text-right">
-                    <div className="text-2xl font-bold text-gray-900">
+                    <div className="text-2xl font-semibold text-gray-900">
                       ${venue.rate_card_json?.base_rate?.toLocaleString() || 'N/A'}
                     </div>
                     <div className="text-sm text-gray-500">per day</div>

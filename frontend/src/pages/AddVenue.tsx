@@ -15,17 +15,17 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Progress } from "@/components/ui/progress";
 import { 
   ArrowLeft, 
-  Building, 
+  Buildings, 
   MapPin, 
   Users, 
   Camera, 
-  DollarSign,
-  Save,
+  CurrencyDollar,
+  FloppyDisk,
   CheckCircle,
   Upload,
-  Loader2,
+  SpinnerGap,
   X
-} from "lucide-react";
+} from "@phosphor-icons/react";
 import { Link, useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import RoleGuard from "../components/auth/RoleGuard";
@@ -273,7 +273,7 @@ export default function AddVenuePage() {
       <RoleGuard requiredRole="venue_owner">
         <VenuePortalLayout>
           <div className="flex items-center justify-center h-64">
-            <Loader2 className="w-8 h-8 animate-spin text-gray-500" />
+            <SpinnerGap className="w-8 h-8 animate-spin text-gray-500" />
           </div>
         </VenuePortalLayout>
       </RoleGuard>
@@ -292,7 +292,7 @@ export default function AddVenuePage() {
               </Button>
             </Link>
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">Add New Venue</h1>
+              <h1 className="text-2xl font-semibold text-gray-900">Add New Venue</h1>
               <p className="text-gray-600">Step {step} of 5</p>
             </div>
           </div>
@@ -306,11 +306,11 @@ export default function AddVenuePage() {
           <Card className="border-none shadow-lg">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                {step === 1 && <Building className="w-5 h-5 text-blue-600" />}
+                {step === 1 && <Buildings className="w-5 h-5 text-blue-600" />}
                 {step === 2 && <MapPin className="w-5 h-5 text-green-600" />}
                 {step === 3 && <Users className="w-5 h-5 text-orange-600" />}
                 {step === 4 && <Camera className="w-5 h-5 text-purple-600" />}
-                {step === 5 && <DollarSign className="w-5 h-5 text-red-600" />}
+                {step === 5 && <CurrencyDollar className="w-5 h-5 text-red-600" />}
                 
                 {step === 1 && "Basic Information"}
                 {step === 2 && "Location Details"}
@@ -669,7 +669,7 @@ export default function AddVenuePage() {
                         onClick={() => handleSave(false)}
                         disabled={saving || !validateStep(step)}
                       >
-                        {saving ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Save className="w-4 h-4 mr-2" />}
+                        {saving ? <SpinnerGap className="w-4 h-4 animate-spin mr-2" /> : <FloppyDisk className="w-4 h-4 mr-2" />}
                         Save Draft
                       </Button>
                       <Button
@@ -677,7 +677,7 @@ export default function AddVenuePage() {
                         disabled={saving || !validateStep(step)}
                         className="bg-green-600 hover:bg-green-700"
                       >
-                        {saving ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <CheckCircle className="w-4 h-4 mr-2" />}
+                        {saving ? <SpinnerGap className="w-4 h-4 animate-spin mr-2" /> : <CheckCircle className="w-4 h-4 mr-2" />}
                         Submit for Review
                       </Button>
                     </>

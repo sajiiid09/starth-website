@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { CheckCircle2, XCircle, Loader2, Mail } from "lucide-react";
+import { CheckCircle, XCircle, SpinnerGap, Envelope } from "@phosphor-icons/react";
 import { verifyEmail } from "@/api/functions";
 
 export default function VerifyEmailPage() {
@@ -34,7 +34,7 @@ export default function VerifyEmailPage() {
         setEmail(data.email);
       } else {
         setStatus('error');
-        setMessage(data.error || 'Verification failed');
+        setMessage((data as any).error || 'Verification failed');
       }
     } catch (error) {
       console.error('Verification error:', error);
@@ -49,11 +49,11 @@ export default function VerifyEmailPage() {
         <CardHeader className="text-center">
           <div className="w-16 h-16 mx-auto mb-4 rounded-full flex items-center justify-center">
             {status === 'loading' && (
-              <Loader2 className="w-12 h-12 text-blue-600 animate-spin" />
+              <SpinnerGap className="w-12 h-12 text-blue-600 animate-spin" />
             )}
             {(status === 'success' || status === 'already_verified') && (
               <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center">
-                <CheckCircle2 className="w-10 h-10 text-green-600" />
+                <CheckCircle className="w-10 h-10 text-green-600" />
               </div>
             )}
             {status === 'error' && (
@@ -79,7 +79,7 @@ export default function VerifyEmailPage() {
             <>
               {email && (
                 <div className="flex items-center justify-center gap-2 text-sm text-gray-500">
-                  <Mail className="w-4 h-4" />
+                  <Envelope className="w-4 h-4" />
                   <span>{email}</span>
                 </div>
               )}

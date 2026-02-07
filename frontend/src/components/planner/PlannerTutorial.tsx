@@ -1,5 +1,5 @@
 import React from "react";
-import { BadgeCheck, ClipboardList, MessageSquare, Sparkles, Lightbulb } from "lucide-react";
+import { SealCheck, ClipboardText, ChatCircle, Sparkle, Lightbulb } from "@phosphor-icons/react";
 import FadeIn from "@/components/animations/FadeIn";
 import Container from "@/components/home-v2/primitives/Container";
 import Section from "@/components/home-v2/primitives/Section";
@@ -11,22 +11,22 @@ const steps = [
   {
     title: "Describe your event goal + constraints",
     description: "Share the vibe, budget range, and must-haves to shape the brief.",
-    icon: Sparkles
+    icon: Sparkle
   },
   {
     title: "Answer the follow-up questions",
     description: "The planner asks for details like timing, guest count, and format.",
-    icon: MessageSquare
+    icon: ChatCircle
   },
   {
     title: "Review the blueprint",
     description: "Get recommendations for venues, vendors, and a working timeline.",
-    icon: ClipboardList
+    icon: ClipboardText
   },
   {
     title: "Customize and approve",
     description: "Adjust selections, save the plan, and move into execution.",
-    icon: BadgeCheck
+    icon: SealCheck
   }
 ];
 

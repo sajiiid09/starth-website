@@ -1,0 +1,410 @@
+# User Dashboard Development Documentation
+
+## Overview
+The Organizer/User dashboard is being redesigned so the post-login landing experience is a dedicated AI workspace shell. This decouples dashboard planning UX from the public website AI planner and sets a clean foundation for phased feature delivery.
+
+## Locked UX Rules (Final)
+
+- Zero state is minimal and contains only:
+  - centered prompt composer
+  - 3 starter template cards directly below
+- Scratch path stays chat-only until artifact reveal:
+  - collect brief -> generate -> `artifact_ready`
+  - canvas opens only after artifact card click
+- Template path opens split view immediately:
+  - sets `mode='template'`, `viewMode='split'`, and immediate `plannerState`
+- Canvas is read-only in all modes.
+- Fullscreen preview is available in split mode and remains read-only.
+- Matches functionality is not present anywhere in organizer planner surfaces.
+
+## Claude-style Flow (New State Model)
+
+Phase 1 introduces session-model scaffolding for a Claude-style planner flow.
+
+- `PlannerSession` now includes:
+  - `mode: 'scratch' | 'template'`
+  - `viewMode: 'chat_only' | 'split'`
+  - `briefStatus: 'collecting' | 'ready_to_generate' | 'generating' | 'artifact_ready' | 'canvas_open'`
+  - `draftBrief?: { eventType?, guestCount?, budget?, city?, dateRange? }`
+  - `artifact?: { id: string; title: string; createdAt: number }`
+  - `plannerState?: PlannerState` (unchanged, still optional)
+- Required brief field list is centralized in:
+  - `frontend/src/features/planner/brief/briefFields.ts`
+  - export: `REQUIRED_BRIEF_FIELDS = ['eventType','guestCount','budget','city','dateRange'] as const`
+- Planner session storage key/version:
+  - new key: `strathwell_planner_sessions_v5`
+  - payload version: `5`
+  - migration loader reads legacy keys (`v4`, `v3`, `v2`) and safely defaults missing fields.
+- Migration defaults for missing/invalid fields:
+  - with `plannerState`: `mode='template'`, `viewMode='split'`, `briefStatus='canvas_open'`
+  - without `plannerState`: `mode='scratch'`, `viewMode='chat_only'`, `briefStatus='collecting'`
+
+## Claude-style Flow (Phase 2 Mock State Machine)
+
+Phase 2 implements planner mock orchestration for scratch mode brief collection and generation:
+
+- Active planner service wiring now uses `frontend/src/features/planner/services/plannerService.mock.ts`.
+- In `sendMessage(session, userText)`:
+  - If `session.mode === 'scratch'` and no existing planner state, the mock performs best-effort extraction into `draftBrief`:
+    - `guestCount` (e.g. `120 guests`)
+    - `budget` (e.g. `$50k`, `50000`, `50k`)
+    - `dateRange` (e.g. `March 2026`, `next month`)
+    - `city` (best-effort `in/at <city>` parsing)
+    - `eventType` (conference/retreat/wedding/launch/etc.)
+  - Missing required fields are asked one-at-a-time using the `REQUIRED_BRIEF_FIELDS` order.
+  - When all required fields are present:
+    - session moves to `briefStatus='generating'`
+    - assistant responds with `Generating blueprint...`
+    - deferred completion then sets:
+      - `plannerState`
+      - `artifact`
+      - `briefStatus='artifact_ready'`
+    - `viewMode` is intentionally not switched to `split` automatically.
+- Template mode or any session with existing `plannerState` continues chat-driven mock plan edits without changing canvas interactivity.
+
+## Claude-style Flow (Phase 3 ViewMode Gating)
+
+Phase 3 wires organizer workspace rendering to `PlannerSession.viewMode`:
+
+- `viewMode='chat_only'`:
+  - only co-pilot/chat column is rendered
+  - chat fills workspace width
+  - canvas column is not rendered
+- `viewMode='split'`:
+  - co-pilot + read-only canvas split is rendered via `OrganizerImmersiveShell`
+- Scratch vs template behavior:
+  - scratch sessions remain `chat_only` when generation completes to `briefStatus='artifact_ready'`
+  - template selection from zero state sets:
+    - `mode='template'`
+    - `viewMode='split'`
+    - `briefStatus='canvas_open'`
+    - immediate `plannerState`
+
+## Claude-style Flow (Phase 4 Blueprint Artifact Card)
+
+Phase 4 adds an explicit blueprint artifact surface inside chat and click-to-open behavior:
+
+- New reusable artifact component:
+  - `frontend/src/components/planner/BlueprintArtifactCard.tsx`
+  - props: `title`, `summary`, optional `kpis`, `onOpen()`
+  - rendered as a premium, fully-clickable read-only card with hover/focus states.
+- Artifact rendering rule in organizer chat feed:
+  - if `activeSession.briefStatus === 'artifact_ready'` and `activeSession.artifact` exists, show the artifact card as an assistant feed item.
+  - summary is sourced from `plannerState.summary` when available, otherwise derived from `draftBrief`.
+- Click behavior:
+  - artifact click updates session state to:
+    - `viewMode='split'`
+    - `briefStatus='canvas_open'`
+  - this only reveals existing read-only canvas content; no planner data is mutated.
+- Scratch UX rule:
+  - generation completion still leaves scratch sessions in chat-only mode.
+  - artifact card appears after the completion assistant message, and canvas is revealed only after artifact click.
+
+## Claude-style Flow (Phase 5 Fullscreen Read-only Preview)
+
+Phase 5 adds a fullscreen blueprint preview path for split view while preserving strict read-only behavior:
+
+- New fullscreen overlay component:
+  - `frontend/src/components/planner/CanvasFullscreenPreview.tsx`
+  - props: `open`, `onClose()`, `planData`
+  - implemented with shadcn `Dialog` and fullscreen `DialogContent`.
+- Split-view canvas header action:
+  - organizer split mode now injects a `Full screen` button into `PlanPreviewCanvas` header.
+  - button opens fullscreen preview without mutating planner data.
+- Fullscreen UX and accessibility:
+  - top bar includes explicit `Back` button to close and return to split view.
+  - `Esc` closes fullscreen via dialog behavior.
+  - focus is moved to the `Back` button on open.
+  - body scroll remains locked by dialog while open; plan content is scrollable within preview.
+- Read-only guarantee:
+  - fullscreen reuses `PlanPreviewCanvas` and does not add any editing controls.
+
+## Claude-style Flow (Phase 6 Zero-state Strictness + QA Finalization)
+
+Phase 6 enforces strict UX rules and final polish:
+
+- Zero-state strictness:
+  - `ZeroStateLanding` is reduced to only prompt + 3-card grid.
+  - no extra sections, banners, or secondary controls.
+  - canvas is not rendered in zero state.
+- Flow guarantees:
+  - scratch remains chat-only through `artifact_ready`.
+  - template cards create immediate split sessions with planner state.
+  - template assistant response is standardized to: `What do you want to change?`
+- Interaction polish:
+  - split-view transition from artifact click uses lightweight Tailwind transitions in immersive shell.
+  - fullscreen preview and read-only canvas behavior remain intact.
+- Persistence QA:
+  - planner session persistence is triggered by session updates (message send, generation completion, artifact click, template select).
+  - draft typing remains local UI state and does not trigger storage writes.
+- Final QA checklist:
+  - zero state: prompt + 3 cards only
+  - scratch: no canvas until artifact click
+  - template: split opens instantly
+  - fullscreen: open/close works with keyboard and back button
+  - no Matches UI or planner state paths
+
+## Immersive AI Editor Redesign (Rail + Co-pilot + Canvas)
+
+### Locked UX Rules
+- Rail icon strip (5%), Co-pilot persistent chat (25%), Canvas read-only preview (70%).
+- Global nav behaves like overlay drawer (no layout shift).
+- No Matches tab.
+- Zero state = centered prompt + 3-card template grid only.
+- Scratch stays chat-only through artifact readiness and opens canvas only after artifact click; template selection opens split immediately.
+
+### Locked Rules (Do Not Change)
+- Rail remains thin icon-first navigation (`~5%` visual footprint).
+- Drawer overlays workspace and never causes co-pilot/canvas layout shift.
+- Co-pilot chat is the only control surface for plan changes.
+- Canvas stays read-only with one-way `planData` input.
+- Zero state contains only centered prompt + 3 starter cards.
+- Scratch keeps canvas hidden until the artifact card is clicked.
+- Template start loads canvas immediately and asks what to change.
+
+### Phase Checklist (1–8)
+- [Done] Phase 1 - Baseline audit + docs setup.
+- [Done] Phase 2 - Navigation redesign (rail + floating overlay drawer, organizer scoped).
+- [Done] Phase 3 - Workspace shell (persistent Co-pilot + Canvas containers).
+- [Done] Phase 4 - Zero-state redesign (center prompt + 3 starter templates only).
+- [Done] Phase 5 - Remove Matches state/UI/service plumbing completely.
+- [Done] Phase 6 - Read-only canvas viewport contract (`PlanPreviewCanvas`) and organizer wiring.
+- [Done] Phase 7 - Scratch-flow brief collection state machine and delayed canvas reveal.
+- [Done] Phase 8 - Polish, accessibility QA, motion pass, and finalization.
+
+### Phase 2 Navigation Redesign (Implemented)
+- Organizer dashboard now uses a thin icon rail (`w-16`) as the default nav surface.
+- Organizer rail menu opens a fixed-position floating drawer overlay that sits over content and does not change workspace column widths.
+- Overlay close behaviors implemented:
+  - Escape key closes drawer.
+  - Scrim/outside click closes drawer.
+  - Selecting a nav link or planner session closes drawer.
+- Overlay also locks body scroll while open and restores scroll on close.
+- Scope safety:
+  - Applied only to organizer/user dashboard shell.
+  - Vendor/admin keep the existing full sidebar behavior.
+  - Public website layout/pages are unchanged.
+- Files added/modified for Phase 2:
+  - `frontend/src/features/immersive/navItems.ts` (typed organizer nav config)
+  - `frontend/src/features/immersive/RailNav.tsx` (icon rail + tooltips + menu trigger)
+  - `frontend/src/features/immersive/NavDrawerOverlay.tsx` (floating drawer + scrim/close behavior)
+  - `frontend/src/components/dashboard/DashboardShell.tsx` (organizer-only wiring and conditional sidebar scoping)
+
+### Phase 3 Workspace Shell (Implemented)
+- Added dedicated immersive shell component:
+  - `frontend/src/features/immersive/OrganizerImmersiveShell.tsx`
+  - Props: `copilot`, `canvas`, `showCanvas`, optional `topBar`.
+- Organizer AI planner now renders through the shell in:
+  - `frontend/src/pages/dashboard/OrganizerAIWorkspace.tsx`
+- Layout model:
+  - Desktop (`lg+`): split container with persistent Co-pilot left column (`clamp(22rem, 25vw, 26rem)`) and Canvas right column (`1fr`).
+  - Tablet (`md` to `lg`): stacked layout (Co-pilot above Canvas).
+  - Mobile (`<md`): Co-pilot only by default; Canvas opens via `Preview` button in a right-side `Sheet`.
+- Scroll behavior:
+  - Co-pilot and Canvas are both mounted in isolated overflow containers (`min-h-0` + internal scrolling components).
+- Matches UI removal:
+  - Removed organizer workspace `Matches` tab/toggle UI and related panel wiring from the planner route.
+  - Later completed in Phase 5 by removing matches from planner session/service types and storage migration.
+- Files changed for Phase 3:
+  - `frontend/src/features/immersive/OrganizerImmersiveShell.tsx`
+  - `frontend/src/pages/dashboard/OrganizerAIWorkspace.tsx`
+
+### Phase 4 Zero State Redesign (Implemented)
+- Zero-state rule is enforced as a minimal surface only:
+  - centered prompt composer
+  - 3-card template preview grid directly below
+  - no matches panel and no extra workspace sections.
+- Added:
+  - `frontend/src/features/immersive/ZeroStateLanding.tsx`
+  - `frontend/src/features/immersive/data/starterTemplates.ts` (exactly 3 starter templates)
+- Organizer planner wiring updates in:
+  - `frontend/src/pages/dashboard/OrganizerAIWorkspace.tsx`
+- Fresh-session bootstrap:
+  - On first organizer planner load with no persisted planner storage, the route opens a fresh session so zero state is shown instead of seeded mock conversation content.
+- Transition behavior:
+  - Prompt submit from zero state -> exits zero state and starts Co-pilot chat flow; as of Phase 6, the canvas viewport mounts in read-only mode and remains blank until `planData` is available.
+  - Template select from zero state -> exits zero state, seeds a template planner state + assistant follow-up message, and shows canvas immediately.
+- Scope safety:
+  - Organizer/user planner route only.
+  - Vendor/admin dashboards unchanged.
+  - Public website pages/layout unchanged.
+
+### Phase 5 Remove Matches Completely (Implemented)
+- Matches functionality is fully removed from organizer planner architecture:
+  - no Matches tab
+  - no Matches UI component wiring
+  - no matches/session field in planner types
+  - no `updatedMatches` return path in planner service responses.
+- Planner model now keeps only:
+  - chat session thread (`messages`)
+  - optional `plannerState` (blueprint/canvas data)
+  - session metadata (`id`, `title`, timestamps).
+- Storage version bump + migration:
+  - new storage key: `strathwell_planner_sessions_v3`
+  - legacy v2 payloads (`strathwell_planner_sessions_v2`) are migrated on load by safely dropping legacy `matches` fields.
+  - migrated payload is persisted to v3 and legacy key is cleared.
+  - note: Phase 7 later bumped storage to `strathwell_planner_sessions_v4` for scratch brief-state fields.
+- Planner mock service updates:
+  - no template/marketplace matches generation in planner service mock.
+  - `sendMessage` now returns only `assistantMessage` and optional `updatedPlannerState`.
+- Files changed for Phase 5:
+  - `frontend/src/features/planner/types.ts`
+  - `frontend/src/features/planner/schemas.ts`
+  - `frontend/src/features/planner/utils/storage.ts`
+  - `frontend/src/features/planner/PlannerSessionsContext.tsx`
+  - `frontend/src/features/planner/services/plannerService.mock.ts`
+  - `frontend/src/pages/dashboard/OrganizerAIWorkspace.tsx`
+  - deleted: `frontend/src/features/planner/components/RelevantMatchesPanel.tsx`
+
+### Phase 6 Read-only Canvas (Implemented)
+- Organizer planner canvas is now rendered by:
+  - `frontend/src/components/planner/PlanPreviewCanvas.tsx`
+- `PlanPreviewCanvas` contract:
+  - `planData: PlannerState | null`
+  - optional `highlightSection`
+  - one-way data flow only (no setter props).
+- Read-only enforcement:
+  - no inputs/selects/edit fields
+  - no drag/drop or reorder controls
+  - no approve/state-change actions in canvas UI
+  - no click-to-edit affordances.
+- Null-state rendering:
+  - when `planData` is `null`, canvas renders a blank white viewport (no placeholder copy).
+- Section anchors prepared for Phase 7/8 guidance:
+  - `#canvas-inventory`
+  - `#canvas-timeline`
+  - `#canvas-budget`
+- Organizer wiring:
+  - `frontend/src/pages/dashboard/OrganizerAIWorkspace.tsx` now passes `planData={activeSession?.plannerState ?? null}`.
+  - Canvas remains passive; all modifications happen through chat turns.
+- Files changed for Phase 6:
+  - added: `frontend/src/components/planner/PlanPreviewCanvas.tsx`
+  - modified: `frontend/src/pages/dashboard/OrganizerAIWorkspace.tsx`
+  - deleted: `frontend/src/features/planner/components/BlueprintDetailPanel.tsx`
+
+### Phase 7 Scratch-flow State Machine (Implemented)
+- Added session-level planner state machine fields in `PlannerSession`:
+  - `mode: 'scratch' | 'template'`
+  - `draftBrief?: { eventType?, guestCount?, budget?, city?, dateRange? }`
+  - `briefStatus: 'collecting' | 'ready_to_generate' | 'generating' | 'generated'`
+  - `canvasState: 'hidden' | 'visible'`
+  - `lastAskedField?: keyof draftBrief`
+- Required scratch brief fields:
+  - `eventType`, `guestCount`, `budget`, `city`, `dateRange`
+- Scratch path behavior:
+  - first zero-state prompt starts/continues `mode='scratch'` collection
+  - AI asks chained next-missing-field questions
+  - canvas remains blank read-only until brief completion
+  - on completion, assistant posts `Generating your blueprint...`, then generated planner state appears after a short delay.
+- Template path behavior:
+  - zero-state template select sets `mode='template'`, `briefStatus='generated'`, `canvasState='visible'`
+  - template planner state is mounted immediately
+  - assistant asks: `Loaded the [Template Name]. What would you like to change?`
+- Service boundary wiring:
+  - state machine logic is centralized in `plannerService.mock.sendMessage`
+  - organizer workspace applies returned session patches and deferred generation updates.
+- Persistence/migration:
+  - planner storage key bumped to `strathwell_planner_sessions_v4`
+  - legacy `v3` and `v2` payloads are migrated into new session shape (including default mode/brief/canvas fields)
+  - refresh preserves in-progress scratch brief collection and blank canvas state.
+- Files changed for Phase 7:
+  - `frontend/src/features/planner/types.ts`
+  - `frontend/src/features/planner/schemas.ts`
+  - `frontend/src/features/planner/utils/storage.ts`
+  - `frontend/src/features/planner/PlannerSessionsContext.tsx`
+  - `frontend/src/features/planner/services/plannerService.mock.ts`
+  - `frontend/src/pages/dashboard/OrganizerAIWorkspace.tsx`
+
+### Phase 8 Polish + QA + Finalization (Implemented)
+- Motion polish (Tailwind-only):
+  - nav drawer keeps smooth slide-in transform and scrim fade.
+  - chat messages retain lightweight enter motion (`opacity + slight translate`).
+  - zero-state and immersive surfaces share consistent viewport sizing to reduce transition jank.
+- Accessibility + keyboard:
+  - drawer `Esc` close kept and validated.
+  - focus management added for drawer open/close:
+    - opening focuses drawer close button.
+    - closing returns focus to the trigger element (rail button or mobile menu button).
+  - keyboard tab loop is constrained within drawer while open.
+- Mobile behavior:
+  - menu button opens drawer reliably on touch devices.
+  - co-pilot stays primary in mobile shell; canvas stays in `Preview` sheet.
+  - drawer open keeps body scroll locked to avoid overlay scroll conflicts.
+- Visual consistency pass:
+  - standardized spacing/padding across `ZeroStateLanding` and `NavDrawerOverlay`.
+  - confirmed no `Chat history` label is rendered in organizer nav.
+  - canvas remains read-only and blank when no plan data exists.
+- Files changed for Phase 8:
+  - `frontend/src/components/dashboard/DashboardShell.tsx`
+  - `frontend/src/features/immersive/RailNav.tsx`
+  - `frontend/src/features/immersive/NavDrawerOverlay.tsx`
+  - `frontend/src/features/immersive/ZeroStateLanding.tsx`
+
+### Demo Checklist (Scratch vs Template)
+- Scratch flow:
+  - open `/dashboard/ai-planner` as organizer
+  - submit freeform prompt in zero-state composer
+  - verify chained assistant questions for missing brief fields
+  - verify canvas stays blank/read-only until brief completion
+  - verify `Generating your blueprint...` assistant step appears, then blueprint renders.
+- Template flow:
+  - open `/dashboard/ai-planner` zero state
+  - click any starter template card
+  - verify canvas renders template blueprint immediately
+  - verify assistant asks what to change and follow-up edits happen via chat only.
+
+### Current Code Map
+
+#### Route files involved
+- `frontend/src/pages/routes/DashboardRoutes.tsx`:
+  - Organizer dashboard home route: `createPageUrl("Dashboard")` -> `/dashboard`.
+  - Organizer AI planner route: `/dashboard/ai-planner` -> `PlanWithAI`.
+  - Planner compatibility alias: `/dashboard/plan-with-ai` -> redirect to `/dashboard/ai-planner`.
+  - Dashboard home alias: `/dashboard/home` -> redirect to `/dashboard`.
+- `frontend/src/pages/routes/lazyPages.ts`: lazy route bindings for `PlanWithAI`, `OrganizerAIWorkspace`, and organizer dashboard pages.
+- `frontend/src/pages/Layout.tsx`: dashboard route matcher (`/dashboard`, `/vendor`, `/admin`) and `DashboardShell` wrapper selection.
+- `frontend/src/pages/routes/PublicRoutes.tsx`: public planner route (`createPageUrl("AIPlanner")` -> `/ai-planner`) remains separate from dashboard planner.
+- `frontend/src/pages/AppEntry.tsx`: organizer post-auth redirect target is `/dashboard/ai-planner` via `getPostAuthRedirectPath`.
+
+#### Layout + workspace components
+- `frontend/src/components/dashboard/DashboardShell.tsx`: organizer dashboard shell with immersive rail + overlay drawer; vendor/admin keep legacy sidebar.
+- `frontend/src/features/immersive/OrganizerImmersiveShell.tsx`: immersive workspace shell used by organizer planner route (Co-pilot + Canvas columns).
+- `frontend/src/features/immersive/ZeroStateLanding.tsx`: zero-state minimal landing (center prompt + 3 template cards only).
+- `frontend/src/features/immersive/data/starterTemplates.ts`: fixed three-card starter template data for zero state.
+- `frontend/src/pages/dashboard/PlanWithAI.tsx`: route-level wrapper that renders `OrganizerAIWorkspace`.
+- `frontend/src/pages/dashboard/OrganizerAIWorkspace.tsx`:
+  - Chat surface (internal `ChatPanel` + `MessageThread`) mounted as Co-pilot.
+  - `PlanPreviewCanvas` mounted as the read-only Canvas preview within immersive shell.
+  - Canvas receives one-way planner data via `planData={activeSession?.plannerState ?? null}`.
+  - Scratch flow uses session brief state model; canvas reveal semantics are transitioning to artifact-driven behavior in Claude-style mode.
+  - No `Matches` tabs/toggles rendered in organizer planner route.
+  - Zero-state routing logic: show `ZeroStateLanding` when session has no messages and no planner state.
+- `frontend/src/components/planner/PlanPreviewCanvas.tsx`: organizer canvas renderer (read-only, passive, deterministic preview).
+- `frontend/src/features/planner/PlannerSessionsContext.tsx`: planner session lifecycle/provider used by dashboard shell + workspace.
+- Legacy public planner (still in repo, not dashboard planner):
+  - `frontend/src/pages/AIPlanner.tsx`
+  - `frontend/src/components/planner/ChatInterface.tsx`
+  - `frontend/src/components/planner/ResultsPanels.tsx`
+  - `frontend/src/components/planner/PlannerPromptBox.tsx`
+
+#### Current session storage + types
+- Organizer role + dashboard session:
+  - `frontend/src/utils/role.ts` -> localStorage key `activeRole` (`AppRole` + role mapping helpers).
+  - `frontend/src/utils/session.ts` -> localStorage key `starth_session_state` (`SessionState` with role/vendor onboarding state).
+- Planner sessions (dashboard AI workspace):
+  - `frontend/src/features/planner/utils/storage.ts` -> localStorage key `strathwell_planner_sessions_v5`.
+  - Payload schema (`version: 5`): `{ version, activeSessionId, sessions }`.
+  - Migration: reads legacy keys `strathwell_planner_sessions_v4`, `strathwell_planner_sessions_v3`, and `strathwell_planner_sessions_v2`; drops legacy `matches`; safely defaults Claude-style fields; validates; and rewrites to v5.
+  - Types: `PlannerStoragePayload`, `PlannerSession`, `ChatMessage`, `PlannerState`, `DraftBrief` from `frontend/src/features/planner/types.ts`.
+  - `PlannerSession` Claude-style fields: `mode`, `viewMode`, `briefStatus`, optional `draftBrief`, optional `artifact`, optional `lastAskedField`.
+  - Validation: `zPlannerSessionsPayload`, `zPlannerSession`, `zPlannerState` in `frontend/src/features/planner/schemas.ts`.
+- Credits (planner gating, frontend-only):
+  - `frontend/src/features/planner/credits/storage.ts` -> localStorage key `strathwell_credits_v1` (versioned credits payload).
+- Auth/planner intent sessionStorage:
+  - `frontend/src/utils/authSession.ts` -> sessionStorage key `currentUser`.
+  - `frontend/src/utils/pendingIntent.ts` -> sessionStorage key `pendingPlannerIntent`.
+
+
+## Historical Notes
+- Pre-immersive dashboard implementation notes were intentionally archived to prevent conflicts with the current planner architecture.
+- Treat the sections above (`Immersive AI Editor Redesign` and `Current Code Map`) as the authoritative source for active organizer planner behavior.

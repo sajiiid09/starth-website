@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 40">
+  <defs>
+    <style>
+      .text { font-family: 'Segoe UI', Arial, sans-serif; }
+    </style>
+  </defs>
+  <text x="0" y="28" class="text" font-weight="bold" font-size="24" fill="#5f6368">Google</text>
+  <text x="85" y="28" class="text" font-size="24" fill="#5f6368">for Startups</text>
+</svg>

@@ -1,11 +1,9 @@
 import React from "react";
 import {
-  ChevronDown,
-  Mic,
-  MicOff,
+  CaretDown,
   Paperclip,
-  Sparkles
-} from "lucide-react";
+  Sparkle
+} from "@phosphor-icons/react";
 import gsap from "gsap";
 import PillButton from "@/components/home-v2/primitives/PillButton";
 import useGsapReveal from "@/components/utils/useGsapReveal";
@@ -42,8 +40,6 @@ type PlannerPromptBoxProps = {
   onSubmit: () => void;
   onKeyPress: (event: React.KeyboardEvent<HTMLTextAreaElement>) => void;
   isLoading: boolean;
-  isRecording: boolean;
-  onToggleRecording: () => void;
   onUploadImages: (event: React.ChangeEvent<HTMLInputElement>) => void;
   uploadedImages: string[];
   uploadingImage: boolean;
@@ -74,8 +70,6 @@ const PlannerPromptBox: React.FC<PlannerPromptBoxProps> = ({
   onSubmit,
   onKeyPress,
   isLoading,
-  isRecording,
-  onToggleRecording,
   onUploadImages,
   uploadedImages,
   uploadingImage,
@@ -110,7 +104,7 @@ const PlannerPromptBox: React.FC<PlannerPromptBoxProps> = ({
           <div className="flex flex-wrap items-center justify-between gap-3 text-xs text-brand-dark/60">
             <span className="inline-flex items-center gap-2 font-medium">
               <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-brand-blue/40 text-brand-teal">
-                <Sparkles className="h-4 w-4" />
+                <Sparkle className="h-4 w-4" />
               </span>
               Strathwell Planner Studio
             </span>
@@ -133,7 +127,7 @@ const PlannerPromptBox: React.FC<PlannerPromptBoxProps> = ({
                   type="button"
                   className="inline-flex items-center gap-2 rounded-full border border-brand-dark/10 bg-white px-3 py-1 text-xs font-medium text-brand-dark/70 transition duration-250 ease-smooth hover:border-brand-dark/20 hover:text-brand-dark"
                 >
-                  Styles <ChevronDown className="h-3 w-3" />
+                  Styles <CaretDown className="h-3 w-3" />
                 </button>
                 <button
                   type="button"
@@ -148,17 +142,6 @@ const PlannerPromptBox: React.FC<PlannerPromptBoxProps> = ({
                 </div>
               </div>
               <div className="flex items-center gap-3">
-                <button
-                  type="button"
-                  onClick={onToggleRecording}
-                  className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-brand-dark/10 bg-white text-brand-dark/60 transition duration-250 ease-smooth hover:text-brand-dark"
-                >
-                  {isRecording ? (
-                    <MicOff className="h-4 w-4" />
-                  ) : (
-                    <Mic className="h-4 w-4" />
-                  )}
-                </button>
                 <PillButton
                   variant="primary"
                   size="sm"

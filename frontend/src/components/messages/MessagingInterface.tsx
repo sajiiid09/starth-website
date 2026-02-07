@@ -3,7 +3,7 @@ import { User } from '@/api/entities';
 import { Conversation } from '@/api/entities';
 import { ConversationParticipant } from '@/api/entities';
 import { Message } from '@/api/entities';
-import { Loader2 } from 'lucide-react';
+import { SpinnerGap } from '@phosphor-icons/react';
 import ConversationList from './ConversationList';
 import MessageWindow from './MessageWindow';
 
@@ -51,7 +51,7 @@ export default function MessagingInterface() {
               lastMessage: lastMessage?.text || "No messages yet",
               lastMessageDate: lastMessage?.created_date
             };
-          }).sort((a,b) => new Date(b.lastMessageDate) - new Date(a.lastMessageDate));
+          }).sort((a,b) => Number(new Date(b.lastMessageDate)) - Number(new Date(a.lastMessageDate)));
 
           setConversations(populatedConversations);
         }
@@ -90,7 +90,7 @@ export default function MessagingInterface() {
 
 
   if (loading) {
-    return <div className="flex items-center justify-center h-full"><Loader2 className="w-8 h-8 animate-spin text-gray-400" /></div>;
+    return <div className="flex items-center justify-center h-full"><SpinnerGap className="w-8 h-8 animate-spin text-gray-400" /></div>;
   }
 
   return (
@@ -99,7 +99,6 @@ export default function MessagingInterface() {
         conversations={conversations}
         selectedConversationId={selectedConversation?.id}
         onSelectConversation={handleSelectConversation}
-        currentUser={currentUser}
       />
       <MessageWindow
         conversation={selectedConversation}

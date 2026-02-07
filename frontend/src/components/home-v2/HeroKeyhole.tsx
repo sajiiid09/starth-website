@@ -108,12 +108,12 @@ export default function Hero() {
         {/* --- Top Title --- */}
         <div className="flex flex-col items-center text-center">
           <FadeIn delay={0.1} direction="up" duration={0.8} ease="power2.out" distance={30}>
-            <span className="mb-4 block font-mono text-[9px] font-bold uppercase tracking-[0.18em] text-gray-500 sm:text-[10px] sm:tracking-[0.2em]">
+            <span className="mb-4 block font-mono text-[9px] font-semibold uppercase tracking-[0.18em] text-gray-500 sm:text-[10px] sm:tracking-[0.2em]">
               The OS for Autonomous Event Management
             </span>
           </FadeIn>
           <FadeIn delay={0.3} direction="up" duration={1.2} ease="power3.out" distance={60}>
-            <h1 className="max-w-6xl text-3xl font-bold leading-tight tracking-tight text-brand-dark sm:text-4xl md:text-7xl lg:text-[5.5rem]">
+            <h1 className="max-w-6xl text-3xl font-semibold leading-tight tracking-tight text-brand-dark sm:text-4xl md:text-7xl lg:text-[5.5rem]">
               Orchestrating events <br />
               <span style={{ color: '#027F83' }}>from blueprint</span> <br />
               to execution
@@ -136,7 +136,7 @@ export default function Hero() {
           </FadeIn>
 
           <FadeIn delay={0.4} direction="up" className="flex flex-col items-center gap-4 sm:gap-6">
-            <span className="text-[9px] font-bold uppercase tracking-widest text-gray-400 sm:text-[10px]">
+            <span className="text-[9px] font-semibold uppercase tracking-widest text-gray-400 sm:text-[10px]">
               Trusted By
             </span>
             <div className="flex items-center gap-5 grayscale-0 sm:gap-8">

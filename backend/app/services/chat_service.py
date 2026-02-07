@@ -16,9 +16,10 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.chat import ChatGroup, ChatMessage
 from app.models.event import Event, EventService
+from app.models.extra import EventCollaborator
 from app.models.service_provider import ServiceProvider
-from app.models.user import User
 from app.models.venue import Venue
+from app.utils.exceptions import ForbiddenError, NotFoundError
 
 logger = logging.getLogger(__name__)
 
@@ -157,7 +158,9 @@ async def send_message(
     )
     group = group_result.scalar_one_or_none()
     if group is None:
-        return {"success": False, "error": "Chat group not found"}
+        raise NotFoundError("Chat group not found")
+
+    await assert_chat_access(db, user_id=sender_id, event_id=group.event_id)
 
     # Resolve anonymous name
     anonymous_name = await resolve_anonymous_name(db, sender_id, group.event_id)
@@ -186,6 +189,7 @@ async def send_message(
 async def get_messages(
     db: AsyncSession,
     chat_group_id: uuid.UUID,
+    user_id: uuid.UUID,
     limit: int = 50,
     before_id: uuid.UUID | None = None,
 ) -> list[dict]:
@@ -194,6 +198,13 @@ async def get_messages(
     Blocked messages are included but their content is replaced with the
     blocked_reason string so senders see feedback.
     """
+    group_result = await db.execute(select(ChatGroup).where(ChatGroup.id == chat_group_id))
+    group = group_result.scalar_one_or_none()
+    if group is None:
+        raise NotFoundError("Chat group not found")
+
+    await assert_chat_access(db, user_id=user_id, event_id=group.event_id)
+
     query = (
         select(ChatMessage)
         .where(ChatMessage.chat_group_id == chat_group_id)
@@ -219,8 +230,11 @@ async def get_messages(
 async def get_chat_group_for_event(
     db: AsyncSession,
     event_id: uuid.UUID,
+    user_id: uuid.UUID,
 ) -> dict | None:
     """Get the chat group for an event, if one exists."""
+    await assert_chat_access(db, user_id=user_id, event_id=event_id)
+
     result = await db.execute(
         select(ChatGroup).where(ChatGroup.event_id == event_id)
     )
@@ -252,3 +266,49 @@ def _message_to_dict(m: ChatMessage) -> dict:
         "attachment_url": m.attachment_url,
         "created_at": m.created_at.isoformat() if m.created_at else None,
     }
+
+
+async def assert_chat_access(db: AsyncSession, user_id: uuid.UUID, event_id: uuid.UUID) -> None:
+    """Authorize chat access for event participants and collaborators."""
+    event_result = await db.execute(select(Event).where(Event.id == event_id))
+    event = event_result.scalar_one_or_none()
+    if event is None:
+        raise NotFoundError("Event not found")
+
+    if event.user_id == user_id:
+        return
+
+    if event.venue_id:
+        venue_result = await db.execute(
+            select(Venue.id).where(Venue.id == event.venue_id, Venue.owner_id == user_id)
+        )
+        if venue_result.scalar_one_or_none() is not None:
+            return
+
+    provider_result = await db.execute(
+        select(ServiceProvider.id).where(ServiceProvider.user_id == user_id)
+    )
+    provider_id = provider_result.scalar_one_or_none()
+    if provider_id is not None:
+        event_service_result = await db.execute(
+            select(EventService.id).where(
+                EventService.event_id == event_id,
+                EventService.service_provider_id == provider_id,
+            )
+        )
+        if event_service_result.scalar_one_or_none() is not None:
+            return
+
+    collaborator_result = await db.execute(
+        select(EventCollaborator.id).where(
+            EventCollaborator.user_id == user_id,
+            (
+                (EventCollaborator.data["event_id"].astext == str(event_id))
+                | (EventCollaborator.data["eventId"].astext == str(event_id))
+            ),
+        )
+    )
+    if collaborator_result.scalar_one_or_none() is not None:
+        return
+
+    raise ForbiddenError("Not authorized to access this event chat")

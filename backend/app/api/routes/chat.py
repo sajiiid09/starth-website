@@ -65,7 +65,7 @@ async def send_chat_message(
 @router.get("/chat/{chat_group_id}/messages")
 async def get_chat_messages(
     chat_group_id: uuid.UUID,
-    _user: User = Depends(get_current_user),
+    user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
     limit: int = Query(50, ge=1, le=200),
     before: str | None = Query(None),
@@ -75,6 +75,7 @@ async def get_chat_messages(
     messages = await chat_service.get_messages(
         db=db,
         chat_group_id=chat_group_id,
+        user_id=user.id,
         limit=limit,
         before_id=before_id,
     )
@@ -84,11 +85,11 @@ async def get_chat_messages(
 @router.get("/chat/event/{event_id}")
 async def get_event_chat_group(
     event_id: uuid.UUID,
-    _user: User = Depends(get_current_user),
+    user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ) -> dict[str, Any]:
     """Get the chat group for an event."""
-    group = await chat_service.get_chat_group_for_event(db=db, event_id=event_id)
+    group = await chat_service.get_chat_group_for_event(db=db, event_id=event_id, user_id=user.id)
     if group is None:
         return {"success": False, "error": "No chat group for this event"}
     return {"success": True, "data": group}

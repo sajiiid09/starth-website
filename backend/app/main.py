@@ -29,10 +29,8 @@ import app.models  # noqa: F401
 # Core domain model imports (for typed CRUD routers)
 # ---------------------------------------------------------------------------
 from app.models.availability import Availability
-from app.models.chat import ChatGroup, ChatMessage
 from app.models.document import Document
 from app.models.event import Event, EventService
-from app.models.payment import Payment
 from app.models.review import Review
 from app.models.service import Service
 from app.models.service_provider import ServiceProvider, ServiceProviderService
@@ -58,7 +56,6 @@ from app.models.extra import (
     MarketingCampaign,
     Message,
     Organization,
-    OtpVerification,
     Plan,
     Reminder,
     Sponsor,
@@ -160,17 +157,15 @@ def create_app() -> FastAPI:
     # Core domain CRUD routers
     # ------------------------------------------------------------------
     core_entities: list[tuple] = [
-        # (Model, resource_path, require_auth, owner_field)
+        # (Model, resource_path, require_auth, owner_field, exclude_fields)
         (Venue, "venues", True, "owner_id"),
-        (ServiceProvider, "service-providers", True, "user_id"),
+        (ServiceProvider, "service-providers", True, "user_id", ["stripe_account_id"]),
         (ServiceProviderService, "service-provider-services", True, None),
         (Service, "services", False, None),
         (Availability, "availability", True, None),
         (Event, "events", True, "user_id"),
         (EventService, "event-services", True, None),
         (Template, "templates", False, None),
-        (ChatGroup, "chat-groups", True, None),  # TODO: add event-level access control
-        (ChatMessage, "chat-messages", True, "sender_id"),
         (Review, "reviews", True, "reviewer_id"),
         (Document, "documents", True, None),
         # NOTE: User is intentionally excluded from generic CRUD.
@@ -178,13 +173,19 @@ def create_app() -> FastAPI:
         # without exposing password_hash, otp_code, etc.
     ]
 
-    for model, resource, auth, owner in core_entities:
+    for entity in core_entities:
+        if len(entity) == 5:
+            model, resource, auth, owner, exclude_fields = entity
+        else:
+            model, resource, auth, owner = entity
+            exclude_fields = None
         app.include_router(
             create_crud_router(
                 model=model,
                 resource=resource,
                 require_auth=auth,
                 owner_field=owner,
+                exclude_fields=exclude_fields,
             )
         )
 
@@ -240,7 +241,6 @@ def create_app() -> FastAPI:
         (DfyLead, "dfy-leads"),
         (WaitlistSubscriber, "waitlist-subscribers"),
         (DemoRequest, "demo-requests"),
-        (OtpVerification, "otp-verifications"),
     ]
 
     for model, resource in extra_public:

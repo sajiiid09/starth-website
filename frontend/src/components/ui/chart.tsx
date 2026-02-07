@@ -26,6 +26,27 @@ type ChartContextProps = {
 
 const ChartContext = React.createContext<ChartContextProps | null>(null)
 
+const SAFE_CSS_VAR_KEY_RE = /^[a-zA-Z0-9_-]+$/
+const SAFE_CSS_COLOR_RE =
+  /^(#[0-9a-fA-F]{3,8}|rgba?\([^)]+\)|hsla?\([^)]+\)|var\(--[a-zA-Z0-9_-]+\)|[a-zA-Z]{3,20})$/
+
+const sanitizeChartIdentifier = (value: string): string =>
+  value.replace(/[^a-zA-Z0-9_-]/g, "")
+
+const sanitizeCssVarKey = (value: string): string | null =>
+  SAFE_CSS_VAR_KEY_RE.test(value) ? value : null
+
+const sanitizeCssColor = (value: string | undefined): string | null => {
+  if (!value) {
+    return null
+  }
+  const trimmed = value.trim()
+  if (!trimmed) {
+    return null
+  }
+  return SAFE_CSS_COLOR_RE.test(trimmed) ? trimmed : null
+}
+
 function useChart() {
   const context = React.useContext(ChartContext)
 
@@ -46,7 +67,8 @@ const ChartContainer = React.forwardRef<
   }
 >(({ id, className, children, config, ...props }, ref) => {
   const uniqueId = React.useId()
-  const chartId = `chart-${id || uniqueId.replace(/:/g, "")}`
+  const rawChartId = id || uniqueId.replace(/:/g, "")
+  const chartId = `chart-${sanitizeChartIdentifier(rawChartId)}`
 
   return (
     (<ChartContext.Provider value={{ config }}>
@@ -81,25 +103,33 @@ const ChartStyle = ({
     return null
   }
 
-  return (
-    (<style
-      dangerouslySetInnerHTML={{
-        __html: Object.entries(THEMES)
-          .map(([theme, prefix]) => `
-${prefix} [data-chart=${id}] {
-${colorConfig
-.map(([key, itemConfig]) => {
-const color =
-  itemConfig.theme?.[theme as keyof typeof THEMES] ||
-  itemConfig.color
-return color ? `  --color-${key}: ${color};` : null
-})
-.join("\n")}
+  const cssText = Object.entries(THEMES)
+    .map(([theme, prefix]) => {
+      const variables = colorConfig
+        .map(([key, itemConfig]) => {
+          const safeKey = sanitizeCssVarKey(key)
+          const resolvedColor = itemConfig.theme?.[theme as keyof typeof THEMES] || itemConfig.color
+          const safeColor = sanitizeCssColor(resolvedColor)
+          if (!safeKey || !safeColor) {
+            return null
+          }
+          return `  --color-${safeKey}: ${safeColor};`
+        })
+        .filter(Boolean)
+        .join("\n")
+
+      if (!variables) {
+        return ""
+      }
+      return `
+${prefix} [data-chart="${id}"] {
+${variables}
 }
-`)
-          .join("\n"),
-      }} />)
-  );
+`
+    })
+    .join("\n")
+
+  return <style>{cssText}</style>
 }
 
 const ChartTooltip = RechartsPrimitive.Tooltip

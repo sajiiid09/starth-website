@@ -159,3 +159,29 @@ class CsrfDependencyTests(IsolatedAsyncioTestCase):
             )
 
         self.assertEqual(resolved_user.id, user.id)
+
+    async def test_cookie_token_is_accepted_without_authorization_header(self) -> None:
+        user = SimpleNamespace(id=uuid.uuid4())
+        db = AsyncMock()
+        db.execute = AsyncMock(return_value=_result(user))
+
+        scope = {
+            "type": "http",
+            "method": "GET",
+            "path": "/api/auth/me",
+            "headers": [
+                (b"origin", b"http://localhost:5173"),
+                (b"cookie", b"access_token=cookie-token"),
+            ],
+        }
+        request = Request(scope)
+
+        with patch("app.core.deps.decode_token", return_value={"sub": str(user.id), "csrf": "abc123"}):
+            resolved_user = await get_current_user(
+                authorization=None,
+                csrf_token=None,
+                request=request,
+                db=db,
+            )
+
+        self.assertEqual(resolved_user.id, user.id)

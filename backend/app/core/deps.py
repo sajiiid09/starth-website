@@ -51,17 +51,27 @@ def _validate_csrf_for_browser_request(
         raise ForbiddenError("Invalid CSRF token")
 
 
+def _extract_token(authorization: str | None, request: Request | None) -> str | None:
+    """Read auth token from Authorization header, with cookie fallback."""
+    if authorization and authorization.startswith("Bearer "):
+        return authorization.removeprefix("Bearer ").strip()
+    if request is not None:
+        cookie_token = request.cookies.get("access_token")
+        if cookie_token:
+            return cookie_token
+    return None
+
+
 async def get_current_user(
     authorization: str | None = Header(None, alias="Authorization"),
     csrf_token: str | None = Header(None, alias="X-CSRF-Token"),
     request: Request | None = None,
     db: AsyncSession = Depends(get_db),
 ) -> User:
-    """Extract and verify JWT from Authorization header, return the User."""
-    if not authorization or not authorization.startswith("Bearer "):
+    """Extract and verify JWT from Authorization header or auth cookie, return the User."""
+    token = _extract_token(authorization, request)
+    if not token:
         raise UnauthorizedError("Missing or invalid Authorization header")
-
-    token = authorization.removeprefix("Bearer ").strip()
 
     try:
         payload = decode_token(token)
@@ -98,10 +108,9 @@ async def get_current_user_optional(
     db: AsyncSession = Depends(get_db),
 ) -> User | None:
     """Same as get_current_user but returns None if no token provided."""
-    if not authorization or not authorization.startswith("Bearer "):
+    token = _extract_token(authorization, request)
+    if not token:
         return None
-
-    token = authorization.removeprefix("Bearer ").strip()
 
     try:
         payload = decode_token(token)

@@ -4,42 +4,26 @@ const REFRESH_TOKEN_KEY = "refreshToken";
 const CSRF_TOKEN_KEY = "csrfToken";
 
 const canUseStorage = () => typeof window !== "undefined";
+let accessTokenMemory: string | null = null;
+let refreshTokenMemory: string | null = null;
 
 export const getAccessToken = (): string | null => {
-  if (!canUseStorage()) {
-    return null;
-  }
-
-  return (
-    window.localStorage.getItem(ACCESS_TOKEN_KEY) ??
-    window.localStorage.getItem(LEGACY_ACCESS_TOKEN_KEY)
-  );
+  return accessTokenMemory;
 };
 
 export const setAccessToken = (token: string) => {
-  if (!canUseStorage()) {
-    return;
-  }
-
-  window.localStorage.setItem(ACCESS_TOKEN_KEY, token);
-  // Keep legacy key in sync for callers that still read this key directly.
-  window.localStorage.setItem(LEGACY_ACCESS_TOKEN_KEY, token);
+  // Access tokens are now expected in HttpOnly cookies. Keep an in-memory value
+  // only for legacy fallback inside the current tab/session.
+  accessTokenMemory = token;
 };
 
 export const getRefreshToken = (): string | null => {
-  if (!canUseStorage()) {
-    return null;
-  }
-
-  return window.localStorage.getItem(REFRESH_TOKEN_KEY);
+  return refreshTokenMemory;
 };
 
 export const setRefreshToken = (token: string) => {
-  if (!canUseStorage()) {
-    return;
-  }
-
-  window.localStorage.setItem(REFRESH_TOKEN_KEY, token);
+  // Refresh tokens are now expected in HttpOnly cookies.
+  refreshTokenMemory = token;
 };
 
 export const getCsrfToken = (): string | null => {
@@ -59,10 +43,13 @@ export const setCsrfToken = (token: string) => {
 };
 
 export const clearAuthTokens = () => {
+  accessTokenMemory = null;
+  refreshTokenMemory = null;
   if (!canUseStorage()) {
     return;
   }
 
+  // Cleanup legacy persisted tokens from pre-cookie auth flows.
   window.localStorage.removeItem(ACCESS_TOKEN_KEY);
   window.localStorage.removeItem(LEGACY_ACCESS_TOKEN_KEY);
   window.localStorage.removeItem(REFRESH_TOKEN_KEY);

@@ -19,3 +19,6 @@
 - Stripe subscription billing service is implemented and routed (`backend/app/services/subscription/stripe.py`, `backend/app/api/routes/subscriptions.py`).
 - Payment service now blocks unsafe production mock behavior when Stripe is not configured.
 - Audit logging persistence is active for password reset and admin audit log retrieval now reads from persisted `audit_logs`.
+- 2026-02-07 (follow-up): Removed public OTP CRUD exposure and removed generic CRUD exposure for chat entities.
+- Added event-participant authorization checks for chat message/group access.
+- Added cookie-based auth transport support (HttpOnly cookies + `credentials: include`) and reduced localStorage token persistence.

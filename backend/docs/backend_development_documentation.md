@@ -1,5 +1,60 @@
 # Backend Development Documentation
 
+## Security Hardening Follow-up (Access + Token Storage)
+
+Date: 2026-02-07
+
+### High-Risk Fixes Applied
+
+1. Chat data exposure removed from generic CRUD:
+- Removed `ChatGroup` and `ChatMessage` from generic router registration in:
+  - `backend/app/main.py`
+- Chat access is now enforced at service level in:
+  - `backend/app/services/chat_service.py`
+- Access is restricted to event organizer, booked venue owner, assigned service providers, or explicit event collaborators.
+
+2. OTP verification records no longer publicly exposed:
+- Removed `OtpVerification` from unauthenticated `extra_public` routing in:
+  - `backend/app/main.py`
+
+### Additional Hardening Applied
+
+1. Generic CRUD output hardening + audit trail:
+- Added `exclude_fields` support to CRUD router serialization in:
+  - `backend/app/api/crud_factory.py`
+- Added generic audit logging for create/update/delete actions:
+  - `crud_create`
+  - `crud_update`
+  - `crud_delete`
+- Applied `exclude_fields=["stripe_account_id"]` to service-provider generic output in:
+  - `backend/app/main.py`
+
+2. Cookie-based auth support (mitigating localStorage token risk):
+- Login/register endpoints now set HttpOnly auth cookies:
+  - `backend/app/api/routes/auth.py`
+- Logout clears auth cookies.
+- Auth dependency now accepts bearer tokens from either header or `access_token` cookie:
+  - `backend/app/core/deps.py`
+
+3. Frontend auth transport update:
+- Requests now include cookies by default (`credentials: "include"`):
+  - `frontend/src/api/httpClient.ts`
+- Access/refresh tokens are no longer persisted in `localStorage`; only in-memory fallback remains:
+  - `frontend/src/api/authStorage.ts`
+
+4. Chart style injection hardening:
+- Removed `dangerouslySetInnerHTML` for chart style emission.
+- Added identifier/color sanitization for generated CSS variables in:
+  - `frontend/src/components/ui/chart.tsx`
+
+### Verification / Test Coverage
+
+Added or updated tests:
+- `backend/tests/test_chat_security.py`
+- `backend/tests/test_crud_factory_hardening.py`
+- `backend/tests/test_main_rate_limit_middleware.py` (now includes chat/otp exposure checks)
+- `backend/tests/test_security.py` (cookie-token auth path)
+
 ## Critical Gap Remediation (Debugger Pass)
 
 Date: 2026-02-07

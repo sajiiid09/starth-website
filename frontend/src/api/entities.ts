@@ -119,7 +119,6 @@ export const Favorite = createEntity("favorites");
 export const Reminder = createEntity("reminders");
 export const ContactSubmission = createEntity("contact-submissions");
 export const AuthUser = createEntity("auth-users");
-export const OTPVerification = createEntity("otp-verifications");
 export const DemoRequest = createEntity("demo-requests");
 export const Template = createEntity("templates");
 

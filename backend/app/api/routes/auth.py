@@ -1,8 +1,9 @@
 """Auth router — all /api/auth/* endpoints matching the frontend contract."""
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Response
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.core.config import settings
 from app.core.rate_limit import auth_rate_limit
 from app.core.deps import get_current_user
 from app.db.engine import get_db
@@ -33,6 +34,33 @@ from app.services.auth_service import (
 router = APIRouter(prefix="/api/auth", tags=["auth"])
 
 
+def _set_auth_cookies(response: Response, tokens: TokenResponse) -> None:
+    secure = settings.ENVIRONMENT.lower() == "production"
+    response.set_cookie(
+        key="access_token",
+        value=tokens.access_token,
+        httponly=True,
+        secure=secure,
+        samesite="strict",
+        max_age=settings.ACCESS_TOKEN_EXPIRE_MINUTES * 60,
+        path="/",
+    )
+    response.set_cookie(
+        key="refresh_token",
+        value=tokens.refresh_token,
+        httponly=True,
+        secure=secure,
+        samesite="strict",
+        max_age=settings.REFRESH_TOKEN_EXPIRE_DAYS * 24 * 60 * 60,
+        path="/",
+    )
+
+
+def _clear_auth_cookies(response: Response) -> None:
+    response.delete_cookie("access_token", path="/")
+    response.delete_cookie("refresh_token", path="/")
+
+
 # ---------------------------------------------------------------------------
 # Registration (both /signup and /register hit the same logic)
 # ---------------------------------------------------------------------------
@@ -41,17 +69,23 @@ router = APIRouter(prefix="/api/auth", tags=["auth"])
 @router.post("/signup", response_model=TokenResponse, dependencies=[Depends(auth_rate_limit)])
 async def signup(
     payload: RegisterRequest,
+    response: Response,
     db: AsyncSession = Depends(get_db),
 ) -> TokenResponse:
-    return await register_user(db, payload)
+    tokens = await register_user(db, payload)
+    _set_auth_cookies(response, tokens)
+    return tokens
 
 
 @router.post("/register", response_model=TokenResponse, dependencies=[Depends(auth_rate_limit)])
 async def register(
     payload: RegisterRequest,
+    response: Response,
     db: AsyncSession = Depends(get_db),
 ) -> TokenResponse:
-    return await register_user(db, payload)
+    tokens = await register_user(db, payload)
+    _set_auth_cookies(response, tokens)
+    return tokens
 
 
 # ---------------------------------------------------------------------------
@@ -62,14 +96,18 @@ async def register(
 @router.post("/login", response_model=TokenResponse, dependencies=[Depends(auth_rate_limit)])
 async def login(
     payload: LoginRequest,
+    response: Response,
     db: AsyncSession = Depends(get_db),
 ) -> TokenResponse:
-    return await login_user(db, payload)
+    tokens = await login_user(db, payload)
+    _set_auth_cookies(response, tokens)
+    return tokens
 
 
 @router.post("/logout", response_model=LogoutResponse)
-async def logout() -> LogoutResponse:
+async def logout(response: Response) -> LogoutResponse:
     # Stateless JWT — nothing to invalidate server-side
+    _clear_auth_cookies(response)
     return LogoutResponse()
 
 

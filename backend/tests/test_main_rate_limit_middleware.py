@@ -14,3 +14,14 @@ class MainMiddlewareTests(TestCase):
             content,
             re.compile(r"app\.add_middleware\(\s*RateLimitMiddleware", re.DOTALL),
         )
+
+    def test_chat_entities_not_registered_in_generic_crud(self) -> None:
+        main_py = Path(__file__).resolve().parents[1] / "app" / "main.py"
+        content = main_py.read_text(encoding="utf-8")
+        self.assertNotIn("(ChatGroup,", content)
+        self.assertNotIn("(ChatMessage,", content)
+
+    def test_otp_verification_not_publicly_registered(self) -> None:
+        main_py = Path(__file__).resolve().parents[1] / "app" / "main.py"
+        content = main_py.read_text(encoding="utf-8")
+        self.assertNotIn("(OtpVerification,", content)

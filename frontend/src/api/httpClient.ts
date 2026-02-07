@@ -198,6 +198,7 @@ export const request = async <T>(method: HttpMethod, path: string, options: Requ
 
     response = await fetch(buildRequestUrl(path), {
       method,
+      credentials: "include",
       headers,
       body:
         options.body === undefined

@@ -23,6 +23,7 @@ from app.core.deps import get_current_user, get_current_user_optional
 from app.db.base import Base
 from app.db.engine import get_db
 from app.models.user import User
+from app.services.audit_service import log_audit_event
 from app.utils.exceptions import ForbiddenError, NotFoundError, UnauthorizedError
 
 
@@ -45,11 +46,14 @@ def _get_text_columns(model: type[Base]) -> list[str]:
     return text_cols
 
 
-def _serialize_row(row: Any) -> dict[str, Any]:
+def _serialize_row(row: Any, exclude_fields: set[str] | None = None) -> dict[str, Any]:
     """Convert a SQLAlchemy model instance to a JSON-safe dict."""
     mapper = inspect(type(row))
+    excluded = exclude_fields or set()
     result: dict[str, Any] = {}
     for col in mapper.columns:
+        if col.name in excluded:
+            continue
         value = getattr(row, col.name)
         if isinstance(value, uuid.UUID):
             value = str(value)
@@ -68,6 +72,7 @@ def create_crud_router(
     resource: str,
     require_auth: bool = True,
     owner_field: str | None = None,
+    exclude_fields: list[str] | None = None,
     tags: list[str] | None = None,
 ) -> APIRouter:
     """Build a full CRUD APIRouter for the given model.
@@ -82,6 +87,7 @@ def create_crud_router(
     """
     router = APIRouter(prefix=f"/api/{resource}", tags=tags or [resource])
     is_jsonb = _is_jsonb_model(model)
+    excluded_fields = set(exclude_fields or [])
 
     # ------------------------------------------------------------------
     # LIST
@@ -119,7 +125,7 @@ def create_crud_router(
 
         return {
             "success": True,
-            "data": [_serialize_row(r) for r in rows],
+            "data": [_serialize_row(r, exclude_fields=excluded_fields) for r in rows],
             "total": len(rows),
         }
 
@@ -146,7 +152,7 @@ def create_crud_router(
 
         return {
             "success": True,
-            "data": [_serialize_row(r) for r in rows],
+            "data": [_serialize_row(r, exclude_fields=excluded_fields) for r in rows],
             "total": len(rows),
         }
 
@@ -163,7 +169,7 @@ def create_crud_router(
         row = result.scalar_one_or_none()
         if row is None:
             raise NotFoundError(f"{resource} not found")
-        return {"success": True, "data": _serialize_row(row)}
+        return {"success": True, "data": _serialize_row(row, exclude_fields=excluded_fields)}
 
     # ------------------------------------------------------------------
     # CREATE
@@ -190,14 +196,26 @@ def create_crud_router(
         else:
             mapper = inspect(model)
             col_names = {col.name for col in mapper.columns}
-            kwargs = {k: v for k, v in body.items() if k in col_names and k != "id"}
+            kwargs = {
+                k: v
+                for k, v in body.items()
+                if k in col_names and k not in {"id", *excluded_fields}
+            }
             if owner_field and user:
                 kwargs[owner_field] = user.id
             row = model(**kwargs)
 
         db.add(row)
         await db.flush()
-        return {"success": True, "data": _serialize_row(row)}
+        await log_audit_event(
+            db,
+            action="crud_create",
+            actor_user_id=user.id if user else None,
+            resource_type=resource,
+            resource_id=row.id,
+            details={"model": model.__name__},
+        )
+        return {"success": True, "data": _serialize_row(row, exclude_fields=excluded_fields)}
 
     # ------------------------------------------------------------------
     # UPDATE
@@ -234,11 +252,21 @@ def create_crud_router(
             mapper = inspect(model)
             col_names = {col.name for col in mapper.columns}
             for key, value in body.items():
+                if key in excluded_fields:
+                    continue
                 if key in col_names and key not in ("id", "created_at"):
                     setattr(row, key, value)
 
         await db.flush()
-        return {"success": True, "data": _serialize_row(row)}
+        await log_audit_event(
+            db,
+            action="crud_update",
+            actor_user_id=user.id if user else None,
+            resource_type=resource,
+            resource_id=row.id,
+            details={"model": model.__name__},
+        )
+        return {"success": True, "data": _serialize_row(row, exclude_fields=excluded_fields)}
 
     # ------------------------------------------------------------------
     # DELETE
@@ -265,6 +293,14 @@ def create_crud_router(
 
         await db.delete(row)
         await db.flush()
+        await log_audit_event(
+            db,
+            action="crud_delete",
+            actor_user_id=user.id if user else None,
+            resource_type=resource,
+            resource_id=item_id,
+            details={"model": model.__name__},
+        )
         return {"success": True, "deleted_id": str(item_id)}
 
     return router

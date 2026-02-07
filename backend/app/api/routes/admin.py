@@ -16,6 +16,7 @@ from sqlalchemy.orm import selectinload
 
 from app.core.deps import require_role
 from app.db.engine import get_db
+from app.models.audit_log import AuditLog
 from app.models.event import Event, EventService
 from app.models.extra import Booking
 from app.models.payment import Payment
@@ -533,7 +534,7 @@ async def resolve_dispute(
 
 
 # ---------------------------------------------------------------------------
-# Audit logs (placeholder — returns recent admin-visible events)
+# Audit logs
 # ---------------------------------------------------------------------------
 
 
@@ -541,34 +542,57 @@ async def resolve_dispute(
 async def list_audit_logs(
     _admin: User = Depends(admin_user),
     db: AsyncSession = Depends(get_db),
+    action: str | None = Query(None),
+    status: str | None = Query(None),
+    actor_user_id: uuid.UUID | None = Query(None),
+    target_user_id: uuid.UUID | None = Query(None),
     _limit: int = Query(50, alias="limit", ge=1, le=200),
     _offset: int = Query(0, alias="offset", ge=0),
 ) -> dict[str, Any]:
-    """Return recent events/payments as a pseudo-audit log.
+    """Return persisted audit log entries."""
+    filters = []
+    if action:
+        filters.append(AuditLog.action == action)
+    if status:
+        filters.append(AuditLog.status == status)
+    if actor_user_id:
+        filters.append(AuditLog.actor_user_id == actor_user_id)
+    if target_user_id:
+        filters.append(AuditLog.target_user_id == target_user_id)
 
-    A full audit log table can be added later; for now this combines
-    recent events and payment status changes.
-    """
-    events_result = await db.execute(
-        select(Event)
-        .order_by(Event.updated_at.desc())
+    data_stmt = (
+        select(AuditLog)
+        .where(*filters)
+        .order_by(AuditLog.created_at.desc())
         .limit(_limit)
         .offset(_offset)
     )
-    events = events_result.scalars().all()
+    logs_result = await db.execute(data_stmt)
+    logs = logs_result.scalars().all()
 
-    logs = [
-        {
-            "type": "event",
-            "id": str(e.id),
-            "action": e.status,
-            "user_id": str(e.user_id),
-            "timestamp": e.updated_at.isoformat() if e.updated_at else None,
-        }
-        for e in events
-    ]
+    count_stmt = select(func.count()).select_from(AuditLog).where(*filters)
+    total_result = await db.execute(count_stmt)
+    total = int(total_result.scalar_one() or 0)
 
-    return {"data": logs}
+    return {
+        "data": [
+            {
+                "id": str(log.id),
+                "actor_user_id": str(log.actor_user_id) if log.actor_user_id else None,
+                "target_user_id": str(log.target_user_id) if log.target_user_id else None,
+                "action": log.action,
+                "resource_type": log.resource_type,
+                "resource_id": str(log.resource_id) if log.resource_id else None,
+                "status": log.status,
+                "details": log.details or {},
+                "created_at": log.created_at.isoformat() if log.created_at else None,
+            }
+            for log in logs
+        ],
+        "total": total,
+        "limit": _limit,
+        "offset": _offset,
+    }
 
 
 # ---------------------------------------------------------------------------

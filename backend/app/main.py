@@ -14,10 +14,12 @@ from app.api.routes.marketplace import router as marketplace_router
 from app.api.routes.payments import router as payments_router
 from app.api.routes.planner import router as planner_router
 from app.api.routes.plans import router as plans_router
+from app.api.routes.subscriptions import router as subscriptions_router
 from app.api.routes.templates import router as templates_router
 from app.api.routes.webhooks import router as webhooks_router
 from app.core.config import settings
 from app.core.logging_config import setup_logging
+from app.core.middleware.rate_limit import RateLimitMiddleware, RateLimitRule
 from app.core.request_logging import RequestLoggingMiddleware
 
 # Import all models so they are registered with Base.metadata
@@ -34,7 +36,6 @@ from app.models.payment import Payment
 from app.models.review import Review
 from app.models.service import Service
 from app.models.service_provider import ServiceProvider, ServiceProviderService
-from app.models.subscription import Subscription
 from app.models.template import Template
 from app.models.user import User
 from app.models.venue import Venue
@@ -78,6 +79,33 @@ def create_app() -> FastAPI:
         openapi_url="/api/openapi.json",
     )
     app.add_middleware(RequestLoggingMiddleware)
+    app.add_middleware(
+        RateLimitMiddleware,
+        rules=[
+            RateLimitRule(
+                name="auth-sensitive",
+                path_prefixes=(
+                    "/api/auth/login",
+                    "/api/auth/signup",
+                    "/api/auth/register",
+                    "/api/auth/forgot-password",
+                    "/api/auth/reset-password",
+                    "/api/auth/verify-email",
+                    "/api/auth/resend-verification",
+                ),
+                methods=("POST",),
+                limit=settings.AUTH_RATE_LIMIT_REQUESTS,
+                window_seconds=settings.AUTH_RATE_LIMIT_WINDOW_SECONDS,
+            ),
+            RateLimitRule(
+                name="api-write",
+                path_prefixes=("/api/",),
+                methods=("POST", "PUT", "PATCH", "DELETE"),
+                limit=settings.API_RATE_LIMIT_REQUESTS,
+                window_seconds=settings.API_RATE_LIMIT_WINDOW_SECONDS,
+            ),
+        ],
+    )
 
     # ------------------------------------------------------------------
     # CORS
@@ -124,6 +152,7 @@ def create_app() -> FastAPI:
     app.include_router(chat_router)
     app.include_router(admin_router)
     app.include_router(marketplace_router)
+    app.include_router(subscriptions_router)
     app.include_router(templates_router)
     app.include_router(webhooks_router)
 
@@ -139,12 +168,10 @@ def create_app() -> FastAPI:
         (Availability, "availability", True, None),
         (Event, "events", True, "user_id"),
         (EventService, "event-services", True, None),
-        (Payment, "payments", True, "payer_id"),
         (Template, "templates", False, None),
         (ChatGroup, "chat-groups", True, None),  # TODO: add event-level access control
         (ChatMessage, "chat-messages", True, "sender_id"),
         (Review, "reviews", True, "reviewer_id"),
-        (Subscription, "subscriptions", True, "user_id"),
         (Document, "documents", True, None),
         # NOTE: User is intentionally excluded from generic CRUD.
         # The auth router (/api/auth/me) handles user read/update safely

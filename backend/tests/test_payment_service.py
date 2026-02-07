@@ -12,6 +12,7 @@ from app.models.event import EventService
 from app.models.payment import Payment
 from app.models.service_provider import ServiceProvider
 from app.services import payment_service
+from app.utils.exceptions import ConfigurationError
 
 
 def _result(value):
@@ -81,6 +82,41 @@ class _ConcurrentFakeDB:
 
 
 class ReleasePaymentTests(IsolatedAsyncioTestCase):
+    async def test_create_payment_intent_raises_in_production_without_stripe_key(self) -> None:
+        db = Mock()
+
+        with (
+            patch.object(payment_service.settings, "ENVIRONMENT", "production"),
+            patch.object(payment_service.settings, "STRIPE_SECRET_KEY", ""),
+        ):
+            with self.assertRaises(ConfigurationError):
+                await payment_service.create_payment_intent(
+                    db=db,
+                    event_id=uuid.uuid4(),
+                    payer_id=uuid.uuid4(),
+                    amount=125.50,
+                )
+
+    async def test_create_payment_intent_uses_mock_outside_production_without_stripe_key(self) -> None:
+        db = Mock()
+        db.add = Mock()
+        db.flush = AsyncMock()
+
+        with (
+            patch.object(payment_service.settings, "ENVIRONMENT", "development"),
+            patch.object(payment_service.settings, "STRIPE_SECRET_KEY", ""),
+        ):
+            result = await payment_service.create_payment_intent(
+                db=db,
+                event_id=uuid.uuid4(),
+                payer_id=uuid.uuid4(),
+                amount=125.50,
+            )
+
+        self.assertTrue(result["mock"])
+        self.assertTrue(result["payment_intent_id"].startswith("mock_pi_"))
+        db.add.assert_called_once()
+
     async def test_release_payment_uses_provider_stripe_account_id(self) -> None:
         event_service_id = uuid.uuid4()
         provider_id = uuid.uuid4()
@@ -336,3 +372,18 @@ class ReleasePaymentTests(IsolatedAsyncioTestCase):
         self.assertEqual(event_service.status, "completed")
         self.assertIsNone(event_service.approved_at)
         self.assertIsNone(db.payout_record)
+
+    async def test_release_payment_raises_in_production_without_stripe_key(self) -> None:
+        db = Mock()
+        db.begin_nested = Mock(return_value=_NoopTransaction())
+
+        with (
+            patch.object(payment_service.settings, "ENVIRONMENT", "production"),
+            patch.object(payment_service.settings, "STRIPE_SECRET_KEY", ""),
+        ):
+            with self.assertRaises(ConfigurationError):
+                await payment_service.release_payment(
+                    db=db,
+                    event_service_id=uuid.uuid4(),
+                    approver_id=uuid.uuid4(),
+                )

@@ -26,6 +26,7 @@ class User(Base, UUIDPrimaryKeyMixin, TimestampMixin):
     is_verified: Mapped[bool] = mapped_column(Boolean, default=False, server_default="false")
     otp_code: Mapped[str | None] = mapped_column(String(6))
     otp_expiry: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    stripe_customer_id: Mapped[str | None] = mapped_column(String(255), index=True, unique=True)
 
     # Relationships (lazy loaded by default)
     venues = relationship("Venue", back_populates="owner", lazy="selectin")

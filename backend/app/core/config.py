@@ -48,6 +48,9 @@ class Settings(BaseSettings):
     STRIPE_PUBLISHABLE_KEY: str = ""
     STRIPE_WEBHOOK_SECRET: str = ""
     STRIPE_PLATFORM_COMMISSION: float = 0.10
+    STRIPE_PRICE_BASIC_ID: str = ""
+    STRIPE_PRICE_PRO_ID: str = ""
+    STRIPE_PRICE_PREMIUM_ID: str = ""
 
     # ── NVIDIA NeMo ─────────────────────────────────────────────────────
     NVIDIA_API_KEY: str = ""
@@ -76,6 +79,8 @@ class Settings(BaseSettings):
     RATE_LIMIT_ENABLED: bool = True
     AUTH_RATE_LIMIT_REQUESTS: int = 10
     AUTH_RATE_LIMIT_WINDOW_SECONDS: int = 60
+    API_RATE_LIMIT_REQUESTS: int = 120
+    API_RATE_LIMIT_WINDOW_SECONDS: int = 60
 
     # ── Gunicorn / runtime ──────────────────────────────────────────────
     GUNICORN_WORKERS: int = 4

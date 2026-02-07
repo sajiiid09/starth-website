@@ -1,5 +1,5 @@
 import { request } from "./httpClient";
-import { setAccessToken, setRefreshToken } from "./authStorage";
+import { setAccessToken, setCsrfToken, setRefreshToken } from "./authStorage";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -10,6 +10,7 @@ type AuthLoginResponse = {
   user: { roles?: string[] };
   access_token?: string;
   refresh_token?: string;
+  csrf_token?: string;
 };
 
 type AuthRegisterResponse = {
@@ -17,6 +18,7 @@ type AuthRegisterResponse = {
   user?: unknown;
   access_token?: string;
   refresh_token?: string;
+  csrf_token?: string;
 };
 
 // ---------------------------------------------------------------------------
@@ -37,6 +39,9 @@ export async function authLogin(
   if (data.refresh_token) {
     setRefreshToken(data.refresh_token);
   }
+  if (data.csrf_token) {
+    setCsrfToken(data.csrf_token);
+  }
   return { data };
 }
 
@@ -54,6 +59,9 @@ export async function authRegister(
   if (data.refresh_token) {
     setRefreshToken(data.refresh_token);
   }
+  if (data.csrf_token) {
+    setCsrfToken(data.csrf_token);
+  }
   return { data };
 }
 
@@ -68,6 +76,18 @@ export async function verifyEmail(
   const data = await request<{ success: boolean; already_verified?: boolean; message?: string; email?: string }>(
     "POST",
     "/api/auth/verify-email",
+    { body: payload }
+  );
+  return { data };
+}
+
+export async function resendVerification(
+  ...args: unknown[]
+): Promise<{ data: { success: boolean; already_verified?: boolean; message?: string; email?: string } }> {
+  const payload = args[0] ?? {};
+  const data = await request<{ success: boolean; already_verified?: boolean; message?: string; email?: string }>(
+    "POST",
+    "/api/auth/resend-verification",
     { body: payload }
   );
   return { data };

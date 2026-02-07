@@ -1,4 +1,4 @@
-"""JWT token handling, password hashing, and OTP generation."""
+"""JWT token handling, password hashing, OTP, and CSRF token generation."""
 
 import secrets
 import string
@@ -46,6 +46,11 @@ def create_refresh_token(subject: str) -> str:
 def decode_token(token: str) -> dict:
     """Decode and verify a JWT token. Raises jwt.PyJWTError on failure."""
     return jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
+
+
+def generate_csrf_token() -> str:
+    """Generate a cryptographically random CSRF token."""
+    return secrets.token_urlsafe(32)
 
 
 # ---------------------------------------------------------------------------

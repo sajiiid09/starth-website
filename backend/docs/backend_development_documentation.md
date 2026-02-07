@@ -111,3 +111,158 @@ Concurrent calls to `release_payment()` could race and trigger duplicate Stripe 
    - Already released payout returns idempotent success without second transfer.
    - Concurrent release requests only create one Stripe transfer.
    - Stripe transfer failure rolls back `payout_started` state and keeps service status unchanged.
+
+## Security Improvements: JWT + CSRF (Phase 4)
+
+Date: 2026-02-07
+
+### Issue
+
+- JWT secret handling allowed insecure defaults that are unsafe in production.
+- Browser-based authenticated requests needed explicit CSRF validation on sensitive endpoints.
+
+### Fix Applied
+
+- Updated JWT secret handling in `backend/app/core/config.py`:
+  - `SECRET_KEY` now relies on environment configuration instead of a fixed hardcoded value.
+  - In production (`ENVIRONMENT=production`), startup now fails if:
+    - `SECRET_KEY` is missing,
+    - `SECRET_KEY` is a known default/insecure value,
+    - `SECRET_KEY` is shorter than 32 characters.
+  - In non-production, if missing, a random per-process key is generated to avoid a hardcoded dev secret.
+
+- Added CSRF protection for JWT-authenticated browser requests:
+  - Access tokens now include a random `csrf` claim.
+  - Login/register responses now include `csrf_token`.
+  - Frontend stores `csrf_token` and sends it as `X-CSRF-Token` on unsafe authenticated methods (`POST`, `PUT`, `PATCH`, `DELETE`).
+  - Backend `get_current_user`/`get_current_user_optional` validates CSRF for unsafe browser requests:
+    - checks request origin matches configured `FRONTEND_URL`,
+    - checks `X-CSRF-Token` matches JWT `csrf` claim (constant-time comparison).
+  - Safe methods (`GET`, `HEAD`, `OPTIONS`, `TRACE`) and non-browser clients (no `Origin` header) are not blocked by CSRF checks.
+
+### Environment Setup (SECRET_KEY)
+
+1. Set `ENVIRONMENT=production` in production deployments.
+2. Set a strong `SECRET_KEY` (32+ chars), for example:
+   - `openssl rand -base64 48`
+3. Export it before starting backend:
+   - `export SECRET_KEY='<generated-strong-secret>'`
+4. Confirm no default placeholder values are used.
+
+### Verification / Testing Steps
+
+1. Run backend tests:
+   - `cd backend`
+   - `../.venv/bin/python -m unittest discover -s tests -p 'test_*.py'`
+2. Covered Phase 4 test cases:
+   - Production rejects insecure/default JWT secret values.
+   - Production accepts strong secret values.
+   - Unsafe browser requests without CSRF header are blocked.
+   - Unsafe browser requests with invalid CSRF token are blocked.
+   - Unsafe browser requests with valid CSRF token are accepted.
+   - Safe methods and non-browser requests are not blocked by CSRF checks.
+
+## Production Readiness + DevOps Setup (Phase 5)
+
+Date: 2026-02-07
+
+### Production Docker Setup
+
+- Added production `backend/Dockerfile`:
+  - Uses a multi-stage build with `uv` lockfile sync in builder stage.
+  - Runs API with Gunicorn + Uvicorn workers in runtime stage.
+  - Uses `backend/scripts/start-production.sh` as runtime command.
+- Added production entrypoint script:
+  - `backend/scripts/start-production.sh`
+  - Configurable with env vars: `PORT`, `GUNICORN_WORKERS`, `GUNICORN_TIMEOUT`.
+- Added configurable DB connection pool settings:
+  - `DB_POOL_SIZE`, `DB_MAX_OVERFLOW`, `DB_POOL_TIMEOUT`, `DB_POOL_RECYCLE`.
+  - Wired in `backend/app/db/engine.py` for scalable deployment tuning.
+
+### Structured Logging
+
+- Added JSON structured logging configuration:
+  - `backend/app/core/logging_config.py`
+  - Logs include `timestamp`, `level`, `logger`, `message`, and extra context fields.
+- Added request logging middleware:
+  - `backend/app/core/request_logging.py`
+  - Logs request lifecycle metadata:
+    - `request_id`, `method`, `path`, `status_code`, `duration_ms`, `client_ip`
+  - Adds `X-Request-ID` to responses.
+- Integrated logging setup during app startup:
+  - `backend/app/main.py` now calls logging setup and adds middleware.
+
+### Rate Limiting
+
+- Added in-memory sliding-window limiter:
+  - `backend/app/core/rate_limit.py`
+- Applied auth-focused rate limiting to:
+  - `/api/auth/signup`
+  - `/api/auth/register`
+  - `/api/auth/login`
+  - `/api/auth/verify-email`
+  - `/api/auth/resend-verification`
+  - `/api/auth/forgot-password`
+  - `/api/auth/reset-password`
+- Rate-limit configuration via env vars:
+  - `RATE_LIMIT_ENABLED`
+  - `AUTH_RATE_LIMIT_REQUESTS`
+  - `AUTH_RATE_LIMIT_WINDOW_SECONDS`
+- Note: in-memory limiter is suitable for single-instance/development. For multi-instance production, use Redis/shared-store limiter.
+
+### Email / Password Reset Workflow Finalization
+
+- Added resend verification endpoint and service:
+  - Endpoint: `POST /api/auth/resend-verification`
+  - Schema: `ResendVerificationRequest`
+  - Service function: `resend_verification_otp(...)`
+- Behavior:
+  - Unknown email -> generic success message (no account enumeration)
+  - Already verified -> `already_verified=true`
+  - Unverified -> generates fresh OTP, updates expiry, sends verification email
+
+### Docker Compose (Dev/Test)
+
+- Expanded `backend/docker-compose.yml`:
+  - `db` service (PostgreSQL + pgvector)
+  - `api` service for backend development (`uvicorn --reload`)
+  - `backend-tests` profile service for test runs in containers
+- Common commands:
+  - Start dev stack: `docker compose up --build`
+  - Run backend tests in container: `docker compose --profile test run --rm backend-tests`
+
+### CI/CD Pipeline
+
+- Added GitHub Actions workflow:
+  - `.github/workflows/backend-ci-cd.yml`
+- Pipeline stages:
+  1. Unit tests (`unittest`) on backend changes
+  2. Docker image build (and push on non-PR events)
+  3. Deploy trigger job (webhook-based, controlled by `DEPLOY_WEBHOOK_URL` secret)
+
+### Environment Variables for Production
+
+Set these for production deployments:
+
+- Security:
+  - `ENVIRONMENT=production`
+  - `SECRET_KEY=<strong-random-32+-char-secret>`
+- Database:
+  - `DATABASE_URL`
+  - `DB_POOL_SIZE`, `DB_MAX_OVERFLOW`, `DB_POOL_TIMEOUT`, `DB_POOL_RECYCLE`
+- Runtime:
+  - `GUNICORN_WORKERS`, `GUNICORN_TIMEOUT`, `PORT`
+- Rate limiting:
+  - `RATE_LIMIT_ENABLED=true`
+  - `AUTH_RATE_LIMIT_REQUESTS`
+  - `AUTH_RATE_LIMIT_WINDOW_SECONDS`
+
+### Verification / Testing Steps
+
+1. Run local backend tests:
+   - `cd backend`
+   - `../.venv/bin/python -m unittest discover -s tests -p 'test_*.py'`
+2. Run Dockerized development stack:
+   - `cd backend`
+   - `docker compose up --build`
+3. (CI/CD) Validate workflow by opening PR with backend changes and confirming all jobs pass.

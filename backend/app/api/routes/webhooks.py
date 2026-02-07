@@ -12,6 +12,7 @@ from app.core.config import settings
 from app.db.engine import get_db
 from app.models.event import Event
 from app.models.payment import Payment
+from app.services.subscription import stripe as subscription_service
 
 logger = logging.getLogger(__name__)
 
@@ -81,6 +82,8 @@ async def stripe_webhook(
         await _handle_charge_refunded(db, data_object)
     elif event_type == "transfer.created":
         await _handle_transfer_created(db, data_object)
+    elif event_type.startswith("customer.subscription."):
+        await _handle_subscription_event(db, data_object, event_type)
     else:
         logger.info("Unhandled Stripe event type: %s", event_type)
 
@@ -167,3 +170,27 @@ async def _handle_transfer_created(db: AsyncSession, data: dict) -> None:
         amount,
         destination,
     )
+
+
+async def _handle_subscription_event(db: AsyncSession, data: dict, event_type: str) -> None:
+    """Sync local subscription state from Stripe subscription webhooks."""
+    stripe_subscription_id = data.get("id")
+    if not stripe_subscription_id:
+        logger.warning("Subscription webhook missing subscription id for event %s", event_type)
+        return
+
+    try:
+        await subscription_service.sync_subscription(db, stripe_subscription_id)
+        logger.info(
+            "Subscription webhook synced",
+            extra={"event_type": event_type, "stripe_subscription_id": stripe_subscription_id},
+        )
+    except HTTPException as exc:
+        # Keep webhook processing resilient when local records are not present yet.
+        if exc.status_code == 404:
+            logger.warning(
+                "Subscription webhook received for unknown local subscription",
+                extra={"event_type": event_type, "stripe_subscription_id": stripe_subscription_id},
+            )
+            return
+        raise

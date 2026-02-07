@@ -1,5 +1,73 @@
 # Backend Development Documentation
 
+## Critical Gap Remediation (Debugger Pass)
+
+Date: 2026-02-07
+
+### Issues Re-validated
+
+- Rate limiting middleware existed in code but needed explicit app wiring confirmation.
+- Stripe subscription billing needed implementation-level verification and route integration.
+- Payment service still had risky mock fallback behavior in production-critical flows.
+- Audit log model existed but sensitive auth flow coverage and admin read path needed completion.
+
+### Fixes Applied
+
+1. Rate limiting is now enforced globally in app wiring:
+- `backend/app/main.py` applies `RateLimitMiddleware` with explicit auth and write-operation rules.
+- Regression test added:
+  - `backend/tests/test_main_rate_limit_middleware.py`
+
+2. Stripe subscription billing is implemented and exposed:
+- Implemented service methods in:
+  - `backend/app/services/subscription/stripe.py`
+  - `start_subscription`, `cancel_subscription`, `sync_subscription`, `list_user_subscriptions`
+- Added API routes:
+  - `backend/app/api/routes/subscriptions.py`
+- Wired router in:
+  - `backend/app/main.py`
+- Added webhook sync support for subscription lifecycle events in:
+  - `backend/app/api/routes/webhooks.py` (`customer.subscription.*`)
+- Regression tests added:
+  - `backend/tests/test_subscription_service.py`
+
+3. Production mock-payment safety guard:
+- Updated `backend/app/services/payment_service.py`:
+  - `create_payment_intent` now raises `ConfigurationError` in production if `STRIPE_SECRET_KEY` is missing (no silent mock fallback).
+  - `release_payment` and refund path also fail fast in production when Stripe is required but not configured.
+- Regression tests added:
+  - `backend/tests/test_payment_service.py`
+  - New cases verify production rejects missing Stripe configuration.
+
+4. Audit logging persistence:
+- Added audit writes for password reset in:
+  - `backend/app/services/auth_service.py`
+- Replaced placeholder admin audit endpoint with persisted DB query from:
+  - `backend/app/models/audit_log.py`
+  - endpoint: `GET /admin/audit-logs` in `backend/app/api/routes/admin.py`
+- Added pagination/filter support (`action`, `status`, `actor_user_id`, `target_user_id`) and `total` count.
+- Regression tests added:
+  - `backend/tests/test_audit_logging.py`
+
+5. Schema migration alignment:
+- Added migration:
+  - `backend/alembic/versions/5b0f4b7f6c2d_add_audit_logs_and_stripe_customer_id.py`
+- Includes:
+  - `users.stripe_customer_id` (+ unique index)
+  - `audit_logs` table (+ indexes/FKs)
+
+### Verification Steps
+
+1. Run backend unit tests:
+- `cd backend`
+- `../.venv/bin/python -m unittest discover -s tests -p 'test_*.py'`
+
+2. Specifically verify new high-risk coverage:
+- `test_main_rate_limit_middleware.py`
+- `test_subscription_service.py`
+- `test_audit_logging.py`
+- `test_payment_service.py` (production Stripe configuration guards)
+
 ## Payment Release Fix: Stripe Destination ID (Phase 1)
 
 Date: 2026-02-07

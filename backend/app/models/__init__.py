@@ -2,6 +2,7 @@
 
 # Core domain models
 from app.models.availability import Availability  # noqa: F401
+from app.models.audit_log import AuditLog  # noqa: F401
 from app.models.chat import ChatGroup, ChatMessage  # noqa: F401
 from app.models.document import Document  # noqa: F401
 from app.models.event import Event, EventService  # noqa: F401

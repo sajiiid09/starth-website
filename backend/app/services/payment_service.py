@@ -19,11 +19,20 @@ from app.core.config import settings
 from app.models.event import Event, EventService
 from app.models.payment import Payment
 from app.models.service_provider import ServiceProvider
+from app.utils.exceptions import ConfigurationError
 
 logger = logging.getLogger(__name__)
 
 # Configure Stripe
 stripe.api_key = settings.STRIPE_SECRET_KEY
+
+
+def _ensure_stripe_configured_for_production(action: str) -> None:
+    """Fail fast in production when Stripe is required but not configured."""
+    if settings.STRIPE_SECRET_KEY:
+        return
+    if settings.ENVIRONMENT.lower() == "production":
+        raise ConfigurationError(f"Stripe secret key is required to {action} in production")
 
 
 async def create_payment_intent(
@@ -40,6 +49,7 @@ async def create_payment_intent(
     amount_cents = int(amount * 100)
 
     if not settings.STRIPE_SECRET_KEY:
+        _ensure_stripe_configured_for_production("create payment intents")
         logger.warning("Stripe not configured — creating mock payment")
         return await _create_mock_payment(db, event_id, payer_id, amount)
 
@@ -114,6 +124,7 @@ async def release_payment(
 
     Transfers 90% of the agreed price to the provider's connected account.
     """
+    _ensure_stripe_configured_for_production("release provider payouts")
     idempotency_key = f"release_payment:{event_service_id}"
 
     try:
@@ -221,6 +232,8 @@ async def release_payment(
     except stripe.StripeError as e:
         logger.error("Stripe transfer failed: %s", e)
         return {"success": False, "error": f"Payment transfer failed: {str(e)}"}
+    except ConfigurationError:
+        raise
     except Exception as e:
         logger.exception("Unexpected error during payment release")
         return {"success": False, "error": f"Payment release failed: {str(e)}"}
@@ -261,6 +274,7 @@ async def process_cancellation(
     platform_fee = 0.0
 
     if original_payment:
+        _ensure_stripe_configured_for_production("process payment refunds")
         total_paid = float(original_payment.amount)
         platform_fee = round(total_paid * settings.STRIPE_PLATFORM_COMMISSION, 2)
         refund_amount = round(total_paid - platform_fee, 2)

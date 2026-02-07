@@ -32,6 +32,11 @@ class ConflictError(HTTPException):
         super().__init__(status_code=status.HTTP_409_CONFLICT, detail=detail)
 
 
+class ConfigurationError(HTTPException):
+    def __init__(self, detail: str = "Service is not configured correctly") -> None:
+        super().__init__(status_code=status.HTTP_503_SERVICE_UNAVAILABLE, detail=detail)
+
+
 class NotImplementedError(HTTPException):
     """For stub endpoints that aren't built yet."""
 

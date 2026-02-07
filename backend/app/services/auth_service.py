@@ -26,6 +26,7 @@ from app.schemas.auth import (
     VerifyEmailRequest,
     VerifyEmailResponse,
 )
+from app.services.audit_service import log_audit_event
 from app.services.email_service import send_otp_email, send_password_reset_email
 from app.utils.exceptions import BadRequestError, ConflictError, UnauthorizedError
 
@@ -234,4 +235,13 @@ async def reset_password(
     user.otp_code = None
     user.otp_expiry = None
     await db.flush()
+    await log_audit_event(
+        db,
+        action="password_reset",
+        actor_user_id=user.id,
+        target_user_id=user.id,
+        resource_type="user",
+        resource_id=user.id,
+        details={"email": user.email},
+    )
     logger.info("Password reset completed", extra={"email": user.email})

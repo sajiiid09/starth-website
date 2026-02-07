@@ -21,6 +21,7 @@ class ServiceProvider(Base, UUIDPrimaryKeyMixin, TimestampMixin):
     service_area: Mapped[list[str]] = mapped_column(ARRAY(Text), default=list, server_default="'{}'")
     pricing_structure: Mapped[dict | None] = mapped_column(JSONB)
     photos: Mapped[list[str]] = mapped_column(ARRAY(Text), nullable=False, server_default="'{}'", default=list)
+    stripe_account_id: Mapped[str | None] = mapped_column(String(255), index=True)
     status: Mapped[str] = mapped_column(
         String(50), default="pending", server_default="pending", index=True
     )

@@ -18,6 +18,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.config import settings
 from app.models.event import Event, EventService
 from app.models.payment import Payment
+from app.models.service_provider import ServiceProvider
 
 logger = logging.getLogger(__name__)
 
@@ -123,23 +124,34 @@ async def release_payment(
     if es.status != "completed":
         return {"success": False, "error": "Service must be completed before payment release"}
 
+    if not es.service_provider_id:
+        return {"success": False, "error": "No service provider assigned to this event service"}
+
+    provider_result = await db.execute(
+        select(ServiceProvider).where(ServiceProvider.id == es.service_provider_id)
+    )
+    provider = provider_result.scalar_one_or_none()
+    if provider is None:
+        return {"success": False, "error": "Service provider not found"}
+
     agreed_price = float(es.agreed_price)
     commission = round(agreed_price * settings.STRIPE_PLATFORM_COMMISSION, 2)
     payout_amount = round(agreed_price - commission, 2)
     payout_cents = int(payout_amount * 100)
 
     transfer_id = None
-    if settings.STRIPE_SECRET_KEY and es.service_provider_id:
+    if settings.STRIPE_SECRET_KEY:
+        if not provider.stripe_account_id:
+            return {
+                "success": False,
+                "error": "Provider onboarding required: missing Stripe account ID",
+                "onboarding_required": True,
+            }
         try:
-            # TODO: Replace with actual Stripe connected account ID from
-            # the ServiceProvider model once onboarding is implemented.
-            # Using the internal UUID here will fail in production — Stripe
-            # requires an account ID like "acct_xxx".
-            provider_stripe_account = str(es.service_provider_id)
             transfer = stripe.Transfer.create(
                 amount=payout_cents,
                 currency="usd",
-                destination=provider_stripe_account,
+                destination=provider.stripe_account_id,
                 metadata={
                     "event_service_id": str(event_service_id),
                     "event_id": str(es.event_id),
@@ -153,7 +165,7 @@ async def release_payment(
     # Record the payout payment
     payment = Payment(
         event_id=es.event_id,
-        payee_id=es.service_provider_id,
+        payee_id=provider.user_id,
         amount=agreed_price,
         platform_commission=commission,
         net_amount=payout_amount,
